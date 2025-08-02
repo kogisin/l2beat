@@ -1,4 +1,488 @@
-Generated with discovered.json: 0x32476cb814e98bed5d0eb2943651b556ed8fbf9c
+Generated with discovered.json: 0xf371463e97b0b1e69b5eb38e3d2f7542f22b89b4
+
+# Diff at Mon, 14 Jul 2025 12:44:50 GMT:
+
+- author: Mateusz Radomski (<radomski.main@protonmail.com>)
+- comparing to: main@9f4300dad2f3d080cd56fa311d4a848556c74e72 block: 21981345
+- current block number: 21981345
+
+## Description
+
+Discovery rerun on the same block number with only config-related changes.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 21981345 (main branch discovery), not current.
+
+```diff
+    contract StarkExchange (0x1390f521A79BaBE99b69B37154D63D431da27A07) {
+    +++ description: Central Validium contract. Receives (verified) state roots from the Operator, allows users to consume L2 -> L1 messages and send L1 -> L2 messages. Critical configuration values for the L2's logic are defined here by various governance roles.
+      address:
+-        "0x1390f521A79BaBE99b69B37154D63D431da27A07"
++        "eth:0x1390f521A79BaBE99b69B37154D63D431da27A07"
++++ description: Permissioned to upgrade the proxy implementations and access all `onlyGovernance` restricted functions in the various implementation contracts.
++++ severity: HIGH
+      values.$admin:
+-        "0x303775491494a08b07365938787274F742a81F63"
++        "eth:0x303775491494a08b07365938787274F742a81F63"
+      values.$implementation.0:
+-        "0xdF2f24751F7e84ccDCD39e7b49904FAB0Fb0f583"
++        "eth:0xdF2f24751F7e84ccDCD39e7b49904FAB0Fb0f583"
+      values.$implementation.1:
+-        "0xfbea22FeB369DB10C0d3a2aAa8F4939E76815f12"
++        "eth:0xfbea22FeB369DB10C0d3a2aAa8F4939E76815f12"
+      values.$implementation.2:
+-        "0x2Dbc18A3ac126abE1fF90A83Bbc3947ff7912Afb"
++        "eth:0x2Dbc18A3ac126abE1fF90A83Bbc3947ff7912Afb"
+      values.$implementation.3:
+-        "0x67e198743BC19fa4757720eDd0e769f8291e1F1D"
++        "eth:0x67e198743BC19fa4757720eDd0e769f8291e1F1D"
+      values.$implementation.4:
+-        "0x613ee54C54D5548627064B4D648942bF3648f376"
++        "eth:0x613ee54C54D5548627064B4D648942bF3648f376"
+      values.$implementation.5:
+-        "0xb2ED005D0278179001a49a9969BB22BA8e98f31F"
++        "eth:0xb2ED005D0278179001a49a9969BB22BA8e98f31F"
+      values.$implementation.6:
+-        "0xB5353268d8d4D711a92cb838F8fEDFC2A66E50Db"
++        "eth:0xB5353268d8d4D711a92cb838F8fEDFC2A66E50Db"
+      values.$pastUpgrades.0.2.0:
+-        "0xe6785C3AfF4292C9d7c6b039f649672C45CAfFee"
++        "eth:0xe6785C3AfF4292C9d7c6b039f649672C45CAfFee"
+      values.$pastUpgrades.0.2.1:
+-        "0xfbea22FeB369DB10C0d3a2aAa8F4939E76815f12"
++        "eth:0xfbea22FeB369DB10C0d3a2aAa8F4939E76815f12"
+      values.$pastUpgrades.0.2.2:
+-        "0x2Dbc18A3ac126abE1fF90A83Bbc3947ff7912Afb"
++        "eth:0x2Dbc18A3ac126abE1fF90A83Bbc3947ff7912Afb"
+      values.$pastUpgrades.0.2.3:
+-        "0x4b9b30e6E135d5e39345a03F381D9c704b2Af010"
++        "eth:0x4b9b30e6E135d5e39345a03F381D9c704b2Af010"
+      values.$pastUpgrades.0.2.4:
+-        "0x07228f73AA048f67893F4b966D1D09783EdD8764"
++        "eth:0x07228f73AA048f67893F4b966D1D09783EdD8764"
+      values.$pastUpgrades.0.2.5:
+-        "0xb2ED005D0278179001a49a9969BB22BA8e98f31F"
++        "eth:0xb2ED005D0278179001a49a9969BB22BA8e98f31F"
+      values.$pastUpgrades.0.2.6:
+-        "0xB5353268d8d4D711a92cb838F8fEDFC2A66E50Db"
++        "eth:0xB5353268d8d4D711a92cb838F8fEDFC2A66E50Db"
+      values.$pastUpgrades.1.2.0:
+-        "0xdF2f24751F7e84ccDCD39e7b49904FAB0Fb0f583"
++        "eth:0xdF2f24751F7e84ccDCD39e7b49904FAB0Fb0f583"
+      values.$pastUpgrades.1.2.1:
+-        "0xfbea22FeB369DB10C0d3a2aAa8F4939E76815f12"
++        "eth:0xfbea22FeB369DB10C0d3a2aAa8F4939E76815f12"
+      values.$pastUpgrades.1.2.2:
+-        "0x2Dbc18A3ac126abE1fF90A83Bbc3947ff7912Afb"
++        "eth:0x2Dbc18A3ac126abE1fF90A83Bbc3947ff7912Afb"
+      values.$pastUpgrades.1.2.3:
+-        "0x67e198743BC19fa4757720eDd0e769f8291e1F1D"
++        "eth:0x67e198743BC19fa4757720eDd0e769f8291e1F1D"
+      values.$pastUpgrades.1.2.4:
+-        "0x613ee54C54D5548627064B4D648942bF3648f376"
++        "eth:0x613ee54C54D5548627064B4D648942bF3648f376"
+      values.$pastUpgrades.1.2.5:
+-        "0xb2ED005D0278179001a49a9969BB22BA8e98f31F"
++        "eth:0xb2ED005D0278179001a49a9969BB22BA8e98f31F"
+      values.$pastUpgrades.1.2.6:
+-        "0xB5353268d8d4D711a92cb838F8fEDFC2A66E50Db"
++        "eth:0xB5353268d8d4D711a92cb838F8fEDFC2A66E50Db"
+      values.getRegisteredAvailabilityVerifiers.0:
+-        "0x4F8B2dd49D958b6ac3e5f4705Bf1a9aDA5Bc4446"
++        "eth:0x4F8B2dd49D958b6ac3e5f4705Bf1a9aDA5Bc4446"
+      values.getRegisteredVerifiers.0:
+-        "0x5339AB7557b3152b91A57D10B0Caf5da88Db5143"
++        "eth:0x5339AB7557b3152b91A57D10B0Caf5da88Db5143"
+      values.implementation:
+-        "0xdF2f24751F7e84ccDCD39e7b49904FAB0Fb0f583"
++        "eth:0xdF2f24751F7e84ccDCD39e7b49904FAB0Fb0f583"
+      values.operators.0:
+-        "0xc3a27F45015E2c36ce3cC78c662c5f259c26Cf25"
++        "eth:0xc3a27F45015E2c36ce3cC78c662c5f259c26Cf25"
+      values.orderRegistryAddress:
+-        "0x806d435a82B0381bD884540c2235147c13B97fe6"
++        "eth:0x806d435a82B0381bD884540c2235147c13B97fe6"
+      values.tokenAdmins.0:
+-        "0x4a5e124201c38bf7a618388A8185D3f5C8E9133f"
++        "eth:0x4a5e124201c38bf7a618388A8185D3f5C8E9133f"
+      implementationNames.0x1390f521A79BaBE99b69B37154D63D431da27A07:
+-        "Proxy"
+      implementationNames.0xdF2f24751F7e84ccDCD39e7b49904FAB0Fb0f583:
+-        "StarkExchange"
+      implementationNames.0xfbea22FeB369DB10C0d3a2aAa8F4939E76815f12:
+-        "AllVerifiers"
+      implementationNames.0x2Dbc18A3ac126abE1fF90A83Bbc3947ff7912Afb:
+-        "TokensAndRamping"
+      implementationNames.0x67e198743BC19fa4757720eDd0e769f8291e1F1D:
+-        "StarkExState"
+      implementationNames.0x613ee54C54D5548627064B4D648942bF3648f376:
+-        "ForcedActions"
+      implementationNames.0xb2ED005D0278179001a49a9969BB22BA8e98f31F:
+-        "OnchainVaults"
+      implementationNames.0xB5353268d8d4D711a92cb838F8fEDFC2A66E50Db:
+-        "ProxyUtils"
+      implementationNames.eth:0x1390f521A79BaBE99b69B37154D63D431da27A07:
++        "Proxy"
+      implementationNames.eth:0xdF2f24751F7e84ccDCD39e7b49904FAB0Fb0f583:
++        "StarkExchange"
+      implementationNames.eth:0xfbea22FeB369DB10C0d3a2aAa8F4939E76815f12:
++        "AllVerifiers"
+      implementationNames.eth:0x2Dbc18A3ac126abE1fF90A83Bbc3947ff7912Afb:
++        "TokensAndRamping"
+      implementationNames.eth:0x67e198743BC19fa4757720eDd0e769f8291e1F1D:
++        "StarkExState"
+      implementationNames.eth:0x613ee54C54D5548627064B4D648942bF3648f376:
++        "ForcedActions"
+      implementationNames.eth:0xb2ED005D0278179001a49a9969BB22BA8e98f31F:
++        "OnchainVaults"
+      implementationNames.eth:0xB5353268d8d4D711a92cb838F8fEDFC2A66E50Db:
++        "ProxyUtils"
+    }
+```
+
+```diff
+    EOA  (0x303775491494a08b07365938787274F742a81F63) {
+    +++ description: None
+      address:
+-        "0x303775491494a08b07365938787274F742a81F63"
++        "eth:0x303775491494a08b07365938787274F742a81F63"
+    }
+```
+
+```diff
+    EOA  (0x4a5e124201c38bf7a618388A8185D3f5C8E9133f) {
+    +++ description: None
+      address:
+-        "0x4a5e124201c38bf7a618388A8185D3f5C8E9133f"
++        "eth:0x4a5e124201c38bf7a618388A8185D3f5C8E9133f"
+    }
+```
+
+```diff
+    contract DACommittee (0x4F8B2dd49D958b6ac3e5f4705Bf1a9aDA5Bc4446) {
+    +++ description: Data Availability Committee (DAC) contract verifying and storing data availability claims from DAC Members (via a multisignature check). The threshold of valid signatures is 2.
+      address:
+-        "0x4F8B2dd49D958b6ac3e5f4705Bf1a9aDA5Bc4446"
++        "eth:0x4F8B2dd49D958b6ac3e5f4705Bf1a9aDA5Bc4446"
++++ description: Includes DAC members and threshold.
+      values.constructorArgs.0.3:
+-        "0xFE4913D959064ee0b026ba0cE3Faccc1c5834a00"
++        "eth:0xFE4913D959064ee0b026ba0cE3Faccc1c5834a00"
++++ description: Includes DAC members and threshold.
+      values.constructorArgs.0.2:
+-        "0xfceC0b967e4390Eb7Cd4f2318c247eD193fE78E9"
++        "eth:0xfceC0b967e4390Eb7Cd4f2318c247eD193fE78E9"
++++ description: Includes DAC members and threshold.
+      values.constructorArgs.0.1:
+-        "0xC37a598468A59D5d6DCeb889847B5824aD61697e"
++        "eth:0xC37a598468A59D5d6DCeb889847B5824aD61697e"
++++ description: Includes DAC members and threshold.
+      values.constructorArgs.0.0:
+-        "0x502FffBcdcaA61f19deFBb9b60e799F74FB48Bc1"
++        "eth:0x502FffBcdcaA61f19deFBb9b60e799F74FB48Bc1"
+      implementationNames.0x4F8B2dd49D958b6ac3e5f4705Bf1a9aDA5Bc4446:
+-        "FinalizableCommittee"
+      implementationNames.eth:0x4F8B2dd49D958b6ac3e5f4705Bf1a9aDA5Bc4446:
++        "FinalizableCommittee"
+    }
+```
+
+```diff
+    EOA  (0x502FffBcdcaA61f19deFBb9b60e799F74FB48Bc1) {
+    +++ description: None
+      address:
+-        "0x502FffBcdcaA61f19deFBb9b60e799F74FB48Bc1"
++        "eth:0x502FffBcdcaA61f19deFBb9b60e799F74FB48Bc1"
+    }
+```
+
+```diff
+    contract GpsFactRegistryAdapter (0x5339AB7557b3152b91A57D10B0Caf5da88Db5143) {
+    +++ description: Adapter between the core contract and the eth:0x47312450B3Ac8b5b8e247a6bB6d523e7605bDb60. Stores the Cairo programHash (`16830627573509542901909952446321116535677491650708854009406762893086223513`).
+      address:
+-        "0x5339AB7557b3152b91A57D10B0Caf5da88Db5143"
++        "eth:0x5339AB7557b3152b91A57D10B0Caf5da88Db5143"
+      description:
+-        "Adapter between the core contract and the 0x47312450B3Ac8b5b8e247a6bB6d523e7605bDb60. Stores the Cairo programHash (`16830627573509542901909952446321116535677491650708854009406762893086223513`)."
++        "Adapter between the core contract and the eth:0x47312450B3Ac8b5b8e247a6bB6d523e7605bDb60. Stores the Cairo programHash (`16830627573509542901909952446321116535677491650708854009406762893086223513`)."
+      values.gpsContract:
+-        "0x47312450B3Ac8b5b8e247a6bB6d523e7605bDb60"
++        "eth:0x47312450B3Ac8b5b8e247a6bB6d523e7605bDb60"
+      implementationNames.0x5339AB7557b3152b91A57D10B0Caf5da88Db5143:
+-        "GpsFactRegistryAdapter"
+      implementationNames.eth:0x5339AB7557b3152b91A57D10B0Caf5da88Db5143:
++        "GpsFactRegistryAdapter"
+    }
+```
+
+```diff
+    contract OrderRegistry (0x806d435a82B0381bD884540c2235147c13B97fe6) {
+    +++ description: Helper contract for registering limit orders from L1.
+      address:
+-        "0x806d435a82B0381bD884540c2235147c13B97fe6"
++        "eth:0x806d435a82B0381bD884540c2235147c13B97fe6"
+      implementationNames.0x806d435a82B0381bD884540c2235147c13B97fe6:
+-        "OrderRegistry"
+      implementationNames.eth:0x806d435a82B0381bD884540c2235147c13B97fe6:
++        "OrderRegistry"
+    }
+```
+
+```diff
+    EOA  (0xC37a598468A59D5d6DCeb889847B5824aD61697e) {
+    +++ description: None
+      address:
+-        "0xC37a598468A59D5d6DCeb889847B5824aD61697e"
++        "eth:0xC37a598468A59D5d6DCeb889847B5824aD61697e"
+    }
+```
+
+```diff
+    EOA  (0xc3a27F45015E2c36ce3cC78c662c5f259c26Cf25) {
+    +++ description: None
+      address:
+-        "0xc3a27F45015E2c36ce3cC78c662c5f259c26Cf25"
++        "eth:0xc3a27F45015E2c36ce3cC78c662c5f259c26Cf25"
+    }
+```
+
+```diff
+    EOA  (0xfceC0b967e4390Eb7Cd4f2318c247eD193fE78E9) {
+    +++ description: None
+      address:
+-        "0xfceC0b967e4390Eb7Cd4f2318c247eD193fE78E9"
++        "eth:0xfceC0b967e4390Eb7Cd4f2318c247eD193fE78E9"
+    }
+```
+
+```diff
+    EOA  (0xFE4913D959064ee0b026ba0cE3Faccc1c5834a00) {
+    +++ description: None
+      address:
+-        "0xFE4913D959064ee0b026ba0cE3Faccc1c5834a00"
++        "eth:0xFE4913D959064ee0b026ba0cE3Faccc1c5834a00"
+    }
+```
+
+```diff
++   Status: CREATED
+    contract StarkExchange (0x1390f521A79BaBE99b69B37154D63D431da27A07)
+    +++ description: Central Validium contract. Receives (verified) state roots from the Operator, allows users to consume L2 -> L1 messages and send L1 -> L2 messages. Critical configuration values for the L2's logic are defined here by various governance roles.
+```
+
+```diff
++   Status: CREATED
+    contract DACommittee (0x4F8B2dd49D958b6ac3e5f4705Bf1a9aDA5Bc4446)
+    +++ description: Data Availability Committee (DAC) contract verifying and storing data availability claims from DAC Members (via a multisignature check). The threshold of valid signatures is 2.
+```
+
+```diff
++   Status: CREATED
+    contract GpsFactRegistryAdapter (0x5339AB7557b3152b91A57D10B0Caf5da88Db5143)
+    +++ description: Adapter between the core contract and the eth:0x47312450B3Ac8b5b8e247a6bB6d523e7605bDb60. Stores the Cairo programHash (`16830627573509542901909952446321116535677491650708854009406762893086223513`).
+```
+
+```diff
++   Status: CREATED
+    contract OrderRegistry (0x806d435a82B0381bD884540c2235147c13B97fe6)
+    +++ description: Helper contract for registering limit orders from L1.
+```
+
+Generated with discovered.json: 0x29ec00e42077d946f5815e0af06d2445e73e927c
+
+# Diff at Fri, 04 Jul 2025 12:18:55 GMT:
+
+- author: Mateusz Radomski (<radomski.main@protonmail.com>)
+- comparing to: main@1f56dc47fe915564d4555300304da4d3bcbc087f block: 21981345
+- current block number: 21981345
+
+## Description
+
+Discovery rerun on the same block number with only config-related changes.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 21981345 (main branch discovery), not current.
+
+```diff
+    EOA  (0x303775491494a08b07365938787274F742a81F63) {
+    +++ description: None
+      receivedPermissions.0.from:
+-        "ethereum:0x1390f521A79BaBE99b69B37154D63D431da27A07"
++        "eth:0x1390f521A79BaBE99b69B37154D63D431da27A07"
+      receivedPermissions.1.from:
+-        "ethereum:0x1390f521A79BaBE99b69B37154D63D431da27A07"
++        "eth:0x1390f521A79BaBE99b69B37154D63D431da27A07"
+      receivedPermissions.2.from:
+-        "ethereum:0x1390f521A79BaBE99b69B37154D63D431da27A07"
++        "eth:0x1390f521A79BaBE99b69B37154D63D431da27A07"
+    }
+```
+
+```diff
+    EOA  (0x4a5e124201c38bf7a618388A8185D3f5C8E9133f) {
+    +++ description: None
+      receivedPermissions.0.from:
+-        "ethereum:0x1390f521A79BaBE99b69B37154D63D431da27A07"
++        "eth:0x1390f521A79BaBE99b69B37154D63D431da27A07"
+    }
+```
+
+```diff
+    EOA  (0xc3a27F45015E2c36ce3cC78c662c5f259c26Cf25) {
+    +++ description: None
+      receivedPermissions.0.from:
+-        "ethereum:0x1390f521A79BaBE99b69B37154D63D431da27A07"
++        "eth:0x1390f521A79BaBE99b69B37154D63D431da27A07"
+    }
+```
+
+Generated with discovered.json: 0x5b8deecdd08e5a8efa3f3af36b835f9bf8a8c0c0
+
+# Diff at Tue, 27 May 2025 08:26:34 GMT:
+
+- author: Michał Podsiadły (<michal.podsiadly@l2beat.com>)
+- comparing to: main@fd658a9ed4bbd45fc5705d23b1906ca057d0d8b0 block: 21981345
+- current block number: 21981345
+
+## Description
+
+Discovery rerun on the same block number with only config-related changes.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 21981345 (main branch discovery), not current.
+
+```diff
+    contract StarkExchange (0x1390f521A79BaBE99b69B37154D63D431da27A07) {
+    +++ description: Central Validium contract. Receives (verified) state roots from the Operator, allows users to consume L2 -> L1 messages and send L1 -> L2 messages. Critical configuration values for the L2's logic are defined here by various governance roles.
+      sourceHashes.7:
+-        "0xadae235d029868dddc287e823167705942660a99a9154a4e487f5dfb4ddd01c9"
+      sourceHashes.6:
+-        "0x2c95972415c771f5ef6d71449bae168597b6c35245fbe8769425e5c9c753e918"
+      sourceHashes.5:
+-        "0x0e101cfdb791ca1a86402273377c7da5e67225cf5799ac2f51d9a940227ee6be"
+      sourceHashes.4:
+-        "0x7d557870276c694154e12790f8c0c09930c8c75320f470c47b67968bffd536a6"
+      sourceHashes.3:
+-        "0xd5b06286e3bf5dccd0bb360c8cc876aec0a2ce288120d9f83dec45fa47c1aabc"
+      sourceHashes.2:
+-        "0x2a703c051ff2524868f044282fc50b01913736a92f794b64b31bd31363cd3fca"
+      sourceHashes.1:
+-        "0x75d386d73767f57d5f11c11f7bf837a48cd417754eea559931fc98a96ef34152"
++        "0x2c95972415c771f5ef6d71449bae168597b6c35245fbe8769425e5c9c753e918"
+      sourceHashes.0:
+-        "0x70e4767336d4a44ecedb78b7cef6dc2810f5d8bc87a46c360083e65af451cb97"
++        "0xfb3c0545e8c9aeebaa6547f71087a1ad7d93e3344e0dfdb1051e1a18fd44a18b"
+    }
+```
+
+Generated with discovered.json: 0xde89159d184078e4cd96eb6468df172772f199b0
+
+# Diff at Fri, 23 May 2025 09:40:54 GMT:
+
+- author: Adrian Adamiak (<adrian@adamiak.net>)
+- comparing to: main@69cd181abbc3c830a6caf2f4429b37cae72ffdb8 block: 21981345
+- current block number: 21981345
+
+## Description
+
+Introduced .role field on each permission, defaulting to field name on which it was defined (with '.' prefix)
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 21981345 (main branch discovery), not current.
+
+```diff
+    EOA  (0x303775491494a08b07365938787274F742a81F63) {
+    +++ description: None
+      receivedPermissions.2.role:
++        ".$admin"
+      receivedPermissions.1.role:
++        ".$admin"
+      receivedPermissions.0.role:
++        ".$admin"
+    }
+```
+
+```diff
+    EOA  (0x4a5e124201c38bf7a618388A8185D3f5C8E9133f) {
+    +++ description: None
+      receivedPermissions.0.role:
++        ".tokenAdmins"
+    }
+```
+
+```diff
+    EOA  (0xc3a27F45015E2c36ce3cC78c662c5f259c26Cf25) {
+    +++ description: None
+      receivedPermissions.0.role:
++        ".operators"
+    }
+```
+
+Generated with discovered.json: 0x1b5e1ceb1958024005e9cee6b4b9167ee6fbcd38
+
+# Diff at Tue, 06 May 2025 10:56:47 GMT:
+
+- author: Adrian Adamiak (<adrian@adamiak.net>)
+- comparing to: main@3a394513711f46aa66871603365b6afb40a79057 block: 21981345
+- current block number: 21981345
+
+## Description
+
+Marking EOAs if they control the highest number of upgrade permissions in the project.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 21981345 (main branch discovery), not current.
+
+```diff
+    EOA  (0x303775491494a08b07365938787274F742a81F63) {
+    +++ description: None
+      controlsMajorityOfUpgradePermissions:
++        true
+    }
+```
+
+Generated with discovered.json: 0x78137e4de2c7ac4cb96bcaa49e70d4cc7b46e729
+
+# Diff at Tue, 29 Apr 2025 08:19:00 GMT:
+
+- author: Adrian Adamiak (<adrian@adamiak.net>)
+- comparing to: main@ef7477af00fe0b57a2f7cacf7e958c12494af662 block: 21981345
+- current block number: 21981345
+
+## Description
+
+Field .issuedPermissions is removed from the output as no longer needed. Added 'permissionsConfigHash' due to refactoring of the modelling process (into a separate command).
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 21981345 (main branch discovery), not current.
+
+```diff
+    contract StarkExchange (0x1390f521A79BaBE99b69B37154D63D431da27A07) {
+    +++ description: Central Validium contract. Receives (verified) state roots from the Operator, allows users to consume L2 -> L1 messages and send L1 -> L2 messages. Critical configuration values for the L2's logic are defined here by various governance roles.
+      issuedPermissions:
+-        [{"permission":"governStarknet","to":"0x303775491494a08b07365938787274F742a81F63","via":[]},{"permission":"interact","to":"0x303775491494a08b07365938787274F742a81F63","description":"manage the token admin role.","via":[]},{"permission":"interact","to":"0x4a5e124201c38bf7a618388A8185D3f5C8E9133f","description":"Can register new tokens for deposits and withdrawals.","via":[]},{"permission":"operateStarkEx","to":"0xc3a27F45015E2c36ce3cC78c662c5f259c26Cf25","via":[]},{"permission":"upgrade","to":"0x303775491494a08b07365938787274F742a81F63","via":[]}]
+    }
+```
+
+Generated with discovered.json: 0xa34ed00432a98fcbab2c51599710a975bd27e82a
 
 # Diff at Thu, 27 Mar 2025 11:14:04 GMT:
 
@@ -146,7 +630,7 @@ discovery. Values are for block 19825361 (main branch discovery), not current.
       issuedPermissions.3:
 +        {"permission":"operateStarknet","to":"0xc3a27F45015E2c36ce3cC78c662c5f259c26Cf25","via":[]}
       issuedPermissions.2:
-+        {"permission":"interact","to":"0x4a5e124201c38bf7a618388A8185D3f5C8E9133f","description":"Can regsiter new tokens for deposits and withdrawals.","via":[]}
++        {"permission":"interact","to":"0x4a5e124201c38bf7a618388A8185D3f5C8E9133f","description":"Can register new tokens for deposits and withdrawals.","via":[]}
       issuedPermissions.1:
 +        {"permission":"interact","to":"0x303775491494a08b07365938787274F742a81F63","description":"manage the token admin role.","via":[]}
       issuedPermissions.0.permission:

@@ -3,10 +3,9 @@ import { REASON_FOR_BEING_OTHER } from '../../common'
 import { BADGES } from '../../common/badges'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
-import { CELESTIA_DA_PROVIDER } from '../../templates/opStack'
-import { opStackL3 } from '../../templates/opStack'
+import { CELESTIA_DA_PROVIDER, opStackL3 } from '../../templates/opStack'
 
-const discovery = new ProjectDiscovery('b3', 'base')
+const discovery = new ProjectDiscovery('b3')
 
 export const b3: ScalingProject = opStackL3({
   addedAt: UnixTime(1722376845),
@@ -16,6 +15,7 @@ export const b3: ScalingProject = opStackL3({
     BADGES.L3ParentChain.Base,
   ],
   daProvider: CELESTIA_DA_PROVIDER,
+  hostChain: 'base',
   discovery,
   additionalPurposes: ['Gaming'],
   reasonsForBeingOther: [
@@ -30,7 +30,7 @@ export const b3: ScalingProject = opStackL3({
       'B3 is an L3 built on Base to bring gamers and game creators onchain, powered by the OP Stack and Celestia DA.',
     links: {
       websites: ['https://b3.fun/'],
-      apps: ['https://bridge.b3.fun/'],
+      bridges: ['https://bridge.b3.fun/'],
       documentation: ['https://docs.b3.fun/'],
       explorers: ['https://explorer.b3.fun/'],
       repositories: [],

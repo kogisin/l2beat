@@ -1,24 +1,28 @@
-import { EthereumAddress, UnixTime, formatSeconds } from '@l2beat/shared-pure'
+import {
+  ChainSpecificAddress,
+  EthereumAddress,
+  formatSeconds,
+  UnixTime,
+} from '@l2beat/shared-pure'
 import {
   CONTRACTS,
+  ESCROW,
   OPTIMISTIC_ROLLUP_STATE_UPDATES_WARNING,
   RISK_VIEW,
   SOA,
   UPGRADE_MECHANISM,
 } from '../../common'
-import { ESCROW } from '../../common'
 import { BADGES } from '../../common/badges'
 import { getStage } from '../../common/stages/getStage'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
 import {
-  WASMVM_OTHER_CONSIDERATIONS,
   getNitroGovernance,
   orbitStackL2,
+  WASMVM_OTHER_CONSIDERATIONS,
 } from '../../templates/orbitStack'
 
 const discovery = new ProjectDiscovery('arbitrum')
-const l2Discovery = new ProjectDiscovery('arbitrum', 'arbitrum')
 
 const assumedBlockTime = 12 // seconds, different from RollupUserLogic.sol#L35 which assumes 13.2 seconds
 
@@ -31,7 +35,7 @@ const l1TimelockDelay = discovery.getContractValue<number>(
   'L1Timelock',
   'getMinDelay',
 )
-const l2TimelockDelay = l2Discovery.getContractValue<number>(
+const l2TimelockDelay = discovery.getContractValue<number>(
   'L2Timelock',
   'getMinDelay',
 ) // 3 days
@@ -58,18 +62,18 @@ const upgradeExecutorUpgradeability = {
 // }
 
 const l2CoreQuorumPercent =
-  (l2Discovery.getContractValue<number>('CoreGovernor', 'quorumNumerator') /
-    l2Discovery.getContractValue<number>('CoreGovernor', 'quorumDenominator')) *
+  (discovery.getContractValue<number>('CoreGovernor', 'quorumNumerator') /
+    discovery.getContractValue<number>('CoreGovernor', 'quorumDenominator')) *
   100
 const l2TreasuryQuorumPercent =
-  (l2Discovery.getContractValue<number>('TreasuryGovernor', 'quorumNumerator') /
-    l2Discovery.getContractValue<number>(
+  (discovery.getContractValue<number>('TreasuryGovernor', 'quorumNumerator') /
+    discovery.getContractValue<number>(
       'TreasuryGovernor',
       'quorumDenominator',
     )) *
   100
 
-const treasuryTimelockDelay = l2Discovery.getContractValue<number>(
+const treasuryTimelockDelay = discovery.getContractValue<number>(
   'TreasuryTimelock',
   'getMinDelay',
 )
@@ -82,6 +86,8 @@ const maxTimeVariation = discovery.getContractValue<{
 }>('SequencerInbox', 'maxTimeVariation')
 
 const selfSequencingDelay = maxTimeVariation.delaySeconds
+
+const chainId = 42161
 
 export const arbitrum: ScalingProject = orbitStackL2({
   addedAt: UnixTime(1623153328), // 2021-06-08T11:55:28Z
@@ -96,16 +102,21 @@ export const arbitrum: ScalingProject = orbitStackL2({
   bridge: discovery.getContract('Bridge'),
   rollupProxy: discovery.getContract('RollupProxy'),
   sequencerInbox: discovery.getContract('SequencerInbox'),
-  usesBlobs: true,
+  usesEthereumBlobs: true,
   display: {
     name: 'Arbitrum One',
     slug: 'arbitrum',
     warning: undefined,
     architectureImage: 'arbitrumwithbold',
-    description: `Arbitrum One is a general-purpose Optimistic Rollup built by Offchain Labs and governed by the Arbitrum DAO.`,
+    description:
+      'Arbitrum One is a general-purpose Optimistic Rollup built by Offchain Labs and governed by the Arbitrum DAO.',
     links: {
-      websites: ['https://arbitrum.io/', 'https://arbitrum.foundation/'],
-      apps: ['https://bridge.arbitrum.io'],
+      websites: [
+        'https://arbitrum.io/',
+        'https://arbitrum.foundation/',
+        'https://forum.arbitrum.foundation/',
+      ],
+      bridges: ['https://bridge.arbitrum.io'],
       documentation: [
         'https://docs.arbitrum.io',
         'https://docs.arbitrum.foundation/',
@@ -113,14 +124,13 @@ export const arbitrum: ScalingProject = orbitStackL2({
       explorers: [
         'https://arbiscan.io',
         'https://explorer.arbitrum.io/',
-        'https://arbitrum.l2scan.co/',
+        'https://arbitrum.blockscout.com/',
       ],
       repositories: [
         'https://github.com/ArbitrumFoundation/docs',
         'https://github.com/ArbitrumFoundation/governance',
-        'https://github.com/OffchainLabs/arbitrum',
         'https://github.com/OffchainLabs/nitro',
-        'https://github.com/OffchainLabs/arb-os',
+        'https://github.com/OffchainLabs/nitro-contracts',
       ],
       socialMedia: [
         'https://twitter.com/arbitrum',
@@ -141,19 +151,10 @@ export const arbitrum: ScalingProject = orbitStackL2({
         challengeWindow * assumedBlockTime,
       )} after it has been posted.`,
     },
-    finality: { finalizationPeriod: challengeWindowSeconds },
-  },
-  finality: {
-    type: 'Arbitrum',
-    // First blob tx from arbitrum
-    // https://etherscan.io/tx/0x5969e9d520e138e6eeb5c020a75635fd2fdc15803f707dce7909c1bf062b32d0
-    minTimestamp: UnixTime(1710427823),
-    lag: 0,
-    stateUpdate: 'disabled',
   },
   chainConfig: {
     name: 'arbitrum',
-    chainId: 42161,
+    chainId,
     explorerUrl: 'https://arbiscan.io',
     coingeckoPlatform: 'arbitrum-one',
     // ~ Timestamp of block number 0 on Arbitrum
@@ -178,7 +179,7 @@ export const arbitrum: ScalingProject = orbitStackL2({
         url: 'https://arb1.arbitrum.io/rpc',
         callsPerMinute: 1500,
       },
-      { type: 'etherscan', url: 'https://api.arbiscan.io/api' },
+      { type: 'etherscan', chainId },
       { type: 'blockscoutV2', url: 'https://arbitrum.blockscout.com/api/v2' },
     ],
   },
@@ -190,7 +191,6 @@ export const arbitrum: ScalingProject = orbitStackL2({
     treasuryTimelockDelay,
     l2TreasuryQuorumPercent,
   ),
-  additionalDiscoveries: { ['arbitrum']: l2Discovery },
   nonTemplateContractRisks: [
     CONTRACTS.UPGRADE_WITH_DELAY_RISK_WITH_EXCEPTION(
       formatSeconds(totalDelay),
@@ -200,17 +200,21 @@ export const arbitrum: ScalingProject = orbitStackL2({
   nonTemplateEscrows: [
     discovery.getEscrowDetails({
       // Custom ERC20 Gateway
-      address: EthereumAddress('0xcEe284F754E854890e311e3280b767F80797180d'),
+      address: ChainSpecificAddress(
+        'eth:0xcEe284F754E854890e311e3280b767F80797180d',
+      ),
       tokens: '*',
-      ...ESCROW.CANONICAL_EXTERNAL,
       excludedTokens: ['USDT'], // upgraded to USDT0 - tracked on L2
+      premintedTokens: ['SQD'],
       description:
         'Main entry point for users depositing ERC20 tokens that require minting custom tokens on L2.',
       ...upgradeExecutorUpgradeability,
     }),
     discovery.getEscrowDetails({
       // ERC20 Gateway
-      address: EthereumAddress('0xa3A7B6F88361F48403514059F1F16C8E78d60EeC'),
+      address: ChainSpecificAddress(
+        'eth:0xa3A7B6F88361F48403514059F1F16C8E78d60EeC',
+      ),
       tokens: '*',
       excludedTokens: ['SolvBTC', 'SolvBTC.BBN', 'PEPE', 'rsETH'],
       premintedTokens: ['LOGX', 'AIUS', 'YBR', 'FFM'],
@@ -219,14 +223,18 @@ export const arbitrum: ScalingProject = orbitStackL2({
       ...upgradeExecutorUpgradeability,
     }),
     discovery.getEscrowDetails({
-      address: EthereumAddress('0xA10c7CE4b876998858b1a9E12b10092229539400'),
-      tokens: ['DAI'],
+      address: ChainSpecificAddress(
+        'eth:0xA10c7CE4b876998858b1a9E12b10092229539400',
+      ),
+      tokens: ['DAI', 'USDS', 'sUSDS'],
       ...ESCROW.CANONICAL_EXTERNAL,
       description:
-        'DAI Vault for custom DAI Gateway. Fully controlled by MakerDAO governance.',
+        'Maker/Sky-controlled vault for DAI, USDS and sUSDS bridged with canonical messaging.',
     }),
     discovery.getEscrowDetails({
-      address: EthereumAddress('0x0F25c1DC2a9922304f2eac71DCa9B07E310e8E5a'),
+      address: ChainSpecificAddress(
+        'eth:0x0F25c1DC2a9922304f2eac71DCa9B07E310e8E5a',
+      ),
       tokens: ['wstETH'],
       ...ESCROW.CANONICAL_EXTERNAL,
       description:
@@ -234,7 +242,9 @@ export const arbitrum: ScalingProject = orbitStackL2({
     }),
     discovery.getEscrowDetails({
       // LPT L1 Escrow
-      address: EthereumAddress('0x6A23F4940BD5BA117Da261f98aae51A8BFfa210A'),
+      address: ChainSpecificAddress(
+        'eth:0x6A23F4940BD5BA117Da261f98aae51A8BFfa210A',
+      ),
       tokens: ['LPT'],
       ...ESCROW.CANONICAL_EXTERNAL,
       description: 'LPT Vault for custom Livepeer Token Gateway.',
@@ -277,11 +287,11 @@ export const arbitrum: ScalingProject = orbitStackL2({
         stateRootsPostedToL1: true,
         dataAvailabilityOnL1: true,
         rollupNodeSourceAvailable: true,
+        stateVerificationOnL1: true,
+        fraudProofSystemAtLeast5Outsiders: true,
       },
       stage1: {
         principle: true,
-        stateVerificationOnL1: true,
-        fraudProofSystemAtLeast5Outsiders: true,
         usersHave7DaysToExit: true,
         usersCanExitWithoutCooperation: true,
         securityCouncilProperlySetUp: true,
@@ -313,12 +323,19 @@ export const arbitrum: ScalingProject = orbitStackL2({
       ),
     ],
   },
-  stateValidation: {
-    isUnderReview: true,
-    description: '.',
-    categories: [],
-  },
   milestones: [
+    {
+      title: 'ArbOS 40, Callisto Upgrade',
+      url: 'https://www.tally.xyz/gov/arbitrum/proposal/13108804573775967668959825241666341617107666532012387058509418598838035461528?govId=eip155:42161:0xf07DeD9dC292157749B6Fd268E37DF6EA38395B9',
+      date: '2025-06-18T00:00:00Z',
+      type: 'general',
+    },
+    {
+      title: 'Timeboost transaction ordering policy introduced',
+      url: 'https://www.tally.xyz/gov/arbitrum/proposal/14881197137069494959448952699217598923721993392617887469969318742509097999570?govId=eip155:42161:0xf07DeD9dC292157749B6Fd268E37DF6EA38395B9',
+      date: '2025-04-29T00:00:00Z',
+      type: 'general',
+    },
     {
       title: 'BoLD, permissionless proof system, deployed',
       url: 'https://x.com/arbitrum/status/1889710151332245837',

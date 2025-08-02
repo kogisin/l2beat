@@ -1,6 +1,4 @@
-import { EthereumAddress, UnixTime } from '@l2beat/shared-pure'
-
-import { REASON_FOR_BEING_OTHER } from '../../common'
+import { ChainSpecificAddress, UnixTime } from '@l2beat/shared-pure'
 import { ESCROW } from '../../common'
 import { BADGES } from '../../common/badges'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
@@ -10,24 +8,18 @@ import { opStackL2 } from '../../templates/opStack'
 const discovery = new ProjectDiscovery('bob')
 
 export const bob: ScalingProject = opStackL2({
-  addedAt: UnixTime(1704267653), // 2024-01-03T07:40:53Z
+  addedAt: UnixTime(1714521600), // 2024-05-01T00:00:00Z
   discovery,
-  additionalBadges: [BADGES.RaaS.Conduit],
+  additionalBadges: [BADGES.RaaS.Conduit, BADGES.Stack.OPKailua],
   additionalPurposes: ['Bitcoin DApps'],
-  reasonsForBeingOther: [REASON_FOR_BEING_OTHER.NO_PROOFS],
   display: {
     name: 'BOB',
     slug: 'bob',
-    tvlWarning: {
-      value:
-        'The total TVS doublecounts underlying assets for solvBTC.BBN, solvBTC and uniBTC since they are locked on BOB. We are working on a fix.',
-      sentiment: 'warning',
-    },
     description:
       "BOB (Build on Bitcoin) is an OP Stack rollup that aims to natively support the Bitcoin stack. The current implementation supports a variety of canonical and external bridging for BTC-related assets and a tBTC-v2 LightRelay smart contract for verifying Bitcoin transaction proofs through their blocks' headers on the L2.",
     links: {
       websites: ['https://gobob.xyz'],
-      apps: ['https://app.gobob.xyz'],
+      bridges: ['https://app.gobob.xyz'],
       documentation: ['https://docs.gobob.xyz'],
       explorers: ['https://explorer.gobob.xyz?'],
       repositories: ['https://github.com/bob-collective'],
@@ -36,13 +28,10 @@ export const bob: ScalingProject = opStackL2({
   },
   nonTemplateEscrows: [
     discovery.getEscrowDetails({
-      address: EthereumAddress('0x091dF5E1284E49fA682407096aD34cfD42B95B72'),
+      address: ChainSpecificAddress(
+        'eth:0x091dF5E1284E49fA682407096aD34cfD42B95B72',
+      ),
       tokens: ['wstETH'],
-      ...ESCROW.CANONICAL_EXTERNAL,
-    }),
-    discovery.getEscrowDetails({
-      address: EthereumAddress('0x450D55a4B4136805B0e5A6BB59377c71FC4FaCBb'),
-      tokens: ['USDC'],
       ...ESCROW.CANONICAL_EXTERNAL,
     }),
   ],
@@ -51,8 +40,24 @@ export const bob: ScalingProject = opStackL2({
   isNodeAvailable: 'UnderReview',
   milestones: [
     {
+      title: 'Proof System Intervention',
+      url: 'https://app.blocksec.com/explorer/tx/eth/0xa065f636adfc7cdf08007ee81303028fa4daf291279a75a5ae1d3a975acce806?line=7',
+      date: '2025-07-17T00:00:00Z',
+      description:
+        'A state root proposal is manually resolved after changing the finalization config.',
+      type: 'incident',
+    },
+    {
+      title: 'OP Kailua Upgrade',
+      url: 'https://x.com/build_on_bob/status/1948369793796689925',
+      date: '2025-07-17T00:00:00Z',
+      description:
+        'BOB returns to the rollup section by using a hybrid zk fault proof system.',
+      type: 'general',
+    },
+    {
       title: 'Phase 1: Optimistic BOB',
-      url: 'https://docs.gobob.xyz/docs/learn/bob-stack/op-stack',
+      url: 'https://docs.gobob.xyz/docs/bob-chain/roadmap/#-phase-1-bootstrapping-as-an-ethereum-l2',
       date: '2024-05-01T00:00:00Z',
       description: 'BOB bootstrapping as an Optimistic Rollup on Ethereum.',
       type: 'general',

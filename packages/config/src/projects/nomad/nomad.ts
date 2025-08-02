@@ -1,14 +1,14 @@
 import {
   EthereumAddress,
+  formatSeconds,
   ProjectId,
   UnixTime,
-  formatSeconds,
 } from '@l2beat/shared-pure'
 
-import { CONTRACTS } from '../../common'
-import { BRIDGE_RISK_VIEW } from '../../common'
+import { BRIDGE_RISK_VIEW, CONTRACTS } from '../../common'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { Bridge } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('nomad')
 const challengeWindowSeconds = discovery.getContractValue<number>(
@@ -20,7 +20,7 @@ export const nomad: Bridge = {
   type: 'bridge',
   id: ProjectId('nomad'),
   addedAt: UnixTime(1662628329), // 2022-09-08T09:12:09Z
-  isArchived: true,
+  archivedAt: UnixTime(1677196800), // 2023-02-24T00:00:00.000Z,
   display: {
     name: 'Nomad',
     slug: 'nomad',
@@ -74,7 +74,7 @@ export const nomad: Bridge = {
         },
         {
           category: 'Funds can be stolen if',
-          text: `updater manages to relay a fraudulent message batch.`,
+          text: 'updater manages to relay a fraudulent message batch.',
           isCritical: false,
         },
         {
@@ -106,16 +106,11 @@ export const nomad: Bridge = {
       )} fraud proof window, but the slashing mechanism is not implemented yet.`,
       sentiment: 'bad',
     },
-    sourceUpgradeability: {
-      value: 'Yes',
-      description: 'Bridge can be upgraded by the Governor MultiSig.',
-      sentiment: 'bad',
-    },
     destinationToken: BRIDGE_RISK_VIEW.WRAPPED,
   },
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails('HomeBeaconProxy', {
           description:
             'Optics Home. This contract is used to send x-chain messages, such as deposit requests. Messages are regularly signed by the Updater.',
@@ -148,7 +143,7 @@ export const nomad: Bridge = {
     risks: [CONTRACTS.UPGRADE_NO_DELAY_RISK],
   },
   permissions: {
-    [discovery.chain]: {
+    ethereum: {
       actors: [
         discovery.getMultisigPermission(
           'Governor',
@@ -182,4 +177,5 @@ export const nomad: Bridge = {
       type: 'incident',
     },
   ],
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

@@ -1,18 +1,16 @@
 import type { Logger } from '@l2beat/backend-tools'
-import { HttpClient } from '@l2beat/shared'
-
 import { createDatabase } from '@l2beat/database'
+import { HttpClient } from '@l2beat/shared'
 import { ApiServer } from './api/ApiServer'
 import type { Config } from './config'
 import type { ApplicationModule } from './modules/ApplicationModule'
 import { initActivityModule } from './modules/activity/ActivityModule'
 import { createDaBeatModule } from './modules/da-beat/DaBeatModule'
 import { initDataAvailabilityModule } from './modules/data-availability/DataAvailabilityModule'
-import { createFinalityModule } from './modules/finality/FinalityModule'
 import { createFlatSourcesModule } from './modules/flat-sources/createFlatSourcesModule'
 import { createMetricsModule } from './modules/metrics/MetricsModule'
+import { createSharedModule } from './modules/shared/SharedModule'
 import { createTrackedTxsModule } from './modules/tracked-txs/TrackedTxsModule'
-import { initTvlModule } from './modules/tvl/modules/TvlModule'
 import { initTvsModule } from './modules/tvs/TvsModule'
 import { createUpdateMonitorModule } from './modules/update-monitor/UpdateMonitorModule'
 import { createVerifiersModule } from './modules/verifiers/VerifiersModule'
@@ -24,7 +22,14 @@ export class Application {
   start: () => Promise<void>
 
   constructor(config: Config, logger: Logger) {
-    logger.for(this).info('Initializing App')
+    const appLogger = logger.for(this)
+
+    appLogger.info('Initializing App')
+
+    appLogger.info('Initializing DB', {
+      poolSize: config.database.connectionPoolSize,
+      appName: config.database.connection.application_name,
+    })
 
     const database = createDatabase({
       ...config.database.connection,
@@ -52,6 +57,7 @@ export class Application {
 
     const modules: (ApplicationModule | undefined)[] = [
       createMetricsModule(config),
+      createSharedModule(config, logger, clock, providers, database),
       initActivityModule(config, logger, clock, providers, database),
       initDataAvailabilityModule(
         config,
@@ -64,14 +70,6 @@ export class Application {
       createUpdateMonitorModule(config, logger, peripherals, clock),
       createFlatSourcesModule(config, logger, peripherals),
       trackedTxsModule,
-      createFinalityModule(
-        config,
-        logger,
-        database,
-        providers,
-        trackedTxsModule?.indexer,
-      ),
-      initTvlModule(config, logger, database, providers, clock),
       initTvsModule(config, logger, database, providers, clock),
       createVerifiersModule(config, logger, peripherals, clock),
       createDaBeatModule(config, logger, peripherals, providers, clock),
@@ -85,14 +83,14 @@ export class Application {
 
     if (config.isReadonly) {
       this.start = async () => {
-        logger.for(this).info('Starting in readonly mode')
+        appLogger.info('Starting in readonly mode')
         await apiServer.start()
       }
       return
     }
 
     this.start = async () => {
-      logger.for(this).info('Starting', { features: config.flags })
+      appLogger.info('Starting', { features: config.flags })
       const unusedFlags = Object.values(config.flags)
         .filter((x) => !x.used)
         .map((x) => x.feature)

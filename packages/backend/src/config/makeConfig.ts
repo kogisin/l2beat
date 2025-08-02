@@ -2,14 +2,12 @@ import type { Env } from '@l2beat/backend-tools'
 import { type ChainConfig, ProjectService } from '@l2beat/config'
 import type { UnixTime } from '@l2beat/shared-pure'
 import type { Config } from './Config'
-import { FeatureFlags } from './FeatureFlags'
 import { getChainConfig } from './chain/getChainConfig'
+import { FeatureFlags } from './FeatureFlags'
 import { getActivityConfig } from './features/activity'
 import { getDaTrackingConfig } from './features/da'
 import { getDaBeatConfig } from './features/dabeat'
-import { getFinalityConfig } from './features/finality'
 import { getTrackedTxsConfig } from './features/trackedTxs'
-import { getTvlConfig } from './features/tvl'
 import { getTvsConfig } from './features/tvs'
 import { getUpdateMonitorConfig } from './features/updateMonitor'
 import { getVerifiersConfig } from './features/verifiers'
@@ -73,21 +71,21 @@ export async function makeConfig(
           enableQueryLogging: env.boolean('ENABLE_QUERY_LOGGING', false),
           connection: {
             connectionString: env.string('DATABASE_URL'),
-            application_name: 'BE-PROD',
+            application_name: env.string('DATABASE_APP_NAME', 'BE-PROD'),
             ssl: { rejectUnauthorized: false },
           },
           connectionPoolSize: {
             // our heroku plan allows us for up to 400 open connections
             min: 20,
-            max: 200,
+            max: env.integer('DATABASE_MAX_POOL_SIZE', 200),
           },
           isReadonly,
         },
     coingeckoApiKey: env.string('COINGECKO_API_KEY'),
     api: {
-      port: env.integer('PORT', isLocal ? 3000 : undefined),
+      port: env.integer('PORT', isLocal ? 3001 : undefined),
       cache: {
-        tvl: flags.isEnabled('cache', 'tvl'),
+        tvs: flags.isEnabled('cache', 'tvs'),
         liveness: flags.isEnabled('cache', 'liveness'),
         verifiers: flags.isEnabled('cache', 'verifiers'),
       },
@@ -103,9 +101,6 @@ export async function makeConfig(
           user: env.string('METRICS_AUTH_USER'),
           pass: env.string('METRICS_AUTH_PASS'),
         },
-    tvl:
-      flags.isEnabled('tvl') &&
-      (await getTvlConfig(ps, flags, env, chains, minTimestampOverride)),
     tvs:
       flags.isEnabled('tvs') &&
       (await getTvsConfig(
@@ -116,8 +111,6 @@ export async function makeConfig(
     trackedTxsConfig:
       flags.isEnabled('tracked-txs') &&
       (await getTrackedTxsConfig(ps, env, flags)),
-    finality:
-      flags.isEnabled('finality') && (await getFinalityConfig(ps, env, flags)),
     activity:
       flags.isEnabled('activity') && (await getActivityConfig(ps, env, flags)),
     verifiers: flags.isEnabled('verifiers') && (await getVerifiersConfig(ps)),
@@ -134,26 +127,24 @@ export async function makeConfig(
     daBeat: flags.isEnabled('da-beat') && (await getDaBeatConfig(ps, env)),
     chainConfig: await getChainConfig(ps, env),
     beaconApi: {
-      url: env.optionalString([
-        'ETHEREUM_BEACON_API_URL_FOR_FINALITY',
-        'ETHEREUM_BEACON_API_URL',
-      ]),
+      url: env.optionalString(['ETHEREUM_BEACON_API_URL']),
       callsPerMinute: env.integer(
-        [
-          'ETHEREUM_BEACON_API_CALLS_PER_MINUTE_FOR_FINALITY',
-          'ETHEREUM_BEACON_API_CALLS_PER_MINUTE',
-        ],
+        ['ETHEREUM_BEACON_API_CALLS_PER_MINUTE'],
         600,
       ),
-      timeout: env.integer(
-        [
-          'ETHEREUM_BEACON_API_TIMEOUT_FOR_FINALITY',
-          'ETHEREUM_BEACON_API_TIMEOUT',
-        ],
-        10000,
-      ),
+      timeout: env.integer(['ETHEREUM_BEACON_API_TIMEOUT'], 10000),
     },
     da: flags.isEnabled('da') && (await getDaTrackingConfig(ps, env)),
+    shared: flags.isEnabled('shared') && {
+      ethereumWsUrl: env.string(['ETHEREUM_WS_URL']),
+    },
+    discord: {
+      anomaliesWebhookUrl: env.optionalString('ANOMALIES_DISCORD_WEBHOOK_URL'),
+      anomaliesMinDuration: env.integer(
+        'ANOMALIES_MIN_DURATION',
+        60 * 60, // 1 hour
+      ),
+    },
     // Must be last
     flags: flags.getResolved(),
   }

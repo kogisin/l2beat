@@ -1,24 +1,25 @@
-import type { ChartMeta } from '~/components/core/chart/chart'
+import type { ChartMeta } from '~/components/core/chart/Chart'
 
-export function getDaChartMeta({
-  shape,
-}: {
-  shape: 'line' | 'square'
-}) {
+export function getDaChartMeta({ shape }: { shape: 'line' | 'square' }) {
   return {
     ethereum: {
       label: 'Ethereum (blobs)',
-      color: 'hsl(var(--chart-ethereum))',
+      color: 'var(--chart-ethereum)',
       indicatorType: { shape },
     },
     celestia: {
       label: 'Celestia',
-      color: 'hsl(var(--chart-da-celestia))',
+      color: 'var(--chart-fuchsia)',
       indicatorType: { shape },
     },
     avail: {
       label: 'Avail',
-      color: 'hsl(var(--chart-emerald))',
+      color: 'var(--chart-sky)',
+      indicatorType: { shape },
+    },
+    eigenda: {
+      label: 'EigenDA',
+      color: 'var(--chart-lime)',
       indicatorType: { shape },
     },
   } satisfies ChartMeta

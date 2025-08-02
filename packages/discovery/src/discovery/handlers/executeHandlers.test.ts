@@ -1,12 +1,11 @@
-import { Bytes, EthereumAddress } from '@l2beat/shared-pure'
+import { Logger } from '@l2beat/backend-tools'
+import { Bytes, ChainSpecificAddress } from '@l2beat/shared-pure'
 import { expect, mockFn, mockObject } from 'earl'
-
-import { DiscoveryLogger } from '../DiscoveryLogger'
 import type { IProvider } from '../provider/IProvider'
-import type { Handler, HandlerResult } from './Handler'
 import { executeHandlers } from './executeHandlers'
+import type { Handler, HandlerResult } from './Handler'
 import { SimpleMethodHandler } from './system/SimpleMethodHandler'
-import { ArrayHandler } from './user/ArrayHandler'
+import { ArrayHandler, getArrayFragment } from './user/ArrayHandler'
 import { StorageHandler } from './user/StorageHandler'
 import { toFunctionFragment } from './utils/toFunctionFragment'
 
@@ -42,7 +41,7 @@ describe(executeHandlers.name, () => {
           returnType: 'number',
         }),
       ],
-      EthereumAddress.random(),
+      ChainSpecificAddress.random(),
     )
     expect<unknown[]>(values).toEqual([
       { field: 'foo', value: 123, ignoreRelative: undefined },
@@ -81,7 +80,7 @@ describe(executeHandlers.name, () => {
           returnType: 'number',
         }),
       ],
-      EthereumAddress.random(),
+      ChainSpecificAddress.random(),
     )
     expect<unknown[]>(values).toEqual([
       { field: 'foo', value: 123, ignoreRelative: undefined },
@@ -138,7 +137,7 @@ describe(executeHandlers.name, () => {
           returnType: 'number',
         }),
       ],
-      EthereumAddress.random(),
+      ChainSpecificAddress.random(),
     )
     expect<unknown[]>(values).toEqual([
       { field: 'a', value: 100, ignoreRelative: undefined },
@@ -155,7 +154,7 @@ describe(executeHandlers.name, () => {
     const promise = executeHandlers(
       provider,
       [new StorageHandler('a', { type: 'storage', slot: '{{ a }}' })],
-      EthereumAddress.random(),
+      ChainSpecificAddress.random(),
     )
     await expect(promise).toBeRejectedWith('Impossible to resolve dependencies')
   })
@@ -165,7 +164,7 @@ describe(executeHandlers.name, () => {
     const promise = executeHandlers(
       provider,
       [new StorageHandler('a', { type: 'storage', slot: '{{ foo }}' })],
-      EthereumAddress.random(),
+      ChainSpecificAddress.random(),
     )
     await expect(promise).toBeRejectedWith('Impossible to resolve dependencies')
   })
@@ -178,7 +177,7 @@ describe(executeHandlers.name, () => {
         new StorageHandler('a', { type: 'storage', slot: '{{ b }}' }),
         new StorageHandler('b', { type: 'storage', slot: '{{ a }}' }),
       ],
-      EthereumAddress.random(),
+      ChainSpecificAddress.random(),
     )
     await expect(promise).toBeRejectedWith('Impossible to resolve dependencies')
   })
@@ -187,7 +186,7 @@ describe(executeHandlers.name, () => {
     class FunkyHandler implements Handler {
       dependencies: string[] = []
       field = 'foo'
-      logger = DiscoveryLogger.SILENT
+      logger = Logger.SILENT
       async execute(): Promise<HandlerResult> {
         throw new Error('oops')
       }
@@ -197,13 +196,13 @@ describe(executeHandlers.name, () => {
     const values = await executeHandlers(
       provider,
       [new FunkyHandler()],
-      EthereumAddress.random(),
+      ChainSpecificAddress.random(),
     )
     expect<unknown[]>(values).toEqual([{ field: 'foo', error: 'oops' }])
   })
 
   it('handles multicallable handlers', async () => {
-    const ADDRESS = EthereumAddress.random()
+    const ADDRESS = ChainSpecificAddress.random()
     const method = 'function foo() external view returns (uint256)'
     const fragment = toFunctionFragment(method)
     const provider = mockObject<IProvider>({
@@ -232,7 +231,7 @@ describe(executeHandlers.name, () => {
   })
 
   it('handles multicallable handlers with dependencies', async () => {
-    const ADDRESS = EthereumAddress.random()
+    const ADDRESS = ChainSpecificAddress.random()
     const method = 'function foo() external view returns (uint256)'
     const fragment = toFunctionFragment(method)
     const provider = mockObject<IProvider>({
@@ -240,6 +239,8 @@ describe(executeHandlers.name, () => {
       blockNumber: 123,
       chain: 'foo',
     })
+    const arrayMethod = 'function bar(uint256) external view returns (uint256)'
+    const arrayFragment = getArrayFragment(toFunctionFragment(arrayMethod))
     const values = await executeHandlers(
       provider,
       [
@@ -250,7 +251,7 @@ describe(executeHandlers.name, () => {
             method: 'bar',
             length: '{{ foo }}',
           },
-          ['function bar(uint256) external view returns (uint256)'],
+          [arrayMethod],
         ),
         new SimpleMethodHandler(method),
       ],
@@ -261,6 +262,7 @@ describe(executeHandlers.name, () => {
       { field: 'foo', fragment, value: 3 },
       {
         field: 'bar',
+        fragment: arrayFragment,
         value: [0x12345678, 0x12345678, 0x12345678],
         ignoreRelative: undefined,
       },

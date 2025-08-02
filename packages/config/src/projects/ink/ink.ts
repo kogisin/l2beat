@@ -1,20 +1,17 @@
 import { EthereumAddress, UnixTime } from '@l2beat/shared-pure'
 import { DERIVATION, SOA } from '../../common'
 import { BADGES } from '../../common/badges'
-import { getStage } from '../../common/stages/getStage'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
 import { opStackL2 } from '../../templates/opStack'
 
 const discovery = new ProjectDiscovery('ink')
-const l2Discovery = new ProjectDiscovery('ink', 'ink')
 const genesisTimestamp = UnixTime(1733498411)
 
 export const ink: ScalingProject = opStackL2({
-  addedAt: UnixTime(1729797861), // 2024-10-24T21:24:21Z
+  addedAt: UnixTime(1734480000), // 2024-10-18T00:00:00Z
   additionalBadges: [BADGES.RaaS.Gelato],
   discovery,
-  additionalDiscoveries: { ['ink']: l2Discovery },
   display: {
     name: 'Ink',
     slug: 'ink',
@@ -22,7 +19,7 @@ export const ink: ScalingProject = opStackL2({
     description:
       'Ink is an Optimistic Rollup built with the OP Stack by Kraken exchange.',
     category: 'Optimistic Rollup',
-    stack: 'OP Stack',
+    stacks: ['OP Stack'],
     links: {
       websites: ['https://inkonchain.com/en-US'],
       explorers: [
@@ -37,14 +34,6 @@ export const ink: ScalingProject = opStackL2({
       ],
     },
   },
-  finality: {
-    type: 'OPStack',
-    minTimestamp: UnixTime(1733502012),
-    genesisTimestamp: UnixTime(1733498411),
-    l2BlockTimeSeconds: 2,
-    lag: 0,
-    stateUpdate: 'disabled',
-  },
   genesisTimestamp,
   stateDerivation: DERIVATION.OPSTACK('INK'),
   isNodeAvailable: true,
@@ -58,39 +47,16 @@ export const ink: ScalingProject = opStackL2({
     ],
     notInScope: [SOA.specToSourceCode, SOA.sequencerPolicy, SOA.nonGasTokens],
   },
-
-  stage: getStage(
-    {
-      stage0: {
-        callsItselfRollup: true,
-        stateRootsPostedToL1: true,
-        dataAvailabilityOnL1: true,
-        rollupNodeSourceAvailable: true,
-      },
-      stage1: {
-        principle: false,
-        stateVerificationOnL1: true,
-        fraudProofSystemAtLeast5Outsiders: true,
-        usersHave7DaysToExit: true,
-        usersCanExitWithoutCooperation: true,
-        securityCouncilProperlySetUp: true,
-      },
-      stage2: {
-        proofSystemOverriddenOnlyInCaseOfABug: false,
-        fraudProofSystemIsPermissionless: true,
-        delayWith30DExitWindow: false,
-      },
-    },
-    {
-      rollupNodeLink:
-        'https://github.com/ethereum-optimism/optimism/tree/develop/op-node',
-    },
-  ),
+  hasSuperchainScUpgrades: true,
+  hasProperSecurityCouncil: true,
+  nodeSourceLink:
+    'https://github.com/ethereum-optimism/optimism/tree/develop/op-node',
   chainConfig: {
     name: 'ink',
     chainId: 57073,
     explorerUrl: 'https://explorer.inkonchain.com',
     sinceTimestamp: genesisTimestamp,
+    coingeckoPlatform: 'ink',
     multicallContracts: [
       {
         address: EthereumAddress('0xcA11bde05977b3631167028862bE2a173976CA11'),

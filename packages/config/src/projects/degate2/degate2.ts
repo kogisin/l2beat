@@ -1,27 +1,27 @@
 import {
   assert,
+  ChainSpecificAddress,
   EthereumAddress,
   ProjectId,
   UnixTime,
 } from '@l2beat/shared-pure'
 import { utils } from 'ethers'
-import { BADGES } from '../../common/badges'
-
 import {
   DA_BRIDGES,
   DA_LAYERS,
   DA_MODES,
   EXITS,
   FORCE_TRANSACTIONS,
-  NEW_CRYPTOGRAPHY,
   OPERATOR,
   RISK_VIEW,
-  STATE_CORRECTNESS,
+  STATE_VALIDATION,
   TECHNOLOGY_DATA_AVAILABILITY,
 } from '../../common'
+import { BADGES } from '../../common/badges'
 import { getStage } from '../../common/stages/getStage'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('degate2')
 
@@ -59,11 +59,11 @@ const permissionedAccount = discovery.formatPermissionedAccounts([owner1])
 assert(permissionedAccount[0].type === 'EOA', 'DeGate')
 
 export const degate2: ScalingProject = {
-  isArchived: true,
   type: 'layer2',
   id: ProjectId('degate2'),
   capability: 'appchain',
   addedAt: UnixTime(1684838286), // 2023-05-23T10:38:06Z
+  archivedAt: UnixTime(1700524800), // 2023-11-21T00:00:00.000Z,
   badges: [
     BADGES.VM.AppChain,
     BADGES.DA.EthereumCalldata,
@@ -76,12 +76,12 @@ export const degate2: ScalingProject = {
     description:
       'DeGate is an app-specific ZK Rollup that enables a trustless, fast and low-fee decentralized order book exchange, helping users to trade easy and sleep easy. DeGate smart contracts are forked from Loopring V3.',
     purposes: ['Exchange'],
-    stack: 'Loopring',
+    stacks: ['Loopring'],
     category: 'ZK Rollup',
 
     links: {
       websites: ['https://degate.com/'],
-      apps: ['https://app.degate.com/'],
+      bridges: ['https://app.degate.com/'],
       documentation: ['https://docs.degate.com/'],
       repositories: ['https://github.com/degatedev/protocols'],
       socialMedia: [
@@ -97,7 +97,9 @@ export const degate2: ScalingProject = {
     associatedTokens: ['DG'],
     escrows: [
       discovery.getEscrowDetails({
-        address: EthereumAddress('0xF13e21653AEB763595D5E4baA1dC115689Da49b9'),
+        address: ChainSpecificAddress(
+          'eth:0xF13e21653AEB763595D5E4baA1dC115689Da49b9',
+        ),
         sinceTimestamp: UnixTime(1693304807),
         tokens: '*',
       }),
@@ -144,11 +146,11 @@ export const degate2: ScalingProject = {
       stateRootsPostedToL1: true,
       dataAvailabilityOnL1: true,
       rollupNodeSourceAvailable: 'UnderReview',
+      stateVerificationOnL1: true,
+      fraudProofSystemAtLeast5Outsiders: null,
     },
     stage1: {
       principle: true,
-      stateVerificationOnL1: true,
-      fraudProofSystemAtLeast5Outsiders: null,
       usersHave7DaysToExit: null,
       usersCanExitWithoutCooperation: true,
       securityCouncilProperlySetUp: null,
@@ -164,25 +166,20 @@ export const degate2: ScalingProject = {
       },
     },
   }),
+  stateValidation: {
+    categories: [
+      {
+        ...STATE_VALIDATION.VALIDITY_PROOFS,
+        references: [
+          {
+            title: 'Operator - DeGate design doc',
+            url: 'https://github.com/degatedev/protocols/blob/degate_mainnet/DeGate%20Protocol%20Specification%20Document.md#operator',
+          },
+        ],
+      },
+    ],
+  },
   technology: {
-    stateCorrectness: {
-      ...STATE_CORRECTNESS.VALIDITY_PROOFS,
-      references: [
-        {
-          title: 'Operator - DeGate design doc',
-          url: 'https://github.com/degatedev/protocols/blob/degate_mainnet/DeGate%20Protocol%20Specification%20Document.md#operator',
-        },
-      ],
-    },
-    newCryptography: {
-      ...NEW_CRYPTOGRAPHY.ZK_SNARKS,
-      references: [
-        {
-          title: 'Operator - DeGate design doc',
-          url: 'https://github.com/degatedev/protocols/blob/degate_mainnet/DeGate%20Protocol%20Specification%20Document.md#operator',
-        },
-      ],
-    },
     dataAvailability: {
       ...TECHNOLOGY_DATA_AVAILABILITY.ON_CHAIN_CALLDATA,
       references: [
@@ -260,7 +257,7 @@ export const degate2: ScalingProject = {
     ],
   },
   permissions: {
-    [discovery.chain]: {
+    ethereum: {
       actors: [
         discovery.getPermissionDetails(
           'DefaultDepositContract Owner',
@@ -285,7 +282,7 @@ export const degate2: ScalingProject = {
   },
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails('ExchangeV3', 'Main ExchangeV3 contract.'),
         discovery.getContractDetails(
           'LoopringIOExchangeOwner',
@@ -316,4 +313,5 @@ export const degate2: ScalingProject = {
       type: 'general',
     },
   ],
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

@@ -6,12 +6,13 @@ import type { ScalingProject } from '../../internalTypes'
 import { AnytrustDAC } from '../../templates/anytrust-template'
 import { orbitStackL3 } from '../../templates/orbitStack'
 
-const discovery = new ProjectDiscovery('popboss', 'arbitrum')
+const discovery = new ProjectDiscovery('popboss')
 
 export const popboss: ScalingProject = orbitStackL3({
   addedAt: UnixTime(1710836229), // 2024-03-19T08:17:09Z
   additionalBadges: [BADGES.L3ParentChain.Arbitrum, BADGES.RaaS.Conduit],
   additionalPurposes: ['Gaming'],
+  hostChain: 'arbitrum',
   discovery,
   bridge: discovery.getContract('Bridge'),
   rollupProxy: discovery.getContract('RollupProxy'),
@@ -28,7 +29,7 @@ export const popboss: ScalingProject = orbitStackL3({
       'Proof of Play Boss is a gaming-focused L3 settling on Arbitrum using the Orbit Stack and AnyTrust DA. It is the second L3 built by Proof of Play.',
     links: {
       websites: ['https://proofofplay.com/'],
-      apps: [
+      bridges: [
         'https://bridge.arbitrum.io/?destinationChain=pop-boss&sourceChain=arbitrum-one',
         'https://piratenation.game/',
       ],
@@ -57,5 +58,5 @@ export const popboss: ScalingProject = orbitStackL3({
     startBlock: 1,
     adjustCount: { type: 'SubtractOne' },
   },
-  customDa: AnytrustDAC({ discovery }),
+  customDa: AnytrustDAC({ discovery, hostChain: 'arbitrum' }),
 })

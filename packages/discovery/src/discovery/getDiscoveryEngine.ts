@@ -1,7 +1,7 @@
+import type { Logger } from '@l2beat/backend-tools'
 import type { HttpClient } from '@l2beat/shared'
 import { assert } from '@l2beat/shared-pure'
 import type { DiscoveryChainConfig } from '../config/types'
-import type { DiscoveryLogger } from './DiscoveryLogger'
 import { AddressAnalyzer } from './analysis/AddressAnalyzer'
 import { TemplateService } from './analysis/TemplateService'
 import type { DiscoveryPaths } from './config/getDiscoveryPaths'
@@ -17,13 +17,13 @@ export function getDiscoveryEngine(
   chainConfigs: DiscoveryChainConfig[],
   cache: DiscoveryCache,
   http: HttpClient,
-  logger: DiscoveryLogger,
+  logger: Logger,
   chain: string,
 ) {
   const config = chainConfigs.find((c) => c.name === chain)
   assert(config !== undefined, `Unknown chain: ${chain}`)
 
-  const allProviders = new AllProviders(chainConfigs, http, cache)
+  const allProviders = new AllProviders(chainConfigs, http, cache, logger)
 
   const proxyDetector = new ProxyDetector()
   const sourceCodeService = new SourceCodeService()

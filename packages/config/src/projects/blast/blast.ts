@@ -1,13 +1,15 @@
-import { EthereumAddress, UnixTime } from '@l2beat/shared-pure'
-
-import { EXITS } from '../../common'
-import { REASON_FOR_BEING_OTHER } from '../../common'
-import { ESCROW } from '../../common'
+import {
+  ChainSpecificAddress,
+  EthereumAddress,
+  UnixTime,
+} from '@l2beat/shared-pure'
+import { ESCROW, EXITS, REASON_FOR_BEING_OTHER } from '../../common'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
 import { opStackL2 } from '../../templates/opStack'
 
 const discovery = new ProjectDiscovery('blast')
+const chainId = 81457
 
 export const blast: ScalingProject = opStackL2({
   addedAt: UnixTime(1700555008), // 2023-11-21T08:23:28Z
@@ -20,13 +22,17 @@ export const blast: ScalingProject = opStackL2({
       'Blast is an EVM-compatible Optimistic Rollup supporting native yield. It invests funds deposited into the L1 bridge into various DeFi protocols transferring yield back to the L2.',
     links: {
       websites: ['https://blast.io/en'],
-      apps: ['https://blast.io/en/bridge'],
+      bridges: ['https://blast.io/en/bridge'],
       documentation: ['https://docs.blast.io/about-blast'],
-      explorers: ['https://blastscan.io', 'https://blastexplorer.io'],
+      explorers: [
+        'https://blastscan.io',
+        'https://blastplorer.info/',
+        'https://blastexplorer.io',
+      ],
       repositories: ['https://github.com/blast-io'],
       socialMedia: ['https://twitter.com/blast', 'https://discord.gg/blast-l2'],
     },
-    tvlWarning: {
+    tvsWarning: {
       value: 'The TVS does account for rehypothecated tokens.',
       sentiment: 'bad',
     },
@@ -46,16 +52,16 @@ export const blast: ScalingProject = opStackL2({
           {
             title:
               'OptimismPortal.sol - Etherscan source code, proveWithdrawalTransaction function',
-            url: `https://etherscan.io/address/0xA280aEBF81c917DbD2aA1b39f979dfECEc9e4391#code`,
+            url: 'https://etherscan.io/address/0xA280aEBF81c917DbD2aA1b39f979dfECEc9e4391#code',
           },
           {
             title:
               'OptimismPortal.sol - Etherscan source code, finalizeWithdrawalTransaction function',
-            url: `https://etherscan.io/address/0xA280aEBF81c917DbD2aA1b39f979dfECEc9e4391#code`,
+            url: 'https://etherscan.io/address/0xA280aEBF81c917DbD2aA1b39f979dfECEc9e4391#code',
           },
           {
             title: 'L2OutputOracle.sol - Etherscan source code, PROPOSER check',
-            url: `https://etherscan.io/address/0x1C90963D451316E3DBFdD5A30354EE56C29016EB#code`,
+            url: 'https://etherscan.io/address/0x1C90963D451316E3DBFdD5A30354EE56C29016EB#code',
           },
         ],
         risks: [EXITS.RISK_REHYPOTHECATED_ASSETS, EXITS.RISK_LACK_OF_LIQUIDITY],
@@ -64,8 +70,8 @@ export const blast: ScalingProject = opStackL2({
         ...EXITS.FORCED_MESSAGING('all-messages'),
         references: [
           {
-            title: 'Forced withdrawal from an OP Stack blockchain',
-            url: 'https://stack.optimism.io/docs/security/forced-withdrawal/',
+            title: 'Forced transaction from an OP Stack blockchain',
+            url: 'https://docs.optimism.io/stack/transactions/forced-transaction',
           },
         ],
       },
@@ -74,7 +80,7 @@ export const blast: ScalingProject = opStackL2({
   chainConfig: {
     name: 'blast',
     coingeckoPlatform: 'blast',
-    chainId: 81457,
+    chainId,
     explorerUrl: 'https://blastscan.io',
     sinceTimestamp: UnixTime.fromDate(new Date('2024-02-24T21:23:35Z')),
     multicallContracts: [
@@ -87,22 +93,15 @@ export const blast: ScalingProject = opStackL2({
     ],
     apis: [
       { type: 'rpc', url: 'https://rpc.blast.io/', callsPerMinute: 1500 },
-      { type: 'etherscan', url: 'https://api.blastscan.io/api' },
+      { type: 'etherscan', chainId },
     ],
-  },
-  finality: {
-    type: 'OPStack',
-    // timestamp of the first blob tx
-    minTimestamp: UnixTime(1716846455),
-    l2BlockTimeSeconds: 2,
-    genesisTimestamp: UnixTime(1708809815),
-    lag: 0,
-    stateUpdate: 'disabled',
   },
   genesisTimestamp: UnixTime(1708825259), //First sequencer transaction
   nonTemplateEscrows: [
     discovery.getEscrowDetails({
-      address: EthereumAddress('0x5F6AE08B8AeB7078cf2F96AFb089D7c9f51DA47d'),
+      address: ChainSpecificAddress(
+        'eth:0x5F6AE08B8AeB7078cf2F96AFb089D7c9f51DA47d',
+      ),
       name: 'Pre-launch Blast Vault',
       description:
         'Pre-launch Blast Vault that keeps stETH. Funds from this Vault can be migrated to Blast bridge.',
@@ -110,7 +109,9 @@ export const blast: ScalingProject = opStackL2({
       ...ESCROW.CANONICAL_EXTERNAL,
     }),
     discovery.getEscrowDetails({
-      address: EthereumAddress('0x98078db053902644191f93988341E31289E1C8FE'),
+      address: ChainSpecificAddress(
+        'eth:0x98078db053902644191f93988341E31289E1C8FE',
+      ),
       name: 'Interest-bearing ETH Vault',
       tokens: ['ETH', 'stETH'],
       ...ESCROW.CANONICAL_EXTERNAL,

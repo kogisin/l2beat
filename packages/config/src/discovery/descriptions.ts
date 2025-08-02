@@ -1,29 +1,5 @@
 import type { Permission, RolePermissionEntries } from '@l2beat/discovery'
 
-export const DirectPermissionToPrefix: {
-  [key in Permission]: string | undefined
-} = {
-  interact: 'Can be used to interact with',
-  upgrade: 'Can be used to upgrade implementation of',
-  act: 'Can act on behalf of',
-  guard: 'Can act as a Guardian',
-  challenge: 'Can act as a Challenger',
-  propose: 'Can act as a Proposer',
-  sequence: 'Can act as a Sequencer',
-  validate: 'Can act as a Validator',
-  operateLinea: 'Can act as an Operator',
-  fastconfirm: 'Can act as a FastConfirmer',
-  validateZkStack: 'Can act as a Validator',
-  relay: 'Can act as a Relayer',
-  validateBridge: 'Can act as a Validator',
-  validateBridge2: 'Can act as a Validator',
-  aggregatePolygon: 'Can act as a trusted Aggregator',
-  operateStarknet: 'Can act as an Operator',
-  operateStarkEx: 'Can act as an Operator',
-  governStarknet: 'Can act as a Governor',
-  member: 'Is a member of',
-}
-
 export const UltimatePermissionToPrefix: {
   [key in Permission]: string | undefined
 } = {
@@ -35,17 +11,25 @@ export const UltimatePermissionToPrefix: {
   propose: 'A Proposer',
   sequence: 'A Sequencer',
   validate: 'A Validator',
+  disperse: 'A Disperser',
+  relayDA: 'A DA Relayer',
   operateLinea: 'An Operator',
   fastconfirm: 'A FastConfirmer',
   validateZkStack: 'A Validator',
   relay: 'A Relayer',
   validateBridge: 'A Validator',
   validateBridge2: 'A Validator',
+  validateBridge3: 'A Validator',
   aggregatePolygon: 'A trusted Aggregator',
   operateStarknet: 'An Operator',
   operateStarkEx: 'An Operator',
   governStarknet: 'A Governor',
   member: 'Is a member of',
+  metisGameCreator: 'A dispute game creator',
+  stateDeleterMetis: 'A state deleter',
+  hotValidatorHyperliquid: 'A Hot Validator',
+  coldValidatorHyperliquid: 'A Cold Validator',
+  acrossPropose: 'A Proposer',
 }
 
 export const RoleDescriptions: {
@@ -72,7 +56,7 @@ export const RoleDescriptions: {
   guard: {
     name: 'Guardian',
     description:
-      'Allowed to pause deposits and withdrawals. In op stack systems with a proof system, the Guardian can also blacklist dispute games and set the respected game type (permissioned / permissionless).',
+      'Allowed to pause withdrawals. In op stack systems with a proof system, the Guardian can also blacklist dispute games and set the respected game type (permissioned / permissionless).',
   },
   validate: {
     // ORBIT specific
@@ -107,6 +91,11 @@ export const RoleDescriptions: {
     description:
       'Permissoned to sign crosschain messages encoding transfer information, which are decoded onchain with signature checks. The validators listed here are the default validators for Ethereum and can be overridden by a custom configuration.',
   },
+  validateBridge3: {
+    name: 'Validator',
+    description:
+      'Permissioned to sign crosschain messages, attesting to their validity.',
+  },
   relay: {
     name: 'Relayer',
     description:
@@ -131,5 +120,38 @@ export const RoleDescriptions: {
     name: 'Governor',
     description:
       'Permissioned to manage the Operator role, finalize state and change critical parameters like the programHash, configHash, or message cancellation delay in the core contract.',
+  },
+  metisGameCreator: {
+    name: 'Game Creator',
+    description: 'Can create new dispute games.',
+  },
+  disperse: {
+    name: 'Disperser',
+    description: 'Can disperse EigenDA blobs to the EigenDA node operators.',
+  },
+  relayDA: {
+    name: 'Relayer',
+    description:
+      'Can store and serve both unencoded blobs as well as encoded chunks.',
+  },
+  stateDeleterMetis: {
+    name: 'State Deleter',
+    description:
+      'Can delete any state root from the StateCommitmentChain, preventing withdrawals based on that root.',
+  },
+  hotValidatorHyperliquid: {
+    name: 'Hot Validator',
+    description:
+      'Can request withdrawals, start a validator set change, add lockers and finalizers (Can also change cold validators by adding a finalizer and proposing/finalizing a new validator set).',
+  },
+  coldValidatorHyperliquid: {
+    name: 'Cold Validator',
+    description:
+      'Can change the dispute period, block duration and locker threshold. Can also invalidate withdrawals, emergencyUnlock (unpause and change the validator set), remove lockers and finalizers.',
+  },
+  acrossPropose: {
+    name: 'Proposer',
+    description:
+      'Can propose new root bundles (containing settlement info to refund relayers), which are validated optimistically by the UMA oracle.',
   },
 }

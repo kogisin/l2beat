@@ -5,7 +5,7 @@ import {
   type EthereumAddress,
   type json,
 } from '@l2beat/shared-pure'
-import { z } from 'zod'
+import { v } from '@l2beat/validate'
 import { generateId } from '../../tools/generateId'
 import {
   ClientCore,
@@ -21,6 +21,8 @@ import {
   type EVMBlockWithTransactions,
   EVMBlockWithTransactionsResponse,
   EVMCallResponse,
+  type EVMLog,
+  EVMLogsResponse,
   EVMTransactionReceiptResponse,
   EVMTransactionResponse,
   Quantity,
@@ -33,6 +35,12 @@ interface Dependencies extends ClientCoreDependencies {
   generateId?: () => string
   multicallClient?: MulticallV3Client
 }
+
+type Param =
+  | string
+  | number
+  | boolean
+  | Record<string, string | string[] | string[][]>
 
 export class RpcClient extends ClientCore implements BlockClient {
   multicallClient?: MulticallV3Client
@@ -82,7 +90,7 @@ export class RpcClient extends ClientCore implements BlockClient {
       ? EVMBlockWithTransactionsResponse.safeParse(blockResponse)
       : EVMBlockResponse.safeParse(blockResponse)
     if (!block.success) {
-      this.$.logger.warn(`Invalid response`, {
+      this.$.logger.warn('Invalid response', {
         blockNumber,
         includeTxs,
         response: JSON.stringify(blockResponse),
@@ -98,7 +106,7 @@ export class RpcClient extends ClientCore implements BlockClient {
 
     const transaction = EVMTransactionResponse.safeParse(response)
     if (!transaction.success) {
-      this.$.logger.warn(`Invalid response`, {
+      this.$.logger.warn('Invalid response', {
         txHash,
         response: JSON.stringify(response),
       })
@@ -113,7 +121,7 @@ export class RpcClient extends ClientCore implements BlockClient {
 
     const receipt = EVMTransactionReceiptResponse.safeParse(response)
     if (!receipt.success) {
-      this.$.logger.warn(`Invalid response`, {
+      this.$.logger.warn('Invalid response', {
         txHash,
         response: JSON.stringify(response),
       })
@@ -137,7 +145,7 @@ export class RpcClient extends ClientCore implements BlockClient {
 
     const balance = EVMBalanceResponse.safeParse(balanceResponse)
     if (!balance.success) {
-      this.$.logger.warn(`Invalid response`, {
+      this.$.logger.warn('Invalid response', {
         blockNumber,
         holder,
         response: JSON.stringify(balanceResponse),
@@ -147,6 +155,53 @@ export class RpcClient extends ClientCore implements BlockClient {
       )
     }
     return balance.data.result
+  }
+
+  async getLogs(
+    from: number,
+    to: number,
+    addresses?: string[],
+    topics?: string[],
+  ): Promise<EVMLog[]> {
+    const method = 'eth_getLogs'
+    const response = await this.query(method, [
+      {
+        address: addresses ?? [],
+        topics: topics ? [topics] : [],
+        fromBlock: Quantity.encode(BigInt(from)),
+        toBlock: Quantity.encode(BigInt(to)),
+      },
+    ])
+
+    const logsResponse = EVMLogsResponse.safeParse(response)
+    if (!logsResponse.success) {
+      // in EVM chains there can be a limit on the number of logs returned
+      const parsedError = RPCError.safeParse(response)
+      if (parsedError.success && isLimitExceededError(parsedError.data)) {
+        const midpoint = Math.floor((from + to) / 2)
+
+        this.$.logger.warn('Limit exceeded for logs. Splitting in half', {
+          from,
+          to,
+          midpoint,
+        })
+
+        const results = await Promise.all([
+          this.getLogs(from, midpoint, addresses, topics),
+          this.getLogs(midpoint + 1, to, addresses, topics),
+        ])
+
+        return results.flat()
+      }
+
+      this.$.logger.warn('Invalid response', {
+        method,
+        response: JSON.stringify(response),
+      })
+      throw new Error('Error during parsing')
+    }
+
+    return logsResponse.data.result
   }
 
   async call(
@@ -170,7 +225,7 @@ export class RpcClient extends ClientCore implements BlockClient {
   }
 
   isMulticallDeployed(blockNumber: number) {
-    return (
+    return !!(
       this.$.multicallClient && this.$.multicallClient.sinceBlock <= blockNumber
     )
   }
@@ -184,7 +239,7 @@ export class RpcClient extends ClientCore implements BlockClient {
 
     const batches = this.$.multicallClient.encodeBatches(calls)
 
-    this.$.logger.debug(`Multicall`, { batches: batches.length })
+    this.$.logger.debug('Multicall', { batches: batches.length })
 
     const batchedResults = await Promise.all(
       batches.map(async (batch) => {
@@ -211,7 +266,7 @@ export class RpcClient extends ClientCore implements BlockClient {
     ])
 
     const callResponse = await this.batchQuery(method, params)
-    const callResult = z.array(EVMCallResponse).safeParse(callResponse)
+    const callResult = v.array(EVMCallResponse).safeParse(callResponse)
 
     if (!callResult.success) {
       this.$.logger.warn(
@@ -224,10 +279,7 @@ export class RpcClient extends ClientCore implements BlockClient {
     return callResult.data.map((c) => Bytes.fromHex(c.result))
   }
 
-  async query(
-    method: string,
-    params: (string | number | boolean | Record<string, string>)[],
-  ) {
+  async query(method: string, params: Param[]) {
     return await this.fetch(this.$.url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -243,10 +295,7 @@ export class RpcClient extends ClientCore implements BlockClient {
   }
 
   // TODO: add multi-method support
-  async batchQuery(
-    method: string,
-    paramsBatch: (string | number | boolean | Record<string, string>)[][],
-  ) {
+  async batchQuery(method: string, paramsBatch: Param[][]) {
     const queries = paramsBatch.map((params) => ({
       method: method,
       params: params,
@@ -263,7 +312,7 @@ export class RpcClient extends ClientCore implements BlockClient {
     })
 
     const results = new Map(
-      z
+      v
         .array(RpcResponse)
         .parse(response)
         .map((p) => [p.id, p]),
@@ -283,8 +332,12 @@ export class RpcClient extends ClientCore implements BlockClient {
     const parsedError = RPCError.safeParse(response)
 
     if (parsedError.success) {
-      // TODO: based on error return differently
-      this.$.logger.warn(`Response validation error`, {
+      // no retry in this case
+      if (isLimitExceededError(parsedError.data)) {
+        return { success: true }
+      }
+
+      this.$.logger.warn('Response validation error', {
         ...parsedError.data.error,
       })
       return { success: false }
@@ -309,4 +362,20 @@ function buildCallObject(callParams: CallParameters): Record<string, string> {
     to: callParams.to.toString(),
     data: callParams.data.toString(),
   }
+}
+
+function isLimitExceededError(response: RPCError) {
+  if (
+    response.error &&
+    (response.error.message.includes('Log response size exceeded') ||
+      response.error.message.includes('query exceeds max block range 100000') ||
+      response.error.message.includes(
+        'eth_getLogs is limited to a 10,000 range',
+      ) ||
+      response.error.message.includes('returned more than 10000'))
+  ) {
+    return true
+  }
+
+  return false
 }

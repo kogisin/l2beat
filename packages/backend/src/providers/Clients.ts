@@ -1,38 +1,44 @@
 import { type Logger, RateLimiter } from '@l2beat/backend-tools'
 import {
-  BlobClient,
-  BlobScanClient,
+  BeaconChainClient,
   type BlockClient,
   BlockIndexerClient,
   CelestiaRpcClient,
   CoingeckoClient,
+  EigenApiClient,
   FuelClient,
   HttpClient,
+  type LogsClient,
   LoopringClient,
+  MulticallV3Client,
   PolkadotRpcClient,
   RpcClient,
   StarkexClient,
   StarknetClient,
+  type SvmBlockClient,
+  SvmRpcClient,
   ZksyncLiteClient,
 } from '@l2beat/shared'
 import { assert, assertUnreachable } from '@l2beat/shared-pure'
-import { MulticallV3Client } from '@l2beat/shared/build/clients/rpc/multicall/MulticallV3Client'
 import type { Config } from '../config/Config'
 
 export interface Clients {
   block: BlockClient[]
+  logs: LogsClient[]
+  svmBlock: SvmBlockClient[]
   indexer: BlockIndexerClient[]
   starkex: StarkexClient | undefined
   loopring: LoopringClient | undefined
   degate: LoopringClient | undefined
   coingecko: CoingeckoClient
-  blob: BlobClient | undefined
-  blobscan: { daLayer: string; client: BlobScanClient }[]
-  celestia: { daLayer: string; client: CelestiaRpcClient }[]
-  avail: { daLayer: string; client: PolkadotRpcClient }[]
+  beacon: BeaconChainClient | undefined
+  celestia: CelestiaRpcClient | undefined
+  avail: PolkadotRpcClient | undefined
+  eigen: EigenApiClient | undefined
   getRpcClient: (chain: string) => RpcClient
   getStarknetClient: (chain: string) => StarknetClient
   rpcClients: RpcClient[]
+  starknetClients: StarknetClient[]
 }
 
 export function initClients(config: Config, logger: Logger): Clients {
@@ -42,13 +48,15 @@ export function initClients(config: Config, logger: Logger): Clients {
   let loopringClient: LoopringClient | undefined
   let degateClient: LoopringClient | undefined
   let ethereumClient: RpcClient | undefined
-  let blobClient: BlobClient | undefined
-  const blobscan = []
-  const celestia = []
-  const avail = []
+  let beaconChainClient: BeaconChainClient | undefined
+  let celestia: CelestiaRpcClient | undefined
+  let avail: PolkadotRpcClient | undefined
+  let eigen: EigenApiClient | undefined
 
   const starknetClients: StarknetClient[] = []
   const blockClients: BlockClient[] = []
+  const logsClients: LogsClient[] = []
+  const svmBlockClients: SvmBlockClient[] = []
   const indexerClients: BlockIndexerClient[] = []
   const rpcClients: RpcClient[] = []
 
@@ -85,6 +93,7 @@ export function initClients(config: Config, logger: Logger): Clients {
             multicallClient,
           })
           blockClients.push(rpcClient)
+          logsClients.push(rpcClient)
           rpcClients.push(rpcClient)
           if (chain.name === 'ethereum' && ethereumClient === undefined) {
             ethereumClient = rpcClient
@@ -158,6 +167,18 @@ export function initClients(config: Config, logger: Logger): Clients {
           })
           break
         }
+        case 'svm-rpc': {
+          const client = new SvmRpcClient({
+            sourceName: chain.name,
+            url: blockApi.url,
+            http,
+            callsPerMinute: blockApi.callsPerMinute,
+            retryStrategy: blockApi.retryStrategy,
+            logger,
+          })
+          svmBlockClients.push(client)
+          break
+        }
         default:
           assertUnreachable(blockApi)
       }
@@ -165,23 +186,10 @@ export function initClients(config: Config, logger: Logger): Clients {
   }
 
   if (config.da) {
-    for (const layer of config.da.layers) {
+    for (const layer of config.da.blockLayers) {
       switch (layer.type) {
-        case 'ethereum': {
-          const client = new BlobScanClient({
-            callsPerMinute: layer.callsPerMinute,
-            baseUrl: layer.url,
-            retryStrategy: 'UNRELIABLE',
-            sourceName: layer.name,
-            logger,
-            http,
-          })
-          blobscan.push({ daLayer: layer.name, client })
-          break
-        }
-
         case 'celestia': {
-          const client = new CelestiaRpcClient({
+          celestia = new CelestiaRpcClient({
             callsPerMinute: layer.callsPerMinute,
             url: layer.url,
             retryStrategy: 'RELIABLE',
@@ -189,13 +197,12 @@ export function initClients(config: Config, logger: Logger): Clients {
             logger,
             http,
           })
-          celestia.push({ daLayer: layer.name, client })
-          blockClients.push(client)
+          blockClients.push(celestia)
           break
         }
 
         case 'avail': {
-          const client = new PolkadotRpcClient({
+          avail = new PolkadotRpcClient({
             callsPerMinute: layer.callsPerMinute,
             url: layer.url,
             retryStrategy: 'RELIABLE',
@@ -203,9 +210,28 @@ export function initClients(config: Config, logger: Logger): Clients {
             logger,
             http,
           })
-          avail.push({ daLayer: layer.name, client })
-          blockClients.push(client)
+          blockClients.push(avail)
         }
+      }
+    }
+    for (const layer of config.da.timestampLayers) {
+      switch (layer.type) {
+        case 'eigen-da': {
+          const perProjectUrl = layer.perProjectUrl
+          assert(perProjectUrl, 'EigenDA per project url is required')
+          eigen = new EigenApiClient({
+            sourceName: 'eigen',
+            url: layer.url,
+            perProjectUrl,
+            http,
+            logger,
+            callsPerMinute: layer.callsPerMinute,
+            retryStrategy: 'RELIABLE',
+          })
+          break
+        }
+        default:
+          assertUnreachable(layer.type)
       }
     }
   }
@@ -219,11 +245,10 @@ export function initClients(config: Config, logger: Logger): Clients {
     retryStrategy: 'RELIABLE',
   })
 
-  if (ethereumClient && config.beaconApi.url) {
-    blobClient = new BlobClient({
+  if (config.beaconApi.url) {
+    beaconChainClient = new BeaconChainClient({
       sourceName: 'beaconApi',
       beaconApiUrl: config.beaconApi.url,
-      rpcClient: ethereumClient,
       logger,
       http,
       callsPerMinute: config.beaconApi.callsPerMinute,
@@ -246,17 +271,20 @@ export function initClients(config: Config, logger: Logger): Clients {
 
   return {
     block: blockClients,
+    logs: logsClients,
+    svmBlock: svmBlockClients,
     indexer: indexerClients,
     starkex: starkexClient,
     loopring: loopringClient,
     degate: degateClient,
     coingecko: coingeckoClient,
-    blob: blobClient,
-    blobscan,
+    beacon: beaconChainClient,
     celestia,
+    eigen,
     avail,
     getStarknetClient,
     getRpcClient,
     rpcClients,
+    starknetClients,
   }
 }

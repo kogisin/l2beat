@@ -16,7 +16,7 @@ export const lyra: ScalingProject = opStackL2({
   additionalPurposes: ['Exchange'],
   discovery,
   reasonsForBeingOther: [
-    REASON_FOR_BEING_OTHER.NO_PROOFS,
+    REASON_FOR_BEING_OTHER.CLOSED_PROOFS,
     REASON_FOR_BEING_OTHER.NO_DA_ORACLE,
   ],
   display: {
@@ -26,7 +26,7 @@ export const lyra: ScalingProject = opStackL2({
       'Derive Chain is an L2 scaling solution built using OP Stack specially for the Derive protocol - a settlement protocol for spot, perpetuals, and options trading.',
     links: {
       websites: ['https://derive.xyz/'],
-      apps: ['https://derive.xyz/options/eth'],
+      bridges: ['https://derive.xyz/options/eth'],
       documentation: ['https://docs.lyra.finance/'],
       explorers: ['https://explorer.derive.xyz/'],
       repositories: ['https://github.com/lyra-finance/v2-core'],
@@ -172,6 +172,21 @@ export const lyra: ScalingProject = opStackL2({
         ],
       },
       tokens: ['eBTC'],
+      chain: 'ethereum',
+    },
+    {
+      address: EthereumAddress('0x5F18C54e4E10287414A47925a24Ea3A8Cf4A9F50'),
+      sinceTimestamp: UnixTime(1727390087),
+      source: 'external',
+      bridgedUsing: {
+        bridges: [
+          {
+            name: 'Socket bridge',
+            slug: 'socket',
+          },
+        ],
+      },
+      tokens: ['cbBTC'],
       chain: 'ethereum',
     },
     {

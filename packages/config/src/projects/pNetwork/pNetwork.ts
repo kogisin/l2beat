@@ -1,17 +1,17 @@
 import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
 
-import { CONTRACTS } from '../../common'
-import { BRIDGE_RISK_VIEW } from '../../common'
+import { BRIDGE_RISK_VIEW, CONTRACTS } from '../../common'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { Bridge } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('pNetwork')
 
 export const pNetwork: Bridge = {
   type: 'bridge',
   id: ProjectId('pNetwork'),
-  isArchived: true,
   addedAt: UnixTime(1674472649), // 2023-01-23T11:17:29Z
+  archivedAt: UnixTime(1742256000), // 2025-03-18T00:00:00.000Z,
   display: {
     name: 'pNetwork',
     slug: 'pnetwork',
@@ -21,7 +21,7 @@ export const pNetwork: Bridge = {
     category: 'Token Bridge',
     links: {
       websites: ['https://p.network/'],
-      apps: ['https://dapp.ptokens.io/'],
+      bridges: ['https://dapp.ptokens.io/'],
       repositories: ['https://github.com/provable-things'],
       documentation: ['https://docs.p.network/en/home'],
       socialMedia: [
@@ -63,12 +63,6 @@ export const pNetwork: Bridge = {
       value: 'Third Party',
       description:
         'Transfers need to be signed offchain by a designed address.',
-      sentiment: 'bad',
-    },
-    sourceUpgradeability: {
-      value: 'Yes',
-      description:
-        'The code that secures the system can be changed arbitrarily and without notice.',
       sentiment: 'bad',
     },
     destinationToken: BRIDGE_RISK_VIEW.WRAPPED,
@@ -134,7 +128,7 @@ export const pNetwork: Bridge = {
 
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails(
           'ERC20 Vault V2',
           'Has special logic for handling inflation of PNT token.',
@@ -151,7 +145,7 @@ export const pNetwork: Bridge = {
   },
 
   permissions: {
-    [discovery.chain]: {
+    ethereum: {
       actors: [
         discovery.getPermissionDetails(
           'PNETWORK',
@@ -216,4 +210,5 @@ export const pNetwork: Bridge = {
       type: 'general',
     },
   ],
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

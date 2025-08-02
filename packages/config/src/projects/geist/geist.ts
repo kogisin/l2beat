@@ -7,9 +7,10 @@ import type { ScalingProject } from '../../internalTypes'
 import { AnytrustDAC } from '../../templates/anytrust-template'
 import { orbitStackL3 } from '../../templates/orbitStack'
 
-const discovery = new ProjectDiscovery('geist', 'base')
+const discovery = new ProjectDiscovery('geist')
 
 export const geist: ScalingProject = orbitStackL3({
+  archivedAt: UnixTime(1751373084), // Tuesday, July 1, 2025 12:31:24 PM
   addedAt: UnixTime(1720191862), // 2024-07-05T15:04:22Z
   additionalPurposes: ['Gaming', 'NFT'],
   additionalBadges: [BADGES.L3ParentChain.Base, BADGES.RaaS.Alchemy],
@@ -24,10 +25,10 @@ export const geist: ScalingProject = orbitStackL3({
     slug: 'geist',
     description:
       'Geist is an Orbit stack Optimium on Base. It is focused on creating a better gaming and metaverse experience around the AavegotchiDAO and the GHST governance token.',
-    category: 'Optimium',
+    category: 'Other',
     links: {
       websites: ['https://playongeist.com/', 'https://dapp.aavegotchi.com/'],
-      apps: [
+      bridges: [
         'https://bridge.arbitrum.io/?destinationChain=geist-mainnet&sourceChain=base',
         'https://dapp.aavegotchi.com/migrate?type=migrateTokens&fromChain=137&toChain=63157',
       ],
@@ -48,6 +49,7 @@ export const geist: ScalingProject = orbitStackL3({
         type: 'rpc',
         url: 'https://geist-mainnet.g.alchemy.com/public',
         callsPerMinute: 600,
+        retryStrategy: 'UNRELIABLE',
       },
     ],
     gasTokens: ['GHST'],
@@ -61,6 +63,7 @@ export const geist: ScalingProject = orbitStackL3({
   rollupProxy: discovery.getContract('RollupProxy'),
   sequencerInbox: discovery.getContract('SequencerInbox'),
   associatedTokens: ['GHST'],
+  hostChain: 'base',
   discovery,
-  customDa: AnytrustDAC({ discovery }),
+  customDa: AnytrustDAC({ discovery, hostChain: 'base' }),
 })

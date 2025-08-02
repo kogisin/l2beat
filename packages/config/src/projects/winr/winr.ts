@@ -3,20 +3,17 @@ import { REASON_FOR_BEING_OTHER } from '../../common'
 import { BADGES } from '../../common/badges'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
-import { AnytrustDAC } from '../../templates/anytrust-template'
 import { orbitStackL3 } from '../../templates/orbitStack'
 
-const discovery = new ProjectDiscovery('winr', 'arbitrum')
+const discovery = new ProjectDiscovery('winr')
 
 export const winr: ScalingProject = orbitStackL3({
-  addedAt: UnixTime(1720191862), // 2024-07-05T15:04:22Z
+  addedAt: UnixTime(1734307200), // 2024-12-16T00:00:00Z
+  hostChain: 'arbitrum',
   discovery,
   additionalBadges: [BADGES.L3ParentChain.Arbitrum, BADGES.RaaS.Conduit],
   additionalPurposes: ['Gaming'],
-  reasonsForBeingOther: [
-    REASON_FOR_BEING_OTHER.CLOSED_PROOFS,
-    REASON_FOR_BEING_OTHER.SMALL_DAC,
-  ],
+  reasonsForBeingOther: [REASON_FOR_BEING_OTHER.CLOSED_PROOFS],
   display: {
     name: 'WINR',
     slug: 'winr',
@@ -24,7 +21,7 @@ export const winr: ScalingProject = orbitStackL3({
       'WINR is a Layer 3 on Arbitrum, based on the Orbit stack. It is focused on building a decentralized iGaming infrastructure.',
     links: {
       websites: ['https://winr.games/'],
-      apps: ['https://just.bet/'],
+      bridges: ['https://just.bet/'],
       documentation: ['https://docs.winr.games/'],
       explorers: ['https://explorer.winr.games/'],
       socialMedia: ['https://x.com/WINRProtocol'],
@@ -39,6 +36,14 @@ export const winr: ScalingProject = orbitStackL3({
     gasTokens: ['WINR'],
   },
   associatedTokens: ['WINR'],
+  isNodeAvailable: true,
+  bridge: discovery.getContract('Bridge'),
+  rollupProxy: discovery.getContract('RollupProxy'),
+  sequencerInbox: discovery.getContract('SequencerInbox'),
+  celestiaDa: {
+    sinceBlock: 5390709,
+    namespace: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAACFo9Sza5FZw=',
+  },
   nonTemplateEscrows: [
     {
       chain: 'arbitrum',
@@ -160,8 +165,13 @@ export const winr: ScalingProject = orbitStackL3({
       includeInTotal: false,
     },
   ],
-  bridge: discovery.getContract('Bridge'),
-  rollupProxy: discovery.getContract('RollupProxy'),
-  sequencerInbox: discovery.getContract('SequencerInbox'),
-  customDa: AnytrustDAC({ discovery }),
+  milestones: [
+    {
+      title: 'Mainnet Launch',
+      url: 'https://x.com/WINRProtocol/status/1867223130684735514',
+      date: '2024-12-16T00:00:00Z',
+      description: 'WINR launches its Mainnet.',
+      type: 'general',
+    },
+  ],
 })

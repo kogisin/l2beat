@@ -9,7 +9,7 @@ import { orbitStackL2 } from '../../templates/orbitStack'
 const discovery = new ProjectDiscovery('everclear')
 
 export const everclear: ScalingProject = orbitStackL2({
-  addedAt: UnixTime(1717512064), // 2024-06-04T14:41:04Z
+  addedAt: UnixTime(1726617600), // 2024-09-18T00:00:00Z
   additionalBadges: [BADGES.RaaS.Gelato],
   additionalPurposes: ['Interoperability'],
   reasonsForBeingOther: [
@@ -23,7 +23,7 @@ export const everclear: ScalingProject = orbitStackL2({
       'Everclear Hub is an AnyTrust Optimium on Ethereum, built on the Orbit stack. It is used as a liquidity hub (clearing layer) to solve the liquidity fragmentation between modular scaling solutions.',
     links: {
       websites: ['https://everclear.org'],
-      apps: ['https://bridge.gelato.network/bridge/everclear-mainnet'],
+      bridges: ['https://bridge.gelato.network/bridge/everclear-mainnet'],
       documentation: ['https://docs.everclear.org'],
       explorers: ['https://scan.everclear.org/'],
       repositories: ['https://github.com/connext'],
@@ -65,5 +65,5 @@ export const everclear: ScalingProject = orbitStackL2({
       type: 'general',
     },
   ],
-  customDa: AnytrustDAC({ discovery }),
+  customDa: AnytrustDAC({ discovery, hostChain: 'ethereum' }),
 })

@@ -7,7 +7,7 @@ export const cheese: ScalingProject = underReviewL3({
   hostChain: ProjectId('arbitrum'),
   id: ProjectId('cheese'),
   capability: 'universal',
-  addedAt: UnixTime(1722512887), // 2024-08-01T11:48:07Z
+  addedAt: UnixTime(1718150400), // 2024-06-12 https://x.com/LayerofCheese/status/1800704112214093955
   badges: [
     BADGES.L3ParentChain.Arbitrum,
     BADGES.DA.Celestia,
@@ -17,14 +17,14 @@ export const cheese: ScalingProject = underReviewL3({
   ],
   display: {
     category: 'Optimium',
-    stack: 'Arbitrum',
+    stacks: ['Arbitrum'],
     name: 'CheeseChain',
     slug: 'cheese',
     description: 'CheeseChain is an Orbit stack Optimium using $CHEESE.',
     purposes: ['Universal'],
     links: {
       websites: ['https://docs.cheesechain.xyz/'],
-      apps: [
+      bridges: [
         'https://cheesechain.bridge.caldera.xyz/',
         'https://bridge.cheesechain.xyz/',
       ],
@@ -35,6 +35,15 @@ export const cheese: ScalingProject = underReviewL3({
         'https://t.me/cheesegateway',
       ],
     },
+  },
+  chainConfig: {
+    name: 'cheese',
+    chainId: undefined,
+    gasTokens: ['CHEESE'],
+    apis: [],
+  },
+  ecosystemInfo: {
+    id: ProjectId('arbitrum-orbit'),
   },
   associatedTokens: ['CHEESE'],
   escrows: [

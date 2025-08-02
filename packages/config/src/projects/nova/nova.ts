@@ -1,29 +1,34 @@
-import { EthereumAddress, UnixTime, formatSeconds } from '@l2beat/shared-pure'
-import { RISK_VIEW, UPGRADE_MECHANISM } from '../../common'
-import { ESCROW } from '../../common'
+import {
+  ChainSpecificAddress,
+  EthereumAddress,
+  formatSeconds,
+  UnixTime,
+} from '@l2beat/shared-pure'
 import {
   DaEconomicSecurityRisk,
   DaRelayerFailureRisk,
   DaUpgradeabilityRisk,
+  ESCROW,
+  RISK_VIEW,
+  UPGRADE_MECHANISM,
 } from '../../common'
 import { BADGES } from '../../common/badges'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
 import { DAC } from '../../templates/dac-template'
 import {
-  WASMVM_OTHER_CONSIDERATIONS,
   getNitroGovernance,
   orbitStackL2,
+  WASMVM_OTHER_CONSIDERATIONS,
 } from '../../templates/orbitStack'
 
 const discovery = new ProjectDiscovery('nova')
-const l2Discovery = new ProjectDiscovery('nova', 'nova')
-const discovery_arbitrum = new ProjectDiscovery('arbitrum', 'arbitrum') // needed for governance section
+const discovery_arbitrum = new ProjectDiscovery('arbitrum') // needed for governance section
 
 const assumedBlockTime = 12 // seconds, different from RollupUserLogic.sol#L35 which assumes 13.2 seconds
 const validatorAfkBlocks = discovery.getContractValue<number>(
   'RollupProxy',
-  'VALIDATOR_AFK_BLOCKS',
+  'validatorAfkBlocks',
 )
 const validatorAfkTime = validatorAfkBlocks * assumedBlockTime
 const challengeWindow = discovery.getContractValue<number>(
@@ -91,8 +96,15 @@ const maxTimeVariation = discovery.getContractValue<{
 
 const selfSequencingDelay = maxTimeVariation.delaySeconds
 
+const isPostBoLD = discovery.getContractValue<boolean>(
+  'RollupProxy',
+  'isPostBoLD',
+)
+
+const chainId = 42170
+
 export const nova: ScalingProject = orbitStackL2({
-  addedAt: UnixTime(1623153328), // 2021-06-08T11:55:28Z
+  addedAt: UnixTime(1660003200), // 2022-08-09T00:00:00Z
   additionalBadges: [
     BADGES.VM.WasmVM,
     BADGES.Stack.Nitro,
@@ -116,7 +128,7 @@ export const nova: ScalingProject = orbitStackL2({
         'https://arbitrum.io/',
         'https://arbitrum.foundation/',
       ],
-      apps: [
+      bridges: [
         'https://bridge.arbitrum.io/?destinationChain=arbitrum-nova&sourceChain=ethereum',
       ],
       documentation: [
@@ -141,7 +153,7 @@ export const nova: ScalingProject = orbitStackL2({
   },
   chainConfig: {
     name: 'nova',
-    chainId: 42170,
+    chainId,
     explorerUrl: 'https://nova.arbiscan.io',
     sinceTimestamp: UnixTime(1656122488),
     multicallContracts: [
@@ -159,7 +171,7 @@ export const nova: ScalingProject = orbitStackL2({
         url: 'https://nova.arbitrum.io/rpc',
         callsPerMinute: 1500,
       },
-      { type: 'etherscan', url: 'https://api-nova.arbiscan.io/api' },
+      { type: 'etherscan', chainId },
     ],
   },
   upgradesAndGovernance: getNitroGovernance(
@@ -170,9 +182,6 @@ export const nova: ScalingProject = orbitStackL2({
     treasuryTimelockDelay,
     l2TreasuryQuorumPercent,
   ),
-  additionalDiscoveries: {
-    nova: l2Discovery,
-  },
   nonTemplateRiskView: {
     exitWindow: RISK_VIEW.EXIT_WINDOW_NITRO(
       l2TimelockDelay,
@@ -180,17 +189,14 @@ export const nova: ScalingProject = orbitStackL2({
       challengeWindowSeconds,
       validatorAfkTime,
       l1TimelockDelay,
+      isPostBoLD,
     ),
-    stateValidation: RISK_VIEW.STATE_FP_INT,
-  },
-  stateValidation: {
-    isUnderReview: true,
-    description: '.',
-    categories: [],
   },
   nonTemplateEscrows: [
     discovery.getEscrowDetails({
-      address: EthereumAddress('0xA2e996f0cb33575FA0E36e8f62fCd4a9b897aAd3'),
+      address: ChainSpecificAddress(
+        'eth:0xA2e996f0cb33575FA0E36e8f62fCd4a9b897aAd3',
+      ),
       sinceTimestamp: UnixTime(1659620187),
       tokens: ['DAI'],
       ...ESCROW.CANONICAL_EXTERNAL,
@@ -199,7 +205,9 @@ export const nova: ScalingProject = orbitStackL2({
       ...upgradeExecutorUpgradeability,
     }),
     discovery.getEscrowDetails({
-      address: EthereumAddress('0xB2535b988dcE19f9D71dfB22dB6da744aCac21bf'),
+      address: ChainSpecificAddress(
+        'eth:0xB2535b988dcE19f9D71dfB22dB6da744aCac21bf',
+      ),
       sinceTimestamp: UnixTime(1656305583),
       tokens: '*',
       description:
@@ -207,10 +215,11 @@ export const nova: ScalingProject = orbitStackL2({
       ...upgradeExecutorUpgradeability,
     }),
     discovery.getEscrowDetails({
-      address: EthereumAddress('0x23122da8C581AA7E0d07A36Ff1f16F799650232f'),
+      address: ChainSpecificAddress(
+        'eth:0x23122da8C581AA7E0d07A36Ff1f16F799650232f',
+      ),
       sinceTimestamp: UnixTime(1659620187),
       tokens: '*',
-      ...ESCROW.CANONICAL_EXTERNAL,
       description:
         'Main entry point for users depositing ERC20 tokens that require minting a custom token on the L2.',
       ...upgradeExecutorUpgradeability,
@@ -228,7 +237,7 @@ export const nova: ScalingProject = orbitStackL2({
   },
   milestones: [
     {
-      title: 'Bold, permissionless proof system, deployed',
+      title: 'Bold deployed with a whitelist',
       url: 'https://x.com/arbitrum/status/1889710151332245837',
       date: '2025-02-15T00:00:00Z',
       type: 'general',
@@ -250,7 +259,7 @@ export const nova: ScalingProject = orbitStackL2({
       type: 'general',
     },
     {
-      title: 'Mainnet for everyone',
+      title: 'Arbitrum Nova Public Mainnet launch',
       description:
         'Whitelist got removed, there are no restrictions on who can transact with the network.',
       date: '2022-08-09T00:00:00Z',

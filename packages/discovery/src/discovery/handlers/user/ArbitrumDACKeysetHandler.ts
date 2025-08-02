@@ -1,17 +1,17 @@
-import { assert, Bytes, type EthereumAddress } from '@l2beat/shared-pure'
+import { assert, Bytes, type ChainSpecificAddress } from '@l2beat/shared-pure'
+import { v } from '@l2beat/validate'
 import { type providers, utils } from 'ethers'
-import * as z from 'zod'
 
 import { base64 } from 'ethers/lib/utils'
 import type { IProvider } from '../../provider/IProvider'
 import type { Handler, HandlerResult } from '../Handler'
 
-export type ArbitrumDACKeysetHandlerDefinition = z.infer<
+export type ArbitrumDACKeysetHandlerDefinition = v.infer<
   typeof ArbitrumDACKeysetHandlerDefinition
 >
 
-export const ArbitrumDACKeysetHandlerDefinition = z.strictObject({
-  type: z.literal('arbitrumDACKeyset'),
+export const ArbitrumDACKeysetHandlerDefinition = v.strictObject({
+  type: v.literal('arbitrumDACKeyset'),
 })
 
 const abi = new utils.Interface([
@@ -28,7 +28,7 @@ export class ArbitrumDACKeysetHandler implements Handler {
 
   async execute(
     provider: IProvider,
-    address: EthereumAddress,
+    address: ChainSpecificAddress,
   ): Promise<HandlerResult> {
     const events = await provider.getLogs(address, [
       [abi.getEventTopic('SetValidKeyset')],

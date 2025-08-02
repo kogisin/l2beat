@@ -1,4 +1,9 @@
-import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
+import {
+  ChainSpecificAddress,
+  EthereumAddress,
+  ProjectId,
+  UnixTime,
+} from '@l2beat/shared-pure'
 
 import {
   DA_BRIDGES,
@@ -16,10 +21,12 @@ import { OPTIMISTIC_ROLLUP_STATE_UPDATES_WARNING } from '../../common/liveness'
 import { getStage } from '../../common/stages/getStage'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('honeypot')
 
 export const honeypot: ScalingProject = {
+  archivedAt: UnixTime(1751987762), // 2025-07-08T15:16:02Z
   type: 'layer2',
   id: ProjectId('honeypot'),
   capability: 'appchain',
@@ -32,18 +39,18 @@ export const honeypot: ScalingProject = {
   ],
   reasonsForBeingOther: [REASON_FOR_BEING_OTHER.NO_PROOFS],
   display: {
-    name: 'Honeypot (Cartesi)',
-    shortName: 'Honeypot',
+    name: 'Cartesi Authority Honeypot',
+    shortName: 'Honeypot Authority',
     slug: 'cartesi-honeypot',
-    stack: 'Cartesi Rollups',
+    stacks: ['Cartesi Rollups'],
     description:
       'Honeypot is an application-specific rollup designed to challenge the security of Cartesi Rollups. It provides a gamified battlefield to incentivize bug hunters to hack the application to obtain the funds locked in the rollup contract.',
     purposes: ['Bug bounty'],
-    category: 'Optimistic Rollup',
+    category: 'Other',
 
     links: {
       websites: ['https://cartesi.io/'],
-      apps: ['https://explorer.cartesi.io/stake'],
+      bridges: ['https://explorer.cartesi.io/stake'],
       documentation: ['https://docs.cartesi.io/cartesi-rollups/'],
       explorers: ['https://cartesiscan.io/', 'https://explorer.cartesi.io/'],
       repositories: ['https://github.com/cartesi/honeypot'],
@@ -72,15 +79,15 @@ export const honeypot: ScalingProject = {
         stateRootsPostedToL1: true,
         dataAvailabilityOnL1: true,
         rollupNodeSourceAvailable: true,
-      },
-      stage1: {
-        principle: false,
         stateVerificationOnL1: {
           satisfied: false,
           message: 'There is no onchain fraud proof system.',
           mode: 'replace',
         },
         fraudProofSystemAtLeast5Outsiders: null,
+      },
+      stage1: {
+        principle: false,
         usersHave7DaysToExit: false,
         usersCanExitWithoutCooperation: false,
         securityCouncilProperlySetUp: null,
@@ -98,7 +105,9 @@ export const honeypot: ScalingProject = {
   config: {
     escrows: [
       discovery.getEscrowDetails({
-        address: EthereumAddress('0x0974CC873dF893B302f6be7ecf4F9D4b1A15C366'),
+        address: ChainSpecificAddress(
+          'eth:0x0974CC873dF893B302f6be7ecf4F9D4b1A15C366',
+        ),
         tokens: '*',
         description: 'Contract storing bounty funds.',
       }),
@@ -115,8 +124,7 @@ export const honeypot: ScalingProject = {
             '0x9DB17B9426E6d3d517a969994E7ADDadbCa9C45f',
           ),
           selector: '0xddfdfbb0',
-          functionSignature:
-            'function submitClaim(bytes calldata _claimData) external onlyOwner',
+          functionSignature: 'function submitClaim(bytes calldata _claimData)',
           sinceTimestamp: UnixTime(1694467715),
         },
       },
@@ -134,26 +142,30 @@ export const honeypot: ScalingProject = {
     sequencerFailure: RISK_VIEW.SEQUENCER_SELF_SEQUENCE(0),
     proposerFailure: RISK_VIEW.PROPOSER_CANNOT_WITHDRAW,
   },
+  stateValidation: {
+    categories: [
+      {
+        title: 'No state validation',
+        description:
+          'Ultimately, Cartesi DApps will use interactive fraud proofs to enforce state correctness. This feature is currently in development and the Honeypot DApp permits invalid state roots. Since Honeypot is immutable, this feature will not be added to the DApp.',
+        risks: [
+          {
+            category: 'Funds can be stolen if',
+            text: 'an invalid state root is submitted to the system by the configured Authority.',
+            isCritical: true,
+          },
+        ],
+        references: [
+          {
+            title:
+              'Authority.sol#L148 - Etherscan source code, submitClaim function',
+            url: 'https://etherscan.io/address/0x9DB17B9426E6d3d517a969994E7ADDadbCa9C45f#code#F1#L48',
+          },
+        ],
+      },
+    ],
+  },
   technology: {
-    stateCorrectness: {
-      name: 'Fraud proofs are in development',
-      description:
-        'Ultimately, Cartesi DApps will use interactive fraud proofs to enforce state correctness. This feature is currently in development and the Honeypot DApp permits invalid state roots. Since Honeypot is immutable, this feature will not be added to the DApp.',
-      risks: [
-        {
-          category: 'Funds can be stolen if',
-          text: 'an invalid state root is submitted to the system by the configured Authority.',
-          isCritical: true,
-        },
-      ],
-      references: [
-        {
-          title:
-            'Authority.sol#L148 - Etherscan source code, submitClaim function',
-          url: 'https://etherscan.io/address/0x9DB17B9426E6d3d517a969994E7ADDadbCa9C45f#code#F1#L48',
-        },
-      ],
-    },
     dataAvailability: {
       ...TECHNOLOGY_DATA_AVAILABILITY.ON_CHAIN_CANONICAL,
       references: [
@@ -180,7 +192,8 @@ export const honeypot: ScalingProject = {
     ],
   },
   stateDerivation: {
-    nodeSoftware: `The Cartesi node software source code can be found [here](https://github.com/cartesi/rollups/tree/v1.0.2/offchain).`,
+    nodeSoftware:
+      'The Cartesi node software source code can be found [here](https://github.com/cartesi/rollups/tree/v1.0.2/offchain).',
     compressionScheme: 'No compression is used.',
     genesisState:
       'The genesis state is derived from the Honeypot Cartesi Machine template, which can be found within the [Honeypot server Docker image](https://hub.docker.com/layers/cartesi/honeypot/main-server-mainnet/images/sha256-9067ebcf3d915e8091aba45bd231a328a7ac260924d85387137ed133f3e240ac) at `/var/opt/cartesi/machine-snapshots/0_0`. Alternatively, it is possible to recreate it by following the build procedure outlined in the [Honeypot GitHub Repository](https://github.com/cartesi/honeypot#building-machine-to-deploy).',
@@ -189,7 +202,7 @@ export const honeypot: ScalingProject = {
   },
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails('Honeypot', {
           description:
             'CartesiDApp instance for the Honeypot DApp, responsible for holding assets and allowing the DApp to interact with other smart contracts.',
@@ -214,7 +227,7 @@ export const honeypot: ScalingProject = {
     risks: [],
   },
   permissions: {
-    [discovery.chain]: {
+    ethereum: {
       actors: [
         discovery.getPermissionDetails(
           'Authority owner',
@@ -239,5 +252,13 @@ export const honeypot: ScalingProject = {
       description: 'Honeypot launched on mainnet.',
       type: 'general',
     },
+    {
+      title: 'Honeypot archived',
+      url: 'https://x.com/cartesiproject/status/1940757477844455765',
+      date: '2025-07-08T00:00:00Z',
+      description: 'Honeypot funds withdrawn, and validator turned off.',
+      type: 'general',
+    },
   ],
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

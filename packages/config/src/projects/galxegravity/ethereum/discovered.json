@@ -1,27 +1,48 @@
 {
   "name": "galxegravity",
   "chain": "ethereum",
-  "blockNumber": 22046063,
-  "configHash": "0x8ebb009844f0343e93f0c1b02d824474a08e6bd07ac8b040ceb62cd42eb1ebbc",
+  "timestamp": 1752236903,
+  "configHash": "0x27acba2277d832d1ee848594d589af87c40ebaf2c06d07e8df55a7255cbe097e",
   "entries": [
     {
-      "name": "OneStepProverHostIo",
-      "address": "0x0003A96B27ce73505b43ea1b71a5aB06bec568C4",
+      "address": "eth:0x006F5B7E2D58fb4E53DEdaB8802FCdf2a5441DC7",
+      "type": "EOA",
+      "proxyType": "EOA",
+      "receivedPermissions": [
+        {
+          "permission": "validate",
+          "from": "eth:0xf993AF239770932A0EDaB88B6A5ba3708Bd58239",
+          "description": "Can propose new state roots (called nodes) and challenge state roots on the host chain.",
+          "role": ".validators"
+        }
+      ]
+    },
+    {
+      "name": "OneStepProofEntry",
+      "address": "eth:0x0537c93dA3b1f8A525204165d1d93De0534c262f",
       "type": "Contract",
-      "template": "orbitstack/OneStepProverHostIo",
+      "template": "orbitstack/OneStepProofEntry",
       "sourceHashes": [
-        "0x2e969e0e83aea53307795f6826413e39bb416a64bc6da18f3a339ffeef444d32"
+        "0x96f85480073b58d0e985cd6c68956f4a52f5ed8b2ce751b18868e2e830be3678"
       ],
       "proxyType": "immutable",
       "description": "One of the modular contracts used for the last step of a fraud proof, which is simulated inside a WASM virtual machine.",
-      "sinceTimestamp": 1724148899,
-      "sinceBlock": 20569170,
-      "values": { "$immutable": true },
-      "derivedName": "OneStepProverHostIo"
+      "sinceTimestamp": 1745874959,
+      "sinceBlock": 22370181,
+      "values": {
+        "$immutable": true,
+        "prover0": "eth:0x6982e35C878cD2b5aF8Dcf06f33c4EfB01D6f482",
+        "proverHostIo": "eth:0x856EA788977Bc771E8Ca87471baeC507A0f54771",
+        "proverMath": "eth:0x9c40D14A2FC3f0A2f5fe804436f8e312224472C5",
+        "proverMem": "eth:0xcaBf38d8eADdE0BC6C91655242AFB4Da92a63FCe"
+      },
+      "implementationNames": {
+        "eth:0x0537c93dA3b1f8A525204165d1d93De0534c262f": "OneStepProofEntry"
+      }
     },
     {
       "name": "Outbox",
-      "address": "0x1153a1e4B1523DFf36f77d696bd6eBF2B0e7DAbF",
+      "address": "eth:0x1153a1e4B1523DFf36f77d696bd6eBF2B0e7DAbF",
       "type": "Contract",
       "template": "orbitstack/Outbox",
       "sourceHashes": [
@@ -30,73 +51,78 @@
       ],
       "proxyType": "EIP1967 proxy",
       "description": "Facilitates L2 to L1 contract calls: Messages initiated from L2 (for example withdrawal messages) eventually resolve in execution on L1.",
-      "issuedPermissions": [
-        {
-          "permission": "upgrade",
-          "to": "0x4a4962275DF8C60a80d3a25faEc5AA7De116A746",
-          "via": [
-            { "address": "0xa5D23c69894241825dAffB570c3c742C0F52df96" },
-            { "address": "0xBbc3872E30C91ef69336937838c2a283F79f7E68" }
-          ]
-        }
-      ],
       "sinceTimestamp": 1716053843,
       "sinceBlock": 19898364,
       "values": {
-        "$admin": "0xBbc3872E30C91ef69336937838c2a283F79f7E68",
-        "$implementation": "0x19431dc37098877486532250FB3158140717C00C",
+        "$admin": "eth:0xBbc3872E30C91ef69336937838c2a283F79f7E68",
+        "$implementation": "eth:0x19431dc37098877486532250FB3158140717C00C",
         "$pastUpgrades": [
           [
             "2024-05-18T17:37:23.000Z",
             "0x8cc45e895fa944fdd15443047c58bd3633eb5cf885d54d46d081010615022312",
-            ["0x19431dc37098877486532250FB3158140717C00C"]
+            ["eth:0x19431dc37098877486532250FB3158140717C00C"]
           ]
         ],
         "$upgradeCount": 1,
-        "bridge": "0x7983403dDA368AA7d67145a9b81c5c517F364c42",
+        "bridge": "eth:0x7983403dDA368AA7d67145a9b81c5c517F364c42",
         "l2ToL1BatchNum": 0,
         "l2ToL1Block": 0,
         "l2ToL1EthBlock": 0,
         "l2ToL1OutputId": "0x0000000000000000000000000000000000000000000000000000000000000000",
-        "l2ToL1Sender": "0x0000000000000000000000000000000000000000",
+        "l2ToL1Sender": "eth:0x0000000000000000000000000000000000000000",
         "l2ToL1Timestamp": 0,
         "l2ToL1WithdrawalAmount": 0,
         "OUTBOX_VERSION": 2,
-        "rollup": "0xf993AF239770932A0EDaB88B6A5ba3708Bd58239"
+        "rollup": "eth:0xf993AF239770932A0EDaB88B6A5ba3708Bd58239"
       },
-      "derivedName": "ERC20Outbox",
+      "implementationNames": {
+        "eth:0x1153a1e4B1523DFf36f77d696bd6eBF2B0e7DAbF": "TransparentUpgradeableProxy",
+        "eth:0x19431dc37098877486532250FB3158140717C00C": "ERC20Outbox"
+      },
       "category": { "name": "Canonical Bridges", "priority": 2 }
     },
     {
-      "address": "0x18c87d3DbF779E3F7793fc6c62ead9Ff15F0e634",
+      "address": "eth:0x11f563dDbF266484Dd910A401A7e44299d80b1d5",
       "type": "EOA",
       "proxyType": "EOA",
       "receivedPermissions": [
         {
           "permission": "validate",
-          "from": "0xf993AF239770932A0EDaB88B6A5ba3708Bd58239",
-          "description": "Can propose new state roots (called nodes) and challenge state roots on the host chain."
+          "from": "eth:0xf993AF239770932A0EDaB88B6A5ba3708Bd58239",
+          "description": "Can propose new state roots (called nodes) and challenge state roots on the host chain.",
+          "role": ".validators"
         }
       ]
     },
     {
-      "name": "OneStepProverMemory",
-      "address": "0x1cD76B9C33b2e3b04D7B181399d492B3e49AD7fB",
-      "type": "Contract",
-      "template": "orbitstack/OneStepProverMemory",
-      "sourceHashes": [
-        "0x3955092d1dbd80f0910d7782a25da1e3da45533c7890928a1c6c63cbf5def5bf"
-      ],
-      "proxyType": "immutable",
-      "description": "One of the modular contracts used for the last step of a fraud proof, which is simulated inside a WASM virtual machine.",
-      "sinceTimestamp": 1724148875,
-      "sinceBlock": 20569168,
-      "values": { "$immutable": true },
-      "derivedName": "OneStepProverMemory"
+      "address": "eth:0x16C1D3b4aDB6f0F468FCE7b802cE5AA0A2B06d03",
+      "type": "EOA",
+      "proxyType": "EOA",
+      "receivedPermissions": [
+        {
+          "permission": "validate",
+          "from": "eth:0xf993AF239770932A0EDaB88B6A5ba3708Bd58239",
+          "description": "Can propose new state roots (called nodes) and challenge state roots on the host chain.",
+          "role": ".validators"
+        }
+      ]
+    },
+    {
+      "address": "eth:0x17F187D978664C96ffD655996a45e085c403AD8b",
+      "type": "EOA",
+      "proxyType": "EOA",
+      "receivedPermissions": [
+        {
+          "permission": "sequence",
+          "from": "eth:0x8D99372612e8cFE7163B1a453831Bc40eAeb3cF3",
+          "description": "Can submit transaction batches or commitments to the SequencerInbox contract on the host chain.",
+          "role": ".batchPosters"
+        }
+      ]
     },
     {
       "name": "ValidatorUtils",
-      "address": "0x2b0E04Dc90e3fA58165CB41E2834B44A56E766aF",
+      "address": "eth:0x2b0E04Dc90e3fA58165CB41E2834B44A56E766aF",
       "type": "Contract",
       "template": "orbitstack/ValidatorUtils",
       "sourceHashes": [
@@ -109,35 +135,61 @@
       "values": {
         "$immutable": true,
         "GRAVITY_STAKERS": [
-          ["0x18c87d3DbF779E3F7793fc6c62ead9Ff15F0e634"],
+          ["eth:0x16C1D3b4aDB6f0F468FCE7b802cE5AA0A2B06d03"],
           false
         ]
       },
-      "derivedName": "ValidatorUtils"
+      "implementationNames": {
+        "eth:0x2b0E04Dc90e3fA58165CB41E2834B44A56E766aF": "ValidatorUtils"
+      }
     },
     {
-      "name": "OneStepProver0",
-      "address": "0x2dCCAbE89cF76132619a9B18e9F9e48E837222b5",
-      "type": "Contract",
-      "template": "orbitstack/OneStepProver0",
-      "sourceHashes": [
-        "0x642d283934aef1189cf62e1bcd34a5081762b33fdd3ec8e823f304f874e48748"
-      ],
-      "proxyType": "immutable",
-      "description": "One of the modular contracts used for the last step of a fraud proof, which is simulated inside a WASM virtual machine.",
-      "sinceTimestamp": 1724148863,
-      "sinceBlock": 20569167,
-      "values": { "$immutable": true },
-      "derivedName": "OneStepProver0"
+      "address": "eth:0x2E8C0869C173cC07c58186E9DeEA74314635b1E2",
+      "type": "EOA",
+      "proxyType": "EOA",
+      "receivedPermissions": [
+        {
+          "permission": "sequence",
+          "from": "eth:0x8D99372612e8cFE7163B1a453831Bc40eAeb3cF3",
+          "description": "Can submit transaction batches or commitments to the SequencerInbox contract on the host chain.",
+          "role": ".batchPosters"
+        }
+      ]
     },
     {
-      "address": "0x3840f487A17A41100DD1Bf0946c34f132a57Fd5f",
+      "address": "eth:0x33Bf8bF5aF3579D0E2305302409A5b6b4173c779",
+      "type": "EOA",
+      "proxyType": "EOA",
+      "receivedPermissions": [
+        {
+          "permission": "validate",
+          "from": "eth:0xf993AF239770932A0EDaB88B6A5ba3708Bd58239",
+          "description": "Can propose new state roots (called nodes) and challenge state roots on the host chain.",
+          "role": ".validators"
+        }
+      ]
+    },
+    {
+      "address": "eth:0x3840f487A17A41100DD1Bf0946c34f132a57Fd5f",
       "type": "EOA",
       "proxyType": "EOA"
     },
     {
+      "address": "eth:0x401Ba2e5037e3d8D1c32E77Dfd371501618604Bf",
+      "type": "EOA",
+      "proxyType": "EOA",
+      "receivedPermissions": [
+        {
+          "permission": "validate",
+          "from": "eth:0xf993AF239770932A0EDaB88B6A5ba3708Bd58239",
+          "description": "Can propose new state roots (called nodes) and challenge state roots on the host chain.",
+          "role": ".validators"
+        }
+      ]
+    },
+    {
       "name": "Conduit Multisig 1",
-      "address": "0x4a4962275DF8C60a80d3a25faEc5AA7De116A746",
+      "address": "eth:0x4a4962275DF8C60a80d3a25faEc5AA7De116A746",
       "type": "Contract",
       "template": "GnosisSafe",
       "sourceHashes": [
@@ -148,76 +200,90 @@
       "receivedPermissions": [
         {
           "permission": "interact",
-          "from": "0xf993AF239770932A0EDaB88B6A5ba3708Bd58239",
+          "from": "eth:0xf993AF239770932A0EDaB88B6A5ba3708Bd58239",
           "description": "Pause and unpause and set important roles and parameters in the system contracts: Can delegate Sequencer management to a BatchPosterManager address, manage data availability, DACs and the fastConfirmer role, set the Sequencer-only window, introduce an allowList to the bridge and whitelist Inboxes/Outboxes.",
-          "via": [{ "address": "0xa5D23c69894241825dAffB570c3c742C0F52df96" }]
-        },
-        {
-          "permission": "upgrade",
-          "from": "0x1153a1e4B1523DFf36f77d696bd6eBF2B0e7DAbF",
+          "role": ".owner",
           "via": [
-            { "address": "0xBbc3872E30C91ef69336937838c2a283F79f7E68" },
-            { "address": "0xa5D23c69894241825dAffB570c3c742C0F52df96" }
+            { "address": "eth:0xa5D23c69894241825dAffB570c3c742C0F52df96" }
           ]
         },
         {
           "permission": "upgrade",
-          "from": "0x68466622Aae5a9Ffd02530247d75Dd107f06B333",
+          "from": "eth:0x1153a1e4B1523DFf36f77d696bd6eBF2B0e7DAbF",
+          "role": "admin",
           "via": [
-            { "address": "0xBbc3872E30C91ef69336937838c2a283F79f7E68" },
-            { "address": "0xa5D23c69894241825dAffB570c3c742C0F52df96" }
+            { "address": "eth:0xBbc3872E30C91ef69336937838c2a283F79f7E68" },
+            { "address": "eth:0xa5D23c69894241825dAffB570c3c742C0F52df96" }
           ]
         },
         {
           "permission": "upgrade",
-          "from": "0x7983403dDA368AA7d67145a9b81c5c517F364c42",
+          "from": "eth:0x68466622Aae5a9Ffd02530247d75Dd107f06B333",
+          "role": "admin",
           "via": [
-            { "address": "0xBbc3872E30C91ef69336937838c2a283F79f7E68" },
-            { "address": "0xa5D23c69894241825dAffB570c3c742C0F52df96" }
+            { "address": "eth:0xBbc3872E30C91ef69336937838c2a283F79f7E68" },
+            { "address": "eth:0xa5D23c69894241825dAffB570c3c742C0F52df96" }
           ]
         },
         {
           "permission": "upgrade",
-          "from": "0x7AD2a94BefF3294a31894cFb5ba4206957a53c19",
+          "from": "eth:0x7983403dDA368AA7d67145a9b81c5c517F364c42",
+          "role": "admin",
           "via": [
-            { "address": "0xBbc3872E30C91ef69336937838c2a283F79f7E68" },
-            { "address": "0xa5D23c69894241825dAffB570c3c742C0F52df96" }
+            { "address": "eth:0xBbc3872E30C91ef69336937838c2a283F79f7E68" },
+            { "address": "eth:0xa5D23c69894241825dAffB570c3c742C0F52df96" }
           ]
         },
         {
           "permission": "upgrade",
-          "from": "0x8D99372612e8cFE7163B1a453831Bc40eAeb3cF3",
+          "from": "eth:0x7AD2a94BefF3294a31894cFb5ba4206957a53c19",
+          "role": "admin",
           "via": [
-            { "address": "0xBbc3872E30C91ef69336937838c2a283F79f7E68" },
-            { "address": "0xa5D23c69894241825dAffB570c3c742C0F52df96" }
+            { "address": "eth:0xBbc3872E30C91ef69336937838c2a283F79f7E68" },
+            { "address": "eth:0xa5D23c69894241825dAffB570c3c742C0F52df96" }
           ]
         },
         {
           "permission": "upgrade",
-          "from": "0xa24eDA32bb36171a6c34CBB4B56f89FF7B8fD49A",
+          "from": "eth:0x8D99372612e8cFE7163B1a453831Bc40eAeb3cF3",
+          "role": "admin",
           "via": [
-            { "address": "0xBbc3872E30C91ef69336937838c2a283F79f7E68" },
-            { "address": "0xa5D23c69894241825dAffB570c3c742C0F52df96" }
+            { "address": "eth:0xBbc3872E30C91ef69336937838c2a283F79f7E68" },
+            { "address": "eth:0xa5D23c69894241825dAffB570c3c742C0F52df96" }
           ]
         },
         {
           "permission": "upgrade",
-          "from": "0xa5D23c69894241825dAffB570c3c742C0F52df96",
+          "from": "eth:0xa24eDA32bb36171a6c34CBB4B56f89FF7B8fD49A",
+          "role": "admin",
           "via": [
-            { "address": "0xBbc3872E30C91ef69336937838c2a283F79f7E68" },
-            { "address": "0xa5D23c69894241825dAffB570c3c742C0F52df96" }
+            { "address": "eth:0xBbc3872E30C91ef69336937838c2a283F79f7E68" },
+            { "address": "eth:0xa5D23c69894241825dAffB570c3c742C0F52df96" }
           ]
         },
         {
           "permission": "upgrade",
-          "from": "0xf993AF239770932A0EDaB88B6A5ba3708Bd58239",
-          "via": [{ "address": "0xa5D23c69894241825dAffB570c3c742C0F52df96" }]
+          "from": "eth:0xa5D23c69894241825dAffB570c3c742C0F52df96",
+          "role": "admin",
+          "via": [
+            { "address": "eth:0xBbc3872E30C91ef69336937838c2a283F79f7E68" },
+            { "address": "eth:0xa5D23c69894241825dAffB570c3c742C0F52df96" }
+          ]
+        },
+        {
+          "permission": "upgrade",
+          "from": "eth:0xf993AF239770932A0EDaB88B6A5ba3708Bd58239",
+          "role": "admin",
+          "via": [
+            { "address": "eth:0xa5D23c69894241825dAffB570c3c742C0F52df96" }
+          ]
         }
       ],
       "directlyReceivedPermissions": [
         {
           "permission": "act",
-          "from": "0xa5D23c69894241825dAffB570c3c742C0F52df96"
+          "from": "eth:0xa5D23c69894241825dAffB570c3c742C0F52df96",
+          "role": ".executors"
         }
       ],
       "ignoreInWatchMode": ["nonce"],
@@ -225,42 +291,59 @@
       "sinceBlock": 16990669,
       "values": {
         "$immutable": false,
-        "$implementation": "0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552",
+        "$implementation": "eth:0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552",
         "$members": [
-          "0x860e06Fe384D1A3340111e7D142E02642178c053",
-          "0x50930d652266EF4127FA3A1906B7Cb9951076628",
-          "0xA0737fea60F0601A192E3d2c98865A883ab0bda2",
-          "0xF3313C48BD8E17b823d5498D62F37019dFEA647D",
-          "0xF0B77EaE7F2dabCC2571c7418406A0dCA3afA4f0",
-          "0xa4000bDD2bB92ce6750b31F1eeda47Bd1cB8e6e4",
-          "0x3840f487A17A41100DD1Bf0946c34f132a57Fd5f",
-          "0xa0C600a6e85bf225958FFAcC70B5FDDF9A059038",
-          "0xefCf0c8faFB425997870f845e26fC6cA6EE6dD5C",
-          "0x4D8007a0E9f293e62E2b0F43C6Cf4C4B9e135BAe"
+          "eth:0x81175155D85377C337d92f1FA52Da166C3A4E7Ac",
+          "eth:0x860e06Fe384D1A3340111e7D142E02642178c053",
+          "eth:0x50930d652266EF4127FA3A1906B7Cb9951076628",
+          "eth:0xA0737fea60F0601A192E3d2c98865A883ab0bda2",
+          "eth:0xF3313C48BD8E17b823d5498D62F37019dFEA647D",
+          "eth:0xF0B77EaE7F2dabCC2571c7418406A0dCA3afA4f0",
+          "eth:0xa4000bDD2bB92ce6750b31F1eeda47Bd1cB8e6e4",
+          "eth:0x3840f487A17A41100DD1Bf0946c34f132a57Fd5f",
+          "eth:0xa0C600a6e85bf225958FFAcC70B5FDDF9A059038",
+          "eth:0xefCf0c8faFB425997870f845e26fC6cA6EE6dD5C",
+          "eth:0x4D8007a0E9f293e62E2b0F43C6Cf4C4B9e135BAe"
         ],
         "$threshold": 4,
         "domainSeparator": "0x0f634ad56005ddbd68dc52233931a858f740b8ab706671c42b055efef561257e",
         "getChainId": 1,
         "GnosisSafe_modules": [],
-        "multisigThreshold": "4 of 10 (40%)",
-        "nonce": 84,
+        "multisigThreshold": "4 of 11 (36%)",
+        "nonce": 111,
         "VERSION": "1.3.0"
       },
-      "derivedName": "GnosisSafe"
+      "implementationNames": {
+        "eth:0x4a4962275DF8C60a80d3a25faEc5AA7De116A746": "GnosisSafeProxy",
+        "eth:0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552": "GnosisSafe"
+      }
     },
     {
-      "address": "0x4D8007a0E9f293e62E2b0F43C6Cf4C4B9e135BAe",
+      "address": "eth:0x4D8007a0E9f293e62E2b0F43C6Cf4C4B9e135BAe",
       "type": "EOA",
       "proxyType": "EOA"
     },
     {
-      "address": "0x50930d652266EF4127FA3A1906B7Cb9951076628",
+      "address": "eth:0x4ed0f98FB4c331e672653E832c55E0f9F402C228",
+      "type": "EOA",
+      "proxyType": "EOA",
+      "receivedPermissions": [
+        {
+          "permission": "sequence",
+          "from": "eth:0x8D99372612e8cFE7163B1a453831Bc40eAeb3cF3",
+          "description": "Can submit transaction batches or commitments to the SequencerInbox contract on the host chain.",
+          "role": ".batchPosters"
+        }
+      ]
+    },
+    {
+      "address": "eth:0x50930d652266EF4127FA3A1906B7Cb9951076628",
       "type": "EOA",
       "proxyType": "EOA"
     },
     {
       "name": "ChallengeManager",
-      "address": "0x68466622Aae5a9Ffd02530247d75Dd107f06B333",
+      "address": "eth:0x68466622Aae5a9Ffd02530247d75Dd107f06B333",
       "type": "Contract",
       "template": "orbitstack/ChallengeManager",
       "sourceHashes": [
@@ -269,64 +352,82 @@
       ],
       "proxyType": "EIP1967 proxy",
       "description": "Contract that allows challenging state roots. Can be called through the RollupProxy by Validators or the UpgradeExecutor.",
-      "issuedPermissions": [
-        {
-          "permission": "upgrade",
-          "to": "0x4a4962275DF8C60a80d3a25faEc5AA7De116A746",
-          "via": [
-            { "address": "0xa5D23c69894241825dAffB570c3c742C0F52df96" },
-            { "address": "0xBbc3872E30C91ef69336937838c2a283F79f7E68" }
-          ]
-        }
-      ],
       "sinceTimestamp": 1716053843,
       "sinceBlock": 19898364,
       "values": {
-        "$admin": "0xBbc3872E30C91ef69336937838c2a283F79f7E68",
-        "$implementation": "0x02E05A9245C5853f895daDcc3A8216C953C8736B",
+        "$admin": "eth:0xBbc3872E30C91ef69336937838c2a283F79f7E68",
+        "$implementation": "eth:0x531c78AA0e0126Cef52c2027AA026Aa6e2929194",
         "$pastUpgrades": [
           [
             "2024-05-18T17:37:23.000Z",
             "0x8cc45e895fa944fdd15443047c58bd3633eb5cf885d54d46d081010615022312",
-            ["0x1D901DD7A5eFE421C3C437B147040E5AF22E6A43"]
+            ["eth:0x1D901DD7A5eFE421C3C437B147040E5AF22E6A43"]
           ],
           [
             "2025-01-27T14:58:35.000Z",
             "0xe11d3d807bd73ee2b941638788ccc55113045530f5b5fa5f2c7150ca54af8787",
-            ["0x02E05A9245C5853f895daDcc3A8216C953C8736B"]
+            ["eth:0x02E05A9245C5853f895daDcc3A8216C953C8736B"]
+          ],
+          [
+            "2025-04-28T22:49:23.000Z",
+            "0x89bb6d5ad4aee106eb3057f96b1c3dc685bc40dc798d267f429c486b114fbd25",
+            ["eth:0x531c78AA0e0126Cef52c2027AA026Aa6e2929194"]
           ]
         ],
-        "$upgradeCount": 2,
-        "bridge": "0x7983403dDA368AA7d67145a9b81c5c517F364c42",
-        "osp": "0x8Faa21891B0b928afEbd5314D1D313f8f7B34DaC",
-        "resultReceiver": "0xf993AF239770932A0EDaB88B6A5ba3708Bd58239",
-        "sequencerInbox": "0x8D99372612e8cFE7163B1a453831Bc40eAeb3cF3",
+        "$upgradeCount": 3,
+        "bridge": "eth:0x7983403dDA368AA7d67145a9b81c5c517F364c42",
+        "osp": "eth:0x0537c93dA3b1f8A525204165d1d93De0534c262f",
+        "resultReceiver": "eth:0xf993AF239770932A0EDaB88B6A5ba3708Bd58239",
+        "sequencerInbox": "eth:0x8D99372612e8cFE7163B1a453831Bc40eAeb3cF3",
         "totalChallengesCreated": 0
       },
-      "derivedName": "ChallengeManager",
+      "implementationNames": {
+        "eth:0x68466622Aae5a9Ffd02530247d75Dd107f06B333": "TransparentUpgradeableProxy",
+        "eth:0x531c78AA0e0126Cef52c2027AA026Aa6e2929194": "ChallengeManager"
+      },
       "category": { "name": "Local Infrastructure", "priority": 5 }
     },
     {
+      "name": "OneStepProver0",
+      "address": "eth:0x6982e35C878cD2b5aF8Dcf06f33c4EfB01D6f482",
+      "type": "Contract",
+      "template": "orbitstack/OneStepProver0",
+      "sourceHashes": [
+        "0x642d283934aef1189cf62e1bcd34a5081762b33fdd3ec8e823f304f874e48748"
+      ],
+      "proxyType": "immutable",
+      "description": "One of the modular contracts used for the last step of a fraud proof, which is simulated inside a WASM virtual machine.",
+      "sinceTimestamp": 1745874899,
+      "sinceBlock": 22370177,
+      "values": { "$immutable": true },
+      "implementationNames": {
+        "eth:0x6982e35C878cD2b5aF8Dcf06f33c4EfB01D6f482": "OneStepProver0"
+      }
+    },
+    {
+      "address": "eth:0x74a0d46BA4F69cAB77A459f8B12dc531c7DaBf3C",
+      "type": "EOA",
+      "proxyType": "EOA",
+      "receivedPermissions": [
+        {
+          "permission": "sequence",
+          "from": "eth:0x8D99372612e8cFE7163B1a453831Bc40eAeb3cF3",
+          "description": "Can submit transaction batches or commitments to the SequencerInbox contract on the host chain.",
+          "role": ".batchPosters"
+        }
+      ]
+    },
+    {
       "name": "Bridge",
-      "address": "0x7983403dDA368AA7d67145a9b81c5c517F364c42",
+      "address": "eth:0x7983403dDA368AA7d67145a9b81c5c517F364c42",
       "type": "Contract",
       "template": "orbitstack/Bridge",
       "sourceHashes": [
         "0xa7e3f6c355703ed46fcb2156862c4f01792b87beb10a87a81ce3bd5beee79b67",
-        "0x057de68a7007d55f4394ba6eafb2c802efcaf13583ff9342ea4d0ee3924d9be1"
+        "0x32c73666d391a33c17183e4ab20bcb0f2b925d8a99da436d2ff99c13f403e289"
       ],
       "proxyType": "EIP1967 proxy",
       "description": "Escrow contract for the project's gas token (can be different from ETH). Keeps a list of allowed Inboxes and Outboxes for canonical bridge messaging.",
-      "issuedPermissions": [
-        {
-          "permission": "upgrade",
-          "to": "0x4a4962275DF8C60a80d3a25faEc5AA7De116A746",
-          "via": [
-            { "address": "0xa5D23c69894241825dAffB570c3c742C0F52df96" },
-            { "address": "0xBbc3872E30C91ef69336937838c2a283F79f7E68" }
-          ]
-        }
-      ],
       "ignoreInWatchMode": [
         "delayedMessageCount",
         "sequencerMessageCount",
@@ -335,33 +436,39 @@
       "sinceTimestamp": 1716053843,
       "sinceBlock": 19898364,
       "values": {
-        "$admin": "0xBbc3872E30C91ef69336937838c2a283F79f7E68",
-        "$implementation": "0x7EfcB76D0e2E776A298aAa603d433336e5F8b6ab",
+        "$admin": "eth:0xBbc3872E30C91ef69336937838c2a283F79f7E68",
+        "$implementation": "eth:0xEfA1De858293593732a09c9dAA238BEC49595751",
         "$pastUpgrades": [
           [
             "2024-05-18T17:37:23.000Z",
             "0x8cc45e895fa944fdd15443047c58bd3633eb5cf885d54d46d081010615022312",
-            ["0x7EfcB76D0e2E776A298aAa603d433336e5F8b6ab"]
+            ["eth:0x7EfcB76D0e2E776A298aAa603d433336e5F8b6ab"]
+          ],
+          [
+            "2025-04-25T21:26:59.000Z",
+            "0x95770a864151002415a2e504452a4bccb01906d9a94d74cbd9cb651b337317bd",
+            ["eth:0xEfA1De858293593732a09c9dAA238BEC49595751"]
           ]
         ],
-        "$upgradeCount": 1,
-        "activeOutbox": "0x0000000000000000000000000000000000000000",
+        "$upgradeCount": 2,
+        "activeOutbox": "eth:0x0000000000000000000000000000000000000000",
         "allowedDelayedInboxList": [
-          "0x7AD2a94BefF3294a31894cFb5ba4206957a53c19",
-          "0xa24eDA32bb36171a6c34CBB4B56f89FF7B8fD49A"
+          "eth:0x7AD2a94BefF3294a31894cFb5ba4206957a53c19",
+          "eth:0xa24eDA32bb36171a6c34CBB4B56f89FF7B8fD49A"
         ],
-        "allowedOutboxList": ["0x1153a1e4B1523DFf36f77d696bd6eBF2B0e7DAbF"],
-        "delayedMessageCount": 14011,
+        "allowedOutboxList": ["eth:0x1153a1e4B1523DFf36f77d696bd6eBF2B0e7DAbF"],
+        "delayedMessageCount": 14487,
         "inboxHistory": [
-          "0x7AD2a94BefF3294a31894cFb5ba4206957a53c19",
-          "0xa24eDA32bb36171a6c34CBB4B56f89FF7B8fD49A"
+          "eth:0x7AD2a94BefF3294a31894cFb5ba4206957a53c19",
+          "eth:0xa24eDA32bb36171a6c34CBB4B56f89FF7B8fD49A"
         ],
-        "nativeToken": "0x9C7BEBa8F6eF6643aBd725e45a4E8387eF260649",
-        "outboxHistory": ["0x1153a1e4B1523DFf36f77d696bd6eBF2B0e7DAbF"],
-        "rollup": "0xf993AF239770932A0EDaB88B6A5ba3708Bd58239",
-        "sequencerInbox": "0x8D99372612e8cFE7163B1a453831Bc40eAeb3cF3",
-        "sequencerMessageCount": 56619,
-        "sequencerReportedSubMessageCount": 48789808
+        "nativeToken": "eth:0x9C7BEBa8F6eF6643aBd725e45a4E8387eF260649",
+        "nativeTokenDecimals": 18,
+        "outboxHistory": ["eth:0x1153a1e4B1523DFf36f77d696bd6eBF2B0e7DAbF"],
+        "rollup": "eth:0xf993AF239770932A0EDaB88B6A5ba3708Bd58239",
+        "sequencerInbox": "eth:0x8D99372612e8cFE7163B1a453831Bc40eAeb3cF3",
+        "sequencerMessageCount": 62213,
+        "sequencerReportedSubMessageCount": 77419554
       },
       "fieldMeta": {
         "allowedOutboxList": {
@@ -381,85 +488,114 @@
           "description": "All Inboxes that were ever set as allowed in the bridge."
         }
       },
-      "derivedName": "ERC20Bridge",
+      "implementationNames": {
+        "eth:0x7983403dDA368AA7d67145a9b81c5c517F364c42": "TransparentUpgradeableProxy",
+        "eth:0xEfA1De858293593732a09c9dAA238BEC49595751": "ERC20Bridge"
+      },
       "category": { "name": "Local Infrastructure", "priority": 5 }
     },
     {
       "name": "Inbox",
-      "address": "0x7AD2a94BefF3294a31894cFb5ba4206957a53c19",
+      "address": "eth:0x7AD2a94BefF3294a31894cFb5ba4206957a53c19",
       "type": "Contract",
       "template": "orbitstack/Inbox",
       "sourceHashes": [
         "0xa7e3f6c355703ed46fcb2156862c4f01792b87beb10a87a81ce3bd5beee79b67",
-        "0xcb390b491549387c8fcc09fb22fbea7adf54cc74b7247a0c738369ddd7049b92"
+        "0x25984fdfffb8141859c99299fb29e7a7460732d77111e5fe23792baa99f336a3"
       ],
       "proxyType": "EIP1967 proxy",
       "description": "Facilitates sending L1 to L2 messages like depositing ETH, but does not escrow funds.",
-      "issuedPermissions": [
-        {
-          "permission": "upgrade",
-          "to": "0x4a4962275DF8C60a80d3a25faEc5AA7De116A746",
-          "via": [
-            { "address": "0xa5D23c69894241825dAffB570c3c742C0F52df96" },
-            { "address": "0xBbc3872E30C91ef69336937838c2a283F79f7E68" }
-          ]
-        }
-      ],
       "sinceTimestamp": 1716053843,
       "sinceBlock": 19898364,
       "values": {
-        "$admin": "0xBbc3872E30C91ef69336937838c2a283F79f7E68",
-        "$implementation": "0x31fAAAB44e74eB408d1FC69A14806B4b9cA09da2",
+        "$admin": "eth:0xBbc3872E30C91ef69336937838c2a283F79f7E68",
+        "$implementation": "eth:0x81eEEbb902693A3a90948Fe0A661aedb35271054",
         "$pastUpgrades": [
           [
             "2024-05-18T17:37:23.000Z",
             "0x8cc45e895fa944fdd15443047c58bd3633eb5cf885d54d46d081010615022312",
-            ["0x31fAAAB44e74eB408d1FC69A14806B4b9cA09da2"]
+            ["eth:0x31fAAAB44e74eB408d1FC69A14806B4b9cA09da2"]
+          ],
+          [
+            "2025-04-25T21:26:59.000Z",
+            "0x95770a864151002415a2e504452a4bccb01906d9a94d74cbd9cb651b337317bd",
+            ["eth:0x6C051397fee2d79ccf92d1f3c5c6547fEBD838F4"]
+          ],
+          [
+            "2025-04-28T22:49:23.000Z",
+            "0x89bb6d5ad4aee106eb3057f96b1c3dc685bc40dc798d267f429c486b114fbd25",
+            ["eth:0x81eEEbb902693A3a90948Fe0A661aedb35271054"]
           ]
         ],
-        "$upgradeCount": 1,
+        "$upgradeCount": 3,
         "allowListEnabled": false,
-        "bridge": "0x7983403dDA368AA7d67145a9b81c5c517F364c42",
-        "getProxyAdmin": "0xBbc3872E30C91ef69336937838c2a283F79f7E68",
+        "bridge": "eth:0x7983403dDA368AA7d67145a9b81c5c517F364c42",
+        "getProxyAdmin": "eth:0xBbc3872E30C91ef69336937838c2a283F79f7E68",
         "maxDataSize": 117964,
         "paused": false,
-        "sequencerInbox": "0x8D99372612e8cFE7163B1a453831Bc40eAeb3cF3"
+        "sequencerInbox": "eth:0x8D99372612e8cFE7163B1a453831Bc40eAeb3cF3"
       },
-      "derivedName": "ERC20Inbox",
+      "implementationNames": {
+        "eth:0x7AD2a94BefF3294a31894cFb5ba4206957a53c19": "TransparentUpgradeableProxy",
+        "eth:0x81eEEbb902693A3a90948Fe0A661aedb35271054": "ERC20Inbox"
+      },
       "category": { "name": "Canonical Bridges", "priority": 2 }
     },
     {
-      "address": "0x860e06Fe384D1A3340111e7D142E02642178c053",
+      "address": "eth:0x81175155D85377C337d92f1FA52Da166C3A4E7Ac",
+      "type": "EOA",
+      "proxyType": "EOA"
+    },
+    {
+      "name": "OneStepProverHostIo",
+      "address": "eth:0x856EA788977Bc771E8Ca87471baeC507A0f54771",
+      "type": "Contract",
+      "template": "orbitstack/OneStepProverHostIo_Celestia",
+      "sourceHashes": [
+        "0x73c3c22d54ad12907dffd5f715cea7f724c65ba212d2b3da84ded2333fd76ce8"
+      ],
+      "proxyType": "immutable",
+      "description": "One of the modular contracts used for the last step of a fraud proof, which is simulated inside a WASM virtual machine. This version uses the Blobstream DA bridge (eth:0x7Cf3876F681Dbb6EdA8f6FfC45D66B996Df08fAe) as source of truth for the DA referenced by the fault proof.",
+      "sinceTimestamp": 1745874947,
+      "sinceBlock": 22370180,
+      "values": {
+        "$immutable": true,
+        "BLOBSTREAM": "eth:0x7Cf3876F681Dbb6EdA8f6FfC45D66B996Df08fAe",
+        "CELESTIA_MESSAGE_HEADER_FLAG": "0x63"
+      },
+      "implementationNames": {
+        "eth:0x856EA788977Bc771E8Ca87471baeC507A0f54771": "OneStepProverHostIo"
+      }
+    },
+    {
+      "address": "eth:0x85e70D857F6Fad7AD4ffc3fC95FD0fd8C396A09D",
+      "type": "EOA",
+      "proxyType": "EOA",
+      "receivedPermissions": [
+        {
+          "permission": "sequence",
+          "from": "eth:0x8D99372612e8cFE7163B1a453831Bc40eAeb3cF3",
+          "description": "Can submit transaction batches or commitments to the SequencerInbox contract on the host chain.",
+          "role": ".batchPosters"
+        }
+      ]
+    },
+    {
+      "address": "eth:0x860e06Fe384D1A3340111e7D142E02642178c053",
       "type": "EOA",
       "proxyType": "EOA"
     },
     {
       "name": "SequencerInbox",
-      "address": "0x8D99372612e8cFE7163B1a453831Bc40eAeb3cF3",
+      "address": "eth:0x8D99372612e8cFE7163B1a453831Bc40eAeb3cF3",
       "type": "Contract",
       "template": "orbitstack/SequencerInbox",
       "sourceHashes": [
         "0xa7e3f6c355703ed46fcb2156862c4f01792b87beb10a87a81ce3bd5beee79b67",
-        "0x50cf57b01499408fa99da27cf0fee96ec30f0d40667d1aa090c442bc80f0636b"
+        "0x4030f12794a5a07697b98400d423a426b39fd6f2320b39ee377d700d4fafdc58"
       ],
       "proxyType": "EIP1967 proxy",
       "description": "A sequencer (registered in this contract) can submit transaction batches or commitments here.",
-      "issuedPermissions": [
-        {
-          "permission": "sequence",
-          "to": "0xBa369bd77a346babCd282cB1a015194E8ec54542",
-          "description": "Can submit transaction batches or commitments to the SequencerInbox contract on the host chain.",
-          "via": []
-        },
-        {
-          "permission": "upgrade",
-          "to": "0x4a4962275DF8C60a80d3a25faEc5AA7De116A746",
-          "via": [
-            { "address": "0xa5D23c69894241825dAffB570c3c742C0F52df96" },
-            { "address": "0xBbc3872E30C91ef69336937838c2a283F79f7E68" }
-          ]
-        }
-      ],
       "ignoreInWatchMode": [
         "batchCount",
         "totalDelayedMessagesRead",
@@ -469,21 +605,42 @@
       "sinceTimestamp": 1716053843,
       "sinceBlock": 19898364,
       "values": {
-        "$admin": "0xBbc3872E30C91ef69336937838c2a283F79f7E68",
-        "$implementation": "0x383f16fB2809a56fC639c1eE2c93Ad2aa7Ee130A",
+        "$admin": "eth:0xBbc3872E30C91ef69336937838c2a283F79f7E68",
+        "$implementation": "eth:0xC1fB0cCa6e751dEe25e3D537D309d336E8304d50",
         "$pastUpgrades": [
           [
             "2024-05-18T17:37:23.000Z",
             "0x8cc45e895fa944fdd15443047c58bd3633eb5cf885d54d46d081010615022312",
-            ["0x383f16fB2809a56fC639c1eE2c93Ad2aa7Ee130A"]
+            ["eth:0x383f16fB2809a56fC639c1eE2c93Ad2aa7Ee130A"]
+          ],
+          [
+            "2025-04-25T21:26:59.000Z",
+            "0x95770a864151002415a2e504452a4bccb01906d9a94d74cbd9cb651b337317bd",
+            ["eth:0xaEd84B70Be8117112a5aa0d93a7fBff463A03b18"]
+          ],
+          [
+            "2025-04-28T22:49:23.000Z",
+            "0x89bb6d5ad4aee106eb3057f96b1c3dc685bc40dc798d267f429c486b114fbd25",
+            ["eth:0xC1fB0cCa6e751dEe25e3D537D309d336E8304d50"]
           ]
         ],
-        "$upgradeCount": 1,
-        "batchCount": 56619,
-        "batchPosterManager": "0x0000000000000000000000000000000000000000",
-        "batchPosters": ["0xBa369bd77a346babCd282cB1a015194E8ec54542"],
-        "bridge": "0x7983403dDA368AA7d67145a9b81c5c517F364c42",
+        "$upgradeCount": 3,
+        "batchCount": 62213,
+        "batchPosterManager": "eth:0x0000000000000000000000000000000000000000",
+        "batchPosters": [
+          "eth:0x17F187D978664C96ffD655996a45e085c403AD8b",
+          "eth:0x2E8C0869C173cC07c58186E9DeEA74314635b1E2",
+          "eth:0x4ed0f98FB4c331e672653E832c55E0f9F402C228",
+          "eth:0x74a0d46BA4F69cAB77A459f8B12dc531c7DaBf3C",
+          "eth:0x85e70D857F6Fad7AD4ffc3fC95FD0fd8C396A09D",
+          "eth:0xA4f98Ac0E083C79BAB53A3895082e8a4fbf12CDe",
+          "eth:0xCEEAEC6b7e010fE1Ac253Ebd6f93eEBF9249Cd7e",
+          "eth:0xb9B2AeAe8D160a5bF9cb7FE7B2c8B58c0293FD5e",
+          "eth:0xc7ef93FE91D4658bb422B11C5f8Ae17ae3B86D36"
+        ],
+        "bridge": "eth:0x7983403dDA368AA7d67145a9b81c5c517F364c42",
         "BROTLI_MESSAGE_HEADER_FLAG": "0x00",
+        "CELESTIA_MESSAGE_HEADER_FLAG": "0x63",
         "dacKeyset": {
           "requiredSignatures": 1,
           "membersCount": 1,
@@ -505,11 +662,11 @@
           "futureSeconds": 3600
         },
         "postsBlobs": false,
-        "reader4844": "0x7Deda2425eC2d4EA0DF689A78de2fBF002075576",
-        "rollup": "0xf993AF239770932A0EDaB88B6A5ba3708Bd58239",
-        "sequencerVersion": "0x88",
-        "setIsBatchPosterCount": 1,
-        "totalDelayedMessagesRead": 14011,
+        "reader4844": "eth:0x58f9a83EF35a241bcAc7EC4fB6e7DBcE2A1D1125",
+        "rollup": "eth:0xf993AF239770932A0EDaB88B6A5ba3708Bd58239",
+        "sequencerVersion": "0x63",
+        "setIsBatchPosterCount": 3,
+        "totalDelayedMessagesRead": 14487,
         "TREE_DAS_MESSAGE_HEADER_FLAG": "0x08",
         "ZERO_HEAVY_MESSAGE_HEADER_FLAG": "0x20"
       },
@@ -518,43 +675,81 @@
           "description": "Settable by the Rollup Owner. Transactions can only be force-included after the `delayBlocks` window (Sequencer-only) has passed."
         }
       },
-      "derivedName": "SequencerInbox",
+      "implementationNames": {
+        "eth:0x8D99372612e8cFE7163B1a453831Bc40eAeb3cF3": "TransparentUpgradeableProxy",
+        "eth:0xC1fB0cCa6e751dEe25e3D537D309d336E8304d50": "SequencerInbox"
+      },
       "category": { "name": "Local Infrastructure", "priority": 5 }
     },
     {
-      "name": "OneStepProofEntry",
-      "address": "0x8Faa21891B0b928afEbd5314D1D313f8f7B34DaC",
+      "address": "eth:0x8fbEf9f7554aec9CCf62b88D86aE1C91F1599F7C",
+      "type": "EOA",
+      "proxyType": "EOA",
+      "receivedPermissions": [
+        {
+          "permission": "validate",
+          "from": "eth:0xf993AF239770932A0EDaB88B6A5ba3708Bd58239",
+          "description": "Can propose new state roots (called nodes) and challenge state roots on the host chain.",
+          "role": ".validators"
+        }
+      ]
+    },
+    {
+      "name": "OneStepProverMath",
+      "address": "eth:0x9c40D14A2FC3f0A2f5fe804436f8e312224472C5",
       "type": "Contract",
-      "template": "orbitstack/OneStepProofEntry",
+      "template": "orbitstack/OneStepProverMath",
       "sourceHashes": [
-        "0x96f85480073b58d0e985cd6c68956f4a52f5ed8b2ce751b18868e2e830be3678"
+        "0x3de1ddc210fe283d7298c5f06879df577c6a475329a206b1928c74d10db656d5"
       ],
       "proxyType": "immutable",
       "description": "One of the modular contracts used for the last step of a fraud proof, which is simulated inside a WASM virtual machine.",
-      "sinceTimestamp": 1724148911,
-      "sinceBlock": 20569171,
-      "values": {
-        "$immutable": true,
-        "prover0": "0x2dCCAbE89cF76132619a9B18e9F9e48E837222b5",
-        "proverHostIo": "0x0003A96B27ce73505b43ea1b71a5aB06bec568C4",
-        "proverMath": "0xCf4b98cFF2976E4eb579B9498f398b5bd279A6eD",
-        "proverMem": "0x1cD76B9C33b2e3b04D7B181399d492B3e49AD7fB"
-      },
-      "derivedName": "OneStepProofEntry"
+      "sinceTimestamp": 1745874935,
+      "sinceBlock": 22370179,
+      "values": { "$immutable": true },
+      "implementationNames": {
+        "eth:0x9c40D14A2FC3f0A2f5fe804436f8e312224472C5": "OneStepProverMath"
+      }
     },
     {
-      "address": "0xA0737fea60F0601A192E3d2c98865A883ab0bda2",
+      "address": "eth:0x9DFaA1770bcE35EaB6a163D3cDE6cA1F3Ff7eA66",
+      "type": "EOA",
+      "proxyType": "EOA",
+      "receivedPermissions": [
+        {
+          "permission": "validate",
+          "from": "eth:0xf993AF239770932A0EDaB88B6A5ba3708Bd58239",
+          "description": "Can propose new state roots (called nodes) and challenge state roots on the host chain.",
+          "role": ".validators"
+        }
+      ]
+    },
+    {
+      "address": "eth:0xa017149a752BDd8723a09Cd6f40c388D38B8d202",
+      "type": "EOA",
+      "proxyType": "EOA",
+      "receivedPermissions": [
+        {
+          "permission": "validate",
+          "from": "eth:0xf993AF239770932A0EDaB88B6A5ba3708Bd58239",
+          "description": "Can propose new state roots (called nodes) and challenge state roots on the host chain.",
+          "role": ".validators"
+        }
+      ]
+    },
+    {
+      "address": "eth:0xA0737fea60F0601A192E3d2c98865A883ab0bda2",
       "type": "EOA",
       "proxyType": "EOA"
     },
     {
-      "address": "0xa0C600a6e85bf225958FFAcC70B5FDDF9A059038",
+      "address": "eth:0xa0C600a6e85bf225958FFAcC70B5FDDF9A059038",
       "type": "EOA",
       "proxyType": "EOA"
     },
     {
       "name": "RollupEventInbox",
-      "address": "0xa24eDA32bb36171a6c34CBB4B56f89FF7B8fD49A",
+      "address": "eth:0xa24eDA32bb36171a6c34CBB4B56f89FF7B8fD49A",
       "type": "Contract",
       "template": "orbitstack/RollupEventInbox",
       "sourceHashes": [
@@ -563,42 +758,48 @@
       ],
       "proxyType": "EIP1967 proxy",
       "description": "Helper contract sending configuration data over the bridge during the systems initialization.",
-      "issuedPermissions": [
-        {
-          "permission": "upgrade",
-          "to": "0x4a4962275DF8C60a80d3a25faEc5AA7De116A746",
-          "via": [
-            { "address": "0xa5D23c69894241825dAffB570c3c742C0F52df96" },
-            { "address": "0xBbc3872E30C91ef69336937838c2a283F79f7E68" }
-          ]
-        }
-      ],
       "sinceTimestamp": 1716053843,
       "sinceBlock": 19898364,
       "values": {
-        "$admin": "0xBbc3872E30C91ef69336937838c2a283F79f7E68",
-        "$implementation": "0x302275067251F5FcdB9359Bda735fD8f7A4A54c0",
+        "$admin": "eth:0xBbc3872E30C91ef69336937838c2a283F79f7E68",
+        "$implementation": "eth:0x302275067251F5FcdB9359Bda735fD8f7A4A54c0",
         "$pastUpgrades": [
           [
             "2024-05-18T17:37:23.000Z",
             "0x8cc45e895fa944fdd15443047c58bd3633eb5cf885d54d46d081010615022312",
-            ["0x302275067251F5FcdB9359Bda735fD8f7A4A54c0"]
+            ["eth:0x302275067251F5FcdB9359Bda735fD8f7A4A54c0"]
           ]
         ],
         "$upgradeCount": 1,
-        "bridge": "0x7983403dDA368AA7d67145a9b81c5c517F364c42",
-        "rollup": "0xf993AF239770932A0EDaB88B6A5ba3708Bd58239"
+        "bridge": "eth:0x7983403dDA368AA7d67145a9b81c5c517F364c42",
+        "rollup": "eth:0xf993AF239770932A0EDaB88B6A5ba3708Bd58239"
       },
-      "derivedName": "ERC20RollupEventInbox"
+      "implementationNames": {
+        "eth:0xa24eDA32bb36171a6c34CBB4B56f89FF7B8fD49A": "TransparentUpgradeableProxy",
+        "eth:0x302275067251F5FcdB9359Bda735fD8f7A4A54c0": "ERC20RollupEventInbox"
+      }
     },
     {
-      "address": "0xa4000bDD2bB92ce6750b31F1eeda47Bd1cB8e6e4",
+      "address": "eth:0xa4000bDD2bB92ce6750b31F1eeda47Bd1cB8e6e4",
       "type": "EOA",
       "proxyType": "EOA"
     },
     {
+      "address": "eth:0xA4f98Ac0E083C79BAB53A3895082e8a4fbf12CDe",
+      "type": "EOA",
+      "proxyType": "EOA",
+      "receivedPermissions": [
+        {
+          "permission": "sequence",
+          "from": "eth:0x8D99372612e8cFE7163B1a453831Bc40eAeb3cF3",
+          "description": "Can submit transaction batches or commitments to the SequencerInbox contract on the host chain.",
+          "role": ".batchPosters"
+        }
+      ]
+    },
+    {
       "name": "UpgradeExecutor",
-      "address": "0xa5D23c69894241825dAffB570c3c742C0F52df96",
+      "address": "eth:0xa5D23c69894241825dAffB570c3c742C0F52df96",
       "type": "Contract",
       "template": "orbitstack/UpgradeExecutor",
       "sourceHashes": [
@@ -607,41 +808,34 @@
       ],
       "proxyType": "EIP1967 proxy",
       "description": "Central contract defining the access control permissions for upgrading the system contract implementations.",
-      "issuedPermissions": [
-        {
-          "permission": "upgrade",
-          "to": "0x4a4962275DF8C60a80d3a25faEc5AA7De116A746",
-          "via": [
-            { "address": "0xa5D23c69894241825dAffB570c3c742C0F52df96" },
-            { "address": "0xBbc3872E30C91ef69336937838c2a283F79f7E68" }
-          ]
-        }
-      ],
       "directlyReceivedPermissions": [
         {
           "permission": "act",
-          "from": "0xBbc3872E30C91ef69336937838c2a283F79f7E68"
+          "from": "eth:0xBbc3872E30C91ef69336937838c2a283F79f7E68",
+          "role": ".owner"
         },
         {
           "permission": "interact",
-          "from": "0xf993AF239770932A0EDaB88B6A5ba3708Bd58239",
-          "description": "Pause and unpause and set important roles and parameters in the system contracts: Can delegate Sequencer management to a BatchPosterManager address, manage data availability, DACs and the fastConfirmer role, set the Sequencer-only window, introduce an allowList to the bridge and whitelist Inboxes/Outboxes."
+          "from": "eth:0xf993AF239770932A0EDaB88B6A5ba3708Bd58239",
+          "description": "Pause and unpause and set important roles and parameters in the system contracts: Can delegate Sequencer management to a BatchPosterManager address, manage data availability, DACs and the fastConfirmer role, set the Sequencer-only window, introduce an allowList to the bridge and whitelist Inboxes/Outboxes.",
+          "role": ".owner"
         },
         {
           "permission": "upgrade",
-          "from": "0xf993AF239770932A0EDaB88B6A5ba3708Bd58239"
+          "from": "eth:0xf993AF239770932A0EDaB88B6A5ba3708Bd58239",
+          "role": "admin"
         }
       ],
       "sinceTimestamp": 1716053843,
       "sinceBlock": 19898364,
       "values": {
-        "$admin": "0xBbc3872E30C91ef69336937838c2a283F79f7E68",
-        "$implementation": "0x6c21303F5986180B1394d2C89f3e883890E2867b",
+        "$admin": "eth:0xBbc3872E30C91ef69336937838c2a283F79f7E68",
+        "$implementation": "eth:0x6c21303F5986180B1394d2C89f3e883890E2867b",
         "$pastUpgrades": [
           [
             "2024-05-18T17:37:23.000Z",
             "0x8cc45e895fa944fdd15443047c58bd3633eb5cf885d54d46d081010615022312",
-            ["0x6c21303F5986180B1394d2C89f3e883890E2867b"]
+            ["eth:0x6c21303F5986180B1394d2C89f3e883890E2867b"]
           ]
         ],
         "$upgradeCount": 1,
@@ -652,36 +846,40 @@
           },
           "ADMIN_ROLE": {
             "adminRole": "ADMIN_ROLE",
-            "members": ["0xa5D23c69894241825dAffB570c3c742C0F52df96"]
+            "members": ["eth:0xa5D23c69894241825dAffB570c3c742C0F52df96"]
           },
           "EXECUTOR_ROLE": {
             "adminRole": "ADMIN_ROLE",
-            "members": ["0x4a4962275DF8C60a80d3a25faEc5AA7De116A746"]
+            "members": ["eth:0x4a4962275DF8C60a80d3a25faEc5AA7De116A746"]
           }
         },
         "ADMIN_ROLE": "0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775",
         "DEFAULT_ADMIN_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000",
         "EXECUTOR_ROLE": "0xd8aa0f3194971a2a116679f7c2090f6939c8d4e01a2a8d7e41d55e5351469e63",
-        "executors": ["0x4a4962275DF8C60a80d3a25faEc5AA7De116A746"]
+        "executors": ["eth:0x4a4962275DF8C60a80d3a25faEc5AA7De116A746"]
       },
-      "derivedName": "UpgradeExecutor",
+      "implementationNames": {
+        "eth:0xa5D23c69894241825dAffB570c3c742C0F52df96": "TransparentUpgradeableProxy",
+        "eth:0x6c21303F5986180B1394d2C89f3e883890E2867b": "UpgradeExecutor"
+      },
       "category": { "name": "Governance", "priority": 3 }
     },
     {
-      "address": "0xBa369bd77a346babCd282cB1a015194E8ec54542",
+      "address": "eth:0xb9B2AeAe8D160a5bF9cb7FE7B2c8B58c0293FD5e",
       "type": "EOA",
       "proxyType": "EOA",
       "receivedPermissions": [
         {
           "permission": "sequence",
-          "from": "0x8D99372612e8cFE7163B1a453831Bc40eAeb3cF3",
-          "description": "Can submit transaction batches or commitments to the SequencerInbox contract on the host chain."
+          "from": "eth:0x8D99372612e8cFE7163B1a453831Bc40eAeb3cF3",
+          "description": "Can submit transaction batches or commitments to the SequencerInbox contract on the host chain.",
+          "role": ".batchPosters"
         }
       ]
     },
     {
       "name": "ProxyAdmin",
-      "address": "0xBbc3872E30C91ef69336937838c2a283F79f7E68",
+      "address": "eth:0xBbc3872E30C91ef69336937838c2a283F79f7E68",
       "type": "Contract",
       "template": "global/ProxyAdmin",
       "sourceHashes": [
@@ -691,102 +889,132 @@
       "directlyReceivedPermissions": [
         {
           "permission": "upgrade",
-          "from": "0x1153a1e4B1523DFf36f77d696bd6eBF2B0e7DAbF"
+          "from": "eth:0x1153a1e4B1523DFf36f77d696bd6eBF2B0e7DAbF",
+          "role": "admin"
         },
         {
           "permission": "upgrade",
-          "from": "0x68466622Aae5a9Ffd02530247d75Dd107f06B333"
+          "from": "eth:0x68466622Aae5a9Ffd02530247d75Dd107f06B333",
+          "role": "admin"
         },
         {
           "permission": "upgrade",
-          "from": "0x7983403dDA368AA7d67145a9b81c5c517F364c42"
+          "from": "eth:0x7983403dDA368AA7d67145a9b81c5c517F364c42",
+          "role": "admin"
         },
         {
           "permission": "upgrade",
-          "from": "0x7AD2a94BefF3294a31894cFb5ba4206957a53c19"
+          "from": "eth:0x7AD2a94BefF3294a31894cFb5ba4206957a53c19",
+          "role": "admin"
         },
         {
           "permission": "upgrade",
-          "from": "0x8D99372612e8cFE7163B1a453831Bc40eAeb3cF3"
+          "from": "eth:0x8D99372612e8cFE7163B1a453831Bc40eAeb3cF3",
+          "role": "admin"
         },
         {
           "permission": "upgrade",
-          "from": "0xa24eDA32bb36171a6c34CBB4B56f89FF7B8fD49A"
+          "from": "eth:0xa24eDA32bb36171a6c34CBB4B56f89FF7B8fD49A",
+          "role": "admin"
         },
         {
           "permission": "upgrade",
-          "from": "0xa5D23c69894241825dAffB570c3c742C0F52df96"
+          "from": "eth:0xa5D23c69894241825dAffB570c3c742C0F52df96",
+          "role": "admin"
         }
       ],
       "sinceTimestamp": 1716053843,
       "sinceBlock": 19898364,
       "values": {
         "$immutable": true,
-        "owner": "0xa5D23c69894241825dAffB570c3c742C0F52df96"
+        "owner": "eth:0xa5D23c69894241825dAffB570c3c742C0F52df96"
       },
-      "derivedName": "ProxyAdmin"
+      "implementationNames": {
+        "eth:0xBbc3872E30C91ef69336937838c2a283F79f7E68": "ProxyAdmin"
+      }
     },
     {
-      "name": "OneStepProverMath",
-      "address": "0xCf4b98cFF2976E4eb579B9498f398b5bd279A6eD",
+      "address": "eth:0xc7ef93FE91D4658bb422B11C5f8Ae17ae3B86D36",
+      "type": "EOA",
+      "proxyType": "EOA",
+      "receivedPermissions": [
+        {
+          "permission": "sequence",
+          "from": "eth:0x8D99372612e8cFE7163B1a453831Bc40eAeb3cF3",
+          "description": "Can submit transaction batches or commitments to the SequencerInbox contract on the host chain.",
+          "role": ".batchPosters"
+        }
+      ]
+    },
+    {
+      "name": "OneStepProverMemory",
+      "address": "eth:0xcaBf38d8eADdE0BC6C91655242AFB4Da92a63FCe",
       "type": "Contract",
-      "template": "orbitstack/OneStepProverMath",
+      "template": "orbitstack/OneStepProverMemory",
       "sourceHashes": [
-        "0x3de1ddc210fe283d7298c5f06879df577c6a475329a206b1928c74d10db656d5"
+        "0x3955092d1dbd80f0910d7782a25da1e3da45533c7890928a1c6c63cbf5def5bf"
       ],
       "proxyType": "immutable",
       "description": "One of the modular contracts used for the last step of a fraud proof, which is simulated inside a WASM virtual machine.",
-      "sinceTimestamp": 1724148887,
-      "sinceBlock": 20569169,
+      "sinceTimestamp": 1745874923,
+      "sinceBlock": 22370178,
       "values": { "$immutable": true },
-      "derivedName": "OneStepProverMath"
+      "implementationNames": {
+        "eth:0xcaBf38d8eADdE0BC6C91655242AFB4Da92a63FCe": "OneStepProverMemory"
+      }
     },
     {
-      "address": "0xefCf0c8faFB425997870f845e26fC6cA6EE6dD5C",
+      "address": "eth:0xCEEAEC6b7e010fE1Ac253Ebd6f93eEBF9249Cd7e",
+      "type": "EOA",
+      "proxyType": "EOA",
+      "receivedPermissions": [
+        {
+          "permission": "sequence",
+          "from": "eth:0x8D99372612e8cFE7163B1a453831Bc40eAeb3cF3",
+          "description": "Can submit transaction batches or commitments to the SequencerInbox contract on the host chain.",
+          "role": ".batchPosters"
+        }
+      ]
+    },
+    {
+      "address": "eth:0xd1e56283216127E1F40A3752735C94A13d97bc92",
+      "type": "EOA",
+      "proxyType": "EOA",
+      "receivedPermissions": [
+        {
+          "permission": "validate",
+          "from": "eth:0xf993AF239770932A0EDaB88B6A5ba3708Bd58239",
+          "description": "Can propose new state roots (called nodes) and challenge state roots on the host chain.",
+          "role": ".validators"
+        }
+      ]
+    },
+    {
+      "address": "eth:0xefCf0c8faFB425997870f845e26fC6cA6EE6dD5C",
       "type": "EOA",
       "proxyType": "EOA"
     },
     {
-      "address": "0xF0B77EaE7F2dabCC2571c7418406A0dCA3afA4f0",
+      "address": "eth:0xF0B77EaE7F2dabCC2571c7418406A0dCA3afA4f0",
       "type": "EOA",
       "proxyType": "EOA"
     },
     {
-      "address": "0xF3313C48BD8E17b823d5498D62F37019dFEA647D",
+      "address": "eth:0xF3313C48BD8E17b823d5498D62F37019dFEA647D",
       "type": "EOA",
       "proxyType": "EOA"
     },
     {
       "name": "RollupProxy",
-      "address": "0xf993AF239770932A0EDaB88B6A5ba3708Bd58239",
+      "address": "eth:0xf993AF239770932A0EDaB88B6A5ba3708Bd58239",
       "type": "Contract",
       "template": "orbitstack/RollupProxy_fastConfirm",
       "sourceHashes": [
         "0xb8da0b3748daac768860783e8555198fd2d1bbdffb775b81557a7124890c7eca",
-        "0x9349e73cbc2d2b818c1d79711574ba210b56249d8d3845bc78c776caf8f8ff42",
-        "0x7ee21b18b2e18c636bfafc08ff72692cc43302b2599ba75f0abad67282866dd5"
+        "0x86c7032e0f4b5468f1eb92c79b73ab4c7f053fc7bdfc88fdd360e2fe7baa1072"
       ],
       "proxyType": "Arbitrum proxy",
       "description": "Central contract for the project's configuration like its execution logic hash (`wasmModuleRoot`) and addresses of the other system contracts. Entry point for Proposers creating new Rollup Nodes (state commitments) and Challengers submitting fraud proofs (In the Orbit stack, these two roles are both held by the Validators).",
-      "issuedPermissions": [
-        {
-          "permission": "interact",
-          "to": "0x4a4962275DF8C60a80d3a25faEc5AA7De116A746",
-          "description": "Pause and unpause and set important roles and parameters in the system contracts: Can delegate Sequencer management to a BatchPosterManager address, manage data availability, DACs and the fastConfirmer role, set the Sequencer-only window, introduce an allowList to the bridge and whitelist Inboxes/Outboxes.",
-          "via": [{ "address": "0xa5D23c69894241825dAffB570c3c742C0F52df96" }]
-        },
-        {
-          "permission": "upgrade",
-          "to": "0x4a4962275DF8C60a80d3a25faEc5AA7De116A746",
-          "via": [{ "address": "0xa5D23c69894241825dAffB570c3c742C0F52df96" }]
-        },
-        {
-          "permission": "validate",
-          "to": "0x18c87d3DbF779E3F7793fc6c62ead9Ff15F0e634",
-          "description": "Can propose new state roots (called nodes) and challenge state roots on the host chain.",
-          "via": []
-        }
-      ],
       "ignoreInWatchMode": [
         "firstUnresolvedNode",
         "latestConfirmed",
@@ -796,65 +1024,75 @@
       "sinceTimestamp": 1716053843,
       "sinceBlock": 19898364,
       "values": {
-        "$admin": "0xa5D23c69894241825dAffB570c3c742C0F52df96",
+        "$admin": "eth:0xa5D23c69894241825dAffB570c3c742C0F52df96",
         "$implementation": [
-          "0x9B56A789fEDD5df27dBaB53b085F7157397cA17D",
-          "0x5607Ea4b5F6e3F610bD346B36D3143FFf46d1C34"
+          "eth:0x9B56A789fEDD5df27dBaB53b085F7157397cA17D",
+          "eth:0x5607Ea4b5F6e3F610bD346B36D3143FFf46d1C34"
         ],
         "$pastUpgrades": [
           [
             "2024-05-18T17:37:23.000Z",
             "0x8cc45e895fa944fdd15443047c58bd3633eb5cf885d54d46d081010615022312",
             [
-              "0x0aE4dD666748bF0F6dB5c149Eab1D8aD27820A6A",
-              "0x660ea1675F7323dC3Ba0c8dDFB593225Eb01E3C1"
+              "eth:0x0aE4dD666748bF0F6dB5c149Eab1D8aD27820A6A",
+              "eth:0x660ea1675F7323dC3Ba0c8dDFB593225Eb01E3C1"
             ]
           ],
           [
             "2025-01-27T14:58:35.000Z",
             "0xe11d3d807bd73ee2b941638788ccc55113045530f5b5fa5f2c7150ca54af8787",
             [
-              "0x9B56A789fEDD5df27dBaB53b085F7157397cA17D",
-              "0x5607Ea4b5F6e3F610bD346B36D3143FFf46d1C34"
+              "eth:0x9B56A789fEDD5df27dBaB53b085F7157397cA17D",
+              "eth:0x5607Ea4b5F6e3F610bD346B36D3143FFf46d1C34"
             ]
           ]
         ],
         "$upgradeCount": 2,
-        "anyTrustFastConfirmer": "0x0000000000000000000000000000000000000000",
-        "arbOsFromWmRoot": "ArbOS v32 wasmModuleRoot",
+        "anyTrustFastConfirmer": "eth:0x0000000000000000000000000000000000000000",
+        "arbOsFromWmRoot": "Celestia Nitro 3.3.2 wasmModuleRoot",
         "baseStake": "100000000000000000",
-        "bridge": "0x7983403dDA368AA7d67145a9b81c5c517F364c42",
+        "bridge": "eth:0x7983403dDA368AA7d67145a9b81c5c517F364c42",
         "chainId": 1625,
-        "challengeManager": "0x68466622Aae5a9Ffd02530247d75Dd107f06B333",
+        "challengeManager": "eth:0x68466622Aae5a9Ffd02530247d75Dd107f06B333",
         "challenges": [],
         "confirmPeriodBlocks": 40320,
         "currentRequiredStake": "100000000000000000",
         "extraChallengeTimeBlocks": 200,
-        "firstUnresolvedNode": 556,
-        "inbox": "0x7AD2a94BefF3294a31894cFb5ba4206957a53c19",
+        "firstUnresolvedNode": 794,
+        "inbox": "eth:0x7AD2a94BefF3294a31894cFb5ba4206957a53c19",
         "isERC20Enabled": false,
         "isPostBoLD": false,
-        "lastStakeBlock": 19907386,
-        "latestConfirmed": 555,
-        "latestNodeCreated": 566,
-        "loserStakeEscrow": "0x0000000000000000000000000000000000000000",
+        "lastStakeBlock": 22739188,
+        "latestConfirmed": 793,
+        "latestNodeCreated": 805,
+        "loserStakeEscrow": "eth:0x0000000000000000000000000000000000000000",
         "minimumAssertionPeriod": 75,
-        "outbox": "0x1153a1e4B1523DFf36f77d696bd6eBF2B0e7DAbF",
-        "owner": "0xa5D23c69894241825dAffB570c3c742C0F52df96",
+        "outbox": "eth:0x1153a1e4B1523DFf36f77d696bd6eBF2B0e7DAbF",
+        "owner": "eth:0xa5D23c69894241825dAffB570c3c742C0F52df96",
         "paused": false,
         "rollupDeploymentBlock": 19898364,
-        "rollupEventInbox": "0xa24eDA32bb36171a6c34CBB4B56f89FF7B8fD49A",
-        "sequencerInbox": "0x8D99372612e8cFE7163B1a453831Bc40eAeb3cF3",
-        "setValidatorCount": 1,
+        "rollupEventInbox": "eth:0xa24eDA32bb36171a6c34CBB4B56f89FF7B8fD49A",
+        "sequencerInbox": "eth:0x8D99372612e8cFE7163B1a453831Bc40eAeb3cF3",
+        "setValidatorCount": 3,
         "stakerCount": 1,
-        "stakeToken": "0x0000000000000000000000000000000000000000",
+        "stakeToken": "eth:0x0000000000000000000000000000000000000000",
         "totalWithdrawableFunds": 0,
         "VALIDATOR_AFK_BLOCKS": 45818,
-        "validators": ["0x18c87d3DbF779E3F7793fc6c62ead9Ff15F0e634"],
-        "validatorUtils": "0x2b0E04Dc90e3fA58165CB41E2834B44A56E766aF",
-        "validatorWalletCreator": "0x9CAd81628aB7D8e239F1A5B497313341578c5F71",
+        "validators": [
+          "eth:0x006F5B7E2D58fb4E53DEdaB8802FCdf2a5441DC7",
+          "eth:0x11f563dDbF266484Dd910A401A7e44299d80b1d5",
+          "eth:0x16C1D3b4aDB6f0F468FCE7b802cE5AA0A2B06d03",
+          "eth:0x33Bf8bF5aF3579D0E2305302409A5b6b4173c779",
+          "eth:0x401Ba2e5037e3d8D1c32E77Dfd371501618604Bf",
+          "eth:0x8fbEf9f7554aec9CCf62b88D86aE1C91F1599F7C",
+          "eth:0x9DFaA1770bcE35EaB6a163D3cDE6cA1F3Ff7eA66",
+          "eth:0xa017149a752BDd8723a09Cd6f40c388D38B8d202",
+          "eth:0xd1e56283216127E1F40A3752735C94A13d97bc92"
+        ],
+        "validatorUtils": "eth:0x2b0E04Dc90e3fA58165CB41E2834B44A56E766aF",
+        "validatorWalletCreator": "eth:0x9CAd81628aB7D8e239F1A5B497313341578c5F71",
         "validatorWhitelistDisabled": false,
-        "wasmModuleRoot": "0x184884e1eb9fefdc158f6c8ac912bb183bf3cf83f0090317e0bc4ac5860baa39",
+        "wasmModuleRoot": "0xaf1dbdfceb871c00bfbb1675983133df04f0ed04e89647812513c091e3a982b3",
         "zombieAddress": [],
         "zombieCount": 0,
         "zombieLatestStakedNode": []
@@ -879,7 +1117,11 @@
           "description": "Emitted on createChallenge() in RollupUserLogic."
         }
       },
-      "derivedName": "RollupProxy",
+      "implementationNames": {
+        "eth:0xf993AF239770932A0EDaB88B6A5ba3708Bd58239": "RollupProxy",
+        "eth:0x9B56A789fEDD5df27dBaB53b085F7157397cA17D": "RollupAdminLogic",
+        "eth:0x5607Ea4b5F6e3F610bD346B36D3143FFf46d1C34": "RollupUserLogic"
+      },
       "usedTypes": [
         {
           "typeCaster": "Mapping",
@@ -905,7 +1147,9 @@
             "0xb0de9cb89e4d944ae6023a3b62276e54804c242fd8c4c2d8e6cc4450f5fa8b1b": "ArbOS v30 wasmModuleRoot",
             "0x260f5fa5c3176a856893642e149cf128b5a8de9f828afec8d11184415dd8dc69": "ArbOS v31 wasmModuleRoot",
             "0x184884e1eb9fefdc158f6c8ac912bb183bf3cf83f0090317e0bc4ac5860baa39": "ArbOS v32 wasmModuleRoot",
-            "0xe81f986823a85105c5fd91bb53b4493d38c0c26652d23f76a7405ac889908287": "Celestia Nitro 3.2.1 wasmModuleRoot"
+            "0xdb698a2576298f25448bc092e52cf13b1e24141c997135d70f217d674bbeb69a": "ArbOS v40 wasmModuleRoot",
+            "0xe81f986823a85105c5fd91bb53b4493d38c0c26652d23f76a7405ac889908287": "Celestia Nitro 3.2.1 wasmModuleRoot",
+            "0xaf1dbdfceb871c00bfbb1675983133df04f0ed04e89647812513c091e3a982b3": "Celestia Nitro 3.3.2 wasmModuleRoot"
           }
         }
       ],
@@ -913,37 +1157,17 @@
     }
   ],
   "abis": {
-    "0x0003A96B27ce73505b43ea1b71a5aB06bec568C4": [
-      "function executeOneStep(tuple(uint256 maxInboxMessagesRead, address bridge) execCtx, tuple(uint8 status, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) valueStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) valueMultiStack, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) internalStack, tuple(tuple(tuple(uint8 valueType, uint256 contents) returnPc, bytes32 localsMerkleRoot, uint32 callerModule, uint32 callerModuleInternals)[] proved, bytes32 remainingHash) frameStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) frameMultiStack, bytes32 globalStateHash, uint32 moduleIdx, uint32 functionIdx, uint32 functionPc, bytes32 recoveryPc, bytes32 modulesRoot) startMach, tuple(bytes32 globalsMerkleRoot, tuple(uint64 size, uint64 maxSize, bytes32 merkleRoot) moduleMemory, bytes32 tablesMerkleRoot, bytes32 functionsMerkleRoot, bytes32 extraHash, uint32 internalsOffset) startMod, tuple(uint16 opcode, uint256 argumentData) inst, bytes proof) view returns (tuple(uint8 status, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) valueStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) valueMultiStack, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) internalStack, tuple(tuple(tuple(uint8 valueType, uint256 contents) returnPc, bytes32 localsMerkleRoot, uint32 callerModule, uint32 callerModuleInternals)[] proved, bytes32 remainingHash) frameStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) frameMultiStack, bytes32 globalStateHash, uint32 moduleIdx, uint32 functionIdx, uint32 functionPc, bytes32 recoveryPc, bytes32 modulesRoot) mach, tuple(bytes32 globalsMerkleRoot, tuple(uint64 size, uint64 maxSize, bytes32 merkleRoot) moduleMemory, bytes32 tablesMerkleRoot, bytes32 functionsMerkleRoot, bytes32 extraHash, uint32 internalsOffset) mod)"
+    "eth:0x0537c93dA3b1f8A525204165d1d93De0534c262f": [
+      "constructor(address prover0_, address proverMem_, address proverMath_, address proverHostIo_)",
+      "function getEndMachineHash(uint8 status, bytes32 globalStateHash) pure returns (bytes32)",
+      "function getStartMachineHash(bytes32 globalStateHash, bytes32 wasmModuleRoot) pure returns (bytes32)",
+      "function proveOneStep(tuple(uint256 maxInboxMessagesRead, address bridge) execCtx, uint256 machineStep, bytes32 beforeHash, bytes proof) view returns (bytes32 afterHash)",
+      "function prover0() view returns (address)",
+      "function proverHostIo() view returns (address)",
+      "function proverMath() view returns (address)",
+      "function proverMem() view returns (address)"
     ],
-    "0x02E05A9245C5853f895daDcc3A8216C953C8736B": [
-      "error NotOwner(address sender, address owner)",
-      "event Bisected(uint64 indexed challengeIndex, bytes32 indexed challengeRoot, uint256 challengedSegmentStart, uint256 challengedSegmentLength, bytes32[] chainHashes)",
-      "event ChallengeEnded(uint64 indexed challengeIndex, uint8 kind)",
-      "event ExecutionChallengeBegun(uint64 indexed challengeIndex, uint256 blockSteps)",
-      "event InitiatedChallenge(uint64 indexed challengeIndex, tuple(bytes32[2] bytes32Vals, uint64[2] u64Vals) startState, tuple(bytes32[2] bytes32Vals, uint64[2] u64Vals) endState)",
-      "event OneStepProofCompleted(uint64 indexed challengeIndex)",
-      "function bisectExecution(uint64 challengeIndex, tuple(uint256 oldSegmentsStart, uint256 oldSegmentsLength, bytes32[] oldSegments, uint256 challengePosition) selection, bytes32[] newSegments)",
-      "function bridge() view returns (address)",
-      "function challengeExecution(uint64 challengeIndex, tuple(uint256 oldSegmentsStart, uint256 oldSegmentsLength, bytes32[] oldSegments, uint256 challengePosition) selection, uint8[2] machineStatuses, bytes32[2] globalStateHashes, uint256 numSteps)",
-      "function challengeInfo(uint64 challengeIndex) view returns (tuple(tuple(address addr, uint256 timeLeft) current, tuple(address addr, uint256 timeLeft) next, uint256 lastMoveTimestamp, bytes32 wasmModuleRoot, bytes32 challengeStateHash, uint64 maxInboxMessages, uint8 mode))",
-      "function challenges(uint256) view returns (tuple(address addr, uint256 timeLeft) current, tuple(address addr, uint256 timeLeft) next, uint256 lastMoveTimestamp, bytes32 wasmModuleRoot, bytes32 challengeStateHash, uint64 maxInboxMessages, uint8 mode)",
-      "function clearChallenge(uint64 challengeIndex)",
-      "function createChallenge(bytes32 wasmModuleRoot_, uint8[2] startAndEndMachineStatuses_, tuple(bytes32[2] bytes32Vals, uint64[2] u64Vals)[2] startAndEndGlobalStates_, uint64 numBlocks, address asserter_, address challenger_, uint256 asserterTimeLeft_, uint256 challengerTimeLeft_) returns (uint64)",
-      "function currentResponder(uint64 challengeIndex) view returns (address)",
-      "function getOsp(bytes32 wasmModuleRoot) view returns (address)",
-      "function initialize(address resultReceiver_, address sequencerInbox_, address bridge_, address osp_)",
-      "function isTimedOut(uint64 challengeIndex) view returns (bool)",
-      "function oneStepProveExecution(uint64 challengeIndex, tuple(uint256 oldSegmentsStart, uint256 oldSegmentsLength, bytes32[] oldSegments, uint256 challengePosition) selection, bytes proof)",
-      "function osp() view returns (address)",
-      "function ospCond(bytes32) view returns (address)",
-      "function postUpgradeInit(address osp_, bytes32 condRoot, address condOsp)",
-      "function resultReceiver() view returns (address)",
-      "function sequencerInbox() view returns (address)",
-      "function timeout(uint64 challengeIndex)",
-      "function totalChallengesCreated() view returns (uint64)"
-    ],
-    "0x1153a1e4B1523DFf36f77d696bd6eBF2B0e7DAbF": [
+    "eth:0x1153a1e4B1523DFf36f77d696bd6eBF2B0e7DAbF": [
       "constructor(address _logic, address admin_, bytes _data) payable",
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -954,7 +1178,7 @@
       "function upgradeTo(address newImplementation)",
       "function upgradeToAndCall(address newImplementation, bytes data) payable"
     ],
-    "0x19431dc37098877486532250FB3158140717C00C": [
+    "eth:0x19431dc37098877486532250FB3158140717C00C": [
       "error AlreadyInit()",
       "error AlreadySpent(uint256 index)",
       "error BadPostUpgradeInit()",
@@ -992,10 +1216,7 @@
       "function updateRollupAddress()",
       "function updateSendRoot(bytes32 root, bytes32 l2BlockHash)"
     ],
-    "0x1cD76B9C33b2e3b04D7B181399d492B3e49AD7fB": [
-      "function executeOneStep(tuple(uint256 maxInboxMessagesRead, address bridge), tuple(uint8 status, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) valueStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) valueMultiStack, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) internalStack, tuple(tuple(tuple(uint8 valueType, uint256 contents) returnPc, bytes32 localsMerkleRoot, uint32 callerModule, uint32 callerModuleInternals)[] proved, bytes32 remainingHash) frameStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) frameMultiStack, bytes32 globalStateHash, uint32 moduleIdx, uint32 functionIdx, uint32 functionPc, bytes32 recoveryPc, bytes32 modulesRoot) startMach, tuple(bytes32 globalsMerkleRoot, tuple(uint64 size, uint64 maxSize, bytes32 merkleRoot) moduleMemory, bytes32 tablesMerkleRoot, bytes32 functionsMerkleRoot, bytes32 extraHash, uint32 internalsOffset) startMod, tuple(uint16 opcode, uint256 argumentData) inst, bytes proof) pure returns (tuple(uint8 status, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) valueStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) valueMultiStack, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) internalStack, tuple(tuple(tuple(uint8 valueType, uint256 contents) returnPc, bytes32 localsMerkleRoot, uint32 callerModule, uint32 callerModuleInternals)[] proved, bytes32 remainingHash) frameStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) frameMultiStack, bytes32 globalStateHash, uint32 moduleIdx, uint32 functionIdx, uint32 functionPc, bytes32 recoveryPc, bytes32 modulesRoot) mach, tuple(bytes32 globalsMerkleRoot, tuple(uint64 size, uint64 maxSize, bytes32 merkleRoot) moduleMemory, bytes32 tablesMerkleRoot, bytes32 functionsMerkleRoot, bytes32 extraHash, uint32 internalsOffset) mod)"
-    ],
-    "0x2b0E04Dc90e3fA58165CB41E2834B44A56E766aF": [
+    "eth:0x2b0E04Dc90e3fA58165CB41E2834B44A56E766aF": [
       "function areUnresolvedNodesLinear(address rollup) view returns (bool)",
       "function checkDecidableNextNode(address rollup) view returns (uint8)",
       "function findNodeConflict(address rollup, uint64 node1, uint64 node2, uint256 maxDepth) view returns (tuple(uint8 ty, uint64 node1, uint64 node2))",
@@ -1008,10 +1229,7 @@
       "function stakedNodes(address rollup, address staker) view returns (uint64[])",
       "function timedOutChallenges(address rollup, uint64 startIndex, uint64 max) view returns (uint64[], bool hasMore)"
     ],
-    "0x2dCCAbE89cF76132619a9B18e9F9e48E837222b5": [
-      "function executeOneStep(tuple(uint256 maxInboxMessagesRead, address bridge), tuple(uint8 status, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) valueStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) valueMultiStack, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) internalStack, tuple(tuple(tuple(uint8 valueType, uint256 contents) returnPc, bytes32 localsMerkleRoot, uint32 callerModule, uint32 callerModuleInternals)[] proved, bytes32 remainingHash) frameStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) frameMultiStack, bytes32 globalStateHash, uint32 moduleIdx, uint32 functionIdx, uint32 functionPc, bytes32 recoveryPc, bytes32 modulesRoot) startMach, tuple(bytes32 globalsMerkleRoot, tuple(uint64 size, uint64 maxSize, bytes32 merkleRoot) moduleMemory, bytes32 tablesMerkleRoot, bytes32 functionsMerkleRoot, bytes32 extraHash, uint32 internalsOffset) startMod, tuple(uint16 opcode, uint256 argumentData) inst, bytes proof) pure returns (tuple(uint8 status, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) valueStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) valueMultiStack, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) internalStack, tuple(tuple(tuple(uint8 valueType, uint256 contents) returnPc, bytes32 localsMerkleRoot, uint32 callerModule, uint32 callerModuleInternals)[] proved, bytes32 remainingHash) frameStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) frameMultiStack, bytes32 globalStateHash, uint32 moduleIdx, uint32 functionIdx, uint32 functionPc, bytes32 recoveryPc, bytes32 modulesRoot) mach, tuple(bytes32 globalsMerkleRoot, tuple(uint64 size, uint64 maxSize, bytes32 merkleRoot) moduleMemory, bytes32 tablesMerkleRoot, bytes32 functionsMerkleRoot, bytes32 extraHash, uint32 internalsOffset) mod)"
-    ],
-    "0x302275067251F5FcdB9359Bda735fD8f7A4A54c0": [
+    "eth:0x302275067251F5FcdB9359Bda735fD8f7A4A54c0": [
       "constructor()",
       "error AlreadyInit()",
       "error HadZeroInit()",
@@ -1025,120 +1243,37 @@
       "function rollupInitialized(uint256 chainId, string chainConfig)",
       "function updateRollupAddress()"
     ],
-    "0x31fAAAB44e74eB408d1FC69A14806B4b9cA09da2": [
-      "constructor(uint256 _maxDataSize)",
-      "error DataTooLarge(uint256 dataLength, uint256 maxDataLength)",
-      "error GasLimitTooLarge()",
-      "error InsufficientSubmissionCost(uint256 expected, uint256 actual)",
-      "error InsufficientValue(uint256 expected, uint256 actual)",
-      "error L1Forked()",
-      "error NotAllowedOrigin(address origin)",
-      "error NotOrigin()",
-      "error NotRollupOrOwner(address sender, address rollup, address owner)",
-      "error RetryableData(address from, address to, uint256 l2CallValue, uint256 deposit, uint256 maxSubmissionCost, address excessFeeRefundAddress, address callValueRefundAddress, uint256 gasLimit, uint256 maxFeePerGas, bytes data)",
-      "event AllowListAddressSet(address indexed user, bool val)",
-      "event AllowListEnabledUpdated(bool isEnabled)",
-      "event InboxMessageDelivered(uint256 indexed messageNum, bytes data)",
-      "event InboxMessageDeliveredFromOrigin(uint256 indexed messageNum)",
-      "event Paused(address account)",
-      "event Unpaused(address account)",
-      "function allowListEnabled() view returns (bool)",
-      "function bridge() view returns (address)",
-      "function calculateRetryableSubmissionFee(uint256, uint256) pure returns (uint256)",
-      "function createRetryableTicket(address to, uint256 l2CallValue, uint256 maxSubmissionCost, address excessFeeRefundAddress, address callValueRefundAddress, uint256 gasLimit, uint256 maxFeePerGas, uint256 tokenTotalFeeAmount, bytes data) returns (uint256)",
-      "function depositERC20(uint256 amount) returns (uint256)",
-      "function getProxyAdmin() view returns (address)",
-      "function initialize(address _bridge, address _sequencerInbox)",
-      "function isAllowed(address) view returns (bool)",
-      "function maxDataSize() view returns (uint256)",
-      "function pause()",
-      "function paused() view returns (bool)",
-      "function sendContractTransaction(uint256 gasLimit, uint256 maxFeePerGas, address to, uint256 value, bytes data) returns (uint256)",
-      "function sendL2Message(bytes messageData) returns (uint256)",
-      "function sendL2MessageFromOrigin(bytes messageData) returns (uint256)",
-      "function sendUnsignedTransaction(uint256 gasLimit, uint256 maxFeePerGas, uint256 nonce, address to, uint256 value, bytes data) returns (uint256)",
-      "function sequencerInbox() view returns (address)",
-      "function setAllowList(address[] user, bool[] val)",
-      "function setAllowListEnabled(bool _allowListEnabled)",
-      "function unpause()",
-      "function unsafeCreateRetryableTicket(address to, uint256 l2CallValue, uint256 maxSubmissionCost, address excessFeeRefundAddress, address callValueRefundAddress, uint256 gasLimit, uint256 maxFeePerGas, uint256 tokenTotalFeeAmount, bytes data) returns (uint256)"
-    ],
-    "0x383f16fB2809a56fC639c1eE2c93Ad2aa7Ee130A": [
-      "constructor(uint256 _maxDataSize, address reader4844_, bool _isUsingFeeToken)",
-      "error AlreadyInit()",
-      "error AlreadyValidDASKeyset(bytes32)",
-      "error BadMaxTimeVariation()",
-      "error BadPostUpgradeInit()",
-      "error BadSequencerNumber(uint256 stored, uint256 received)",
-      "error DataBlobsNotSupported()",
-      "error DataTooLarge(uint256 dataLength, uint256 maxDataLength)",
-      "error DelayedBackwards()",
-      "error DelayedTooFar()",
-      "error Deprecated()",
-      "error ForceIncludeBlockTooSoon()",
-      "error ForceIncludeTimeTooSoon()",
-      "error HadZeroInit()",
-      "error IncorrectMessagePreimage()",
-      "error InitParamZero(string name)",
-      "error InvalidHeaderFlag(bytes1)",
-      "error MissingDataHashes()",
-      "error NativeTokenMismatch()",
-      "error NoSuchKeyset(bytes32)",
-      "error NotBatchPoster()",
-      "error NotBatchPosterManager(address)",
-      "error NotForked()",
-      "error NotOrigin()",
-      "error NotOwner(address sender, address owner)",
-      "error RollupNotChanged()",
-      "event InboxMessageDelivered(uint256 indexed messageNum, bytes data)",
-      "event InboxMessageDeliveredFromOrigin(uint256 indexed messageNum)",
-      "event InvalidateKeyset(bytes32 indexed keysetHash)",
-      "event OwnerFunctionCalled(uint256 indexed id)",
-      "event SequencerBatchData(uint256 indexed batchSequenceNumber, bytes data)",
-      "event SequencerBatchDelivered(uint256 indexed batchSequenceNumber, bytes32 indexed beforeAcc, bytes32 indexed afterAcc, bytes32 delayedAcc, uint256 afterDelayedMessagesRead, tuple(uint64 minTimestamp, uint64 maxTimestamp, uint64 minBlockNumber, uint64 maxBlockNumber) timeBounds, uint8 dataLocation)",
-      "event SetValidKeyset(bytes32 indexed keysetHash, bytes keysetBytes)",
-      "function BROTLI_MESSAGE_HEADER_FLAG() view returns (bytes1)",
-      "function DAS_MESSAGE_HEADER_FLAG() view returns (bytes1)",
-      "function DATA_AUTHENTICATED_FLAG() view returns (bytes1)",
-      "function DATA_BLOB_HEADER_FLAG() view returns (bytes1)",
-      "function HEADER_LENGTH() view returns (uint256)",
-      "function TREE_DAS_MESSAGE_HEADER_FLAG() view returns (bytes1)",
-      "function ZERO_HEAVY_MESSAGE_HEADER_FLAG() view returns (bytes1)",
-      "function addSequencerL2Batch(uint256 sequenceNumber, bytes data, uint256 afterDelayedMessagesRead, address gasRefunder, uint256 prevMessageCount, uint256 newMessageCount)",
-      "function addSequencerL2BatchFromBlobs(uint256 sequenceNumber, uint256 afterDelayedMessagesRead, address gasRefunder, uint256 prevMessageCount, uint256 newMessageCount)",
-      "function addSequencerL2BatchFromOrigin(uint256, bytes, uint256, address) pure",
-      "function addSequencerL2BatchFromOrigin(uint256 sequenceNumber, bytes data, uint256 afterDelayedMessagesRead, address gasRefunder, uint256 prevMessageCount, uint256 newMessageCount)",
-      "function batchCount() view returns (uint256)",
-      "function batchPosterManager() view returns (address)",
-      "function bridge() view returns (address)",
-      "function dasKeySetInfo(bytes32) view returns (bool isValidKeyset, uint64 creationBlock)",
-      "function forceInclusion(uint256 _totalDelayedMessagesRead, uint8 kind, uint64[2] l1BlockAndTime, uint256 baseFeeL1, address sender, bytes32 messageDataHash)",
-      "function getKeysetCreationBlock(bytes32 ksHash) view returns (uint256)",
-      "function inboxAccs(uint256 index) view returns (bytes32)",
-      "function initialize(address bridge_, tuple(uint256 delayBlocks, uint256 futureBlocks, uint256 delaySeconds, uint256 futureSeconds) maxTimeVariation_)",
-      "function invalidateKeysetHash(bytes32 ksHash)",
-      "function isBatchPoster(address) view returns (bool)",
-      "function isSequencer(address) view returns (bool)",
-      "function isUsingFeeToken() view returns (bool)",
-      "function isValidKeysetHash(bytes32 ksHash) view returns (bool)",
-      "function maxDataSize() view returns (uint256)",
-      "function maxTimeVariation() view returns (uint256, uint256, uint256, uint256)",
-      "function postUpgradeInit()",
-      "function reader4844() view returns (address)",
-      "function removeDelayAfterFork()",
-      "function rollup() view returns (address)",
-      "function setBatchPosterManager(address newBatchPosterManager)",
-      "function setIsBatchPoster(address addr, bool isBatchPoster_)",
-      "function setIsSequencer(address addr, bool isSequencer_)",
-      "function setMaxTimeVariation(tuple(uint256 delayBlocks, uint256 futureBlocks, uint256 delaySeconds, uint256 futureSeconds) maxTimeVariation_)",
-      "function setValidKeyset(bytes keysetBytes)",
-      "function totalDelayedMessagesRead() view returns (uint256)",
-      "function updateRollupAddress()"
-    ],
-    "0x4a4962275DF8C60a80d3a25faEc5AA7De116A746": [
+    "eth:0x4a4962275DF8C60a80d3a25faEc5AA7De116A746": [
       "constructor(address _singleton)"
     ],
-    "0x5607Ea4b5F6e3F610bD346B36D3143FFf46d1C34": [
+    "eth:0x531c78AA0e0126Cef52c2027AA026Aa6e2929194": [
+      "error NotOwner(address sender, address owner)",
+      "event Bisected(uint64 indexed challengeIndex, bytes32 indexed challengeRoot, uint256 challengedSegmentStart, uint256 challengedSegmentLength, bytes32[] chainHashes)",
+      "event ChallengeEnded(uint64 indexed challengeIndex, uint8 kind)",
+      "event ExecutionChallengeBegun(uint64 indexed challengeIndex, uint256 blockSteps)",
+      "event InitiatedChallenge(uint64 indexed challengeIndex, tuple(bytes32[2] bytes32Vals, uint64[2] u64Vals) startState, tuple(bytes32[2] bytes32Vals, uint64[2] u64Vals) endState)",
+      "event OneStepProofCompleted(uint64 indexed challengeIndex)",
+      "function bisectExecution(uint64 challengeIndex, tuple(uint256 oldSegmentsStart, uint256 oldSegmentsLength, bytes32[] oldSegments, uint256 challengePosition) selection, bytes32[] newSegments)",
+      "function bridge() view returns (address)",
+      "function challengeExecution(uint64 challengeIndex, tuple(uint256 oldSegmentsStart, uint256 oldSegmentsLength, bytes32[] oldSegments, uint256 challengePosition) selection, uint8[2] machineStatuses, bytes32[2] globalStateHashes, uint256 numSteps)",
+      "function challengeInfo(uint64 challengeIndex) view returns (tuple(tuple(address addr, uint256 timeLeft) current, tuple(address addr, uint256 timeLeft) next, uint256 lastMoveTimestamp, bytes32 wasmModuleRoot, bytes32 challengeStateHash, uint64 maxInboxMessages, uint8 mode))",
+      "function challenges(uint256) view returns (tuple(address addr, uint256 timeLeft) current, tuple(address addr, uint256 timeLeft) next, uint256 lastMoveTimestamp, bytes32 wasmModuleRoot, bytes32 challengeStateHash, uint64 maxInboxMessages, uint8 mode)",
+      "function clearChallenge(uint64 challengeIndex)",
+      "function createChallenge(bytes32 wasmModuleRoot_, uint8[2] startAndEndMachineStatuses_, tuple(bytes32[2] bytes32Vals, uint64[2] u64Vals)[2] startAndEndGlobalStates_, uint64 numBlocks, address asserter_, address challenger_, uint256 asserterTimeLeft_, uint256 challengerTimeLeft_) returns (uint64)",
+      "function currentResponder(uint64 challengeIndex) view returns (address)",
+      "function getOsp(bytes32 wasmModuleRoot) view returns (address)",
+      "function initialize(address resultReceiver_, address sequencerInbox_, address bridge_, address osp_)",
+      "function isTimedOut(uint64 challengeIndex) view returns (bool)",
+      "function oneStepProveExecution(uint64 challengeIndex, tuple(uint256 oldSegmentsStart, uint256 oldSegmentsLength, bytes32[] oldSegments, uint256 challengePosition) selection, bytes proof)",
+      "function osp() view returns (address)",
+      "function ospCond(bytes32) view returns (address)",
+      "function postUpgradeInit(address osp_, bytes32 condRoot, address condOsp)",
+      "function resultReceiver() view returns (address)",
+      "function sequencerInbox() view returns (address)",
+      "function timeout(uint64 challengeIndex)",
+      "function totalChallengesCreated() view returns (uint64)"
+    ],
+    "eth:0x5607Ea4b5F6e3F610bD346B36D3143FFf46d1C34": [
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
       "event NodeConfirmed(uint64 indexed nodeNum, bytes32 blockHash, bytes32 sendRoot)",
@@ -1224,7 +1359,7 @@
       "function zombieCount() view returns (uint256)",
       "function zombieLatestStakedNode(uint256 zombieNum) view returns (uint64)"
     ],
-    "0x68466622Aae5a9Ffd02530247d75Dd107f06B333": [
+    "eth:0x68466622Aae5a9Ffd02530247d75Dd107f06B333": [
       "constructor(address _logic, address admin_, bytes _data) payable",
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -1235,7 +1370,10 @@
       "function upgradeTo(address newImplementation)",
       "function upgradeToAndCall(address newImplementation, bytes data) payable"
     ],
-    "0x6c21303F5986180B1394d2C89f3e883890E2867b": [
+    "eth:0x6982e35C878cD2b5aF8Dcf06f33c4EfB01D6f482": [
+      "function executeOneStep(tuple(uint256 maxInboxMessagesRead, address bridge), tuple(uint8 status, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) valueStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) valueMultiStack, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) internalStack, tuple(tuple(tuple(uint8 valueType, uint256 contents) returnPc, bytes32 localsMerkleRoot, uint32 callerModule, uint32 callerModuleInternals)[] proved, bytes32 remainingHash) frameStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) frameMultiStack, bytes32 globalStateHash, uint32 moduleIdx, uint32 functionIdx, uint32 functionPc, bytes32 recoveryPc, bytes32 modulesRoot) startMach, tuple(bytes32 globalsMerkleRoot, tuple(uint64 size, uint64 maxSize, bytes32 merkleRoot) moduleMemory, bytes32 tablesMerkleRoot, bytes32 functionsMerkleRoot, bytes32 extraHash, uint32 internalsOffset) startMod, tuple(uint16 opcode, uint256 argumentData) inst, bytes proof) pure returns (tuple(uint8 status, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) valueStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) valueMultiStack, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) internalStack, tuple(tuple(tuple(uint8 valueType, uint256 contents) returnPc, bytes32 localsMerkleRoot, uint32 callerModule, uint32 callerModuleInternals)[] proved, bytes32 remainingHash) frameStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) frameMultiStack, bytes32 globalStateHash, uint32 moduleIdx, uint32 functionIdx, uint32 functionPc, bytes32 recoveryPc, bytes32 modulesRoot) mach, tuple(bytes32 globalsMerkleRoot, tuple(uint64 size, uint64 maxSize, bytes32 merkleRoot) moduleMemory, bytes32 tablesMerkleRoot, bytes32 functionsMerkleRoot, bytes32 extraHash, uint32 internalsOffset) mod)"
+    ],
+    "eth:0x6c21303F5986180B1394d2C89f3e883890E2867b": [
       "constructor()",
       "event Initialized(uint8 version)",
       "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
@@ -1256,7 +1394,7 @@
       "function revokeRole(bytes32 role, address account)",
       "function supportsInterface(bytes4 interfaceId) view returns (bool)"
     ],
-    "0x7983403dDA368AA7d67145a9b81c5c517F364c42": [
+    "eth:0x7983403dDA368AA7d67145a9b81c5c517F364c42": [
       "constructor(address _logic, address admin_, bytes _data) payable",
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -1267,7 +1405,7 @@
       "function upgradeTo(address newImplementation)",
       "function upgradeToAndCall(address newImplementation, bytes data) payable"
     ],
-    "0x7AD2a94BefF3294a31894cFb5ba4206957a53c19": [
+    "eth:0x7AD2a94BefF3294a31894cFb5ba4206957a53c19": [
       "constructor(address _logic, address admin_, bytes _data) payable",
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -1278,49 +1416,51 @@
       "function upgradeTo(address newImplementation)",
       "function upgradeToAndCall(address newImplementation, bytes data) payable"
     ],
-    "0x7EfcB76D0e2E776A298aAa603d433336e5F8b6ab": [
-      "error BadSequencerMessageNumber(uint256 stored, uint256 received)",
-      "error CallNotAllowed()",
-      "error CallTargetNotAllowed(address target)",
-      "error InvalidOutboxSet(address outbox)",
-      "error InvalidTokenSet(address token)",
-      "error NotContract(address addr)",
-      "error NotDelayedInbox(address sender)",
-      "error NotOutbox(address sender)",
+    "eth:0x81eEEbb902693A3a90948Fe0A661aedb35271054": [
+      "constructor(uint256 _maxDataSize)",
+      "error AmountTooLarge(uint256 amount)",
+      "error DataTooLarge(uint256 dataLength, uint256 maxDataLength)",
+      "error GasLimitTooLarge()",
+      "error InsufficientSubmissionCost(uint256 expected, uint256 actual)",
+      "error InsufficientValue(uint256 expected, uint256 actual)",
+      "error L1Forked()",
+      "error NotAllowedOrigin(address origin)",
+      "error NotCodelessOrigin()",
       "error NotRollupOrOwner(address sender, address rollup, address owner)",
-      "error NotSequencerInbox(address sender)",
-      "event BridgeCallTriggered(address indexed outbox, address indexed to, uint256 value, bytes data)",
-      "event InboxToggle(address indexed inbox, bool enabled)",
-      "event MessageDelivered(uint256 indexed messageIndex, bytes32 indexed beforeInboxAcc, address inbox, uint8 kind, address sender, bytes32 messageDataHash, uint256 baseFeeL1, uint64 timestamp)",
-      "event OutboxToggle(address indexed outbox, bool enabled)",
-      "event RollupUpdated(address rollup)",
-      "event SequencerInboxUpdated(address newSequencerInbox)",
-      "function acceptFundsFromOldBridge() payable",
-      "function activeOutbox() view returns (address)",
-      "function allowedDelayedInboxList(uint256) view returns (address)",
-      "function allowedDelayedInboxes(address inbox) view returns (bool)",
-      "function allowedOutboxList(uint256) view returns (address)",
-      "function allowedOutboxes(address outbox) view returns (bool)",
-      "function delayedInboxAccs(uint256) view returns (bytes32)",
-      "function delayedMessageCount() view returns (uint256)",
-      "function enqueueDelayedMessage(uint8 kind, address sender, bytes32 messageDataHash, uint256 tokenFeeAmount) returns (uint256)",
-      "function enqueueSequencerMessage(bytes32 dataHash, uint256 afterDelayedMessagesRead, uint256 prevMessageCount, uint256 newMessageCount) returns (uint256 seqMessageIndex, bytes32 beforeAcc, bytes32 delayedAcc, bytes32 acc)",
-      "function executeCall(address to, uint256 value, bytes data) returns (bool success, bytes returnData)",
-      "function initialize(address rollup_, address nativeToken_)",
-      "function nativeToken() view returns (address)",
-      "function rollup() view returns (address)",
+      "error RetryableData(address from, address to, uint256 l2CallValue, uint256 deposit, uint256 maxSubmissionCost, address excessFeeRefundAddress, address callValueRefundAddress, uint256 gasLimit, uint256 maxFeePerGas, bytes data)",
+      "event AllowListAddressSet(address indexed user, bool val)",
+      "event AllowListEnabledUpdated(bool isEnabled)",
+      "event InboxMessageDelivered(uint256 indexed messageNum, bytes data)",
+      "event InboxMessageDeliveredFromOrigin(uint256 indexed messageNum)",
+      "event Paused(address account)",
+      "event Unpaused(address account)",
+      "function allowListEnabled() view returns (bool)",
+      "function bridge() view returns (address)",
+      "function calculateRetryableSubmissionFee(uint256, uint256) pure returns (uint256)",
+      "function createRetryableTicket(address to, uint256 l2CallValue, uint256 maxSubmissionCost, address excessFeeRefundAddress, address callValueRefundAddress, uint256 gasLimit, uint256 maxFeePerGas, uint256 tokenTotalFeeAmount, bytes data) returns (uint256)",
+      "function depositERC20(uint256 amount) returns (uint256)",
+      "function getProxyAdmin() view returns (address)",
+      "function initialize(address _bridge, address _sequencerInbox)",
+      "function isAllowed(address) view returns (bool)",
+      "function maxDataSize() view returns (uint256)",
+      "function pause()",
+      "function paused() view returns (bool)",
+      "function sendContractTransaction(uint256 gasLimit, uint256 maxFeePerGas, address to, uint256 value, bytes data) returns (uint256)",
+      "function sendL2Message(bytes messageData) returns (uint256)",
+      "function sendL2MessageFromOrigin(bytes messageData) returns (uint256)",
+      "function sendUnsignedTransaction(uint256 gasLimit, uint256 maxFeePerGas, uint256 nonce, address to, uint256 value, bytes data) returns (uint256)",
       "function sequencerInbox() view returns (address)",
-      "function sequencerInboxAccs(uint256) view returns (bytes32)",
-      "function sequencerMessageCount() view returns (uint256)",
-      "function sequencerReportedSubMessageCount() view returns (uint256)",
-      "function setDelayedInbox(address inbox, bool enabled)",
-      "function setOutbox(address outbox, bool enabled)",
-      "function setSequencerInbox(address _sequencerInbox)",
-      "function setSequencerReportedSubMessageCount(uint256 newMsgCount)",
-      "function submitBatchSpendingReport(address sender, bytes32 messageDataHash) returns (uint256)",
-      "function updateRollupAddress(address _rollup)"
+      "function setAllowList(address[] user, bool[] val)",
+      "function setAllowListEnabled(bool _allowListEnabled)",
+      "function unpause()",
+      "function unsafeCreateRetryableTicket(address to, uint256 l2CallValue, uint256 maxSubmissionCost, address excessFeeRefundAddress, address callValueRefundAddress, uint256 gasLimit, uint256 maxFeePerGas, uint256 tokenTotalFeeAmount, bytes data) returns (uint256)"
     ],
-    "0x8D99372612e8cFE7163B1a453831Bc40eAeb3cF3": [
+    "eth:0x856EA788977Bc771E8Ca87471baeC507A0f54771": [
+      "function BLOBSTREAM() view returns (address)",
+      "function CELESTIA_MESSAGE_HEADER_FLAG() view returns (bytes1)",
+      "function executeOneStep(tuple(uint256 maxInboxMessagesRead, address bridge) execCtx, tuple(uint8 status, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) valueStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) valueMultiStack, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) internalStack, tuple(tuple(tuple(uint8 valueType, uint256 contents) returnPc, bytes32 localsMerkleRoot, uint32 callerModule, uint32 callerModuleInternals)[] proved, bytes32 remainingHash) frameStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) frameMultiStack, bytes32 globalStateHash, uint32 moduleIdx, uint32 functionIdx, uint32 functionPc, bytes32 recoveryPc, bytes32 modulesRoot) startMach, tuple(bytes32 globalsMerkleRoot, tuple(uint64 size, uint64 maxSize, bytes32 merkleRoot) moduleMemory, bytes32 tablesMerkleRoot, bytes32 functionsMerkleRoot, bytes32 extraHash, uint32 internalsOffset) startMod, tuple(uint16 opcode, uint256 argumentData) inst, bytes proof) view returns (tuple(uint8 status, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) valueStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) valueMultiStack, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) internalStack, tuple(tuple(tuple(uint8 valueType, uint256 contents) returnPc, bytes32 localsMerkleRoot, uint32 callerModule, uint32 callerModuleInternals)[] proved, bytes32 remainingHash) frameStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) frameMultiStack, bytes32 globalStateHash, uint32 moduleIdx, uint32 functionIdx, uint32 functionPc, bytes32 recoveryPc, bytes32 modulesRoot) mach, tuple(bytes32 globalsMerkleRoot, tuple(uint64 size, uint64 maxSize, bytes32 merkleRoot) moduleMemory, bytes32 tablesMerkleRoot, bytes32 functionsMerkleRoot, bytes32 extraHash, uint32 internalsOffset) mod)"
+    ],
+    "eth:0x8D99372612e8cFE7163B1a453831Bc40eAeb3cF3": [
       "constructor(address _logic, address admin_, bytes _data) payable",
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -1331,17 +1471,7 @@
       "function upgradeTo(address newImplementation)",
       "function upgradeToAndCall(address newImplementation, bytes data) payable"
     ],
-    "0x8Faa21891B0b928afEbd5314D1D313f8f7B34DaC": [
-      "constructor(address prover0_, address proverMem_, address proverMath_, address proverHostIo_)",
-      "function getEndMachineHash(uint8 status, bytes32 globalStateHash) pure returns (bytes32)",
-      "function getStartMachineHash(bytes32 globalStateHash, bytes32 wasmModuleRoot) pure returns (bytes32)",
-      "function proveOneStep(tuple(uint256 maxInboxMessagesRead, address bridge) execCtx, uint256 machineStep, bytes32 beforeHash, bytes proof) view returns (bytes32 afterHash)",
-      "function prover0() view returns (address)",
-      "function proverHostIo() view returns (address)",
-      "function proverMath() view returns (address)",
-      "function proverMem() view returns (address)"
-    ],
-    "0x9B56A789fEDD5df27dBaB53b085F7157397cA17D": [
+    "eth:0x9B56A789fEDD5df27dBaB53b085F7157397cA17D": [
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
       "event NodeConfirmed(uint64 indexed nodeNum, bytes32 blockHash, bytes32 sendRoot)",
@@ -1430,7 +1560,10 @@
       "function zombieCount() view returns (uint256)",
       "function zombieLatestStakedNode(uint256 zombieNum) view returns (uint64)"
     ],
-    "0xa24eDA32bb36171a6c34CBB4B56f89FF7B8fD49A": [
+    "eth:0x9c40D14A2FC3f0A2f5fe804436f8e312224472C5": [
+      "function executeOneStep(tuple(uint256 maxInboxMessagesRead, address bridge), tuple(uint8 status, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) valueStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) valueMultiStack, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) internalStack, tuple(tuple(tuple(uint8 valueType, uint256 contents) returnPc, bytes32 localsMerkleRoot, uint32 callerModule, uint32 callerModuleInternals)[] proved, bytes32 remainingHash) frameStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) frameMultiStack, bytes32 globalStateHash, uint32 moduleIdx, uint32 functionIdx, uint32 functionPc, bytes32 recoveryPc, bytes32 modulesRoot) startMach, tuple(bytes32 globalsMerkleRoot, tuple(uint64 size, uint64 maxSize, bytes32 merkleRoot) moduleMemory, bytes32 tablesMerkleRoot, bytes32 functionsMerkleRoot, bytes32 extraHash, uint32 internalsOffset) startMod, tuple(uint16 opcode, uint256 argumentData) inst, bytes proof) pure returns (tuple(uint8 status, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) valueStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) valueMultiStack, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) internalStack, tuple(tuple(tuple(uint8 valueType, uint256 contents) returnPc, bytes32 localsMerkleRoot, uint32 callerModule, uint32 callerModuleInternals)[] proved, bytes32 remainingHash) frameStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) frameMultiStack, bytes32 globalStateHash, uint32 moduleIdx, uint32 functionIdx, uint32 functionPc, bytes32 recoveryPc, bytes32 modulesRoot) mach, tuple(bytes32 globalsMerkleRoot, tuple(uint64 size, uint64 maxSize, bytes32 merkleRoot) moduleMemory, bytes32 tablesMerkleRoot, bytes32 functionsMerkleRoot, bytes32 extraHash, uint32 internalsOffset) mod)"
+    ],
+    "eth:0xa24eDA32bb36171a6c34CBB4B56f89FF7B8fD49A": [
       "constructor(address _logic, address admin_, bytes _data) payable",
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -1441,7 +1574,7 @@
       "function upgradeTo(address newImplementation)",
       "function upgradeToAndCall(address newImplementation, bytes data) payable"
     ],
-    "0xa5D23c69894241825dAffB570c3c742C0F52df96": [
+    "eth:0xa5D23c69894241825dAffB570c3c742C0F52df96": [
       "constructor(address _logic, address admin_, bytes _data) payable",
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -1452,7 +1585,7 @@
       "function upgradeTo(address newImplementation)",
       "function upgradeToAndCall(address newImplementation, bytes data) payable"
     ],
-    "0xBbc3872E30C91ef69336937838c2a283F79f7E68": [
+    "eth:0xBbc3872E30C91ef69336937838c2a283F79f7E68": [
       "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
       "function changeProxyAdmin(address proxy, address newAdmin)",
       "function getProxyAdmin(address proxy) view returns (address)",
@@ -1463,10 +1596,84 @@
       "function upgrade(address proxy, address implementation)",
       "function upgradeAndCall(address proxy, address implementation, bytes data) payable"
     ],
-    "0xCf4b98cFF2976E4eb579B9498f398b5bd279A6eD": [
+    "eth:0xC1fB0cCa6e751dEe25e3D537D309d336E8304d50": [
+      "constructor(uint256 _maxDataSize, address reader4844_, bool _isUsingFeeToken)",
+      "error AlreadyInit()",
+      "error AlreadyValidDASKeyset(bytes32)",
+      "error BadMaxTimeVariation()",
+      "error BadPostUpgradeInit()",
+      "error BadSequencerNumber(uint256 stored, uint256 received)",
+      "error DataBlobsNotSupported()",
+      "error DataTooLarge(uint256 dataLength, uint256 maxDataLength)",
+      "error DelayedBackwards()",
+      "error DelayedTooFar()",
+      "error Deprecated()",
+      "error ForceIncludeBlockTooSoon()",
+      "error ForceIncludeTimeTooSoon()",
+      "error HadZeroInit()",
+      "error IncorrectMessagePreimage()",
+      "error InitParamZero(string name)",
+      "error InvalidCelestiaBatch()",
+      "error InvalidHeaderFlag(bytes1)",
+      "error MissingDataHashes()",
+      "error NativeTokenMismatch()",
+      "error NoSuchKeyset(bytes32)",
+      "error NotBatchPoster()",
+      "error NotBatchPosterManager(address)",
+      "error NotCodelessOrigin()",
+      "error NotForked()",
+      "error NotOwner(address sender, address owner)",
+      "error RollupNotChanged()",
+      "event InboxMessageDelivered(uint256 indexed messageNum, bytes data)",
+      "event InboxMessageDeliveredFromOrigin(uint256 indexed messageNum)",
+      "event InvalidateKeyset(bytes32 indexed keysetHash)",
+      "event OwnerFunctionCalled(uint256 indexed id)",
+      "event SequencerBatchData(uint256 indexed batchSequenceNumber, bytes data)",
+      "event SequencerBatchDelivered(uint256 indexed batchSequenceNumber, bytes32 indexed beforeAcc, bytes32 indexed afterAcc, bytes32 delayedAcc, uint256 afterDelayedMessagesRead, tuple(uint64 minTimestamp, uint64 maxTimestamp, uint64 minBlockNumber, uint64 maxBlockNumber) timeBounds, uint8 dataLocation)",
+      "event SetValidKeyset(bytes32 indexed keysetHash, bytes keysetBytes)",
+      "function BROTLI_MESSAGE_HEADER_FLAG() view returns (bytes1)",
+      "function CELESTIA_MESSAGE_HEADER_FLAG() view returns (bytes1)",
+      "function DAS_MESSAGE_HEADER_FLAG() view returns (bytes1)",
+      "function DATA_AUTHENTICATED_FLAG() view returns (bytes1)",
+      "function DATA_BLOB_HEADER_FLAG() view returns (bytes1)",
+      "function HEADER_LENGTH() view returns (uint256)",
+      "function TREE_DAS_MESSAGE_HEADER_FLAG() view returns (bytes1)",
+      "function ZERO_HEAVY_MESSAGE_HEADER_FLAG() view returns (bytes1)",
+      "function addSequencerL2Batch(uint256 sequenceNumber, bytes data, uint256 afterDelayedMessagesRead, address gasRefunder, uint256 prevMessageCount, uint256 newMessageCount)",
+      "function addSequencerL2BatchFromBlobs(uint256 sequenceNumber, uint256 afterDelayedMessagesRead, address gasRefunder, uint256 prevMessageCount, uint256 newMessageCount)",
+      "function addSequencerL2BatchFromOrigin(uint256, bytes, uint256, address) pure",
+      "function addSequencerL2BatchFromOrigin(uint256 sequenceNumber, bytes data, uint256 afterDelayedMessagesRead, address gasRefunder, uint256 prevMessageCount, uint256 newMessageCount)",
+      "function batchCount() view returns (uint256)",
+      "function batchPosterManager() view returns (address)",
+      "function bridge() view returns (address)",
+      "function dasKeySetInfo(bytes32) view returns (bool isValidKeyset, uint64 creationBlock)",
+      "function forceInclusion(uint256 _totalDelayedMessagesRead, uint8 kind, uint64[2] l1BlockAndTime, uint256 baseFeeL1, address sender, bytes32 messageDataHash)",
+      "function getKeysetCreationBlock(bytes32 ksHash) view returns (uint256)",
+      "function inboxAccs(uint256 index) view returns (bytes32)",
+      "function initialize(address bridge_, tuple(uint256 delayBlocks, uint256 futureBlocks, uint256 delaySeconds, uint256 futureSeconds) maxTimeVariation_)",
+      "function invalidateKeysetHash(bytes32 ksHash)",
+      "function isBatchPoster(address) view returns (bool)",
+      "function isSequencer(address) view returns (bool)",
+      "function isUsingFeeToken() view returns (bool)",
+      "function isValidKeysetHash(bytes32 ksHash) view returns (bool)",
+      "function maxDataSize() view returns (uint256)",
+      "function maxTimeVariation() view returns (uint256, uint256, uint256, uint256)",
+      "function postUpgradeInit()",
+      "function reader4844() view returns (address)",
+      "function removeDelayAfterFork()",
+      "function rollup() view returns (address)",
+      "function setBatchPosterManager(address newBatchPosterManager)",
+      "function setIsBatchPoster(address addr, bool isBatchPoster_)",
+      "function setIsSequencer(address addr, bool isSequencer_)",
+      "function setMaxTimeVariation(tuple(uint256 delayBlocks, uint256 futureBlocks, uint256 delaySeconds, uint256 futureSeconds) maxTimeVariation_)",
+      "function setValidKeyset(bytes keysetBytes)",
+      "function totalDelayedMessagesRead() view returns (uint256)",
+      "function updateRollupAddress()"
+    ],
+    "eth:0xcaBf38d8eADdE0BC6C91655242AFB4Da92a63FCe": [
       "function executeOneStep(tuple(uint256 maxInboxMessagesRead, address bridge), tuple(uint8 status, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) valueStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) valueMultiStack, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) internalStack, tuple(tuple(tuple(uint8 valueType, uint256 contents) returnPc, bytes32 localsMerkleRoot, uint32 callerModule, uint32 callerModuleInternals)[] proved, bytes32 remainingHash) frameStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) frameMultiStack, bytes32 globalStateHash, uint32 moduleIdx, uint32 functionIdx, uint32 functionPc, bytes32 recoveryPc, bytes32 modulesRoot) startMach, tuple(bytes32 globalsMerkleRoot, tuple(uint64 size, uint64 maxSize, bytes32 merkleRoot) moduleMemory, bytes32 tablesMerkleRoot, bytes32 functionsMerkleRoot, bytes32 extraHash, uint32 internalsOffset) startMod, tuple(uint16 opcode, uint256 argumentData) inst, bytes proof) pure returns (tuple(uint8 status, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) valueStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) valueMultiStack, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) internalStack, tuple(tuple(tuple(uint8 valueType, uint256 contents) returnPc, bytes32 localsMerkleRoot, uint32 callerModule, uint32 callerModuleInternals)[] proved, bytes32 remainingHash) frameStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) frameMultiStack, bytes32 globalStateHash, uint32 moduleIdx, uint32 functionIdx, uint32 functionPc, bytes32 recoveryPc, bytes32 modulesRoot) mach, tuple(bytes32 globalsMerkleRoot, tuple(uint64 size, uint64 maxSize, bytes32 merkleRoot) moduleMemory, bytes32 tablesMerkleRoot, bytes32 functionsMerkleRoot, bytes32 extraHash, uint32 internalsOffset) mod)"
     ],
-    "0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552": [
+    "eth:0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552": [
       "constructor()",
       "event AddedOwner(address owner)",
       "event ApproveHash(bytes32 indexed approvedHash, address indexed owner)",
@@ -1515,7 +1722,53 @@
       "function simulateAndRevert(address targetContract, bytes calldataPayload)",
       "function swapOwner(address prevOwner, address oldOwner, address newOwner)"
     ],
-    "0xf993AF239770932A0EDaB88B6A5ba3708Bd58239": [
+    "eth:0xEfA1De858293593732a09c9dAA238BEC49595751": [
+      "error BadSequencerMessageNumber(uint256 stored, uint256 received)",
+      "error CallNotAllowed()",
+      "error CallTargetNotAllowed(address target)",
+      "error InvalidOutboxSet(address outbox)",
+      "error InvalidTokenSet(address token)",
+      "error NativeTokenDecimalsTooLarge(uint256 decimals)",
+      "error NotContract(address addr)",
+      "error NotDelayedInbox(address sender)",
+      "error NotOutbox(address sender)",
+      "error NotOwner(address sender, address owner)",
+      "error NotRollupOrOwner(address sender, address rollup, address owner)",
+      "error NotSequencerInbox(address sender)",
+      "event BridgeCallTriggered(address indexed outbox, address indexed to, uint256 value, bytes data)",
+      "event InboxToggle(address indexed inbox, bool enabled)",
+      "event MessageDelivered(uint256 indexed messageIndex, bytes32 indexed beforeInboxAcc, address inbox, uint8 kind, address sender, bytes32 messageDataHash, uint256 baseFeeL1, uint64 timestamp)",
+      "event OutboxToggle(address indexed outbox, bool enabled)",
+      "event RollupUpdated(address rollup)",
+      "event SequencerInboxUpdated(address newSequencerInbox)",
+      "function acceptFundsFromOldBridge() payable",
+      "function activeOutbox() view returns (address)",
+      "function allowedDelayedInboxList(uint256) view returns (address)",
+      "function allowedDelayedInboxes(address inbox) view returns (bool)",
+      "function allowedOutboxList(uint256) view returns (address)",
+      "function allowedOutboxes(address outbox) view returns (bool)",
+      "function delayedInboxAccs(uint256) view returns (bytes32)",
+      "function delayedMessageCount() view returns (uint256)",
+      "function enqueueDelayedMessage(uint8 kind, address sender, bytes32 messageDataHash, uint256 tokenFeeAmount) returns (uint256)",
+      "function enqueueSequencerMessage(bytes32 dataHash, uint256 afterDelayedMessagesRead, uint256 prevMessageCount, uint256 newMessageCount) returns (uint256 seqMessageIndex, bytes32 beforeAcc, bytes32 delayedAcc, bytes32 acc)",
+      "function executeCall(address to, uint256 value, bytes data) returns (bool success, bytes returnData)",
+      "function initialize(address rollup_, address nativeToken_)",
+      "function nativeToken() view returns (address)",
+      "function nativeTokenDecimals() view returns (uint8)",
+      "function postUpgradeInit()",
+      "function rollup() view returns (address)",
+      "function sequencerInbox() view returns (address)",
+      "function sequencerInboxAccs(uint256) view returns (bytes32)",
+      "function sequencerMessageCount() view returns (uint256)",
+      "function sequencerReportedSubMessageCount() view returns (uint256)",
+      "function setDelayedInbox(address inbox, bool enabled)",
+      "function setOutbox(address outbox, bool enabled)",
+      "function setSequencerInbox(address _sequencerInbox)",
+      "function setSequencerReportedSubMessageCount(uint256 newMsgCount)",
+      "function submitBatchSpendingReport(address sender, bytes32 messageDataHash) returns (uint256)",
+      "function updateRollupAddress(address _rollup)"
+    ],
+    "eth:0xf993AF239770932A0EDaB88B6A5ba3708Bd58239": [
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
       "event Upgraded(address indexed implementation)",
@@ -1524,21 +1777,23 @@
     ]
   },
   "usedTemplates": {
-    "global/ProxyAdmin": "0x2eb29f308508b9cc7f51b5984e0a5636340fc562271d0682bde062bc96f88a27",
-    "GnosisSafe": "0x9d7f7b8b6adea28c4538f12e31b0c59eac5339b4e5c80def637cccc0cfe82106",
-    "orbitstack/Bridge": "0x845301f405250de17dac319b98e789faa82ba4b2112fa393bc9e5543309f6fdb",
-    "orbitstack/ChallengeManager": "0xfc9631d764c7dfe78bf9aff4ff330c0778db49f425f53bc05fe3563a3a8b1818",
-    "orbitstack/Inbox": "0xd0dac54a5086572ce3617a54758925dc0549cddf5901e35abeabc6a82c8e4125",
-    "orbitstack/OneStepProofEntry": "0x074184951191630feeaa1da3328d97eb4b6b01fcab82d65b95edbab72a8f3f24",
-    "orbitstack/OneStepProver0": "0x559f6ee495bd31dc9c44eb080b7465809cc4be6b4320e9eaaa57688d40e5393f",
-    "orbitstack/OneStepProverHostIo": "0x005f15de59af5ea5756cd602e399228055af398efab35e1838bc380b50b40d9c",
-    "orbitstack/OneStepProverMath": "0x9b4bb3e22278824fe310f080640053b421ec7571e8b89875e70c6a428073c9e4",
-    "orbitstack/OneStepProverMemory": "0xe7c75f6dbf6da1c4532a8bdc920a2159d59c38ad05c35e4c49405d5e2939ecb9",
-    "orbitstack/Outbox": "0xc10e243b743384d55d03accc7e87313f0d3928160f4bbc7542fb7263b477e6ba",
-    "orbitstack/RollupEventInbox": "0x3595225eeb70fac31bb4956d7a85fe36e2dc41e296ea3aca04d02f00ab56672b",
-    "orbitstack/RollupProxy_fastConfirm": "0x2670543ebadf16810332337e6ead9b8949e04cacabf18b672794b471aa443db3",
-    "orbitstack/SequencerInbox": "0x6c9fb56a71e6c16fcf572638338a9ca472776731ab17ec214ed873a63f006223",
-    "orbitstack/UpgradeExecutor": "0x08963d43011c21d1756bbf66e6e16480551aaafe1608fc4775c9e3c7da846f19",
-    "orbitstack/ValidatorUtils": "0x6da1a099d095b1ed59b7e8c0ae9c2494104c73fb1d73560be6733faacdb84f6f"
-  }
+    "global/ProxyAdmin": "0x7d24ef68050bed263f4cfd0471631d16b2f33814fbbd4e9aadf666c81bbf0c2d",
+    "GnosisSafe": "0x12db59bec64fa8de67bbeb6a6e913f6c5ff1598c0a5fba90282afaf08e2a748c",
+    "orbitstack/Bridge": "0x021d1c558348a8ac876fad0f0af08c828492fdfc313056db0a923dec120b1f09",
+    "orbitstack/ChallengeManager": "0x8760ed03abe46cb507ea6364ccb9aad7e04b5e32c39a48cb81efd7277e495054",
+    "orbitstack/Inbox": "0x6fbb45d11251921c07e800160fe95b7bb7e81f6f3b7d0c02107126e904d8cd9c",
+    "orbitstack/OneStepProofEntry": "0x6fbb45d11251921c07e800160fe95b7bb7e81f6f3b7d0c02107126e904d8cd9c",
+    "orbitstack/OneStepProver0": "0x6fbb45d11251921c07e800160fe95b7bb7e81f6f3b7d0c02107126e904d8cd9c",
+    "orbitstack/OneStepProverHostIo_Celestia": "0xdfb89dfaf2aa0cc0cb0a1be0072f20b1716aa3be62152610175c896630a839de",
+    "orbitstack/OneStepProverMath": "0x6fbb45d11251921c07e800160fe95b7bb7e81f6f3b7d0c02107126e904d8cd9c",
+    "orbitstack/OneStepProverMemory": "0x6fbb45d11251921c07e800160fe95b7bb7e81f6f3b7d0c02107126e904d8cd9c",
+    "orbitstack/Outbox": "0x8dbaaf653890815197f4c39ef9d1000a8dfc0338ef34b273788a6d2087d4cfec",
+    "orbitstack/RollupEventInbox": "0x6fbb45d11251921c07e800160fe95b7bb7e81f6f3b7d0c02107126e904d8cd9c",
+    "orbitstack/RollupProxy_fastConfirm": "0x44444b0ddf0730808af44c1a9ff9b9295a98d4ce2f5d1f6c550448dbd39a6c72",
+    "orbitstack/SequencerInbox": "0x100e93a03486bc9e5e0302baf9dc4f98d011fa54d4088db1cd234f5812482ba1",
+    "orbitstack/UpgradeExecutor": "0xf65e73e609a464b657011e80920c1852ae19b0e3d493e4678f74b99052ee87fe",
+    "orbitstack/ValidatorUtils": "0x6fbb45d11251921c07e800160fe95b7bb7e81f6f3b7d0c02107126e904d8cd9c"
+  },
+  "usedBlockNumbers": { "ethereum": 22895937 },
+  "permissionsConfigHash": "0x65486f941e2be0d1a3580e6ee8149bd41e985fa706fc17d78ac8e4ee97c89f87"
 }

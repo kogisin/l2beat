@@ -1,3 +1,647 @@
+Generated with discovered.json: 0x7f6383df6807dc7b72f68f898d5eb29f7628e6a4
+
+# Diff at Thu, 31 Jul 2025 10:58:43 GMT:
+
+- author: Mateusz Radomski (<radomski.main@protonmail.com>)
+- comparing to: main@07319d194d312aca8103826b7db44d44613cc7fa block: 1753687799
+- current timestamp: 1753687799
+
+## Description
+
+Discovery rerun on the same block number with only config-related changes.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 1753687799 (main branch discovery), not current.
+
+```diff
+    contract MantleL1ERC20Bridge (0x62351b47e060c61868Ab7E05920Cb42bD9A5f2B2) {
+    +++ description: None
+      name:
+-        "L1ERC20Bridge"
++        "MantleL1ERC20Bridge"
+    }
+```
+
+```diff
+    contract MantlezkLink (0xD784d7128B46B60Ca7d8BdC17dCEC94917455657) {
+    +++ description: None
+      name:
+-        "zkLink"
++        "MantlezkLink"
+    }
+```
+
+Generated with discovered.json: 0xa89eba0b715cc0b589dd3a097adb2b5b007c8318
+
+# Diff at Mon, 14 Jul 2025 12:47:20 GMT:
+
+- author: Mateusz Radomski (<radomski.main@protonmail.com>)
+- comparing to: main@9f4300dad2f3d080cd56fa311d4a848556c74e72 block: 81058973
+- current block number: 81058973
+
+## Description
+
+Discovery rerun on the same block number with only config-related changes.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 81058973 (main branch discovery), not current.
+
+```diff
+    contract MantleOwner (0x1aB4D3cfcCCB28DBc8993454f461f3565281BB60) {
+    +++ description: None
+      address:
+-        "0x1aB4D3cfcCCB28DBc8993454f461f3565281BB60"
++        "mantle:0x1aB4D3cfcCCB28DBc8993454f461f3565281BB60"
+      values.$implementation:
+-        "0xfb1bffC9d739B8D520DaF37dF666da4C687191EA"
++        "mantle:0xfb1bffC9d739B8D520DaF37dF666da4C687191EA"
+      values.$members.0:
+-        "0xd30898ECdc21C72250a5fd1dbD37FF7D63237Db5"
++        "mantle:0xd30898ECdc21C72250a5fd1dbD37FF7D63237Db5"
+      values.$members.1:
+-        "0x7785bccF9110C188Dad39bE49D4Cdf6c6CC03F10"
++        "mantle:0x7785bccF9110C188Dad39bE49D4Cdf6c6CC03F10"
+      values.$members.2:
+-        "0x4D9b22B92Ff9faFAc013f82faCA88BDa8E778cb5"
++        "mantle:0x4D9b22B92Ff9faFAc013f82faCA88BDa8E778cb5"
+      values.$members.3:
+-        "0xF801886AE2e127A269B0F11892edb54F692d02dF"
++        "mantle:0xF801886AE2e127A269B0F11892edb54F692d02dF"
+      values.$members.4:
+-        "0xd8F26118505417Ef6468Ac8A2AE1E5117245Db92"
++        "mantle:0xd8F26118505417Ef6468Ac8A2AE1E5117245Db92"
+      values.$members.5:
+-        "0x824C9364A6CF8f5EB542ad2ca8F5705561C8b1db"
++        "mantle:0x824C9364A6CF8f5EB542ad2ca8F5705561C8b1db"
+      values.$members.6:
+-        "0x24a257B7D975E7ec6219C4cFCbcF6E504253c7A9"
++        "mantle:0x24a257B7D975E7ec6219C4cFCbcF6E504253c7A9"
+      values.$members.7:
+-        "0xcC1A2bd1a459be0C7fAd3B7F9Fa9a6CBBFE9BFa5"
++        "mantle:0xcC1A2bd1a459be0C7fAd3B7F9Fa9a6CBBFE9BFa5"
+      implementationNames.0x1aB4D3cfcCCB28DBc8993454f461f3565281BB60:
+-        "GnosisSafeProxy"
+      implementationNames.0xfb1bffC9d739B8D520DaF37dF666da4C687191EA:
+-        "GnosisSafeL2"
+      implementationNames.mantle:0x1aB4D3cfcCCB28DBc8993454f461f3565281BB60:
++        "GnosisSafeProxy"
+      implementationNames.mantle:0xfb1bffC9d739B8D520DaF37dF666da4C687191EA:
++        "GnosisSafeL2"
+    }
+```
+
+```diff
+    EOA  (0x21194Efd1D913Bc8D62F1ED9467aA0cA2a257FCe) {
+    +++ description: None
+      address:
+-        "0x21194Efd1D913Bc8D62F1ED9467aA0cA2a257FCe"
++        "mantle:0x21194Efd1D913Bc8D62F1ED9467aA0cA2a257FCe"
+    }
+```
+
+```diff
+    EOA  (0x24a257B7D975E7ec6219C4cFCbcF6E504253c7A9) {
+    +++ description: None
+      address:
+-        "0x24a257B7D975E7ec6219C4cFCbcF6E504253c7A9"
++        "mantle:0x24a257B7D975E7ec6219C4cFCbcF6E504253c7A9"
+    }
+```
+
+```diff
+    EOA  (0x321Ce902eDFC6466B224ce5D9A7Bc16858855272) {
+    +++ description: None
+      address:
+-        "0x321Ce902eDFC6466B224ce5D9A7Bc16858855272"
++        "mantle:0x321Ce902eDFC6466B224ce5D9A7Bc16858855272"
+    }
+```
+
+```diff
+    EOA  (0x4D9b22B92Ff9faFAc013f82faCA88BDa8E778cb5) {
+    +++ description: None
+      address:
+-        "0x4D9b22B92Ff9faFAc013f82faCA88BDa8E778cb5"
++        "mantle:0x4D9b22B92Ff9faFAc013f82faCA88BDa8E778cb5"
+    }
+```
+
+```diff
+    contract L1ERC20Bridge (0x62351b47e060c61868Ab7E05920Cb42bD9A5f2B2) {
+    +++ description: None
+      address:
+-        "0x62351b47e060c61868Ab7E05920Cb42bD9A5f2B2"
++        "mantle:0x62351b47e060c61868Ab7E05920Cb42bD9A5f2B2"
+      values.$admin:
+-        "0xeAe8e5180EAE503E4Ffef2F5D48E20164eD41b82"
++        "mantle:0xeAe8e5180EAE503E4Ffef2F5D48E20164eD41b82"
+      values.$implementation:
+-        "0x7769C18828569692Dfb65affa0856533613ea458"
++        "mantle:0x7769C18828569692Dfb65affa0856533613ea458"
+      values.$pastUpgrades.0.2.0:
+-        "0xbfa352a683D82a04233Cc45AC1308621BA63283f"
++        "mantle:0xbfa352a683D82a04233Cc45AC1308621BA63283f"
+      values.$pastUpgrades.1.2.0:
+-        "0x7769C18828569692Dfb65affa0856533613ea458"
++        "mantle:0x7769C18828569692Dfb65affa0856533613ea458"
+      values.l2Bridge:
+-        "0x321Ce902eDFC6466B224ce5D9A7Bc16858855272"
++        "mantle:0x321Ce902eDFC6466B224ce5D9A7Bc16858855272"
+      values.l2TokenBeacon:
+-        "0x21194Efd1D913Bc8D62F1ED9467aA0cA2a257FCe"
++        "mantle:0x21194Efd1D913Bc8D62F1ED9467aA0cA2a257FCe"
+      implementationNames.0x62351b47e060c61868Ab7E05920Cb42bD9A5f2B2:
+-        "TransparentUpgradeableProxy"
+      implementationNames.0x7769C18828569692Dfb65affa0856533613ea458:
+-        "L1ERC20Bridge"
+      implementationNames.mantle:0x62351b47e060c61868Ab7E05920Cb42bD9A5f2B2:
++        "TransparentUpgradeableProxy"
+      implementationNames.mantle:0x7769C18828569692Dfb65affa0856533613ea458:
++        "L1ERC20Bridge"
+    }
+```
+
+```diff
+    EOA  (0x7785bccF9110C188Dad39bE49D4Cdf6c6CC03F10) {
+    +++ description: None
+      address:
+-        "0x7785bccF9110C188Dad39bE49D4Cdf6c6CC03F10"
++        "mantle:0x7785bccF9110C188Dad39bE49D4Cdf6c6CC03F10"
+    }
+```
+
+```diff
+    EOA  (0x824C9364A6CF8f5EB542ad2ca8F5705561C8b1db) {
+    +++ description: None
+      address:
+-        "0x824C9364A6CF8f5EB542ad2ca8F5705561C8b1db"
++        "mantle:0x824C9364A6CF8f5EB542ad2ca8F5705561C8b1db"
+    }
+```
+
+```diff
+    EOA  (0xcC1A2bd1a459be0C7fAd3B7F9Fa9a6CBBFE9BFa5) {
+    +++ description: None
+      address:
+-        "0xcC1A2bd1a459be0C7fAd3B7F9Fa9a6CBBFE9BFa5"
++        "mantle:0xcC1A2bd1a459be0C7fAd3B7F9Fa9a6CBBFE9BFa5"
+    }
+```
+
+```diff
+    EOA  (0xd30898ECdc21C72250a5fd1dbD37FF7D63237Db5) {
+    +++ description: None
+      address:
+-        "0xd30898ECdc21C72250a5fd1dbD37FF7D63237Db5"
++        "mantle:0xd30898ECdc21C72250a5fd1dbD37FF7D63237Db5"
+    }
+```
+
+```diff
+    contract zkLink (0xD784d7128B46B60Ca7d8BdC17dCEC94917455657) {
+    +++ description: None
+      address:
+-        "0xD784d7128B46B60Ca7d8BdC17dCEC94917455657"
++        "mantle:0xD784d7128B46B60Ca7d8BdC17dCEC94917455657"
+      values.$admin:
+-        "0x1aB4D3cfcCCB28DBc8993454f461f3565281BB60"
++        "mantle:0x1aB4D3cfcCCB28DBc8993454f461f3565281BB60"
+      values.$implementation:
+-        "0x0C04046546C46652969Aa9eB4BFB758cFDf1e821"
++        "mantle:0x0C04046546C46652969Aa9eB4BFB758cFDf1e821"
+      values.$pastUpgrades.0.2.0:
+-        "0x5715Dec4cd747675E47b969D3a15aab909b8ce05"
++        "mantle:0x5715Dec4cd747675E47b969D3a15aab909b8ce05"
+      values.$pastUpgrades.1.2.0:
+-        "0x85079cb83B6cadba34e64bc0f24493F49D8b1F4e"
++        "mantle:0x85079cb83B6cadba34e64bc0f24493F49D8b1F4e"
+      values.$pastUpgrades.2.2.0:
+-        "0xa8486096C719024D4eB2262A45AAc5cA8A256Cd6"
++        "mantle:0xa8486096C719024D4eB2262A45AAc5cA8A256Cd6"
+      values.$pastUpgrades.3.2.0:
+-        "0x0C04046546C46652969Aa9eB4BFB758cFDf1e821"
++        "mantle:0x0C04046546C46652969Aa9eB4BFB758cFDf1e821"
+      values.forwardFeeAllocator:
+-        "0x1aB4D3cfcCCB28DBc8993454f461f3565281BB60"
++        "mantle:0x1aB4D3cfcCCB28DBc8993454f461f3565281BB60"
+      values.gateway:
+-        "0xe946aBB40928326ce5bFF303E7B8f0f253EA39D0"
++        "mantle:0xe946aBB40928326ce5bFF303E7B8f0f253EA39D0"
+      values.getGateway:
+-        "0xe946aBB40928326ce5bFF303E7B8f0f253EA39D0"
++        "mantle:0xe946aBB40928326ce5bFF303E7B8f0f253EA39D0"
+      values.getGovernor:
+-        "0x1aB4D3cfcCCB28DBc8993454f461f3565281BB60"
++        "mantle:0x1aB4D3cfcCCB28DBc8993454f461f3565281BB60"
+      values.owner:
+-        "0x1aB4D3cfcCCB28DBc8993454f461f3565281BB60"
++        "mantle:0x1aB4D3cfcCCB28DBc8993454f461f3565281BB60"
+      implementationNames.0xD784d7128B46B60Ca7d8BdC17dCEC94917455657:
+-        "ERC1967Proxy"
+      implementationNames.0x0C04046546C46652969Aa9eB4BFB758cFDf1e821:
+-        "ZkLink"
+      implementationNames.mantle:0xD784d7128B46B60Ca7d8BdC17dCEC94917455657:
++        "ERC1967Proxy"
+      implementationNames.mantle:0x0C04046546C46652969Aa9eB4BFB758cFDf1e821:
++        "ZkLink"
+    }
+```
+
+```diff
+    EOA  (0xd8F26118505417Ef6468Ac8A2AE1E5117245Db92) {
+    +++ description: None
+      address:
+-        "0xd8F26118505417Ef6468Ac8A2AE1E5117245Db92"
++        "mantle:0xd8F26118505417Ef6468Ac8A2AE1E5117245Db92"
+    }
+```
+
+```diff
+    contract MantleL2Gateway (0xe946aBB40928326ce5bFF303E7B8f0f253EA39D0) {
+    +++ description: None
+      address:
+-        "0xe946aBB40928326ce5bFF303E7B8f0f253EA39D0"
++        "mantle:0xe946aBB40928326ce5bFF303E7B8f0f253EA39D0"
+      values.$admin:
+-        "0x1aB4D3cfcCCB28DBc8993454f461f3565281BB60"
++        "mantle:0x1aB4D3cfcCCB28DBc8993454f461f3565281BB60"
+      values.$implementation:
+-        "0xCdcDF691aF3e3717A35A2352aB7e34fd2980613D"
++        "mantle:0xCdcDF691aF3e3717A35A2352aB7e34fd2980613D"
+      values.$pastUpgrades.0.2.0:
+-        "0x55fa5276c44c1B465196898b144524C9c852235E"
++        "mantle:0x55fa5276c44c1B465196898b144524C9c852235E"
+      values.$pastUpgrades.1.2.0:
+-        "0x09CB6C5A235939258e3F6Ae2989cf6f26EeE1c72"
++        "mantle:0x09CB6C5A235939258e3F6Ae2989cf6f26EeE1c72"
+      values.$pastUpgrades.2.2.0:
+-        "0xCdcDF691aF3e3717A35A2352aB7e34fd2980613D"
++        "mantle:0xCdcDF691aF3e3717A35A2352aB7e34fd2980613D"
+      values.ethToken:
+-        "0xdEAddEaDdeadDEadDEADDEAddEADDEAddead1111"
++        "mantle:0xdEAddEaDdeadDEadDEADDEAddEADDEAddead1111"
+      values.getRemoteGateway:
+-        "0xdE1Ce751405Fe6D836349226EEdCDFFE1C3BE269"
++        "mantle:0xdE1Ce751405Fe6D836349226EEdCDFFE1C3BE269"
+      values.MESSAGE_SERVICE:
+-        "0x4200000000000000000000000000000000000007"
++        "mantle:0x4200000000000000000000000000000000000007"
+      values.owner:
+-        "0x1aB4D3cfcCCB28DBc8993454f461f3565281BB60"
++        "mantle:0x1aB4D3cfcCCB28DBc8993454f461f3565281BB60"
+      values.ZKLINK:
+-        "0xD784d7128B46B60Ca7d8BdC17dCEC94917455657"
++        "mantle:0xD784d7128B46B60Ca7d8BdC17dCEC94917455657"
+      implementationNames.0xe946aBB40928326ce5bFF303E7B8f0f253EA39D0:
+-        "ERC1967Proxy"
+      implementationNames.0xCdcDF691aF3e3717A35A2352aB7e34fd2980613D:
+-        "MantleL2Gateway"
+      implementationNames.mantle:0xe946aBB40928326ce5bFF303E7B8f0f253EA39D0:
++        "ERC1967Proxy"
+      implementationNames.mantle:0xCdcDF691aF3e3717A35A2352aB7e34fd2980613D:
++        "MantleL2Gateway"
+    }
+```
+
+```diff
+    contract MantleProxyAdmin (0xeAe8e5180EAE503E4Ffef2F5D48E20164eD41b82) {
+    +++ description: None
+      address:
+-        "0xeAe8e5180EAE503E4Ffef2F5D48E20164eD41b82"
++        "mantle:0xeAe8e5180EAE503E4Ffef2F5D48E20164eD41b82"
+      values.owner:
+-        "0x1aB4D3cfcCCB28DBc8993454f461f3565281BB60"
++        "mantle:0x1aB4D3cfcCCB28DBc8993454f461f3565281BB60"
+      implementationNames.0xeAe8e5180EAE503E4Ffef2F5D48E20164eD41b82:
+-        "ProxyAdmin"
+      implementationNames.mantle:0xeAe8e5180EAE503E4Ffef2F5D48E20164eD41b82:
++        "ProxyAdmin"
+    }
+```
+
+```diff
+    EOA  (0xF801886AE2e127A269B0F11892edb54F692d02dF) {
+    +++ description: None
+      address:
+-        "0xF801886AE2e127A269B0F11892edb54F692d02dF"
++        "mantle:0xF801886AE2e127A269B0F11892edb54F692d02dF"
+    }
+```
+
+```diff
++   Status: CREATED
+    contract MantleOwner (0x1aB4D3cfcCCB28DBc8993454f461f3565281BB60)
+    +++ description: None
+```
+
+```diff
++   Status: CREATED
+    contract L1ERC20Bridge (0x62351b47e060c61868Ab7E05920Cb42bD9A5f2B2)
+    +++ description: None
+```
+
+```diff
++   Status: CREATED
+    contract zkLink (0xD784d7128B46B60Ca7d8BdC17dCEC94917455657)
+    +++ description: None
+```
+
+```diff
++   Status: CREATED
+    contract MantleL2Gateway (0xe946aBB40928326ce5bFF303E7B8f0f253EA39D0)
+    +++ description: None
+```
+
+```diff
++   Status: CREATED
+    contract MantleProxyAdmin (0xeAe8e5180EAE503E4Ffef2F5D48E20164eD41b82)
+    +++ description: None
+```
+
+Generated with discovered.json: 0x01e77a77007f3ab3e9f41dee9fdf767ffacedd9a
+
+# Diff at Fri, 04 Jul 2025 13:17:49 GMT:
+
+- author: Mateusz Radomski (<radomski.main@protonmail.com>)
+- comparing to: main@f3be48c7969ce9c9727876024c540666c2956e91 block: 81058973
+- current block number: 81058973
+
+## Description
+
+Discovery rerun on the same block number with only config-related changes.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 81058973 (main branch discovery), not current.
+
+```diff
+    contract MantleOwner (0x1aB4D3cfcCCB28DBc8993454f461f3565281BB60) {
+    +++ description: None
+      sourceHashes.0:
+-        "0xfe0725afd3cf2e5fb7627005a6bcf13ef7e35f78034eed2211edbffdb6a9aab5"
++        "0x81a7349eebb98ac33b0bc6842e3cb258034a8f2a4ba004570bb8e2e25947f9ff"
+      implementationNames.0x1aB4D3cfcCCB28DBc8993454f461f3565281BB60:
+-        "SafeProxy"
++        "GnosisSafeProxy"
+    }
+```
+
+Generated with discovered.json: 0xbc8527043577a887e2a08f57dda91ca40aa65648
+
+# Diff at Wed, 18 Jun 2025 12:24:56 GMT:
+
+- author: Mateusz Radomski (<radomski.main@protonmail.com>)
+- comparing to: main@a8e4f22a1441bd5040898cc3d3d62b3582942b65 block: 80670848
+- current block number: 81058973
+
+## Description
+
+config: wasmmoduleroot map updated.
+
+## Watched changes
+
+```diff
+    contract MantleOwner (0x1aB4D3cfcCCB28DBc8993454f461f3565281BB60) {
+    +++ description: None
+      sourceHashes.0:
+-        "0x81a7349eebb98ac33b0bc6842e3cb258034a8f2a4ba004570bb8e2e25947f9ff"
++        "0xfe0725afd3cf2e5fb7627005a6bcf13ef7e35f78034eed2211edbffdb6a9aab5"
+      implementationNames.0x1aB4D3cfcCCB28DBc8993454f461f3565281BB60:
+-        "GnosisSafeProxy"
++        "SafeProxy"
+    }
+```
+
+Generated with discovered.json: 0xc8f4a269e311ca5e1327403aeac60fd55590e4bc
+
+# Diff at Wed, 11 Jun 2025 10:36:44 GMT:
+
+- author: Mateusz Radomski (<radomski.main@protonmail.com>)
+- comparing to: main@9d1575fea6364921032f9ded0a049bdf9fc57604 block: 80670848
+- current block number: 80670848
+
+## Description
+
+Discovery rerun on the same block number with only config-related changes.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 80670848 (main branch discovery), not current.
+
+```diff
+    contract MantleOwner (0x1aB4D3cfcCCB28DBc8993454f461f3565281BB60) {
+    +++ description: None
+      sourceHashes.0:
+-        "0xfe0725afd3cf2e5fb7627005a6bcf13ef7e35f78034eed2211edbffdb6a9aab5"
++        "0x81a7349eebb98ac33b0bc6842e3cb258034a8f2a4ba004570bb8e2e25947f9ff"
+      implementationNames.0x1aB4D3cfcCCB28DBc8993454f461f3565281BB60:
+-        "SafeProxy"
++        "GnosisSafeProxy"
+    }
+```
+
+Generated with discovered.json: 0x1face9b0e1b5c077a88bec89a53cd80caa9b9d2f
+
+# Diff at Mon, 09 Jun 2025 12:27:16 GMT:
+
+- author: sekuba (<29250140+sekuba@users.noreply.github.com>)
+- comparing to: main@7cc006dadcc55e6cce3be3eb03d491835943fb43 block: 79284086
+- current block number: 80670848
+
+## Description
+
+zklinknova mantleOwner changed.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 79284086 (main branch discovery), not current.
+
+```diff
+    contract MantleOwner (0x1aB4D3cfcCCB28DBc8993454f461f3565281BB60) {
+    +++ description: None
+      sourceHashes.0:
+-        "0x81a7349eebb98ac33b0bc6842e3cb258034a8f2a4ba004570bb8e2e25947f9ff"
++        "0xfe0725afd3cf2e5fb7627005a6bcf13ef7e35f78034eed2211edbffdb6a9aab5"
+      implementationNames.0x1aB4D3cfcCCB28DBc8993454f461f3565281BB60:
+-        "GnosisSafeProxy"
++        "SafeProxy"
+    }
+```
+
+Generated with discovered.json: 0xe5f58b19f3cbfd46b90229e35f0c3829207e95e2
+
+# Diff at Fri, 23 May 2025 09:41:21 GMT:
+
+- author: Adrian Adamiak (<adrian@adamiak.net>)
+- comparing to: main@69cd181abbc3c830a6caf2f4429b37cae72ffdb8 block: 79284086
+- current block number: 79284086
+
+## Description
+
+Introduced .role field on each permission, defaulting to field name on which it was defined (with '.' prefix)
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 79284086 (main branch discovery), not current.
+
+```diff
+    contract MantleOwner (0x1aB4D3cfcCCB28DBc8993454f461f3565281BB60) {
+    +++ description: None
+      receivedPermissions.2.role:
++        "admin"
+      receivedPermissions.1.role:
++        "admin"
+      receivedPermissions.0.role:
++        "admin"
+      directlyReceivedPermissions.0.role:
++        ".owner"
+    }
+```
+
+```diff
+    contract MantleProxyAdmin (0xeAe8e5180EAE503E4Ffef2F5D48E20164eD41b82) {
+    +++ description: None
+      directlyReceivedPermissions.0.role:
++        "admin"
+    }
+```
+
+Generated with discovered.json: 0x573240a65a69f458ead5d4dbcccba4c302a843a1
+
+# Diff at Wed, 07 May 2025 07:57:33 GMT:
+
+- author: Michał Podsiadły (<michal.podsiadly@l2beat.com>)
+- comparing to: main@0ad97a28a4acd494070977b13284d597fbcc6048 block: 79197162
+- current block number: 79197162
+
+## Description
+
+Discovery rerun on the same block number with only config-related changes.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 79197162 (main branch discovery), not current.
+
+```diff
+    contract MantleOwner (0x1aB4D3cfcCCB28DBc8993454f461f3565281BB60) {
+    +++ description: None
+      sourceHashes.0:
+-        "0xfe0725afd3cf2e5fb7627005a6bcf13ef7e35f78034eed2211edbffdb6a9aab5"
++        "0x81a7349eebb98ac33b0bc6842e3cb258034a8f2a4ba004570bb8e2e25947f9ff"
+    }
+```
+
+Generated with discovered.json: 0xae5bb250ba72f80ef3048f766dc1f27c207b9b57
+
+# Diff at Tue, 06 May 2025 09:44:40 GMT:
+
+- author: Sergey Shemyakov (<sergey.shemyakov@l2beat.com>)
+- comparing to: main@76bab41abbae565c3c67522863645fa6d26e7444 block: 76775244
+- current block number: 79197162
+
+## Description
+
+The diff is config related, no actual changes onchain.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 76775244 (main branch discovery), not current.
+
+```diff
+    contract MantleOwner (0x1aB4D3cfcCCB28DBc8993454f461f3565281BB60) {
+    +++ description: None
+      sourceHashes.0:
+-        "0x81a7349eebb98ac33b0bc6842e3cb258034a8f2a4ba004570bb8e2e25947f9ff"
++        "0xfe0725afd3cf2e5fb7627005a6bcf13ef7e35f78034eed2211edbffdb6a9aab5"
+    }
+```
+
+Generated with discovered.json: 0x661e07bde6fc86520a834e6a556e290b8f08d154
+
+# Diff at Tue, 29 Apr 2025 08:19:30 GMT:
+
+- author: Adrian Adamiak (<adrian@adamiak.net>)
+- comparing to: main@ef7477af00fe0b57a2f7cacf7e958c12494af662 block: 76775244
+- current block number: 76775244
+
+## Description
+
+Field .issuedPermissions is removed from the output as no longer needed. Added 'permissionsConfigHash' due to refactoring of the modelling process (into a separate command).
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 76775244 (main branch discovery), not current.
+
+```diff
+    contract L1ERC20Bridge (0x62351b47e060c61868Ab7E05920Cb42bD9A5f2B2) {
+    +++ description: None
+      issuedPermissions:
+-        [{"permission":"upgrade","to":"0x1aB4D3cfcCCB28DBc8993454f461f3565281BB60","via":[{"address":"0xeAe8e5180EAE503E4Ffef2F5D48E20164eD41b82"}]}]
+    }
+```
+
+```diff
+    contract zkLink (0xD784d7128B46B60Ca7d8BdC17dCEC94917455657) {
+    +++ description: None
+      issuedPermissions:
+-        [{"permission":"upgrade","to":"0x1aB4D3cfcCCB28DBc8993454f461f3565281BB60","via":[]}]
+    }
+```
+
+```diff
+    contract MantleL2Gateway (0xe946aBB40928326ce5bFF303E7B8f0f253EA39D0) {
+    +++ description: None
+      issuedPermissions:
+-        [{"permission":"upgrade","to":"0x1aB4D3cfcCCB28DBc8993454f461f3565281BB60","via":[]}]
+    }
+```
+
+Generated with discovered.json: 0x82d1ba230441954820fcc2e165e39dc940cd1c32
+
+# Diff at Thu, 10 Apr 2025 14:44:11 GMT:
+
+- author: Mateusz Radomski (<radomski.main@protonmail.com>)
+- comparing to: main@f38a3c9bf359344e4c4cd3006f58271cb8f78d15 block: 76775244
+- current block number: 76775244
+
+## Description
+
+Discovery rerun on the same block number with only config-related changes.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 76775244 (main branch discovery), not current.
+
+```diff
+    contract MantleProxyAdmin (0xeAe8e5180EAE503E4Ffef2F5D48E20164eD41b82) {
+    +++ description: None
+      displayName:
+-        "ProxyAdmin"
+    }
+```
+
 Generated with discovered.json: 0x4457bcd41aeedc73b499763b165e4da844b60e87
 
 # Diff at Tue, 11 Mar 2025 08:13:33 GMT:

@@ -1,12 +1,11 @@
+import { Logger } from '@l2beat/backend-tools'
 import {
   assert,
   type CoingeckoId,
-  UnixTime,
   getHourlyTimestamps,
+  UnixTime,
 } from '@l2beat/shared-pure'
-import { zip } from 'lodash'
-
-import { Logger } from '@l2beat/backend-tools'
+import zip from 'lodash/zip'
 import { CoingeckoClient } from '../../clients/coingecko/CoingeckoClient'
 import type {
   CoinMarketChartRangeData,

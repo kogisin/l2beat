@@ -1,7 +1,7 @@
-import { existsSync, unlinkSync } from 'fs'
-import path from 'path'
 import { UnixTime } from '@l2beat/shared-pure'
 import { expect } from 'earl'
+import { existsSync, unlinkSync } from 'fs'
+import path from 'path'
 import { LocalStorage } from './LocalStorage'
 
 const TEST_FILE_PATH = path.join(__dirname, 'local-data-test.json')
@@ -50,6 +50,24 @@ describe(LocalStorage.name, () => {
       storage = new LocalStorage(TEST_FILE_PATH)
       const price = await storage.getPrice('token1', timestamp)
       expect(price).toEqual(1234.56)
+    })
+  })
+
+  describe('addresses', () => {
+    it('can write and read addresses', async () => {
+      const storage = new LocalStorage(TEST_FILE_PATH)
+      await storage.writeAddress('address1', '0x1234')
+      const address = await storage.getAddress('address1')
+      expect(address).toEqual('0x1234')
+    })
+
+    it('persists addresses between instances', async () => {
+      let storage = new LocalStorage(TEST_FILE_PATH)
+      await storage.writeAddress('address1', '0x1234')
+
+      storage = new LocalStorage(TEST_FILE_PATH)
+      const address = await storage.getAddress('address1')
+      expect(address).toEqual('0x1234')
     })
   })
 

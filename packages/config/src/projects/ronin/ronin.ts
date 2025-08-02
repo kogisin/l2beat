@@ -1,9 +1,8 @@
 import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
-
-import { CONTRACTS } from '../../common'
-import { BRIDGE_RISK_VIEW } from '../../common'
+import { BRIDGE_RISK_VIEW, CONTRACTS } from '../../common'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { Bridge } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('ronin')
 
@@ -23,7 +22,7 @@ const operatorsString = `${thresholdPerc}% out of ${operatorsCount}`
 
 const paused =
   discovery.getContractValue<boolean>('MainchainGateway', 'paused') === true
-const warningText = paused ? 'The bridge is currently paused.' : undefined
+// const warningText = paused ? 'The bridge is currently paused.' : undefined
 
 const pausable = {
   paused,
@@ -34,13 +33,15 @@ export const ronin: Bridge = {
   type: 'bridge',
   id: ProjectId('ronin'),
   addedAt: UnixTime(1662628329), // 2022-09-08T09:12:09Z
+  archivedAt: UnixTime(1746798305),
   display: {
     name: 'Ronin V3',
     slug: 'ronin',
-    warning: warningText,
+    warning:
+      'A migration to a new messaging infrastructure and new escrows [has been completed](https://x.com/Ronin_Network/status/1915743172673622494). Ronin is now using the Chainlink CCIP messaging protocol.',
     links: {
       websites: ['https://bridge.roninchain.com/'],
-      apps: ['https://bridge.roninchain.com/'],
+      bridges: ['https://bridge.roninchain.com/'],
       documentation: ['https://docs.roninchain.com/get-started'],
       explorers: ['https://explorer.roninchain.com/'],
       socialMedia: [
@@ -51,7 +52,7 @@ export const ronin: Bridge = {
     },
     description:
       'Ronin Bridge V3 is the official bridge for the Axie Infinity chain (Ronin chain). It uses external validators to confirm deposits for a typical Token Bridge swap.',
-    category: 'Token Bridge',
+    category: 'Single-chain',
   },
   config: {
     associatedTokens: ['AXS'],
@@ -72,13 +73,15 @@ export const ronin: Bridge = {
   },
   riskView: {
     validatedBy: {
-      value: 'Third Party',
-      description: `${operatorsString} operators.`,
+      value: 'Multisig (16/22)',
+      description:
+        '16/22 Operators from the set. Identities of the signers are not publicly disclosed.',
       sentiment: 'bad',
     },
-    sourceUpgradeability: {
-      value: 'Yes',
-      description: `Gateway Proxy can be upgraded by ${operatorsString} operators.`,
+    livenessFailure: {
+      value: 'No mechanism',
+      description:
+        'If the operators do not service the bridge, deposited funds do not arrive at the destination chain and are stuck.',
       sentiment: 'bad',
     },
     destinationToken: {
@@ -144,11 +147,11 @@ export const ronin: Bridge = {
   contracts: {
     // TODO: we need all contracts (check roles on escrows) and a diagram
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         {
           ...discovery.getContractDetails(
             'MainchainGateway',
-            `Bridge V3 contract handling deposits and withdrawals.`,
+            'Bridge contract handling deposits and withdrawals. Currently being deprecated. An address with the Migrator role can move all funds to the new escrows.',
           ),
           upgradableBy: [
             { name: 'MainchainBridgeManager Governors', delay: 'no' },
@@ -157,18 +160,18 @@ export const ronin: Bridge = {
         },
         discovery.getContractDetails(
           'MainchainBridgeManager',
-          `Contract storing all operators, governors and their associated weights. It is used to manage all administrative actions of the bridge.`,
+          'Contract storing all operators, governors and their associated weights. It is used to manage all administrative actions of the bridge.',
         ),
         discovery.getContractDetails(
           'PauseEnforcer',
-          `Contract owning the emergencyPauser role in the MainchainGateway and managing its access control.`,
+          'Contract owning the emergencyPauser role in the MainchainGateway and managing its access control.',
         ),
       ],
     },
     risks: [CONTRACTS.UPGRADE_NO_DELAY_RISK],
   },
   permissions: {
-    [discovery.chain]: {
+    ethereum: {
       actors: [
         discovery.getPermissionDetails(
           'MainchainBridgeManager Operators',
@@ -184,7 +187,7 @@ export const ronin: Bridge = {
             'MainchainBridgeManager',
             'getGovernors',
           ),
-          `List of governors that can update their corresponding operators, upgrade and change bridge parameters.`,
+          'List of governors that can update their corresponding operators, upgrade and change bridge parameters.',
         ),
         discovery.getMultisigPermission(
           'RoninManagerMultiSig',
@@ -208,7 +211,7 @@ export const ronin: Bridge = {
             'PauseEnforcer',
             'SENTRY_ROLE',
           ),
-          `These accounts can pause and unpause the bridge through the PauseEnforcer.`,
+          'These accounts can pause and unpause the bridge through the PauseEnforcer.',
         ),
         discovery.getPermissionDetails(
           'PauseEnforcer Admins',
@@ -216,7 +219,7 @@ export const ronin: Bridge = {
             'PauseEnforcer',
             'DEFAULT_ADMIN_ROLE',
           ),
-          `These accounts can add and remove sentries (bridge pause-/unpausers) in the PauseEnforcer.`,
+          'These accounts can add and remove sentries (bridge pause-/unpausers) in the PauseEnforcer.',
         ),
         discovery.getPermissionDetails(
           'MainchainGatewayV3 Withdrawal Unlockers',
@@ -243,4 +246,5 @@ export const ronin: Bridge = {
       type: 'incident',
     },
   ],
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

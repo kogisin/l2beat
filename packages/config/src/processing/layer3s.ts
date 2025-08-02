@@ -18,11 +18,13 @@ import { deri } from '../projects/deri/deri'
 import { dodochain } from '../projects/dodochain/dodochain'
 import { donatuz } from '../projects/donatuz/donatuz'
 import { educhain } from '../projects/educhain/educhain'
+import { ethereal } from '../projects/ethereal/ethereal'
 import { evedex } from '../projects/evedex/evedex'
 import { fiefdom } from '../projects/fiefdom/fiefdom'
 import { forta } from '../projects/forta/forta'
 import { game7 } from '../projects/game7/game7'
 import { geist } from '../projects/geist/geist'
+import { gridy } from '../projects/gridy/gridy'
 import { ham } from '../projects/ham/ham'
 import { henez } from '../projects/henez/henez'
 import { hook } from '../projects/hook/hook'
@@ -33,11 +35,13 @@ import { l3x } from '../projects/l3x/l3x'
 import { lumiterra } from '../projects/lumiterra/lumiterra'
 import { mindchain } from '../projects/mindchain/mindchain'
 import { molten } from '../projects/molten/molten'
+import { moonchain } from '../projects/moonchain/moonchain'
 import { muster } from '../projects/muster/muster'
 import { mvchain } from '../projects/mvchain/mvchain'
-import { mxc } from '../projects/mxc/mxc'
+import { novastro } from '../projects/novastro/novastro'
 import { nums } from '../projects/nums/nums'
 import { onchain } from '../projects/onchain/onchain'
+import { onyx } from '../projects/onyx/onyx'
 import { oursong } from '../projects/oursong/oursong'
 import { playblock } from '../projects/playblock/playblock'
 import { pmon } from '../projects/pmon/pmon'
@@ -48,7 +52,6 @@ import { rivalz } from '../projects/rivalz/rivalz'
 import { sanko } from '../projects/sanko/sanko'
 import { skynet } from '../projects/skynet/skynet'
 import { slingshot } from '../projects/slingshot/slingshot'
-import { songprotocol } from '../projects/songprotocol/songprotocol'
 import { spheron } from '../projects/spheron/spheron'
 import { stack } from '../projects/stack/stack'
 import { superposition } from '../projects/superposition/superposition'
@@ -60,6 +63,7 @@ import { vessel } from '../projects/vessel/vessel'
 import { winr } from '../projects/winr/winr'
 import { xai } from '../projects/xai/xai'
 import { xrone } from '../projects/xrone/xrone'
+import { yellowstone } from '../projects/yellowstone/yellowstone'
 import { zklinknova } from '../projects/zklinknova/zklinknova'
 
 export const layer3s: ScalingProject[] = [
@@ -82,11 +86,13 @@ export const layer3s: ScalingProject[] = [
   dodochain,
   donatuz,
   educhain,
+  ethereal,
   evedex,
   fiefdom,
   forta,
   game7,
   geist,
+  gridy,
   inevm,
   ham,
   henez,
@@ -99,6 +105,7 @@ export const layer3s: ScalingProject[] = [
   ungaii,
   xai,
   onchain,
+  onyx,
   popapex,
   popboss,
   pmon,
@@ -111,7 +118,8 @@ export const layer3s: ScalingProject[] = [
   molten,
   muster,
   mvchain,
-  mxc,
+  moonchain,
+  novastro,
   nums,
   unite,
   vessel,
@@ -119,10 +127,10 @@ export const layer3s: ScalingProject[] = [
   lumiterra,
   oursong,
   playblock,
-  songprotocol,
   spheron,
   superposition,
   syndr,
   winr,
   xrone,
+  yellowstone,
 ]

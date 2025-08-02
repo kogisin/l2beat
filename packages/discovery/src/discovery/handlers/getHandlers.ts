@@ -1,12 +1,12 @@
-import type { ContractConfig } from '../config/ContractConfig'
-import type { Handler } from './Handler'
+import type { StructureContractConfig } from '../config/structureUtils'
 import { getSystemHandlers } from './getSystemHandlers'
+import type { Handler } from './Handler'
 import { ErrorHandler } from './system/ErrorHandler'
 import { getUserHandler } from './user'
 
 export function getHandlers(
   abi: string[],
-  config: ContractConfig,
+  config: StructureContractConfig,
 ): (Handler | ErrorHandler)[] {
   const systemHandlers = getSystemHandlers(abi, config)
   const userHandlers: (Handler | ErrorHandler)[] = []

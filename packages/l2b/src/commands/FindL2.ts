@@ -1,36 +1,36 @@
-import { existsSync } from 'fs'
-import path from 'path'
 import { getDiscoveryPaths } from '@l2beat/discovery'
-import { CliLogger } from '@l2beat/shared'
 import { formatAsAsciiTable } from '@l2beat/shared-pure'
 import chalk from 'chalk'
 import { command, number, option } from 'cmd-ts'
+import { existsSync } from 'fs'
+import path from 'path'
+import { getPlainLogger } from '../implementations/common/getPlainLogger'
 import { BlobsFetcher } from '../implementations/find-l2/BlobsFetcher'
 import { CeleniumFetcher } from '../implementations/find-l2/CeleniumFetcher'
 import { RollupWtfFetcher } from '../implementations/find-l2/RollupWtfFetcher'
 
 export const FindL2 = command({
   name: 'find-l2',
-  description: 'Try to find L2s from other sources',
+  description: 'Try to find L2s from other sources.',
   args: {
     blocksToDownload: option({
       type: number,
       long: 'blocks-to-download',
       short: 'b',
       description:
-        'number of blocks to check for blob transactions from the tip',
+        'number of blocks to check for blob transactions from the tip.',
       defaultValue: () => 50000,
       defaultValueIsSerializable: true,
     }),
   },
   handler: async (args) => {
-    const logger: CliLogger = new CliLogger()
+    const logger = getPlainLogger()
     const paths = getDiscoveryPaths()
 
     const fetchers = [
       new CeleniumFetcher(),
       new RollupWtfFetcher(),
-      new BlobsFetcher(logger, args.blocksToDownload),
+      new BlobsFetcher(args.blocksToDownload),
     ]
 
     const results = await Promise.all(
@@ -71,6 +71,6 @@ export const FindL2 = command({
     }
 
     const table = formatAsAsciiTable(headers, rows)
-    logger.logLine(table)
+    logger.info(table)
   },
 })

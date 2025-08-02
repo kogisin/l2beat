@@ -4,9 +4,10 @@ import {
   BOTTOM_PADDING,
   FIELD_HEIGHT,
   HEADER_HEIGHT,
+  HIDDEN_FIELDS_FOOTER_HEIGHT,
   NODE_WIDTH,
 } from '../utils/constants'
-import { recallNodeLayout } from '../utils/storage'
+import { recallNodeLayout, type StoredNodeLayout } from '../utils/storage'
 import { layout } from './other'
 
 export function loadNodes(
@@ -25,15 +26,28 @@ export function loadNodes(
 
   const saved = recallNodeLayout(projectId)
   const added = toAdd.map((node) => {
+    const hiddenFields = combinedHiddenFields(node, saved)
+
     const box = saved?.locations[node.id]
     const x = box?.x ?? 0
     const y = box?.y ?? 0
     const width = box?.width ?? NODE_WIDTH
+    const hiddenFieldsHeight =
+      hiddenFields.length > 0 ? HIDDEN_FIELDS_FOOTER_HEIGHT : 0
     const height =
-      HEADER_HEIGHT + node.fields.length * FIELD_HEIGHT + BOTTOM_PADDING
+      HEADER_HEIGHT +
+      (node.fields.length - hiddenFields.length) * FIELD_HEIGHT +
+      BOTTOM_PADDING +
+      hiddenFieldsHeight
     const savedColor = saved?.colors?.[node.id]
     const color = typeof savedColor === 'number' ? savedColor : node.color
-    return { ...node, color, box: { x, y, width, height: height } }
+
+    return {
+      ...node,
+      color,
+      hiddenFields,
+      box: { x, y, width, height: height },
+    }
   })
 
   const allNodes = existing.concat(added)
@@ -45,6 +59,7 @@ export function loadNodes(
     : []
 
   const hiddenNodes = [...new Set([...state.hidden, ...unknownNodeIds])]
+  const visibleNodes = allNodes.filter((node) => !hiddenNodes.includes(node.id))
 
   return layout(
     {
@@ -53,7 +68,7 @@ export function loadNodes(
       nodes: allNodes,
       projectId,
     },
-    stackAutoLayout(allNodes),
+    stackAutoLayout(visibleNodes),
   )
 }
 
@@ -79,12 +94,24 @@ function idToUnknown(id: string): Node {
   return {
     id,
     address,
+    isInitial: false,
+    hasTemplate: false,
     addressType: 'Unknown',
     name,
     box: { x: 0, y: 0, width: 0, height: 0 },
     color: 0,
     hueShift: 0,
     fields: [],
+    hiddenFields: [],
     data: null,
   }
+}
+
+function combinedHiddenFields(
+  node: Node,
+  saved: StoredNodeLayout | undefined,
+): string[] {
+  const recalledHiddenFields = saved?.hiddenFields?.[node.id] ?? []
+  const defaultHiddenFields = node.hiddenFields
+  return [...new Set([...recalledHiddenFields, ...defaultHiddenFields])]
 }

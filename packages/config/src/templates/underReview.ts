@@ -5,20 +5,26 @@ import type {
   Badge,
   ChainConfig,
   ProjectActivityConfig,
+  ProjectDiscoveryInfo,
+  ProjectEcosystemInfo,
   ProjectEscrow,
   ProjectScalingCapability,
 } from '../types'
 import { getActivityConfig } from './activity'
+import { getDiscoveryInfo } from './getDiscoveryInfo'
 
 interface UnderReviewConfigCommon {
   id: string
   addedAt: UnixTime
+  hasTestnet?: boolean
   capability: ProjectScalingCapability
+  ecosystemInfo?: ProjectEcosystemInfo
   activityConfig?: ProjectActivityConfig
   escrows?: ProjectEscrow[]
   chainConfig?: ChainConfig
   badges?: Badge[]
-  isArchived?: boolean
+  archivedAt?: UnixTime
+  discoveryInfo?: ProjectDiscoveryInfo
 }
 
 export interface UnderReviewConfigL2 extends UnderReviewConfigCommon {
@@ -36,12 +42,13 @@ export function underReviewL2(
   templateVars: UnderReviewConfigL2,
 ): ScalingProject {
   return {
-    isUnderReview: true,
+    reviewStatus: 'initialReview',
     type: 'layer2',
     id: ProjectId(templateVars.id),
     addedAt: templateVars.addedAt,
+    hasTestnet: templateVars.hasTestnet,
     capability: templateVars.capability,
-    isArchived: templateVars.isArchived ?? undefined,
+    archivedAt: templateVars.archivedAt ?? undefined,
     display: templateVars.display,
     stage: {
       stage:
@@ -62,11 +69,13 @@ export function underReviewL2(
         },
       ),
     },
+    ecosystemInfo: templateVars.ecosystemInfo,
     riskView: UNDER_REVIEW_RISK_VIEW,
     technology: TECHNOLOGY.UNDER_REVIEW,
     contracts: CONTRACTS.UNDER_REVIEW,
     chainConfig: templateVars.chainConfig,
     badges: templateVars.badges,
+    discoveryInfo: templateVars.discoveryInfo ?? getDiscoveryInfo([]),
   }
 }
 
@@ -75,12 +84,13 @@ export function underReviewL3(
 ): ScalingProject {
   return {
     type: 'layer3',
-    isUnderReview: true,
+    reviewStatus: 'initialReview',
     id: ProjectId(templateVars.id),
     addedAt: templateVars.addedAt,
     capability: templateVars.capability,
-    isArchived: templateVars.isArchived ?? undefined,
+    archivedAt: templateVars.archivedAt ?? undefined,
     hostChain: templateVars.hostChain,
+    hasTestnet: templateVars.hasTestnet,
     display: {
       ...templateVars.display,
     },
@@ -103,11 +113,13 @@ export function underReviewL3(
           ? 'UnderReview'
           : 'NotApplicable',
     },
+    ecosystemInfo: templateVars.ecosystemInfo,
     riskView: UNDER_REVIEW_RISK_VIEW,
     stackedRiskView: UNDER_REVIEW_RISK_VIEW,
     technology: TECHNOLOGY.UNDER_REVIEW,
     contracts: CONTRACTS.UNDER_REVIEW,
     chainConfig: templateVars.chainConfig,
     badges: templateVars.badges,
+    discoveryInfo: templateVars.discoveryInfo ?? getDiscoveryInfo([]),
   }
 }

@@ -1,12 +1,17 @@
-import { EthereumAddress, UnixTime, formatSeconds } from '@l2beat/shared-pure'
-import { DA_LAYERS } from '../../common'
-import { REASON_FOR_BEING_OTHER } from '../../common'
 import {
+  ChainSpecificAddress,
+  EthereumAddress,
+  formatSeconds,
+  UnixTime,
+} from '@l2beat/shared-pure'
+import {
+  DA_LAYERS,
   DaCommitteeSecurityRisk,
   DaEconomicSecurityRisk,
   DaFraudDetectionRisk,
   DaRelayerFailureRisk,
   DaUpgradeabilityRisk,
+  REASON_FOR_BEING_OTHER,
 } from '../../common'
 import { BADGES } from '../../common/badges'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
@@ -14,6 +19,20 @@ import type { ScalingProject } from '../../internalTypes'
 import { DACHALLENGES_DA_PROVIDER, opStackL2 } from '../../templates/opStack'
 
 const discovery = new ProjectDiscovery('cyber')
+const genesisTimestamp = UnixTime(1713428569)
+const l2OutputOracle = discovery.getContract('L2OutputOracle')
+const sequencerInbox = ChainSpecificAddress.address(
+  discovery.getContractValue<ChainSpecificAddress>(
+    'SystemConfig',
+    'sequencerInbox',
+  ),
+)
+const sequencerAddress = ChainSpecificAddress.address(
+  discovery.getContractValue<ChainSpecificAddress>(
+    'SystemConfig',
+    'batcherHash',
+  ),
+)
 
 const daChallengeWindow = formatSeconds(
   discovery.getContractValue<number>(
@@ -47,7 +66,7 @@ export const cyber: ScalingProject = opStackL2({
       'Cyber is a chain designed for social applications using an implementation of OP Plasma with DA challenges.',
     links: {
       websites: ['https://cyber.co/'],
-      apps: [
+      bridges: [
         'https://cyber-bridge.alt.technology/',
         'https://cyber.co/stake',
         'https://wallet.cyber.co/',
@@ -89,13 +108,54 @@ export const cyber: ScalingProject = opStackL2({
         callsPerMinute: 1500,
       },
       {
-        type: 'etherscan',
+        type: 'routescan',
         url: 'https://api.routescan.io/v2/network/mainnet/evm/7560/etherscan/api',
       },
     ],
   },
-  genesisTimestamp: UnixTime(1713428569),
+  genesisTimestamp,
   isNodeAvailable: 'UnderReview',
+  nonTemplateTrackedTxs: [
+    {
+      uses: [
+        { type: 'liveness', subtype: 'batchSubmissions' },
+        { type: 'l2costs', subtype: 'batchSubmissions' },
+      ],
+      query: {
+        formula: 'transfer',
+        from: EthereumAddress('0xf0748C52EDC23135d9845CDFB91279Cf61ee14b4'), // old sequencer
+        to: sequencerInbox,
+        sinceTimestamp: genesisTimestamp,
+        untilTimestamp: UnixTime(1743843035),
+      },
+    },
+    {
+      uses: [
+        { type: 'liveness', subtype: 'batchSubmissions' },
+        { type: 'l2costs', subtype: 'batchSubmissions' },
+      ],
+      query: {
+        formula: 'transfer',
+        from: sequencerAddress,
+        to: sequencerInbox,
+        sinceTimestamp: UnixTime(1743843035),
+      },
+    },
+    {
+      uses: [
+        { type: 'liveness', subtype: 'stateUpdates' },
+        { type: 'l2costs', subtype: 'stateUpdates' },
+      ],
+      query: {
+        formula: 'functionCall',
+        address: ChainSpecificAddress.address(l2OutputOracle.address),
+        selector: '0x9aaab648',
+        functionSignature:
+          'function proposeL2Output(bytes32 _outputRoot, uint256 _l2BlockNumber, bytes32 _l1Blockhash, uint256 _l1BlockNumber)',
+        sinceTimestamp: genesisTimestamp,
+      },
+    },
+  ],
   customDa: {
     type: 'DA Challenges',
     name: 'CyberDA',
@@ -134,11 +194,11 @@ However, there is a mechanism that allows users to challenge unavailability of d
       risks: [
         {
           category: 'Funds can be lost if',
-          text: `the sequencer posts an invalid data availability commitment and there are no challengers.`,
+          text: 'the sequencer posts an invalid data availability commitment and there are no challengers.',
         },
         {
           category: 'Funds can be lost if',
-          text: `the sequencer posts an invalid data availability commitment, and he is able to outspend the challengers.`,
+          text: 'the sequencer posts an invalid data availability commitment, and he is able to outspend the challengers.',
         },
       ],
     },

@@ -11,11 +11,11 @@ describe(getStage.name, () => {
           stateRootsPostedToL1: true,
           dataAvailabilityOnL1: true,
           rollupNodeSourceAvailable: true,
+          stateVerificationOnL1: true,
+          fraudProofSystemAtLeast5Outsiders: true,
         },
         stage1: {
           principle: true,
-          stateVerificationOnL1: true,
-          fraudProofSystemAtLeast5Outsiders: true,
           usersHave7DaysToExit: true,
           usersCanExitWithoutCooperation: true,
           securityCouncilProperlySetUp: true,
@@ -40,6 +40,7 @@ describe(getStage.name, () => {
         short: 'short notice',
         long: 'long notice',
       },
+      stage1PrincipleDescription: undefined,
       downgradePending: undefined,
       missing: {
         nextStage: 'Stage 2',
@@ -54,6 +55,16 @@ describe(getStage.name, () => {
       summary: [
         {
           requirements: [
+            {
+              description:
+                'A complete and functional proof system is deployed.',
+              satisfied: true,
+            },
+            {
+              description:
+                'There are at least 5 external actors who can submit fraud proofs.',
+              satisfied: true,
+            },
             {
               description: 'The project calls itself a rollup.',
               satisfied: true,
@@ -78,16 +89,6 @@ describe(getStage.name, () => {
         },
         {
           requirements: [
-            {
-              description:
-                'A complete and functional proof system is deployed.',
-              satisfied: true,
-            },
-            {
-              description:
-                'There are at least 5 external actors who can submit fraud proofs.',
-              satisfied: true,
-            },
             {
               description:
                 'Users are able to exit without the help of the permissioned operators.',
@@ -143,11 +144,11 @@ describe(getStage.name, () => {
           stateRootsPostedToL1: true,
           dataAvailabilityOnL1: true,
           rollupNodeSourceAvailable: true,
+          stateVerificationOnL1: true,
+          fraudProofSystemAtLeast5Outsiders: true,
         },
         stage1: {
           principle: true,
-          stateVerificationOnL1: true,
-          fraudProofSystemAtLeast5Outsiders: true,
           usersHave7DaysToExit: true,
           usersCanExitWithoutCooperation: true,
           securityCouncilProperlySetUp: true,

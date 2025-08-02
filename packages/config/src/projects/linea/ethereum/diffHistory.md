@@ -1,3 +1,1755 @@
+Generated with discovered.json: 0x5a7bad2a664c4993e3c14b07ba4d6f21fcbf363f
+
+# Diff at Mon, 28 Jul 2025 07:11:06 GMT:
+
+- author: sekuba (<29250140+sekuba@users.noreply.github.com>)
+- comparing to: main@8e540d8d4e2ea097e63a067c52194d1bf06f9b4a block: 22673062
+- current block number: 23015753
+
+## Description
+
+Linea Multisig 2: one member changed and delay module added.
+
+## Watched changes
+
+```diff
+    contract Linea Multisig 1 (0x892bb7EeD71efB060ab90140e7825d8127991DD3) {
+    +++ description: None
+      receivedPermissions.1:
++        {"permission":"interact","from":"eth:0x784CCeE002E259Fc38C4b36C2D8bd8a457e55436","description":"enable/disable the module, set delays and expiration of transactions, set the target.","role":".owner","via":[{"address":"eth:0xB8F5524D73f549Cf14A0587a3C7810723f9c0051"},{"address":"eth:0x784CCeE002E259Fc38C4b36C2D8bd8a457e55436","delay":7776000}]}
+      receivedPermissions.7:
++        {"permission":"interact","from":"eth:0xd6B95c960779c72B8C6752119849318E5d550574","description":"propose transactions.","role":".proposerAC","via":[{"address":"eth:0xB8F5524D73f549Cf14A0587a3C7810723f9c0051"},{"address":"eth:0x784CCeE002E259Fc38C4b36C2D8bd8a457e55436","delay":7776000}]}
+      directlyReceivedPermissions.0:
++        {"permission":"act","from":"eth:0x784CCeE002E259Fc38C4b36C2D8bd8a457e55436","delay":7776000,"role":".ZodiacModule_modules"}
+    }
+```
+
+```diff
+    contract Linea Multisig 2 (0xB8F5524D73f549Cf14A0587a3C7810723f9c0051) {
+    +++ description: None
+      values.$members.2:
+-        "eth:0xF112a2438a4e08836046D587350f9315C0eAE300"
++        "eth:0x7E55b79A01BD9125CD213Bc9F533d21Eb3bD68c5"
+      values.GnosisSafe_modules.0:
++        "eth:0x784CCeE002E259Fc38C4b36C2D8bd8a457e55436"
+      receivedPermissions.0:
++        {"permission":"interact","from":"eth:0x784CCeE002E259Fc38C4b36C2D8bd8a457e55436","description":"enable/disable the module, set delays and expiration of transactions, set the target.","role":".owner"}
+    }
+```
+
+```diff
++   Status: CREATED
+    contract Delay (0x784CCeE002E259Fc38C4b36C2D8bd8a457e55436)
+    +++ description: A simple Safe module for that can queue and execute transactions as eth:0xB8F5524D73f549Cf14A0587a3C7810723f9c0051 after a delay of currently 90d, if registered as a module there.
+```
+
+## Source code changes
+
+```diff
+.../src/projects/linea/ethereum/.flat/Delay.sol    | 600 +++++++++++++++++++++
+ 1 file changed, 600 insertions(+)
+```
+
+Generated with discovered.json: 0x6418dcbe0cbc8e4ecee265d24fc387958daed07b
+
+# Diff at Mon, 14 Jul 2025 12:45:19 GMT:
+
+- author: Mateusz Radomski (<radomski.main@protonmail.com>)
+- comparing to: main@9f4300dad2f3d080cd56fa311d4a848556c74e72 block: 22673062
+- current block number: 22673062
+
+## Description
+
+Discovery rerun on the same block number with only config-related changes.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 22673062 (main branch discovery), not current.
+
+```diff
+    contract TokenBridge (0x051F1D88f0aF5763fB888eC4378b4D8B29ea3319) {
+    +++ description: Contract used to bridge and escrow ERC-20 tokens.
+      address:
+-        "0x051F1D88f0aF5763fB888eC4378b4D8B29ea3319"
++        "eth:0x051F1D88f0aF5763fB888eC4378b4D8B29ea3319"
+      values.$admin:
+-        "0xF5058616517C068C7b8c7EbC69FF636Ade9066d6"
++        "eth:0xF5058616517C068C7b8c7EbC69FF636Ade9066d6"
+      values.$implementation:
+-        "0x2B6A2F8880220a66DfB9059FCB76F7dB54104a34"
++        "eth:0x2B6A2F8880220a66DfB9059FCB76F7dB54104a34"
+      values.$pastUpgrades.0.2.0:
+-        "0x6ccfD65b0b14F67259C77Ca6267104e058dDB292"
++        "eth:0x6ccfD65b0b14F67259C77Ca6267104e058dDB292"
+      values.$pastUpgrades.1.2.0:
+-        "0xd52c09E67aF3BE0977B52b4817366e9BaB5dCFA2"
++        "eth:0xd52c09E67aF3BE0977B52b4817366e9BaB5dCFA2"
+      values.$pastUpgrades.2.2.0:
+-        "0x2B6A2F8880220a66DfB9059FCB76F7dB54104a34"
++        "eth:0x2B6A2F8880220a66DfB9059FCB76F7dB54104a34"
+      values.accessControl.DEFAULT_ADMIN_ROLE.members.0:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.accessControl.PAUSE_ALL_ROLE.members.0:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.accessControl.UNPAUSE_ALL_ROLE.members.0:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.accessControl.PAUSE_INITIATE_TOKEN_BRIDGING_ROLE.members.0:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.accessControl.UNPAUSE_INITIATE_TOKEN_BRIDGING_ROLE.members.0:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.accessControl.PAUSE_COMPLETE_TOKEN_BRIDGING_ROLE.members.0:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.accessControl.UNPAUSE_COMPLETE_TOKEN_BRIDGING_ROLE.members.0:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.accessControl.SET_CUSTOM_CONTRACT_ROLE.members.0:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.accessControl.SET_CUSTOM_CONTRACT_ROLE.members.1:
+-        "0xB8F5524D73f549Cf14A0587a3C7810723f9c0051"
++        "eth:0xB8F5524D73f549Cf14A0587a3C7810723f9c0051"
+      values.accessControl.REMOVE_RESERVED_TOKEN_ROLE.members.0:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.accessControl.REMOVE_RESERVED_TOKEN_ROLE.members.1:
+-        "0xB8F5524D73f549Cf14A0587a3C7810723f9c0051"
++        "eth:0xB8F5524D73f549Cf14A0587a3C7810723f9c0051"
+      values.accessControl.SET_MESSAGE_SERVICE_ROLE.members.0:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.accessControl.SET_REMOTE_TOKENBRIDGE_ROLE.members.0:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.accessControl.SET_RESERVED_TOKEN_ROLE.members.0:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.accessControl.SET_RESERVED_TOKEN_ROLE.members.1:
+-        "0xB8F5524D73f549Cf14A0587a3C7810723f9c0051"
++        "eth:0xB8F5524D73f549Cf14A0587a3C7810723f9c0051"
+      values.defaultAdminAC.0:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.messageService:
+-        "0xd19d4B5d358258f05D7B411E21A1460D11B0876F"
++        "eth:0xd19d4B5d358258f05D7B411E21A1460D11B0876F"
+      values.remoteSender:
+-        "0x353012dc4a9A6cF55c941bADC267f82004A8ceB9"
++        "eth:0x353012dc4a9A6cF55c941bADC267f82004A8ceB9"
+      values.tokenBeacon:
+-        "0x971f46a2852d11D59dbF0909e837cfd06f357DeB"
++        "eth:0x971f46a2852d11D59dbF0909e837cfd06f357DeB"
+      implementationNames.0x051F1D88f0aF5763fB888eC4378b4D8B29ea3319:
+-        "TransparentUpgradeableProxy"
+      implementationNames.0x2B6A2F8880220a66DfB9059FCB76F7dB54104a34:
+-        "TokenBridge"
+      implementationNames.eth:0x051F1D88f0aF5763fB888eC4378b4D8B29ea3319:
++        "TransparentUpgradeableProxy"
+      implementationNames.eth:0x2B6A2F8880220a66DfB9059FCB76F7dB54104a34:
++        "TokenBridge"
+    }
+```
+
+```diff
+    EOA  (0x0645A95411C3431BB2fc58Fa61BC837FFA2e12F2) {
+    +++ description: None
+      address:
+-        "0x0645A95411C3431BB2fc58Fa61BC837FFA2e12F2"
++        "eth:0x0645A95411C3431BB2fc58Fa61BC837FFA2e12F2"
+    }
+```
+
+```diff
+    EOA  (0x239d9B860399366F8d25F6e2962Fb2B9D070aEFE) {
+    +++ description: None
+      address:
+-        "0x239d9B860399366F8d25F6e2962Fb2B9D070aEFE"
++        "eth:0x239d9B860399366F8d25F6e2962Fb2B9D070aEFE"
+    }
+```
+
+```diff
+    EOA  (0x353012dc4a9A6cF55c941bADC267f82004A8ceB9) {
+    +++ description: None
+      address:
+-        "0x353012dc4a9A6cF55c941bADC267f82004A8ceB9"
++        "eth:0x353012dc4a9A6cF55c941bADC267f82004A8ceB9"
+    }
+```
+
+```diff
+    contract CallForwardingProxy (0x3697bD0bC6C050135b8321F989a5316eACbF367D) {
+    +++ description: A public proxy contract forwarding calls to a predefined target contract (eth:0xd19d4B5d358258f05D7B411E21A1460D11B0876F). Can be called by any address.
+      address:
+-        "0x3697bD0bC6C050135b8321F989a5316eACbF367D"
++        "eth:0x3697bD0bC6C050135b8321F989a5316eACbF367D"
+      description:
+-        "A public proxy contract forwarding calls to a predefined target contract (0xd19d4B5d358258f05D7B411E21A1460D11B0876F). Can be called by any address."
++        "A public proxy contract forwarding calls to a predefined target contract (eth:0xd19d4B5d358258f05D7B411E21A1460D11B0876F). Can be called by any address."
+      values.target:
+-        "0xd19d4B5d358258f05D7B411E21A1460D11B0876F"
++        "eth:0xd19d4B5d358258f05D7B411E21A1460D11B0876F"
+      implementationNames.0x3697bD0bC6C050135b8321F989a5316eACbF367D:
+-        "CallForwardingProxy"
+      implementationNames.eth:0x3697bD0bC6C050135b8321F989a5316eACbF367D:
++        "CallForwardingProxy"
+    }
+```
+
+```diff
+    contract BridgedToken (0x36f274C1C197F277EA3C57859729398FCc8a3763) {
+    +++ description: Standard implementation used for assets that are native to the Linea L2 and bridged back to ethereum.
+      address:
+-        "0x36f274C1C197F277EA3C57859729398FCc8a3763"
++        "eth:0x36f274C1C197F277EA3C57859729398FCc8a3763"
+      values.bridge:
+-        "0x0000000000000000000000000000000000000000"
++        "eth:0x0000000000000000000000000000000000000000"
+      values.eip712Domain.verifyingContract:
+-        "0x36f274C1C197F277EA3C57859729398FCc8a3763"
++        "eth:0x36f274C1C197F277EA3C57859729398FCc8a3763"
+      implementationNames.0x36f274C1C197F277EA3C57859729398FCc8a3763:
+-        "BridgedToken"
+      implementationNames.eth:0x36f274C1C197F277EA3C57859729398FCc8a3763:
++        "BridgedToken"
+    }
+```
+
+```diff
+    EOA  (0x3acC729EdE75355EDab57aB82bEb32011cB1B079) {
+    +++ description: None
+      address:
+-        "0x3acC729EdE75355EDab57aB82bEb32011cB1B079"
++        "eth:0x3acC729EdE75355EDab57aB82bEb32011cB1B079"
+    }
+```
+
+```diff
+    contract PlonkVerifierMainnetFull (0x41A4d93d09f4718fe899D12A4aD2C8a09104bdc7) {
+    +++ description: Smart contract used to verify the proofs of Linea zkEVM execution.
+      address:
+-        "0x41A4d93d09f4718fe899D12A4aD2C8a09104bdc7"
++        "eth:0x41A4d93d09f4718fe899D12A4aD2C8a09104bdc7"
+      implementationNames.0x41A4d93d09f4718fe899D12A4aD2C8a09104bdc7:
+-        "PlonkVerifierMainnetFull"
+      implementationNames.eth:0x41A4d93d09f4718fe899D12A4aD2C8a09104bdc7:
++        "PlonkVerifierMainnetFull"
+    }
+```
+
+```diff
+    EOA  (0x453B3A4b4d64B4E6f472A306c3D4Fc318C34bbA8) {
+    +++ description: None
+      address:
+-        "0x453B3A4b4d64B4E6f472A306c3D4Fc318C34bbA8"
++        "eth:0x453B3A4b4d64B4E6f472A306c3D4Fc318C34bbA8"
+    }
+```
+
+```diff
+    EOA  (0x46d2F319fd42165D4318F099E143dEA8124E9E3e) {
+    +++ description: None
+      address:
+-        "0x46d2F319fd42165D4318F099E143dEA8124E9E3e"
++        "eth:0x46d2F319fd42165D4318F099E143dEA8124E9E3e"
+    }
+```
+
+```diff
+    EOA  (0x497515578b0BE54d2f0f32cF3F08B85Bf8cEB6aB) {
+    +++ description: None
+      address:
+-        "0x497515578b0BE54d2f0f32cF3F08B85Bf8cEB6aB"
++        "eth:0x497515578b0BE54d2f0f32cF3F08B85Bf8cEB6aB"
+    }
+```
+
+```diff
+    EOA  (0x4CB4da1D1C198E506031C0Aa8480BA8b57C0fAD4) {
+    +++ description: None
+      address:
+-        "0x4CB4da1D1C198E506031C0Aa8480BA8b57C0fAD4"
++        "eth:0x4CB4da1D1C198E506031C0Aa8480BA8b57C0fAD4"
+    }
+```
+
+```diff
+    EOA  (0x52FF08F313A00A54e3Beffb5C4a7F7446eFb6754) {
+    +++ description: None
+      address:
+-        "0x52FF08F313A00A54e3Beffb5C4a7F7446eFb6754"
++        "eth:0x52FF08F313A00A54e3Beffb5C4a7F7446eFb6754"
+    }
+```
+
+```diff
+    EOA  (0x535dE1e2A961529AA84EF208981f8cF4e7dcbdF5) {
+    +++ description: None
+      address:
+-        "0x535dE1e2A961529AA84EF208981f8cF4e7dcbdF5"
++        "eth:0x535dE1e2A961529AA84EF208981f8cF4e7dcbdF5"
+    }
+```
+
+```diff
+    EOA  (0x5822D8457c00FB82203918ED92907b935B9D40AE) {
+    +++ description: None
+      address:
+-        "0x5822D8457c00FB82203918ED92907b935B9D40AE"
++        "eth:0x5822D8457c00FB82203918ED92907b935B9D40AE"
+    }
+```
+
+```diff
+    EOA  (0x727833aB68F32a7f2ab96f15aD67336660eCBBD0) {
+    +++ description: None
+      address:
+-        "0x727833aB68F32a7f2ab96f15aD67336660eCBBD0"
++        "eth:0x727833aB68F32a7f2ab96f15aD67336660eCBBD0"
+    }
+```
+
+```diff
+    contract Linea Multisig 1 (0x892bb7EeD71efB060ab90140e7825d8127991DD3) {
+    +++ description: None
+      address:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.$implementation:
+-        "0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552"
++        "eth:0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552"
+      values.$members.0:
+-        "0x497515578b0BE54d2f0f32cF3F08B85Bf8cEB6aB"
++        "eth:0x497515578b0BE54d2f0f32cF3F08B85Bf8cEB6aB"
+      values.$members.1:
+-        "0x239d9B860399366F8d25F6e2962Fb2B9D070aEFE"
++        "eth:0x239d9B860399366F8d25F6e2962Fb2B9D070aEFE"
+      values.$members.2:
+-        "0x535dE1e2A961529AA84EF208981f8cF4e7dcbdF5"
++        "eth:0x535dE1e2A961529AA84EF208981f8cF4e7dcbdF5"
+      values.$members.3:
+-        "0x5822D8457c00FB82203918ED92907b935B9D40AE"
++        "eth:0x5822D8457c00FB82203918ED92907b935B9D40AE"
+      values.$members.4:
+-        "0x9376c137AF5124FFc39bD8940A3D88D1cd508992"
++        "eth:0x9376c137AF5124FFc39bD8940A3D88D1cd508992"
+      values.$members.5:
+-        "0x4CB4da1D1C198E506031C0Aa8480BA8b57C0fAD4"
++        "eth:0x4CB4da1D1C198E506031C0Aa8480BA8b57C0fAD4"
+      values.$members.6:
+-        "0xab23f8E6c3288952fdf193A17ad49b15F5EE55A1"
++        "eth:0xab23f8E6c3288952fdf193A17ad49b15F5EE55A1"
+      values.$members.7:
+-        "0xB4dAebe4D01f467701F95f0196fc29033c54dBcb"
++        "eth:0xB4dAebe4D01f467701F95f0196fc29033c54dBcb"
+      values.GnosisSafe_modules.0:
+-        "0xF24f1DC519d88246809B660eb56D94048575d083"
++        "eth:0xF24f1DC519d88246809B660eb56D94048575d083"
+      implementationNames.0x892bb7EeD71efB060ab90140e7825d8127991DD3:
+-        "GnosisSafeProxy"
+      implementationNames.0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552:
+-        "GnosisSafe"
+      implementationNames.eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3:
++        "GnosisSafeProxy"
+      implementationNames.eth:0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552:
++        "GnosisSafe"
+    }
+```
+
+```diff
+    EOA  (0x9376c137AF5124FFc39bD8940A3D88D1cd508992) {
+    +++ description: None
+      address:
+-        "0x9376c137AF5124FFc39bD8940A3D88D1cd508992"
++        "eth:0x9376c137AF5124FFc39bD8940A3D88D1cd508992"
+    }
+```
+
+```diff
+    contract UpgradeableBeacon (0x971f46a2852d11D59dbF0909e837cfd06f357DeB) {
+    +++ description: A beacon with an upgradeable implementation currently set as eth:0x36f274C1C197F277EA3C57859729398FCc8a3763. Beacon proxy contracts pointing to this beacon will all use its implementation.
+      address:
+-        "0x971f46a2852d11D59dbF0909e837cfd06f357DeB"
++        "eth:0x971f46a2852d11D59dbF0909e837cfd06f357DeB"
+      description:
+-        "A beacon with an upgradeable implementation currently set as 0x36f274C1C197F277EA3C57859729398FCc8a3763. Beacon proxy contracts pointing to this beacon will all use its implementation."
++        "A beacon with an upgradeable implementation currently set as eth:0x36f274C1C197F277EA3C57859729398FCc8a3763. Beacon proxy contracts pointing to this beacon will all use its implementation."
+      values.implementation:
+-        "0x36f274C1C197F277EA3C57859729398FCc8a3763"
++        "eth:0x36f274C1C197F277EA3C57859729398FCc8a3763"
+      values.owner:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      implementationNames.0x971f46a2852d11D59dbF0909e837cfd06f357DeB:
+-        "UpgradeableBeacon"
+      implementationNames.eth:0x971f46a2852d11D59dbF0909e837cfd06f357DeB:
++        "UpgradeableBeacon"
+    }
+```
+
+```diff
+    EOA  (0xA9714aE1A9FBd20E1bc0BD03A1B7755aBF73A451) {
+    +++ description: None
+      address:
+-        "0xA9714aE1A9FBd20E1bc0BD03A1B7755aBF73A451"
++        "eth:0xA9714aE1A9FBd20E1bc0BD03A1B7755aBF73A451"
+    }
+```
+
+```diff
+    EOA  (0xab23f8E6c3288952fdf193A17ad49b15F5EE55A1) {
+    +++ description: None
+      address:
+-        "0xab23f8E6c3288952fdf193A17ad49b15F5EE55A1"
++        "eth:0xab23f8E6c3288952fdf193A17ad49b15F5EE55A1"
+    }
+```
+
+```diff
+    EOA  (0xB4dAebe4D01f467701F95f0196fc29033c54dBcb) {
+    +++ description: None
+      address:
+-        "0xB4dAebe4D01f467701F95f0196fc29033c54dBcb"
++        "eth:0xB4dAebe4D01f467701F95f0196fc29033c54dBcb"
+    }
+```
+
+```diff
+    contract Linea Multisig 2 (0xB8F5524D73f549Cf14A0587a3C7810723f9c0051) {
+    +++ description: None
+      address:
+-        "0xB8F5524D73f549Cf14A0587a3C7810723f9c0051"
++        "eth:0xB8F5524D73f549Cf14A0587a3C7810723f9c0051"
+      values.$implementation:
+-        "0x41675C099F32341bf84BFc5382aF534df5C7461a"
++        "eth:0x41675C099F32341bf84BFc5382aF534df5C7461a"
+      values.$members.0:
+-        "0x3acC729EdE75355EDab57aB82bEb32011cB1B079"
++        "eth:0x3acC729EdE75355EDab57aB82bEb32011cB1B079"
+      values.$members.1:
+-        "0x727833aB68F32a7f2ab96f15aD67336660eCBBD0"
++        "eth:0x727833aB68F32a7f2ab96f15aD67336660eCBBD0"
+      values.$members.2:
+-        "0xF112a2438a4e08836046D587350f9315C0eAE300"
++        "eth:0xF112a2438a4e08836046D587350f9315C0eAE300"
+      values.$members.3:
+-        "0xA9714aE1A9FBd20E1bc0BD03A1B7755aBF73A451"
++        "eth:0xA9714aE1A9FBd20E1bc0BD03A1B7755aBF73A451"
+      values.$members.4:
+-        "0x0645A95411C3431BB2fc58Fa61BC837FFA2e12F2"
++        "eth:0x0645A95411C3431BB2fc58Fa61BC837FFA2e12F2"
+      implementationNames.0xB8F5524D73f549Cf14A0587a3C7810723f9c0051:
+-        "SafeProxy"
+      implementationNames.0x41675C099F32341bf84BFc5382aF534df5C7461a:
+-        "Safe"
+      implementationNames.eth:0xB8F5524D73f549Cf14A0587a3C7810723f9c0051:
++        "SafeProxy"
+      implementationNames.eth:0x41675C099F32341bf84BFc5382aF534df5C7461a:
++        "Safe"
+    }
+```
+
+```diff
+    contract LineaRollup (0xd19d4B5d358258f05D7B411E21A1460D11B0876F) {
+    +++ description: The main contract of the Linea zkEVM rollup. Contains state roots, the verifier addresses and manages messages between L1 and the L2.
+      address:
+-        "0xd19d4B5d358258f05D7B411E21A1460D11B0876F"
++        "eth:0xd19d4B5d358258f05D7B411E21A1460D11B0876F"
+      values.$admin:
+-        "0xF5058616517C068C7b8c7EbC69FF636Ade9066d6"
++        "eth:0xF5058616517C068C7b8c7EbC69FF636Ade9066d6"
+      values.$implementation:
+-        "0x07ddce60658A61dc1732Cacf2220FcE4A01C49B0"
++        "eth:0x07ddce60658A61dc1732Cacf2220FcE4A01C49B0"
+      values.$pastUpgrades.0.2.0:
+-        "0xE8f627df6Cb02e415b2e6d6e112323BD269b4706"
++        "eth:0xE8f627df6Cb02e415b2e6d6e112323BD269b4706"
+      values.$pastUpgrades.1.2.0:
+-        "0xE8f627df6Cb02e415b2e6d6e112323BD269b4706"
++        "eth:0xE8f627df6Cb02e415b2e6d6e112323BD269b4706"
+      values.$pastUpgrades.2.2.0:
+-        "0x4c8d4Ce72afAA417d1F7E833725FdB4E793cd6b3"
++        "eth:0x4c8d4Ce72afAA417d1F7E833725FdB4E793cd6b3"
+      values.$pastUpgrades.3.2.0:
+-        "0xb32c3D0dDb0063FfB15E8a50b40cC62230D820B3"
++        "eth:0xb32c3D0dDb0063FfB15E8a50b40cC62230D820B3"
+      values.$pastUpgrades.4.2.0:
+-        "0xAA4b3a9515c921996Abe7930bF75Eff7466a4457"
++        "eth:0xAA4b3a9515c921996Abe7930bF75Eff7466a4457"
+      values.$pastUpgrades.5.2.0:
+-        "0x934Dd4C63E285551CEceF8459103554D0096c179"
++        "eth:0x934Dd4C63E285551CEceF8459103554D0096c179"
+      values.$pastUpgrades.6.2.0:
+-        "0x53fC68bFfC03D17804e5A901DE42d1eeF2e64562"
++        "eth:0x53fC68bFfC03D17804e5A901DE42d1eeF2e64562"
+      values.$pastUpgrades.7.2.0:
+-        "0x1825242411792536469Cbb5843fd27Ce3e9e583A"
++        "eth:0x1825242411792536469Cbb5843fd27Ce3e9e583A"
+      values.$pastUpgrades.8.2.0:
+-        "0x07ddce60658A61dc1732Cacf2220FcE4A01C49B0"
++        "eth:0x07ddce60658A61dc1732Cacf2220FcE4A01C49B0"
+      values.accessControl.DEFAULT_ADMIN_ROLE.members.0:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.accessControl.OPERATOR_ROLE.members.0:
+-        "0x46d2F319fd42165D4318F099E143dEA8124E9E3e"
++        "eth:0x46d2F319fd42165D4318F099E143dEA8124E9E3e"
+      values.accessControl.OPERATOR_ROLE.members.1:
+-        "0x52FF08F313A00A54e3Beffb5C4a7F7446eFb6754"
++        "eth:0x52FF08F313A00A54e3Beffb5C4a7F7446eFb6754"
+      values.accessControl.RATE_LIMIT_SETTER_ROLE.members.0:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.accessControl.PAUSE_MANAGER.members.0:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.accessControl.VERIFIER_SETTER_ROLE.members.0:
+-        "0xd6B95c960779c72B8C6752119849318E5d550574"
++        "eth:0xd6B95c960779c72B8C6752119849318E5d550574"
+      values.accessControl.PAUSE_ALL_ROLE.members.0:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.accessControl.PAUSE_L1_L2_ROLE.members.0:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.accessControl.PAUSE_L2_L1_ROLE.members.0:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.accessControl.UNPAUSE_ALL_ROLE.members.0:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.accessControl.UNPAUSE_L1_L2_ROLE.members.0:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.accessControl.UNPAUSE_L2_L1_ROLE.members.0:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.accessControl.PAUSE_BLOB_SUBMISSION_ROLE.members.0:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.accessControl.UNPAUSE_BLOB_SUBMISSION_ROLE.members.0:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.accessControl.PAUSE_FINALIZATION_ROLE.members.0:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.accessControl.UNPAUSE_FINALIZATION_ROLE.members.0:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.accessControl.USED_RATE_LIMIT_RESETTER_ROLE.members.0:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.accessControl.VERIFIER_UNSETTER_ROLE.members.0:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.defaultAdminAC.0:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.fallbackOperator:
+-        "0x3697bD0bC6C050135b8321F989a5316eACbF367D"
++        "eth:0x3697bD0bC6C050135b8321F989a5316eACbF367D"
+      values.Operators.0:
+-        "0x46d2F319fd42165D4318F099E143dEA8124E9E3e"
++        "eth:0x46d2F319fd42165D4318F099E143dEA8124E9E3e"
+      values.Operators.1:
+-        "0x52FF08F313A00A54e3Beffb5C4a7F7446eFb6754"
++        "eth:0x52FF08F313A00A54e3Beffb5C4a7F7446eFb6754"
+      values.sender:
+-        "0x0000000000000000000000000000000000000000"
++        "eth:0x0000000000000000000000000000000000000000"
++++ description: Mapping of proof type to ZK Plonk Verifier contract
+      values.verifiers.0:
+-        "0xED39C0C41A7651006953AB58Ecb3039363620995"
++        "eth:0xED39C0C41A7651006953AB58Ecb3039363620995"
++++ description: Mapping of proof type to ZK Plonk Verifier contract
+      values.verifiers.1:
+-        "0x0000000000000000000000000000000000000000"
++        "eth:0x0000000000000000000000000000000000000000"
++++ description: Mapping of proof type to ZK Plonk Verifier contract
+      values.verifiers.2:
+-        "0x0000000000000000000000000000000000000000"
++        "eth:0x0000000000000000000000000000000000000000"
++++ description: Mapping of proof type to ZK Plonk Verifier contract
+      values.verifiers.3:
+-        "0x0000000000000000000000000000000000000000"
++        "eth:0x0000000000000000000000000000000000000000"
++++ description: Mapping of proof type to ZK Plonk Verifier contract
+      values.verifiers.4:
+-        "0x41A4d93d09f4718fe899D12A4aD2C8a09104bdc7"
++        "eth:0x41A4d93d09f4718fe899D12A4aD2C8a09104bdc7"
++++ description: Mapping of proof type to ZK Plonk Verifier contract
+      values.verifiers.5:
+-        "0x0000000000000000000000000000000000000000"
++        "eth:0x0000000000000000000000000000000000000000"
++++ description: Mapping of proof type to ZK Plonk Verifier contract
+      values.verifiers.6:
+-        "0x0000000000000000000000000000000000000000"
++        "eth:0x0000000000000000000000000000000000000000"
++++ description: Mapping of proof type to ZK Plonk Verifier contract
+      values.verifiers.7:
+-        "0x0000000000000000000000000000000000000000"
++        "eth:0x0000000000000000000000000000000000000000"
++++ description: Mapping of proof type to ZK Plonk Verifier contract
+      values.verifiers.8:
+-        "0x0000000000000000000000000000000000000000"
++        "eth:0x0000000000000000000000000000000000000000"
++++ description: Mapping of proof type to ZK Plonk Verifier contract
+      values.verifiers.9:
+-        "0x0000000000000000000000000000000000000000"
++        "eth:0x0000000000000000000000000000000000000000"
++++ description: Mapping of proof type to ZK Plonk Verifier contract
+      values.verifiers.10:
+-        "0x0000000000000000000000000000000000000000"
++        "eth:0x0000000000000000000000000000000000000000"
++++ description: Mapping of proof type to ZK Plonk Verifier contract
+      values.verifiers.11:
+-        "0x0000000000000000000000000000000000000000"
++        "eth:0x0000000000000000000000000000000000000000"
++++ description: Mapping of proof type to ZK Plonk Verifier contract
+      values.verifiers.12:
+-        "0x0000000000000000000000000000000000000000"
++        "eth:0x0000000000000000000000000000000000000000"
++++ description: Mapping of proof type to ZK Plonk Verifier contract
+      values.verifiers.13:
+-        "0x0000000000000000000000000000000000000000"
++        "eth:0x0000000000000000000000000000000000000000"
++++ description: Mapping of proof type to ZK Plonk Verifier contract
+      values.verifiers.14:
+-        "0x0000000000000000000000000000000000000000"
++        "eth:0x0000000000000000000000000000000000000000"
++++ description: Mapping of proof type to ZK Plonk Verifier contract
+      values.verifiers.15:
+-        "0x0000000000000000000000000000000000000000"
++        "eth:0x0000000000000000000000000000000000000000"
++++ description: Mapping of proof type to ZK Plonk Verifier contract
+      values.verifiers.16:
+-        "0x0000000000000000000000000000000000000000"
++        "eth:0x0000000000000000000000000000000000000000"
++++ description: Mapping of proof type to ZK Plonk Verifier contract
+      values.verifiers.17:
+-        "0x0000000000000000000000000000000000000000"
++        "eth:0x0000000000000000000000000000000000000000"
++++ description: Mapping of proof type to ZK Plonk Verifier contract
+      values.verifiers.18:
+-        "0x0000000000000000000000000000000000000000"
++        "eth:0x0000000000000000000000000000000000000000"
++++ description: Mapping of proof type to ZK Plonk Verifier contract
+      values.verifiers.19:
+-        "0x0000000000000000000000000000000000000000"
++        "eth:0x0000000000000000000000000000000000000000"
+      implementationNames.0xd19d4B5d358258f05D7B411E21A1460D11B0876F:
+-        "TransparentUpgradeableProxy"
+      implementationNames.0x07ddce60658A61dc1732Cacf2220FcE4A01C49B0:
+-        "LineaRollup"
+      implementationNames.eth:0xd19d4B5d358258f05D7B411E21A1460D11B0876F:
++        "TransparentUpgradeableProxy"
+      implementationNames.eth:0x07ddce60658A61dc1732Cacf2220FcE4A01C49B0:
++        "LineaRollup"
+    }
+```
+
+```diff
+    contract L1Timelock (0xd6B95c960779c72B8C6752119849318E5d550574) {
+    +++ description: A standard timelock with access control. The current minimum delay is 0s.
+      address:
+-        "0xd6B95c960779c72B8C6752119849318E5d550574"
++        "eth:0xd6B95c960779c72B8C6752119849318E5d550574"
+      values.accessControl.TIMELOCK_ADMIN_ROLE.members.0:
+-        "0xd6B95c960779c72B8C6752119849318E5d550574"
++        "eth:0xd6B95c960779c72B8C6752119849318E5d550574"
+      values.accessControl.PROPOSER_ROLE.members.0:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.accessControl.PROPOSER_ROLE.members.1:
+-        "0xB8F5524D73f549Cf14A0587a3C7810723f9c0051"
++        "eth:0xB8F5524D73f549Cf14A0587a3C7810723f9c0051"
+      values.accessControl.EXECUTOR_ROLE.members.0:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.accessControl.CANCELLER_ROLE.members.0:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.cancellerAC.0:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.executorAC.0:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.proposerAC.0:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.proposerAC.1:
+-        "0xB8F5524D73f549Cf14A0587a3C7810723f9c0051"
++        "eth:0xB8F5524D73f549Cf14A0587a3C7810723f9c0051"
+      values.timelockAdminAC.0:
+-        "0xd6B95c960779c72B8C6752119849318E5d550574"
++        "eth:0xd6B95c960779c72B8C6752119849318E5d550574"
+      implementationNames.0xd6B95c960779c72B8C6752119849318E5d550574:
+-        "TimeLock"
+      implementationNames.eth:0xd6B95c960779c72B8C6752119849318E5d550574:
++        "TimeLock"
+    }
+```
+
+```diff
+    contract PlonkVerifierMainnetFull (0xED39C0C41A7651006953AB58Ecb3039363620995) {
+    +++ description: None
+      address:
+-        "0xED39C0C41A7651006953AB58Ecb3039363620995"
++        "eth:0xED39C0C41A7651006953AB58Ecb3039363620995"
+      implementationNames.0xED39C0C41A7651006953AB58Ecb3039363620995:
+-        "PlonkVerifierMainnetFull"
+      implementationNames.eth:0xED39C0C41A7651006953AB58Ecb3039363620995:
++        "PlonkVerifierMainnetFull"
+    }
+```
+
+```diff
+    EOA  (0xF112a2438a4e08836046D587350f9315C0eAE300) {
+    +++ description: None
+      address:
+-        "0xF112a2438a4e08836046D587350f9315C0eAE300"
++        "eth:0xF112a2438a4e08836046D587350f9315C0eAE300"
+    }
+```
+
+```diff
+    contract Roles (0xF24f1DC519d88246809B660eb56D94048575d083) {
+    +++ description: The Zodiac 'Roles' module for Safe multisigs allows defining roles that can call preconfigured targets on behalf of the Gnosis Safe.
+      address:
+-        "0xF24f1DC519d88246809B660eb56D94048575d083"
++        "eth:0xF24f1DC519d88246809B660eb56D94048575d083"
+      values.avatar:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.getGuard:
+-        "0x0000000000000000000000000000000000000000"
++        "eth:0x0000000000000000000000000000000000000000"
+      values.guard:
+-        "0x0000000000000000000000000000000000000000"
++        "eth:0x0000000000000000000000000000000000000000"
+      values.multisend:
+-        "0xA238CBeb142c10Ef7Ad8442C6D1f9E89e07e7761"
++        "eth:0xA238CBeb142c10Ef7Ad8442C6D1f9E89e07e7761"
+      values.owner:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.pausers:
+-        "0x453B3A4b4d64B4E6f472A306c3D4Fc318C34bbA8"
++        "eth:0x453B3A4b4d64B4E6f472A306c3D4Fc318C34bbA8"
+      values.roles.roles.1.members.0x453B3A4b4d64B4E6f472A306c3D4Fc318C34bbA8:
+-        true
+      values.roles.roles.1.members.eth:0x453B3A4b4d64B4E6f472A306c3D4Fc318C34bbA8:
++        true
+      values.roles.roles.1.targets.0xd19d4B5d358258f05D7B411E21A1460D11B0876F:
+-        {"clearance":"Function","options":"None"}
+      values.roles.roles.1.targets.0x051F1D88f0aF5763fB888eC4378b4D8B29ea3319:
+-        {"clearance":"Function","options":"None"}
+      values.roles.roles.1.targets.0x504A330327A089d8364C4ab3811Ee26976d388ce:
+-        {"clearance":"Function","options":"None"}
+      values.roles.roles.1.targets.eth:0xd19d4B5d358258f05D7B411E21A1460D11B0876F:
++        {"clearance":"Function","options":"None"}
+      values.roles.roles.1.targets.eth:0x051F1D88f0aF5763fB888eC4378b4D8B29ea3319:
++        {"clearance":"Function","options":"None"}
+      values.roles.roles.1.targets.eth:0x504A330327A089d8364C4ab3811Ee26976d388ce:
++        {"clearance":"Function","options":"None"}
+      values.roles.roles.1.functions.0x051F1D88f0aF5763fB888eC4378b4D8B29ea3319:
+-        {"pause()":{"options":"None","wildcarded":true,"parameters":[]}}
+      values.roles.roles.1.functions.0x504A330327A089d8364C4ab3811Ee26976d388ce:
+-        {"pause()":{"options":"None","wildcarded":true,"parameters":[]}}
+      values.roles.roles.1.functions.0xd19d4B5d358258f05D7B411E21A1460D11B0876F:
+-        {"pauseByType(uint8)":{"options":"None","wildcarded":true,"parameters":[]}}
+      values.roles.roles.1.functions.eth:0x051F1D88f0aF5763fB888eC4378b4D8B29ea3319:
++        {"pause()":{"options":"None","wildcarded":true,"parameters":[]}}
+      values.roles.roles.1.functions.eth:0x504A330327A089d8364C4ab3811Ee26976d388ce:
++        {"pause()":{"options":"None","wildcarded":true,"parameters":[]}}
+      values.roles.roles.1.functions.eth:0xd19d4B5d358258f05D7B411E21A1460D11B0876F:
++        {"pauseByType(uint8)":{"options":"None","wildcarded":true,"parameters":[]}}
+      values.target:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.ZodiacModule_avatar:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      values.ZodiacModule_guard:
+-        "0x0000000000000000000000000000000000000000"
++        "eth:0x0000000000000000000000000000000000000000"
+      values.ZodiacModule_modules.0:
+-        "0x453B3A4b4d64B4E6f472A306c3D4Fc318C34bbA8"
++        "eth:0x453B3A4b4d64B4E6f472A306c3D4Fc318C34bbA8"
+      values.ZodiacModule_target:
+-        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      implementationNames.0xF24f1DC519d88246809B660eb56D94048575d083:
+-        "Roles"
+      implementationNames.eth:0xF24f1DC519d88246809B660eb56D94048575d083:
++        "Roles"
+    }
+```
+
+```diff
+    contract ProxyAdmin (0xF5058616517C068C7b8c7EbC69FF636Ade9066d6) {
+    +++ description: None
+      address:
+-        "0xF5058616517C068C7b8c7EbC69FF636Ade9066d6"
++        "eth:0xF5058616517C068C7b8c7EbC69FF636Ade9066d6"
+      values.owner:
+-        "0xd6B95c960779c72B8C6752119849318E5d550574"
++        "eth:0xd6B95c960779c72B8C6752119849318E5d550574"
+      implementationNames.0xF5058616517C068C7b8c7EbC69FF636Ade9066d6:
+-        "ProxyAdmin"
+      implementationNames.eth:0xF5058616517C068C7b8c7EbC69FF636Ade9066d6:
++        "ProxyAdmin"
+    }
+```
+
+```diff
++   Status: CREATED
+    contract TokenBridge (0x051F1D88f0aF5763fB888eC4378b4D8B29ea3319)
+    +++ description: Contract used to bridge and escrow ERC-20 tokens.
+```
+
+```diff
++   Status: CREATED
+    contract CallForwardingProxy (0x3697bD0bC6C050135b8321F989a5316eACbF367D)
+    +++ description: A public proxy contract forwarding calls to a predefined target contract (eth:0xd19d4B5d358258f05D7B411E21A1460D11B0876F). Can be called by any address.
+```
+
+```diff
++   Status: CREATED
+    contract BridgedToken (0x36f274C1C197F277EA3C57859729398FCc8a3763)
+    +++ description: Standard implementation used for assets that are native to the Linea L2 and bridged back to ethereum.
+```
+
+```diff
++   Status: CREATED
+    contract PlonkVerifierMainnetFull (0x41A4d93d09f4718fe899D12A4aD2C8a09104bdc7)
+    +++ description: Smart contract used to verify the proofs of Linea zkEVM execution.
+```
+
+```diff
++   Status: CREATED
+    contract Linea Multisig 1 (0x892bb7EeD71efB060ab90140e7825d8127991DD3)
+    +++ description: None
+```
+
+```diff
++   Status: CREATED
+    contract UpgradeableBeacon (0x971f46a2852d11D59dbF0909e837cfd06f357DeB)
+    +++ description: A beacon with an upgradeable implementation currently set as eth:0x36f274C1C197F277EA3C57859729398FCc8a3763. Beacon proxy contracts pointing to this beacon will all use its implementation.
+```
+
+```diff
++   Status: CREATED
+    contract Linea Multisig 2 (0xB8F5524D73f549Cf14A0587a3C7810723f9c0051)
+    +++ description: None
+```
+
+```diff
++   Status: CREATED
+    contract LineaRollup (0xd19d4B5d358258f05D7B411E21A1460D11B0876F)
+    +++ description: The main contract of the Linea zkEVM rollup. Contains state roots, the verifier addresses and manages messages between L1 and the L2.
+```
+
+```diff
++   Status: CREATED
+    contract L1Timelock (0xd6B95c960779c72B8C6752119849318E5d550574)
+    +++ description: A standard timelock with access control. The current minimum delay is 0s.
+```
+
+```diff
++   Status: CREATED
+    contract PlonkVerifierMainnetFull (0xED39C0C41A7651006953AB58Ecb3039363620995)
+    +++ description: None
+```
+
+```diff
++   Status: CREATED
+    contract Roles (0xF24f1DC519d88246809B660eb56D94048575d083)
+    +++ description: The Zodiac 'Roles' module for Safe multisigs allows defining roles that can call preconfigured targets on behalf of the Gnosis Safe.
+```
+
+```diff
++   Status: CREATED
+    contract ProxyAdmin (0xF5058616517C068C7b8c7EbC69FF636Ade9066d6)
+    +++ description: None
+```
+
+Generated with discovered.json: 0xe92de2ef8956dd39f3816bc745167e8e5459129c
+
+# Diff at Fri, 04 Jul 2025 12:19:07 GMT:
+
+- author: Mateusz Radomski (<radomski.main@protonmail.com>)
+- comparing to: main@1f56dc47fe915564d4555300304da4d3bcbc087f block: 22673062
+- current block number: 22673062
+
+## Description
+
+Discovery rerun on the same block number with only config-related changes.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 22673062 (main branch discovery), not current.
+
+```diff
+    contract CallForwardingProxy (0x3697bD0bC6C050135b8321F989a5316eACbF367D) {
+    +++ description: A public proxy contract forwarding calls to a predefined target contract (0xd19d4B5d358258f05D7B411E21A1460D11B0876F). Can be called by any address.
+      receivedPermissions.0.from:
+-        "ethereum:0xd19d4B5d358258f05D7B411E21A1460D11B0876F"
++        "eth:0xd19d4B5d358258f05D7B411E21A1460D11B0876F"
+    }
+```
+
+```diff
+    EOA  (0x453B3A4b4d64B4E6f472A306c3D4Fc318C34bbA8) {
+    +++ description: None
+      receivedPermissions.0.from:
+-        "ethereum:0xF24f1DC519d88246809B660eb56D94048575d083"
++        "eth:0xF24f1DC519d88246809B660eb56D94048575d083"
+    }
+```
+
+```diff
+    EOA  (0x46d2F319fd42165D4318F099E143dEA8124E9E3e) {
+    +++ description: None
+      receivedPermissions.0.from:
+-        "ethereum:0xd19d4B5d358258f05D7B411E21A1460D11B0876F"
++        "eth:0xd19d4B5d358258f05D7B411E21A1460D11B0876F"
+    }
+```
+
+```diff
+    EOA  (0x52FF08F313A00A54e3Beffb5C4a7F7446eFb6754) {
+    +++ description: None
+      receivedPermissions.0.from:
+-        "ethereum:0xd19d4B5d358258f05D7B411E21A1460D11B0876F"
++        "eth:0xd19d4B5d358258f05D7B411E21A1460D11B0876F"
+    }
+```
+
+```diff
+    contract Linea Multisig 1 (0x892bb7EeD71efB060ab90140e7825d8127991DD3) {
+    +++ description: None
+      receivedPermissions.0.from:
+-        "ethereum:0x051F1D88f0aF5763fB888eC4378b4D8B29ea3319"
++        "eth:0x051F1D88f0aF5763fB888eC4378b4D8B29ea3319"
+      receivedPermissions.1.from:
+-        "ethereum:0x971f46a2852d11D59dbF0909e837cfd06f357DeB"
++        "eth:0x971f46a2852d11D59dbF0909e837cfd06f357DeB"
+      receivedPermissions.2.from:
+-        "ethereum:0xd19d4B5d358258f05D7B411E21A1460D11B0876F"
++        "eth:0xd19d4B5d358258f05D7B411E21A1460D11B0876F"
+      receivedPermissions.3.from:
+-        "ethereum:0xd6B95c960779c72B8C6752119849318E5d550574"
++        "eth:0xd6B95c960779c72B8C6752119849318E5d550574"
+      receivedPermissions.4.from:
+-        "ethereum:0xd6B95c960779c72B8C6752119849318E5d550574"
++        "eth:0xd6B95c960779c72B8C6752119849318E5d550574"
+      receivedPermissions.5.via.0.address:
+-        "ethereum:0xd6B95c960779c72B8C6752119849318E5d550574"
++        "eth:0xd6B95c960779c72B8C6752119849318E5d550574"
+      receivedPermissions.5.from:
+-        "ethereum:0xd6B95c960779c72B8C6752119849318E5d550574"
++        "eth:0xd6B95c960779c72B8C6752119849318E5d550574"
+      receivedPermissions.6.from:
+-        "ethereum:0xd6B95c960779c72B8C6752119849318E5d550574"
++        "eth:0xd6B95c960779c72B8C6752119849318E5d550574"
+      receivedPermissions.7.via.1.address:
+-        "ethereum:0xd6B95c960779c72B8C6752119849318E5d550574"
++        "eth:0xd6B95c960779c72B8C6752119849318E5d550574"
+      receivedPermissions.7.via.0.address:
+-        "ethereum:0xF5058616517C068C7b8c7EbC69FF636Ade9066d6"
++        "eth:0xF5058616517C068C7b8c7EbC69FF636Ade9066d6"
+      receivedPermissions.7.from:
+-        "ethereum:0x051F1D88f0aF5763fB888eC4378b4D8B29ea3319"
++        "eth:0x051F1D88f0aF5763fB888eC4378b4D8B29ea3319"
+      receivedPermissions.8.via.1.address:
+-        "ethereum:0xd6B95c960779c72B8C6752119849318E5d550574"
++        "eth:0xd6B95c960779c72B8C6752119849318E5d550574"
+      receivedPermissions.8.via.0.address:
+-        "ethereum:0xF5058616517C068C7b8c7EbC69FF636Ade9066d6"
++        "eth:0xF5058616517C068C7b8c7EbC69FF636Ade9066d6"
+      receivedPermissions.8.from:
+-        "ethereum:0xd19d4B5d358258f05D7B411E21A1460D11B0876F"
++        "eth:0xd19d4B5d358258f05D7B411E21A1460D11B0876F"
+      directlyReceivedPermissions.0.from:
+-        "ethereum:0xd6B95c960779c72B8C6752119849318E5d550574"
++        "eth:0xd6B95c960779c72B8C6752119849318E5d550574"
+    }
+```
+
+```diff
+    contract Linea Multisig 2 (0xB8F5524D73f549Cf14A0587a3C7810723f9c0051) {
+    +++ description: None
+      receivedPermissions.0.from:
+-        "ethereum:0xd6B95c960779c72B8C6752119849318E5d550574"
++        "eth:0xd6B95c960779c72B8C6752119849318E5d550574"
+    }
+```
+
+```diff
+    contract L1Timelock (0xd6B95c960779c72B8C6752119849318E5d550574) {
+    +++ description: A standard timelock with access control. The current minimum delay is 0s.
+      directlyReceivedPermissions.0.from:
+-        "ethereum:0xF5058616517C068C7b8c7EbC69FF636Ade9066d6"
++        "eth:0xF5058616517C068C7b8c7EbC69FF636Ade9066d6"
+      directlyReceivedPermissions.1.from:
+-        "ethereum:0xd6B95c960779c72B8C6752119849318E5d550574"
++        "eth:0xd6B95c960779c72B8C6752119849318E5d550574"
+    }
+```
+
+```diff
+    contract Roles (0xF24f1DC519d88246809B660eb56D94048575d083) {
+    +++ description: The Zodiac 'Roles' module for Safe multisigs allows defining roles that can call preconfigured targets on behalf of the Gnosis Safe.
+      directlyReceivedPermissions.0.from:
+-        "ethereum:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
++        "eth:0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+    }
+```
+
+```diff
+    contract ProxyAdmin (0xF5058616517C068C7b8c7EbC69FF636Ade9066d6) {
+    +++ description: None
+      directlyReceivedPermissions.0.from:
+-        "ethereum:0x051F1D88f0aF5763fB888eC4378b4D8B29ea3319"
++        "eth:0x051F1D88f0aF5763fB888eC4378b4D8B29ea3319"
+      directlyReceivedPermissions.1.from:
+-        "ethereum:0xd19d4B5d358258f05D7B411E21A1460D11B0876F"
++        "eth:0xd19d4B5d358258f05D7B411E21A1460D11B0876F"
+    }
+```
+
+Generated with discovered.json: 0xbb32dad497b3f3d10f705237f59f3503b54dd98e
+
+# Diff at Tue, 10 Jun 2025 08:47:10 GMT:
+
+- author: sekuba (<29250140+sekuba@users.noreply.github.com>)
+- comparing to: main@06eb023461c50e23c02be21b7bad307e0e7e3b73 block: 22415188
+- current block number: 22673062
+
+## Description
+
+the incomplete plonkverifier `0xBfF4a03A355eEF7dA720bBC7878F9BdBBE81fe6F` is removed. 
+
+new proposer Multisig for the main timelock added.
+
+06/10: new validator added: 0xED with new keys. (via telegram this is the 100% complete verifier, waiting for the `0x41` vali to be removed)
+
+context from telegram:
+
+> - Alpha verifiers: were removed on Monday
+> - Beta v1.4 verifier (99% prover completeness): were activated a few weeks back and should be removed next week [this week]
+> - Beta v2.0 verifier (100% prover completeness): will be activated on Thursday and removed early next week [this week], once the upgrade is successful on Monday.
+
+linea confirms their backend is fully upgraded to and using the 0xED verifier and the old 99% verifier will be removed this week.
+
+## Watched changes
+
+```diff
+    contract TokenBridge (0x051F1D88f0aF5763fB888eC4378b4D8B29ea3319) {
+    +++ description: Contract used to bridge and escrow ERC-20 tokens.
+      values.accessControl.SET_CUSTOM_CONTRACT_ROLE.members.1:
++        "0xB8F5524D73f549Cf14A0587a3C7810723f9c0051"
+      values.accessControl.REMOVE_RESERVED_TOKEN_ROLE.members.1:
++        "0xB8F5524D73f549Cf14A0587a3C7810723f9c0051"
+      values.accessControl.SET_RESERVED_TOKEN_ROLE.members.1:
++        "0xB8F5524D73f549Cf14A0587a3C7810723f9c0051"
+    }
+```
+
+```diff
+    contract Linea Multisig 1 (0x892bb7EeD71efB060ab90140e7825d8127991DD3) {
+    +++ description: None
+      values.$members.7:
+-        "0x497515578b0BE54d2f0f32cF3F08B85Bf8cEB6aB"
++        "0x535dE1e2A961529AA84EF208981f8cF4e7dcbdF5"
+      values.$members.6:
+-        "0x239d9B860399366F8d25F6e2962Fb2B9D070aEFE"
++        "0x497515578b0BE54d2f0f32cF3F08B85Bf8cEB6aB"
+      values.$members.5:
+-        "0xab23f8E6c3288952fdf193A17ad49b15F5EE55A1"
++        "0x239d9B860399366F8d25F6e2962Fb2B9D070aEFE"
+      values.$members.4:
+-        "0x4CB4da1D1C198E506031C0Aa8480BA8b57C0fAD4"
++        "0xab23f8E6c3288952fdf193A17ad49b15F5EE55A1"
+      values.$members.3:
+-        "0xB4dAebe4D01f467701F95f0196fc29033c54dBcb"
++        "0x4CB4da1D1C198E506031C0Aa8480BA8b57C0fAD4"
+      values.$members.2:
+-        "0x12d674b7eCc0302977E956Cd2d5AC8D030fdbea9"
++        "0xB4dAebe4D01f467701F95f0196fc29033c54dBcb"
+    }
+```
+
+```diff
+-   Status: DELETED
+    contract PlonkVerifierForMultiTypeDataAggregation (0xBfF4a03A355eEF7dA720bBC7878F9BdBBE81fe6F)
+    +++ description: Smart contract used to verify the proofs of Linea zkEVM execution.
+```
+
+```diff
+    contract LineaRollup (0xd19d4B5d358258f05D7B411E21A1460D11B0876F) {
+    +++ description: The main contract of the Linea zkEVM rollup. Contains state roots, the verifier addresses and manages messages between L1 and the L2.
++++ description: Mapping of proof type to ZK Plonk Verifier contract
+      values.verifiers.19:
+-        "0x1111111111111111111111111111111111111111"
++        "0xED39C0C41A7651006953AB58Ecb3039363620995"
++++ description: Mapping of proof type to ZK Plonk Verifier contract
+      values.verifiers.18:
+-        "0x1111111111111111111111111111111111111111"
++        "0x41A4d93d09f4718fe899D12A4aD2C8a09104bdc7"
++++ description: Mapping of proof type to ZK Plonk Verifier contract
+      values.verifiers.17:
+-        "0x1111111111111111111111111111111111111111"
++        "0x0000000000000000000000000000000000000000"
++++ description: Mapping of proof type to ZK Plonk Verifier contract
+      values.verifiers.16:
+-        "0xBfF4a03A355eEF7dA720bBC7878F9BdBBE81fe6F"
++        "0x0000000000000000000000000000000000000000"
++++ description: Mapping of proof type to ZK Plonk Verifier contract
+      values.verifiers.15:
+-        "0x41A4d93d09f4718fe899D12A4aD2C8a09104bdc7"
++        "0x0000000000000000000000000000000000000000"
+    }
+```
+
+```diff
+    contract L1Timelock (0xd6B95c960779c72B8C6752119849318E5d550574) {
+    +++ description: A standard timelock with access control. The current minimum delay is 0s.
+      values.accessControl.PROPOSER_ROLE.members.1:
++        "0xB8F5524D73f549Cf14A0587a3C7810723f9c0051"
+      values.proposerAC.1:
++        "0xB8F5524D73f549Cf14A0587a3C7810723f9c0051"
+    }
+```
+
+```diff
++   Status: CREATED
+    contract Linea Multisig 2 (0xB8F5524D73f549Cf14A0587a3C7810723f9c0051)
+    +++ description: None
+```
+
+```diff
++   Status: CREATED
+    contract PlonkVerifierMainnetFull (0xED39C0C41A7651006953AB58Ecb3039363620995)
+    +++ description: None
+```
+
+## Source code changes
+
+```diff
+.../linea/ethereum/.flat/Linea Multisig 2/Safe.sol | 1088 ++++++++++++++++++++
+ .../.flat/Linea Multisig 2/SafeProxy.p.sol         |   37 +
+ ...0x41A4d93d09f4718fe899D12A4aD2C8a09104bdc7.sol} |    0
+ ...0xED39C0C41A7651006953AB58Ecb3039363620995.sol} |  487 +++++----
+ 4 files changed, 1361 insertions(+), 251 deletions(-)
+```
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 22415188 (main branch discovery), not current.
+
+```diff
+    contract Linea Multisig 1 (0x892bb7EeD71efB060ab90140e7825d8127991DD3) {
+    +++ description: None
+      name:
+-        "Linea Multisig"
++        "Linea Multisig 1"
+    }
+```
+
+Generated with discovered.json: 0xbae205992a75ec7ace3eff9c93cca2e6e78d0f31
+
+# Diff at Fri, 23 May 2025 09:40:59 GMT:
+
+- author: Adrian Adamiak (<adrian@adamiak.net>)
+- comparing to: main@69cd181abbc3c830a6caf2f4429b37cae72ffdb8 block: 22415188
+- current block number: 22415188
+
+## Description
+
+Introduced .role field on each permission, defaulting to field name on which it was defined (with '.' prefix)
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 22415188 (main branch discovery), not current.
+
+```diff
+    contract CallForwardingProxy (0x3697bD0bC6C050135b8321F989a5316eACbF367D) {
+    +++ description: A public proxy contract forwarding calls to a predefined target contract (0xd19d4B5d358258f05D7B411E21A1460D11B0876F). Can be called by any address.
+      receivedPermissions.0.role:
++        ".fallbackOperator"
+    }
+```
+
+```diff
+    EOA  (0x453B3A4b4d64B4E6f472A306c3D4Fc318C34bbA8) {
+    +++ description: None
+      receivedPermissions.0.role:
++        ".pausers"
+    }
+```
+
+```diff
+    EOA  (0x46d2F319fd42165D4318F099E143dEA8124E9E3e) {
+    +++ description: None
+      receivedPermissions.0.role:
++        ".Operators"
+    }
+```
+
+```diff
+    EOA  (0x52FF08F313A00A54e3Beffb5C4a7F7446eFb6754) {
+    +++ description: None
+      receivedPermissions.0.role:
++        ".Operators"
+    }
+```
+
+```diff
+    contract Linea Multisig (0x892bb7EeD71efB060ab90140e7825d8127991DD3) {
+    +++ description: None
+      receivedPermissions.8.permission:
+-        "interact"
++        "upgrade"
+      receivedPermissions.8.from:
+-        "0xd6B95c960779c72B8C6752119849318E5d550574"
++        "0xd19d4B5d358258f05D7B411E21A1460D11B0876F"
+      receivedPermissions.8.description:
+-        "execute transactions that are ready."
+      receivedPermissions.8.role:
++        "admin"
+      receivedPermissions.8.via:
++        [{"address":"0xF5058616517C068C7b8c7EbC69FF636Ade9066d6"},{"address":"0xd6B95c960779c72B8C6752119849318E5d550574"}]
+      receivedPermissions.7.from:
+-        "0x971f46a2852d11D59dbF0909e837cfd06f357DeB"
++        "0xd6B95c960779c72B8C6752119849318E5d550574"
+      receivedPermissions.7.description:
+-        "change the beacon implementation."
++        "propose transactions."
+      receivedPermissions.7.role:
++        ".proposerAC"
+      receivedPermissions.6.permission:
+-        "interact"
++        "upgrade"
+      receivedPermissions.6.from:
+-        "0xd19d4B5d358258f05D7B411E21A1460D11B0876F"
++        "0x051F1D88f0aF5763fB888eC4378b4D8B29ea3319"
+      receivedPermissions.6.description:
+-        "manage all critical access control roles and permissions (full admin of the rollup system)."
+      receivedPermissions.6.role:
++        "admin"
+      receivedPermissions.6.via:
++        [{"address":"0xF5058616517C068C7b8c7EbC69FF636Ade9066d6"},{"address":"0xd6B95c960779c72B8C6752119849318E5d550574"}]
+      receivedPermissions.5.description:
+-        "propose transactions."
++        "execute transactions that are ready."
+      receivedPermissions.5.role:
++        ".executorAC"
+      receivedPermissions.4.permission:
+-        "upgrade"
++        "interact"
+      receivedPermissions.4.from:
+-        "0xd19d4B5d358258f05D7B411E21A1460D11B0876F"
++        "0xd6B95c960779c72B8C6752119849318E5d550574"
+      receivedPermissions.4.via:
+-        [{"address":"0xF5058616517C068C7b8c7EbC69FF636Ade9066d6"},{"address":"0xd6B95c960779c72B8C6752119849318E5d550574"}]
+      receivedPermissions.4.description:
++        "cancel queued transactions."
+      receivedPermissions.4.role:
++        ".cancellerAC"
+      receivedPermissions.3.permission:
+-        "upgrade"
++        "interact"
+      receivedPermissions.3.from:
+-        "0x051F1D88f0aF5763fB888eC4378b4D8B29ea3319"
++        "0xd19d4B5d358258f05D7B411E21A1460D11B0876F"
+      receivedPermissions.3.via:
+-        [{"address":"0xF5058616517C068C7b8c7EbC69FF636Ade9066d6"},{"address":"0xd6B95c960779c72B8C6752119849318E5d550574"}]
+      receivedPermissions.3.description:
++        "manage all critical access control roles and permissions (full admin of the rollup system)."
+      receivedPermissions.3.role:
++        ".defaultAdminAC"
+      receivedPermissions.2.from:
+-        "0xd6B95c960779c72B8C6752119849318E5d550574"
++        "0x971f46a2852d11D59dbF0909e837cfd06f357DeB"
+      receivedPermissions.2.description:
+-        "cancel queued transactions."
++        "change the beacon implementation."
+      receivedPermissions.2.role:
++        ".owner"
+      receivedPermissions.1.role:
++        ".defaultAdminAC"
+      receivedPermissions.0.role:
++        ".timelockAdminAC"
+      directlyReceivedPermissions.0.role:
++        ".executorAC"
+    }
+```
+
+```diff
+    contract L1Timelock (0xd6B95c960779c72B8C6752119849318E5d550574) {
+    +++ description: A standard timelock with access control. The current minimum delay is 0s.
+      directlyReceivedPermissions.1.role:
++        ".timelockAdminAC"
+      directlyReceivedPermissions.0.role:
++        ".owner"
+    }
+```
+
+```diff
+    contract Roles (0xF24f1DC519d88246809B660eb56D94048575d083) {
+    +++ description: The Zodiac 'Roles' module for Safe multisigs allows defining roles that can call preconfigured targets on behalf of the Gnosis Safe.
+      directlyReceivedPermissions.0.role:
++        ".GnosisSafe_modules"
+    }
+```
+
+```diff
+    contract ProxyAdmin (0xF5058616517C068C7b8c7EbC69FF636Ade9066d6) {
+    +++ description: None
+      directlyReceivedPermissions.1.role:
++        "admin"
+      directlyReceivedPermissions.0.role:
++        "admin"
+    }
+```
+
+Generated with discovered.json: 0x24a1cd6f8eef7ea640c58d3e5b83e0efc96cfd6d
+
+# Diff at Mon, 05 May 2025 04:35:32 GMT:
+
+- author: sekuba (<29250140+sekuba@users.noreply.github.com>)
+- comparing to: main@30ca054bbefa91d57a0e71a49c313444ab339496 block: 22273396
+- current block number: 22415188
+
+## Description
+
+Linea beta v1.4 upgrade: State Reconstruction! (added state derivation section.)
+
+New verifier: PlonkVerifierMainnetFull name suggests completeness but this will only be shipped [with Beta v2 in May](https://docs.linea.build/release-notes).
+
+## Watched changes
+
+```diff
+    contract LineaRollup (0xd19d4B5d358258f05D7B411E21A1460D11B0876F) {
+    +++ description: The main contract of the Linea zkEVM rollup. Contains state roots, the verifier addresses and manages messages between L1 and the L2.
++++ description: Mapping of proof type to ZK Plonk Verifier contract
+      values.verifiers.16:
+-        "0x1111111111111111111111111111111111111111"
++        "0xBfF4a03A355eEF7dA720bBC7878F9BdBBE81fe6F"
++++ description: Mapping of proof type to ZK Plonk Verifier contract
+      values.verifiers.15:
+-        "0xBfF4a03A355eEF7dA720bBC7878F9BdBBE81fe6F"
++        "0x41A4d93d09f4718fe899D12A4aD2C8a09104bdc7"
+    }
+```
+
+```diff
++   Status: CREATED
+    contract PlonkVerifierMainnetFull (0x41A4d93d09f4718fe899D12A4aD2C8a09104bdc7)
+    +++ description: Smart contract used to verify the proofs of Linea zkEVM execution.
+```
+
+## Source code changes
+
+```diff
+.../ethereum/.flat/PlonkVerifierMainnetFull.sol    | 1333 ++++++++++++++++++++
+ 1 file changed, 1333 insertions(+)
+```
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 22273396 (main branch discovery), not current.
+
+```diff
+    contract PlonkVerifierForMultiTypeDataAggregation (0xBfF4a03A355eEF7dA720bBC7878F9BdBBE81fe6F) {
+    +++ description: Smart contract used to verify the proofs of Linea zkEVM execution.
+      template:
+-        "linea/PlonkVerifierForMultiTypeDataAggregation"
++        "linea/Verifier"
+    }
+```
+
+Generated with discovered.json: 0xe363e6dca0a119148715f2542881b49b1a482978
+
+# Diff at Tue, 29 Apr 2025 09:46:34 GMT:
+
+- author: Adrian Adamiak (<adrian@adamiak.net>)
+- comparing to: main@ef7477af00fe0b57a2f7cacf7e958c12494af662 block: 22273396
+- current block number: 22273396
+
+## Description
+
+Field .issuedPermissions is removed from the output as no longer needed. Added 'permissionsConfigHash' due to refactoring of the modelling process (into a separate command).
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 22273396 (main branch discovery), not current.
+
+```diff
+    contract TokenBridge (0x051F1D88f0aF5763fB888eC4378b4D8B29ea3319) {
+    +++ description: Contract used to bridge and escrow ERC-20 tokens.
+      issuedPermissions:
+-        [{"permission":"interact","to":"0x892bb7EeD71efB060ab90140e7825d8127991DD3","description":"manage all critical access control roles and permissions (full admin of the main bridge escrow).","via":[]},{"permission":"interact","to":"0xF24f1DC519d88246809B660eb56D94048575d083","description":"manage all critical access control roles and permissions (full admin of the main bridge escrow).","via":[{"address":"0x892bb7EeD71efB060ab90140e7825d8127991DD3"}]},{"permission":"upgrade","to":"0x892bb7EeD71efB060ab90140e7825d8127991DD3","via":[{"address":"0xd6B95c960779c72B8C6752119849318E5d550574"},{"address":"0xF5058616517C068C7b8c7EbC69FF636Ade9066d6"}]},{"permission":"upgrade","to":"0xF24f1DC519d88246809B660eb56D94048575d083","via":[{"address":"0x892bb7EeD71efB060ab90140e7825d8127991DD3"},{"address":"0xd6B95c960779c72B8C6752119849318E5d550574"},{"address":"0xF5058616517C068C7b8c7EbC69FF636Ade9066d6"}]}]
+    }
+```
+
+```diff
+    contract UpgradeableBeacon (0x971f46a2852d11D59dbF0909e837cfd06f357DeB) {
+    +++ description: A beacon with an upgradeable implementation currently set as 0x36f274C1C197F277EA3C57859729398FCc8a3763. Beacon proxy contracts pointing to this beacon will all use its implementation.
+      issuedPermissions:
+-        [{"permission":"interact","to":"0x892bb7EeD71efB060ab90140e7825d8127991DD3","description":"change the beacon implementation.","via":[]},{"permission":"interact","to":"0xF24f1DC519d88246809B660eb56D94048575d083","description":"change the beacon implementation.","via":[{"address":"0x892bb7EeD71efB060ab90140e7825d8127991DD3"}]}]
+    }
+```
+
+```diff
+    contract LineaRollup (0xd19d4B5d358258f05D7B411E21A1460D11B0876F) {
+    +++ description: The main contract of the Linea zkEVM rollup. Contains state roots, the verifier addresses and manages messages between L1 and the L2.
+      issuedPermissions:
+-        [{"permission":"interact","to":"0x3697bD0bC6C050135b8321F989a5316eACbF367D","description":"submit and finalize blocks as the Operator role when 6 months of no finalizations have passed.","via":[]},{"permission":"interact","to":"0x892bb7EeD71efB060ab90140e7825d8127991DD3","description":"manage all critical access control roles and permissions (full admin of the rollup system).","via":[]},{"permission":"interact","to":"0xF24f1DC519d88246809B660eb56D94048575d083","description":"manage all critical access control roles and permissions (full admin of the rollup system).","via":[{"address":"0x892bb7EeD71efB060ab90140e7825d8127991DD3"}]},{"permission":"operateLinea","to":"0x46d2F319fd42165D4318F099E143dEA8124E9E3e","via":[]},{"permission":"operateLinea","to":"0x52FF08F313A00A54e3Beffb5C4a7F7446eFb6754","via":[]},{"permission":"upgrade","to":"0x892bb7EeD71efB060ab90140e7825d8127991DD3","via":[{"address":"0xd6B95c960779c72B8C6752119849318E5d550574"},{"address":"0xF5058616517C068C7b8c7EbC69FF636Ade9066d6"}]},{"permission":"upgrade","to":"0xF24f1DC519d88246809B660eb56D94048575d083","via":[{"address":"0x892bb7EeD71efB060ab90140e7825d8127991DD3"},{"address":"0xd6B95c960779c72B8C6752119849318E5d550574"},{"address":"0xF5058616517C068C7b8c7EbC69FF636Ade9066d6"}]}]
+    }
+```
+
+```diff
+    contract L1Timelock (0xd6B95c960779c72B8C6752119849318E5d550574) {
+    +++ description: A standard timelock with access control. The current minimum delay is 0s.
+      issuedPermissions:
+-        [{"permission":"interact","to":"0x892bb7EeD71efB060ab90140e7825d8127991DD3","description":"cancel queued transactions.","via":[]},{"permission":"interact","to":"0x892bb7EeD71efB060ab90140e7825d8127991DD3","description":"execute transactions that are ready.","via":[]},{"permission":"interact","to":"0x892bb7EeD71efB060ab90140e7825d8127991DD3","description":"manage all access control roles and change the minimum delay.","via":[{"address":"0xd6B95c960779c72B8C6752119849318E5d550574"}]},{"permission":"interact","to":"0x892bb7EeD71efB060ab90140e7825d8127991DD3","description":"propose transactions.","via":[]},{"permission":"interact","to":"0xF24f1DC519d88246809B660eb56D94048575d083","description":"cancel queued transactions.","via":[{"address":"0x892bb7EeD71efB060ab90140e7825d8127991DD3"}]},{"permission":"interact","to":"0xF24f1DC519d88246809B660eb56D94048575d083","description":"execute transactions that are ready.","via":[{"address":"0x892bb7EeD71efB060ab90140e7825d8127991DD3"}]},{"permission":"interact","to":"0xF24f1DC519d88246809B660eb56D94048575d083","description":"manage all access control roles and change the minimum delay.","via":[{"address":"0x892bb7EeD71efB060ab90140e7825d8127991DD3"},{"address":"0xd6B95c960779c72B8C6752119849318E5d550574"}]},{"permission":"interact","to":"0xF24f1DC519d88246809B660eb56D94048575d083","description":"propose transactions.","via":[{"address":"0x892bb7EeD71efB060ab90140e7825d8127991DD3"}]}]
+    }
+```
+
+```diff
+    contract Roles (0xF24f1DC519d88246809B660eb56D94048575d083) {
+    +++ description: The Zodiac 'Roles' module for Safe multisigs allows defining roles that can call preconfigured targets on behalf of the Gnosis Safe.
+      issuedPermissions:
+-        [{"permission":"interact","to":"0x453B3A4b4d64B4E6f472A306c3D4Fc318C34bbA8","description":"pause the TokenBridge, the USDCBridge and the core functionalities of the system (via Roles module, LineaRollup contract).","via":[]}]
+      receivedPermissions:
+-        [{"permission":"interact","from":"0x051F1D88f0aF5763fB888eC4378b4D8B29ea3319","description":"manage all critical access control roles and permissions (full admin of the main bridge escrow).","via":[{"address":"0x892bb7EeD71efB060ab90140e7825d8127991DD3"}]},{"permission":"interact","from":"0x971f46a2852d11D59dbF0909e837cfd06f357DeB","description":"change the beacon implementation.","via":[{"address":"0x892bb7EeD71efB060ab90140e7825d8127991DD3"}]},{"permission":"interact","from":"0xd19d4B5d358258f05D7B411E21A1460D11B0876F","description":"manage all critical access control roles and permissions (full admin of the rollup system).","via":[{"address":"0x892bb7EeD71efB060ab90140e7825d8127991DD3"}]},{"permission":"interact","from":"0xd6B95c960779c72B8C6752119849318E5d550574","description":"cancel queued transactions.","via":[{"address":"0x892bb7EeD71efB060ab90140e7825d8127991DD3"}]},{"permission":"interact","from":"0xd6B95c960779c72B8C6752119849318E5d550574","description":"execute transactions that are ready.","via":[{"address":"0x892bb7EeD71efB060ab90140e7825d8127991DD3"}]},{"permission":"interact","from":"0xd6B95c960779c72B8C6752119849318E5d550574","description":"manage all access control roles and change the minimum delay.","via":[{"address":"0xd6B95c960779c72B8C6752119849318E5d550574"},{"address":"0x892bb7EeD71efB060ab90140e7825d8127991DD3"}]},{"permission":"interact","from":"0xd6B95c960779c72B8C6752119849318E5d550574","description":"propose transactions.","via":[{"address":"0x892bb7EeD71efB060ab90140e7825d8127991DD3"}]},{"permission":"upgrade","from":"0x051F1D88f0aF5763fB888eC4378b4D8B29ea3319","via":[{"address":"0xF5058616517C068C7b8c7EbC69FF636Ade9066d6"},{"address":"0xd6B95c960779c72B8C6752119849318E5d550574"},{"address":"0x892bb7EeD71efB060ab90140e7825d8127991DD3"}]},{"permission":"upgrade","from":"0xd19d4B5d358258f05D7B411E21A1460D11B0876F","via":[{"address":"0xF5058616517C068C7b8c7EbC69FF636Ade9066d6"},{"address":"0xd6B95c960779c72B8C6752119849318E5d550574"},{"address":"0x892bb7EeD71efB060ab90140e7825d8127991DD3"}]}]
+    }
+```
+
+Generated with discovered.json: 0x34d7a2525f6fd0096fdbf257bba1abd997d35415
+
+# Diff at Tue, 15 Apr 2025 09:10:02 GMT:
+
+- author: sekuba (<29250140+sekuba@users.noreply.github.com>)
+- comparing to: main@7b0857850157d265e4d429d336d4517950f5340c block: 22073290
+- current block number: 22273396
+
+## Description
+
+discodrive.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 22073290 (main branch discovery), not current.
+
+```diff
+    contract TokenBridge (0x051F1D88f0aF5763fB888eC4378b4D8B29ea3319) {
+    +++ description: Contract used to bridge and escrow ERC-20 tokens.
+      issuedPermissions.3:
++        {"permission":"interact","to":"0xF24f1DC519d88246809B660eb56D94048575d083","description":"manage all critical access control roles and permissions (full admin of the main bridge escrow).","via":[{"address":"0x892bb7EeD71efB060ab90140e7825d8127991DD3"}]}
+      issuedPermissions.2:
++        {"permission":"upgrade","to":"0xF24f1DC519d88246809B660eb56D94048575d083","via":[{"address":"0xd6B95c960779c72B8C6752119849318E5d550574"},{"address":"0xF5058616517C068C7b8c7EbC69FF636Ade9066d6"},{"address":"0x892bb7EeD71efB060ab90140e7825d8127991DD3"}]}
+      issuedPermissions.1.to:
+-        "0xF24f1DC519d88246809B660eb56D94048575d083"
++        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      issuedPermissions.1.via.2:
+-        {"address":"0x892bb7EeD71efB060ab90140e7825d8127991DD3"}
+      issuedPermissions.0.permission:
+-        "upgrade"
++        "interact"
+      issuedPermissions.0.via.1:
+-        {"address":"0xF5058616517C068C7b8c7EbC69FF636Ade9066d6"}
+      issuedPermissions.0.via.0:
+-        {"address":"0xd6B95c960779c72B8C6752119849318E5d550574"}
+      issuedPermissions.0.description:
++        "manage all critical access control roles and permissions (full admin of the main bridge escrow)."
+      values.defaultAdminAC:
++        ["0x892bb7EeD71efB060ab90140e7825d8127991DD3"]
++++ severity: HIGH
+      values.isPaused_BLOB_SUBMISSION:
++        false
++++ severity: HIGH
+      values.isPaused_CALLDATA_SUBMISSION:
++        false
++++ severity: HIGH
+      values.isPaused_COMPLETE_TOKEN_BRIDGING:
++        false
++++ severity: HIGH
+      values.isPaused_FINALIZATION:
++        false
++++ severity: HIGH
+      values.isPaused_GENERAL:
++        false
++++ severity: HIGH
+      values.isPaused_INITIATE_TOKEN_BRIDGING:
++        false
++++ severity: HIGH
+      values.isPaused_L1_L2:
++        false
++++ severity: HIGH
+      values.isPaused_L2_L1:
++        false
+      fieldMeta:
++        {"isPaused_GENERAL":{"severity":"HIGH"},"isPaused_L1_L2":{"severity":"HIGH"},"isPaused_L2_L1":{"severity":"HIGH"},"isPaused_BLOB_SUBMISSION":{"severity":"HIGH"},"isPaused_CALLDATA_SUBMISSION":{"severity":"HIGH"},"isPaused_FINALIZATION":{"severity":"HIGH"},"isPaused_INITIATE_TOKEN_BRIDGING":{"severity":"HIGH"},"isPaused_COMPLETE_TOKEN_BRIDGING":{"severity":"HIGH"}}
+    }
+```
+
+```diff
+    contract CallForwardingProxy (0x3697bD0bC6C050135b8321F989a5316eACbF367D) {
+    +++ description: A public proxy contract forwarding calls to a predefined target contract (0xd19d4B5d358258f05D7B411E21A1460D11B0876F). Can be called by any address.
+      description:
+-        "A proxy contract forwarding calls to a predefined (immutable) target contract."
++        "A public proxy contract forwarding calls to a predefined target contract (0xd19d4B5d358258f05D7B411E21A1460D11B0876F). Can be called by any address."
+      template:
++        "linea/CallForwardingProxy"
+      receivedPermissions:
++        [{"permission":"interact","from":"0xd19d4B5d358258f05D7B411E21A1460D11B0876F","description":"submit and finalize blocks as the Operator role when 6 months of no finalizations have passed."}]
+    }
+```
+
+```diff
+    contract BridgedToken (0x36f274C1C197F277EA3C57859729398FCc8a3763) {
+    +++ description: Standard implementation used for assets that are native to the Linea L2 and bridged back to ethereum.
+      template:
++        "linea/BridgedToken"
+      description:
++        "Standard implementation used for assets that are native to the Linea L2 and bridged back to ethereum."
+    }
+```
+
+```diff
+-   Status: DELETED
+    contract USDCBridgeProxyAdmin (0x41fAD3Df1B07B647D120D055259E474fE8046eb5)
+    +++ description: None
+```
+
+```diff
+    contract undefined (0x453B3A4b4d64B4E6f472A306c3D4Fc318C34bbA8) {
+    +++ description: None
+      receivedPermissions:
++        [{"permission":"interact","from":"0xF24f1DC519d88246809B660eb56D94048575d083","description":"pause the TokenBridge, the USDCBridge and the core functionalities of the system (via Roles module, LineaRollup contract)."}]
+    }
+```
+
+```diff
+-   Status: DELETED
+    contract USDCBridge (0x504A330327A089d8364C4ab3811Ee26976d388ce)
+    +++ description: None
+```
+
+```diff
+    contract Linea Multisig (0x892bb7EeD71efB060ab90140e7825d8127991DD3) {
+    +++ description: None
+      receivedPermissions.8:
++        {"permission":"interact","from":"0xd6B95c960779c72B8C6752119849318E5d550574","description":"execute transactions that are ready."}
+      receivedPermissions.7:
++        {"permission":"interact","from":"0x971f46a2852d11D59dbF0909e837cfd06f357DeB","description":"change the beacon implementation."}
+      receivedPermissions.6:
++        {"permission":"interact","from":"0xd19d4B5d358258f05D7B411E21A1460D11B0876F","description":"manage all critical access control roles and permissions (full admin of the rollup system)."}
+      receivedPermissions.5.description:
+-        "execute transactions that are ready."
++        "propose transactions."
+      receivedPermissions.4.permission:
+-        "interact"
++        "upgrade"
+      receivedPermissions.4.from:
+-        "0xd6B95c960779c72B8C6752119849318E5d550574"
++        "0xd19d4B5d358258f05D7B411E21A1460D11B0876F"
+      receivedPermissions.4.description:
+-        "propose transactions."
+      receivedPermissions.4.via:
++        [{"address":"0xd6B95c960779c72B8C6752119849318E5d550574"},{"address":"0xF5058616517C068C7b8c7EbC69FF636Ade9066d6"}]
+      receivedPermissions.3.from:
+-        "0xd19d4B5d358258f05D7B411E21A1460D11B0876F"
++        "0x051F1D88f0aF5763fB888eC4378b4D8B29ea3319"
+      receivedPermissions.2.permission:
+-        "upgrade"
++        "interact"
+      receivedPermissions.2.from:
+-        "0x051F1D88f0aF5763fB888eC4378b4D8B29ea3319"
++        "0xd6B95c960779c72B8C6752119849318E5d550574"
+      receivedPermissions.2.via:
+-        [{"address":"0xF5058616517C068C7b8c7EbC69FF636Ade9066d6"},{"address":"0xd6B95c960779c72B8C6752119849318E5d550574"}]
+      receivedPermissions.2.description:
++        "cancel queued transactions."
+      receivedPermissions.1.from:
+-        "0xd6B95c960779c72B8C6752119849318E5d550574"
++        "0x051F1D88f0aF5763fB888eC4378b4D8B29ea3319"
+      receivedPermissions.1.description:
+-        "cancel queued transactions."
++        "manage all critical access control roles and permissions (full admin of the main bridge escrow)."
+    }
+```
+
+```diff
+    contract UpgradeableBeacon (0x971f46a2852d11D59dbF0909e837cfd06f357DeB) {
+    +++ description: A beacon with an upgradeable implementation currently set as 0x36f274C1C197F277EA3C57859729398FCc8a3763. Beacon proxy contracts pointing to this beacon will all use its implementation.
+      name:
+-        "ERC20UpgradableBeacon"
++        "UpgradeableBeacon"
+      template:
++        "global/UpgradeableBeacon"
+      description:
++        "A beacon with an upgradeable implementation currently set as 0x36f274C1C197F277EA3C57859729398FCc8a3763. Beacon proxy contracts pointing to this beacon will all use its implementation."
+      issuedPermissions:
++        [{"permission":"interact","to":"0x892bb7EeD71efB060ab90140e7825d8127991DD3","description":"change the beacon implementation.","via":[]},{"permission":"interact","to":"0xF24f1DC519d88246809B660eb56D94048575d083","description":"change the beacon implementation.","via":[{"address":"0x892bb7EeD71efB060ab90140e7825d8127991DD3"}]}]
+    }
+```
+
+```diff
+-   Status: DELETED
+    contract MultiSend (0xA238CBeb142c10Ef7Ad8442C6D1f9E89e07e7761)
+    +++ description: None
+```
+
+```diff
+    contract PlonkVerifierForMultiTypeDataAggregation (0xBfF4a03A355eEF7dA720bBC7878F9BdBBE81fe6F) {
+    +++ description: Smart contract used to verify the proofs of Linea zkEVM execution.
+      name:
+-        "VerifierProofType3"
++        "PlonkVerifierForMultiTypeDataAggregation"
+      template:
++        "linea/PlonkVerifierForMultiTypeDataAggregation"
+      description:
++        "Smart contract used to verify the proofs of Linea zkEVM execution."
+    }
+```
+
+```diff
+    contract LineaRollup (0xd19d4B5d358258f05D7B411E21A1460D11B0876F) {
+    +++ description: The main contract of the Linea zkEVM rollup. Contains state roots, the verifier addresses and manages messages between L1 and the L2.
+      issuedPermissions.6:
++        {"permission":"interact","to":"0xF24f1DC519d88246809B660eb56D94048575d083","description":"manage all critical access control roles and permissions (full admin of the rollup system).","via":[{"address":"0x892bb7EeD71efB060ab90140e7825d8127991DD3"}]}
+      issuedPermissions.5:
++        {"permission":"upgrade","to":"0xF24f1DC519d88246809B660eb56D94048575d083","via":[{"address":"0xd6B95c960779c72B8C6752119849318E5d550574"},{"address":"0xF5058616517C068C7b8c7EbC69FF636Ade9066d6"},{"address":"0x892bb7EeD71efB060ab90140e7825d8127991DD3"}]}
+      issuedPermissions.4:
++        {"permission":"interact","to":"0x3697bD0bC6C050135b8321F989a5316eACbF367D","description":"submit and finalize blocks as the Operator role when 6 months of no finalizations have passed.","via":[]}
+      issuedPermissions.3.to:
+-        "0xF24f1DC519d88246809B660eb56D94048575d083"
++        "0x892bb7EeD71efB060ab90140e7825d8127991DD3"
+      issuedPermissions.3.via.2:
+-        {"address":"0x892bb7EeD71efB060ab90140e7825d8127991DD3"}
+      issuedPermissions.2.permission:
+-        "upgrade"
++        "interact"
+      issuedPermissions.2.via.1:
+-        {"address":"0xF5058616517C068C7b8c7EbC69FF636Ade9066d6"}
+      issuedPermissions.2.via.0:
+-        {"address":"0xd6B95c960779c72B8C6752119849318E5d550574"}
+      issuedPermissions.2.description:
++        "manage all critical access control roles and permissions (full admin of the rollup system)."
+      values.defaultAdminAC:
++        ["0x892bb7EeD71efB060ab90140e7825d8127991DD3"]
+      fieldMeta.isPaused_GENERAL:
++        {"severity":"HIGH"}
+      fieldMeta.isPaused_L1_L2:
++        {"severity":"HIGH"}
+      fieldMeta.isPaused_L2_L1:
++        {"severity":"HIGH"}
+      fieldMeta.isPaused_BLOB_SUBMISSION:
++        {"severity":"HIGH"}
+      fieldMeta.isPaused_CALLDATA_SUBMISSION:
++        {"severity":"HIGH"}
+      fieldMeta.isPaused_FINALIZATION:
++        {"severity":"HIGH"}
+      fieldMeta.isPaused_INITIATE_TOKEN_BRIDGING:
++        {"severity":"HIGH"}
+      fieldMeta.isPaused_COMPLETE_TOKEN_BRIDGING:
++        {"severity":"HIGH"}
+    }
+```
+
+```diff
+    contract L1Timelock (0xd6B95c960779c72B8C6752119849318E5d550574) {
+    +++ description: A standard timelock with access control. The current minimum delay is 0s.
+      name:
+-        "Timelock"
++        "L1Timelock"
+    }
+```
+
+```diff
+    contract Roles (0xF24f1DC519d88246809B660eb56D94048575d083) {
+    +++ description: The Zodiac 'Roles' module for Safe multisigs allows defining roles that can call preconfigured targets on behalf of the Gnosis Safe.
+      description:
+-        "The Zodiac roles module for Safe multisigs allows defining roles that are allowed to call preconfigured targets on behalf of the Gnosis Safe."
++        "The Zodiac 'Roles' module for Safe multisigs allows defining roles that can call preconfigured targets on behalf of the Gnosis Safe."
+      receivedPermissions.8:
++        {"permission":"interact","from":"0xd6B95c960779c72B8C6752119849318E5d550574","description":"execute transactions that are ready.","via":[{"address":"0x892bb7EeD71efB060ab90140e7825d8127991DD3"}]}
+      receivedPermissions.7:
++        {"permission":"interact","from":"0x971f46a2852d11D59dbF0909e837cfd06f357DeB","description":"change the beacon implementation.","via":[{"address":"0x892bb7EeD71efB060ab90140e7825d8127991DD3"}]}
+      receivedPermissions.6:
++        {"permission":"interact","from":"0xd19d4B5d358258f05D7B411E21A1460D11B0876F","description":"manage all critical access control roles and permissions (full admin of the rollup system).","via":[{"address":"0x892bb7EeD71efB060ab90140e7825d8127991DD3"}]}
+      receivedPermissions.5.description:
+-        "execute transactions that are ready."
++        "propose transactions."
+      receivedPermissions.4.description:
+-        "propose transactions."
++        "cancel queued transactions."
+      receivedPermissions.3.from:
+-        "0xd6B95c960779c72B8C6752119849318E5d550574"
++        "0x051F1D88f0aF5763fB888eC4378b4D8B29ea3319"
+      receivedPermissions.3.description:
+-        "cancel queued transactions."
++        "manage all critical access control roles and permissions (full admin of the main bridge escrow)."
+      values.pausers:
++        "0x453B3A4b4d64B4E6f472A306c3D4Fc318C34bbA8"
+      template:
++        "linea/Roles"
+      issuedPermissions:
++        [{"permission":"interact","to":"0x453B3A4b4d64B4E6f472A306c3D4Fc318C34bbA8","description":"pause the TokenBridge, the USDCBridge and the core functionalities of the system (via Roles module, LineaRollup contract).","via":[]}]
+    }
+```
+
+Generated with discovered.json: 0xd68ff1f87cc1128bfa6bc1657cd80fb02545ec7f
+
+# Diff at Thu, 10 Apr 2025 14:42:40 GMT:
+
+- author: Mateusz Radomski (<radomski.main@protonmail.com>)
+- comparing to: main@f38a3c9bf359344e4c4cd3006f58271cb8f78d15 block: 22073290
+- current block number: 22073290
+
+## Description
+
+Discovery rerun on the same block number with only config-related changes.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 22073290 (main branch discovery), not current.
+
+```diff
+    contract Timelock (0xd6B95c960779c72B8C6752119849318E5d550574) {
+    +++ description: A standard timelock with access control. The current minimum delay is 0s.
+      displayName:
+-        "L1Timelock"
+    }
+```
+
 Generated with discovered.json: 0x03420feeee1ba43cd09c3c31108e3f6f457358ba
 
 # Diff at Tue, 18 Mar 2025 10:53:25 GMT:

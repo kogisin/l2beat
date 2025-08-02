@@ -1,12 +1,12 @@
 {
   "name": "ink",
   "chain": "ink",
-  "blockNumber": 8196210,
-  "configHash": "0x4283f030ac4559e0564ed4abe11c7a838b4d903da9aaa8057a83d58cebb376b0",
+  "timestamp": 1753451063,
+  "configHash": "0xfdc50e0778d45fc82c11edae6753f8ef8050be79a7b1a1eb6b85d20682c4aa95",
   "entries": [
     {
       "name": "L2CrossDomainMessenger",
-      "address": "0x4200000000000000000000000000000000000007",
+      "address": "ink:0x4200000000000000000000000000000000000007",
       "type": "Contract",
       "template": "opstack/Layer2/L2CrossDomainMessenger",
       "sourceHashes": [
@@ -15,29 +15,22 @@
       ],
       "proxyType": "EIP1967 proxy",
       "description": "The L2CrossDomainMessenger (L2xDM) contract sends messages from L2 to L1, and relays messages from L1 onto L2 with a system tx. In the event that a message sent from L2 to L1 is rejected for exceeding the L1 gas limit, it can be resubmitted via this contract’s replay function.",
-      "issuedPermissions": [
-        {
-          "permission": "upgrade",
-          "to": "0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b",
-          "via": [{ "address": "0x4200000000000000000000000000000000000018" }]
-        }
-      ],
       "ignoreInWatchMode": ["messageNonce"],
       "sinceTimestamp": 1733498412,
       "sinceBlock": 0,
       "values": {
-        "$admin": "0x4200000000000000000000000000000000000018",
-        "$implementation": "0xC0d3c0d3c0D3c0D3C0d3C0D3C0D3c0d3c0d30007",
+        "$admin": "ink:0x4200000000000000000000000000000000000018",
+        "$implementation": "ink:0xC0d3c0d3c0D3c0D3C0d3C0D3C0D3c0d3c0d30007",
         "$pastUpgrades": [],
         "$upgradeCount": 0,
-        "l1CrossDomainMessenger": "0x69d3Cf86B2Bf1a9e99875B7e2D9B6a84426c171f",
+        "l1CrossDomainMessenger": "ink:0x69d3Cf86B2Bf1a9e99875B7e2D9B6a84426c171f",
         "MESSAGE_VERSION": 1,
-        "messageNonce": "1766847064778384329583297500742918515827483896875618958121606201292620824",
+        "messageNonce": "1766847064778384329583297500742918515827483896875618958121606201292620900",
         "MIN_GAS_CALLDATA_OVERHEAD": 16,
         "MIN_GAS_DYNAMIC_OVERHEAD_DENOMINATOR": 63,
         "MIN_GAS_DYNAMIC_OVERHEAD_NUMERATOR": 64,
-        "OTHER_MESSENGER": "0x69d3Cf86B2Bf1a9e99875B7e2D9B6a84426c171f",
-        "otherMessenger": "0x69d3Cf86B2Bf1a9e99875B7e2D9B6a84426c171f",
+        "OTHER_MESSENGER": "ink:0x69d3Cf86B2Bf1a9e99875B7e2D9B6a84426c171f",
+        "otherMessenger": "ink:0x69d3Cf86B2Bf1a9e99875B7e2D9B6a84426c171f",
         "paused": false,
         "RELAY_CALL_OVERHEAD": 40000,
         "RELAY_CONSTANT_OVERHEAD": 200000,
@@ -45,51 +38,57 @@
         "RELAY_RESERVED_GAS": 40000,
         "version": "2.1.1-beta.1"
       },
-      "derivedName": "L2CrossDomainMessenger"
+      "implementationNames": {
+        "ink:0x4200000000000000000000000000000000000007": "Proxy",
+        "ink:0xC0d3c0d3c0D3c0D3C0d3C0D3C0D3c0d3c0d30007": "L2CrossDomainMessenger"
+      }
     },
     {
       "name": "GasPriceOracle",
-      "address": "0x420000000000000000000000000000000000000F",
+      "address": "ink:0x420000000000000000000000000000000000000F",
       "type": "Contract",
       "template": "opstack/Layer2/GasPriceOracle",
       "sourceHashes": [
         "0x7913a1d7d0c47796c94eb6f8fd87a89ae9f2716eda57c9be4fd2b27c70bed617",
-        "0x6e5bd465cdf07c7fc7de194833be336109be5aceaeb509643962096c772ec26a"
+        "0xa6ae4f0695335983b644f1524c759f3178ee95c406e1e905b8cbccf5763af43a"
       ],
       "proxyType": "EIP1967 proxy",
       "description": "Provides the current gas price for L2 transactions.",
-      "issuedPermissions": [
-        {
-          "permission": "upgrade",
-          "to": "0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b",
-          "via": [{ "address": "0x4200000000000000000000000000000000000018" }]
-        }
-      ],
       "ignoreInWatchMode": ["l1BaseFee", "blobBaseFee"],
       "sinceTimestamp": 1733498412,
       "sinceBlock": 0,
       "values": {
-        "$admin": "0x4200000000000000000000000000000000000018",
-        "$implementation": "0xc0d3C0d3C0d3c0D3C0D3C0d3C0d3C0D3C0D3000f",
-        "$pastUpgrades": [],
-        "$upgradeCount": 0,
+        "$admin": "ink:0x4200000000000000000000000000000000000018",
+        "$implementation": "ink:0x93e57A196454CB919193fa9946f14943cf733845",
+        "$pastUpgrades": [
+          [
+            "2025-05-09T16:00:01.000Z",
+            "0xb6560306ccb0e772b132a8a6dd78244c0d7ac270c80baba40f95006184926c30",
+            ["ink:0x93e57A196454CB919193fa9946f14943cf733845"]
+          ]
+        ],
+        "$upgradeCount": 1,
         "baseFee": 0,
-        "baseFeeScalar": 1368,
-        "blobBaseFee": 1550258919,
-        "blobBaseFeeScalar": 810949,
+        "baseFeeScalar": 4424,
+        "blobBaseFee": 1,
+        "blobBaseFeeScalar": 810831,
         "decimals": 6,
         "DECIMALS": 6,
         "gasPrice": 0,
         "isEcotone": true,
         "isFjord": true,
-        "l1BaseFee": 608315528,
-        "version": "1.3.1-beta.1"
+        "isIsthmus": true,
+        "l1BaseFee": 971360633,
+        "version": "1.4.0"
       },
-      "derivedName": "GasPriceOracle"
+      "implementationNames": {
+        "ink:0x420000000000000000000000000000000000000F": "Proxy",
+        "ink:0x93e57A196454CB919193fa9946f14943cf733845": "GasPriceOracle"
+      }
     },
     {
       "name": "L2StandardBridge",
-      "address": "0x4200000000000000000000000000000000000010",
+      "address": "ink:0x4200000000000000000000000000000000000010",
       "type": "Contract",
       "template": "opstack/Layer2/L2StandardBridge",
       "sourceHashes": [
@@ -98,33 +97,29 @@
       ],
       "proxyType": "EIP1967 proxy",
       "description": "The L2StandardBridge contract is the main entry point to deposit or withdraw ERC20 tokens from L2 to L1. This contract can store any token.",
-      "issuedPermissions": [
-        {
-          "permission": "upgrade",
-          "to": "0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b",
-          "via": [{ "address": "0x4200000000000000000000000000000000000018" }]
-        }
-      ],
       "sinceTimestamp": 1733498412,
       "sinceBlock": 0,
       "values": {
-        "$admin": "0x4200000000000000000000000000000000000018",
-        "$implementation": "0xC0d3c0d3c0D3c0d3C0D3c0D3C0d3C0D3C0D30010",
+        "$admin": "ink:0x4200000000000000000000000000000000000018",
+        "$implementation": "ink:0xC0d3c0d3c0D3c0d3C0D3c0D3C0d3C0D3C0D30010",
         "$pastUpgrades": [],
         "$upgradeCount": 0,
-        "l1TokenBridge": "0x88FF1e5b602916615391F55854588EFcBB7663f0",
-        "messenger": "0x4200000000000000000000000000000000000007",
-        "MESSENGER": "0x4200000000000000000000000000000000000007",
-        "OTHER_BRIDGE": "0x88FF1e5b602916615391F55854588EFcBB7663f0",
-        "otherBridge": "0x88FF1e5b602916615391F55854588EFcBB7663f0",
+        "l1TokenBridge": "ink:0x88FF1e5b602916615391F55854588EFcBB7663f0",
+        "messenger": "ink:0x4200000000000000000000000000000000000007",
+        "MESSENGER": "ink:0x4200000000000000000000000000000000000007",
+        "OTHER_BRIDGE": "ink:0x88FF1e5b602916615391F55854588EFcBB7663f0",
+        "otherBridge": "ink:0x88FF1e5b602916615391F55854588EFcBB7663f0",
         "paused": false,
         "version": "1.11.1-beta.1"
       },
-      "derivedName": "L2StandardBridge"
+      "implementationNames": {
+        "ink:0x4200000000000000000000000000000000000010": "Proxy",
+        "ink:0xC0d3c0d3c0D3c0d3C0D3c0D3C0d3C0D3C0D30010": "L2StandardBridge"
+      }
     },
     {
       "name": "SequencerFeeVault",
-      "address": "0x4200000000000000000000000000000000000011",
+      "address": "ink:0x4200000000000000000000000000000000000011",
       "type": "Contract",
       "template": "opstack/Layer2/SequencerFeeVault",
       "sourceHashes": [
@@ -133,34 +128,30 @@
       ],
       "proxyType": "EIP1967 proxy",
       "description": "Collects the sequencer fees, which are withdrawable to the FeesCollector on L1.",
-      "issuedPermissions": [
-        {
-          "permission": "upgrade",
-          "to": "0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b",
-          "via": [{ "address": "0x4200000000000000000000000000000000000018" }]
-        }
-      ],
       "sinceTimestamp": 1733498412,
       "sinceBlock": 0,
       "values": {
-        "$admin": "0x4200000000000000000000000000000000000018",
-        "$implementation": "0xC0D3C0d3c0d3c0d3C0D3c0d3C0D3c0d3c0D30011",
+        "$admin": "ink:0x4200000000000000000000000000000000000018",
+        "$implementation": "ink:0xC0D3C0d3c0d3c0d3C0D3c0d3C0D3c0d3c0D30011",
         "$pastUpgrades": [],
         "$upgradeCount": 0,
-        "l1FeeWallet": "0xa6f0F94C13C4255231958079E7331694205F6c93",
+        "l1FeeWallet": "ink:0xa6f0F94C13C4255231958079E7331694205F6c93",
         "MIN_WITHDRAWAL_AMOUNT": "2000000000000000000",
         "minWithdrawalAmount": "2000000000000000000",
-        "recipient": "0xa6f0F94C13C4255231958079E7331694205F6c93",
-        "RECIPIENT": "0xa6f0F94C13C4255231958079E7331694205F6c93",
+        "recipient": "ink:0xa6f0F94C13C4255231958079E7331694205F6c93",
+        "RECIPIENT": "ink:0xa6f0F94C13C4255231958079E7331694205F6c93",
         "version": "1.5.0-beta.2",
         "WITHDRAWAL_NETWORK": 0,
         "withdrawalNetwork": 0
       },
-      "derivedName": "SequencerFeeVault"
+      "implementationNames": {
+        "ink:0x4200000000000000000000000000000000000011": "Proxy",
+        "ink:0xC0D3C0d3c0d3c0d3C0D3c0d3C0D3c0d3c0D30011": "SequencerFeeVault"
+      }
     },
     {
       "name": "OptimismMintableERC20Factory",
-      "address": "0x4200000000000000000000000000000000000012",
+      "address": "ink:0x4200000000000000000000000000000000000012",
       "type": "Contract",
       "template": "opstack/Layer2/OptimismMintableERC20Factory",
       "sourceHashes": [
@@ -169,29 +160,25 @@
       ],
       "proxyType": "EIP1967 proxy",
       "description": "Factory contract to create bridge compliant ERC20 IOU token representations of bridged L1 ERC20 tokens.",
-      "issuedPermissions": [
-        {
-          "permission": "upgrade",
-          "to": "0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b",
-          "via": [{ "address": "0x4200000000000000000000000000000000000018" }]
-        }
-      ],
       "sinceTimestamp": 1733498412,
       "sinceBlock": 0,
       "values": {
-        "$admin": "0x4200000000000000000000000000000000000018",
-        "$implementation": "0xc0D3c0d3C0d3c0d3c0D3c0d3c0D3c0D3c0D30012",
+        "$admin": "ink:0x4200000000000000000000000000000000000018",
+        "$implementation": "ink:0xc0D3c0d3C0d3c0d3c0D3c0d3c0D3c0D3c0D30012",
         "$pastUpgrades": [],
         "$upgradeCount": 0,
-        "bridge": "0x4200000000000000000000000000000000000010",
-        "BRIDGE": "0x4200000000000000000000000000000000000010",
+        "bridge": "ink:0x4200000000000000000000000000000000000010",
+        "BRIDGE": "ink:0x4200000000000000000000000000000000000010",
         "version": "1.10.1-beta.2"
       },
-      "derivedName": "OptimismMintableERC20Factory"
+      "implementationNames": {
+        "ink:0x4200000000000000000000000000000000000012": "Proxy",
+        "ink:0xc0D3c0d3C0d3c0d3c0D3c0d3c0D3c0D3c0D30012": "OptimismMintableERC20Factory"
+      }
     },
     {
       "name": "L1BlockNumber",
-      "address": "0x4200000000000000000000000000000000000013",
+      "address": "ink:0x4200000000000000000000000000000000000013",
       "type": "Contract",
       "template": "opstack/Layer2/L1BlockNumber",
       "sourceHashes": [
@@ -200,27 +187,23 @@
       ],
       "proxyType": "EIP1967 proxy",
       "description": "Simple contract that returns the latest L1 block number.",
-      "issuedPermissions": [
-        {
-          "permission": "upgrade",
-          "to": "0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b",
-          "via": [{ "address": "0x4200000000000000000000000000000000000018" }]
-        }
-      ],
       "sinceTimestamp": 1733498412,
       "sinceBlock": 0,
       "values": {
-        "$admin": "0x4200000000000000000000000000000000000018",
-        "$implementation": "0xC0D3C0d3C0D3c0D3C0d3c0D3C0d3c0d3C0d30013",
+        "$admin": "ink:0x4200000000000000000000000000000000000018",
+        "$implementation": "ink:0xC0D3C0d3C0D3c0D3C0d3c0D3C0d3c0d3C0d30013",
         "$pastUpgrades": [],
         "$upgradeCount": 0,
         "version": "1.1.1-beta.1"
       },
-      "derivedName": "L1BlockNumber"
+      "implementationNames": {
+        "ink:0x4200000000000000000000000000000000000013": "Proxy",
+        "ink:0xC0D3C0d3C0D3c0D3C0d3c0D3C0d3c0d3C0d30013": "L1BlockNumber"
+      }
     },
     {
       "name": "L2ERC721Bridge",
-      "address": "0x4200000000000000000000000000000000000014",
+      "address": "ink:0x4200000000000000000000000000000000000014",
       "type": "Contract",
       "template": "opstack/Layer2/L2ERC721Bridge",
       "sourceHashes": [
@@ -229,88 +212,90 @@
       ],
       "proxyType": "EIP1967 proxy",
       "description": "The L2ERC721Bridge contract is the main entry point to deposit or withdraw ERC721 tokens from L2 to L1. This contract can store any token.",
-      "issuedPermissions": [
-        {
-          "permission": "upgrade",
-          "to": "0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b",
-          "via": [{ "address": "0x4200000000000000000000000000000000000018" }]
-        }
-      ],
       "sinceTimestamp": 1733498412,
       "sinceBlock": 0,
       "values": {
-        "$admin": "0x4200000000000000000000000000000000000018",
-        "$implementation": "0xC0D3c0d3c0d3c0d3c0D3C0d3C0D3C0D3c0d30014",
+        "$admin": "ink:0x4200000000000000000000000000000000000018",
+        "$implementation": "ink:0xC0D3c0d3c0d3c0d3c0D3C0d3C0D3C0D3c0d30014",
         "$pastUpgrades": [],
         "$upgradeCount": 0,
-        "messenger": "0x4200000000000000000000000000000000000007",
-        "MESSENGER": "0x4200000000000000000000000000000000000007",
-        "OTHER_BRIDGE": "0x661235a238B11191211fa95D4Dd9E423d521E0Be",
-        "otherBridge": "0x661235a238B11191211fa95D4Dd9E423d521E0Be",
+        "messenger": "ink:0x4200000000000000000000000000000000000007",
+        "MESSENGER": "ink:0x4200000000000000000000000000000000000007",
+        "OTHER_BRIDGE": "ink:0x661235a238B11191211fa95D4Dd9E423d521E0Be",
+        "otherBridge": "ink:0x661235a238B11191211fa95D4Dd9E423d521E0Be",
         "paused": false,
         "version": "1.7.1-beta.2"
       },
-      "derivedName": "L2ERC721Bridge"
+      "implementationNames": {
+        "ink:0x4200000000000000000000000000000000000014": "Proxy",
+        "ink:0xC0D3c0d3c0d3c0d3c0D3C0d3C0D3C0D3c0d30014": "L2ERC721Bridge"
+      }
     },
     {
       "name": "L1Block",
-      "address": "0x4200000000000000000000000000000000000015",
+      "address": "ink:0x4200000000000000000000000000000000000015",
       "type": "Contract",
       "template": "opstack/Layer2/L1Block",
       "sourceHashes": [
         "0x6a90057e0a817ce81f9ed4b565f5efdbf1ebf76d5f59f3ce62f2994455e8199d",
-        "0x936b7b7eb2a88a64e3eceaf897abfa2dc6e48b4c75eba2da34ff927b98413b6b"
+        "0xb3745d52050d9a2c6bfa6e6e091bdfa43e7c87a22542aa276d323a29431ec108"
       ],
       "proxyType": "EIP1967 proxy",
       "description": "Simple contract that returns information about the latest L1 block, which is derived permissionlessly from the L1 chain.",
-      "issuedPermissions": [
-        {
-          "permission": "upgrade",
-          "to": "0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b",
-          "via": [{ "address": "0x4200000000000000000000000000000000000018" }]
-        }
-      ],
       "ignoreInWatchMode": [
         "basefee",
         "hash",
         "number",
         "timestamp",
         "sequenceNumber",
-        "blobBaseFee"
+        "blobBaseFee",
+        "operatorFeeConstant",
+        "operatorFeeScalar"
       ],
       "sinceTimestamp": 1733498412,
       "sinceBlock": 0,
       "values": {
-        "$admin": "0x4200000000000000000000000000000000000018",
-        "$implementation": "0xc0d3C0D3C0D3c0D3C0D3C0d3C0D3c0D3c0d30015",
-        "$pastUpgrades": [],
-        "$upgradeCount": 0,
-        "basefee": 608315528,
-        "baseFeeScalar": 1368,
+        "$admin": "ink:0x4200000000000000000000000000000000000018",
+        "$implementation": "ink:0xFf256497D61dcd71a9e9Ff43967C13fdE1F72D12",
+        "$pastUpgrades": [
+          [
+            "2025-05-09T16:00:01.000Z",
+            "0xe992e00998b34075506d2726a274db07a62af6cdd9d527bfda9128114603cfbd",
+            ["ink:0xFf256497D61dcd71a9e9Ff43967C13fdE1F72D12"]
+          ]
+        ],
+        "$upgradeCount": 1,
+        "basefee": 971360633,
+        "baseFeeScalar": 4424,
         "batcherHash": "0x000000000000000000000000500d7ea63cf2e501dadaa5feec1fc19fe2aa72ac",
-        "blobBaseFee": 1550258919,
-        "blobBaseFeeScalar": 810949,
-        "DEPOSITOR_ACCOUNT": "0xDeaDDEaDDeAdDeAdDEAdDEaddeAddEAdDEAd0001",
+        "blobBaseFee": 1,
+        "blobBaseFeeScalar": 810831,
+        "DEPOSITOR_ACCOUNT": "ink:0xDeaDDEaDDeAdDeAdDEAdDEaddeAddEAdDEAd0001",
         "gasPayingToken": {
-          "addr_": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+          "addr_": "ink:0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
           "decimals_": 18
         },
         "gasPayingTokenName": "Ether",
         "gasPayingTokenSymbol": "ETH",
-        "hash": "0xedac88464ef9cbf3472b017b5c9731863949a57f7747d91670275ad62f3ff32c",
+        "hash": "0x47d76cb8bd6702433acf0a609d1868fa5a14a7c1e29f1f00103aec8bd5fc7284",
         "isCustomGasToken": false,
         "l1FeeOverhead": 0,
         "l1FeeScalar": 0,
-        "number": 22023498,
-        "sequenceNumber": 2,
-        "timestamp": 1741694555,
-        "version": "1.5.1-beta.1"
+        "number": 22996530,
+        "operatorFeeConstant": 0,
+        "operatorFeeScalar": 0,
+        "sequenceNumber": 8,
+        "timestamp": 1753450991,
+        "version": "1.6.0"
       },
-      "derivedName": "L1Block"
+      "implementationNames": {
+        "ink:0x4200000000000000000000000000000000000015": "Proxy",
+        "ink:0xFf256497D61dcd71a9e9Ff43967C13fdE1F72D12": "L1Block"
+      }
     },
     {
       "name": "L2ToL1MessagePasser",
-      "address": "0x4200000000000000000000000000000000000016",
+      "address": "ink:0x4200000000000000000000000000000000000016",
       "type": "Contract",
       "template": "opstack/Layer2/L2ToL1MessagePasser",
       "sourceHashes": [
@@ -319,28 +304,24 @@
       ],
       "proxyType": "EIP1967 proxy",
       "description": "Contract used internally by the L2CrossDomainMessenger to send messages to L1, including withdrawals. It can also be used directly as a low-level interface.",
-      "issuedPermissions": [
-        {
-          "permission": "upgrade",
-          "to": "0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b",
-          "via": [{ "address": "0x4200000000000000000000000000000000000018" }]
-        }
-      ],
       "sinceTimestamp": 1733498412,
       "sinceBlock": 0,
       "values": {
-        "$admin": "0x4200000000000000000000000000000000000018",
-        "$implementation": "0xC0D3C0d3C0d3c0d3C0d3C0D3c0D3c0d3c0D30016",
+        "$admin": "ink:0x4200000000000000000000000000000000000018",
+        "$implementation": "ink:0xC0D3C0d3C0d3c0d3C0d3C0D3c0D3c0d3c0D30016",
         "$pastUpgrades": [],
         "$upgradeCount": 0,
         "MESSAGE_VERSION": 1,
         "version": "1.1.1-beta.1"
       },
-      "derivedName": "L2ToL1MessagePasser"
+      "implementationNames": {
+        "ink:0x4200000000000000000000000000000000000016": "Proxy",
+        "ink:0xC0D3C0d3C0d3c0d3C0d3C0D3c0D3c0d3c0D30016": "L2ToL1MessagePasser"
+      }
     },
     {
       "name": "OptimismMintableERC721Factory",
-      "address": "0x4200000000000000000000000000000000000017",
+      "address": "ink:0x4200000000000000000000000000000000000017",
       "type": "Contract",
       "template": "opstack/Layer2/OptimismMintableERC721Factory",
       "sourceHashes": [
@@ -349,29 +330,25 @@
       ],
       "proxyType": "EIP1967 proxy",
       "description": "Factory contract to create bridge compliant ERC721 IOU token representations of bridged L1 ERC721 tokens.",
-      "issuedPermissions": [
-        {
-          "permission": "upgrade",
-          "to": "0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b",
-          "via": [{ "address": "0x4200000000000000000000000000000000000018" }]
-        }
-      ],
       "sinceTimestamp": 1733498412,
       "sinceBlock": 0,
       "values": {
-        "$admin": "0x4200000000000000000000000000000000000018",
-        "$implementation": "0xc0d3C0d3C0d3C0d3C0d3c0d3C0D3C0d3C0D30017",
+        "$admin": "ink:0x4200000000000000000000000000000000000018",
+        "$implementation": "ink:0xc0d3C0d3C0d3C0d3C0d3c0d3C0D3C0d3C0D30017",
         "$pastUpgrades": [],
         "$upgradeCount": 0,
-        "BRIDGE": "0x4200000000000000000000000000000000000014",
+        "BRIDGE": "ink:0x4200000000000000000000000000000000000014",
         "REMOTE_CHAIN_ID": 1,
         "version": "1.4.1-beta.1"
       },
-      "derivedName": "OptimismMintableERC721Factory"
+      "implementationNames": {
+        "ink:0x4200000000000000000000000000000000000017": "Proxy",
+        "ink:0xc0d3C0d3C0d3C0d3C0d3c0d3C0D3C0d3C0D30017": "OptimismMintableERC721Factory"
+      }
     },
     {
       "name": "L2ProxyAdmin",
-      "address": "0x4200000000000000000000000000000000000018",
+      "address": "ink:0x4200000000000000000000000000000000000018",
       "type": "Contract",
       "template": "opstack/Layer2/L2ProxyAdmin",
       "sourceHashes": [
@@ -380,91 +357,102 @@
       ],
       "proxyType": "EIP1967 proxy",
       "description": "Administration contract for other contract proxies.",
-      "issuedPermissions": [
-        {
-          "permission": "upgrade",
-          "to": "0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b",
-          "via": [{ "address": "0x4200000000000000000000000000000000000018" }]
-        }
-      ],
       "directlyReceivedPermissions": [
         {
           "permission": "upgrade",
-          "from": "0x4200000000000000000000000000000000000007"
+          "from": "ink:0x4200000000000000000000000000000000000007",
+          "role": "admin"
         },
         {
           "permission": "upgrade",
-          "from": "0x420000000000000000000000000000000000000F"
+          "from": "ink:0x420000000000000000000000000000000000000F",
+          "role": "admin"
         },
         {
           "permission": "upgrade",
-          "from": "0x4200000000000000000000000000000000000010"
+          "from": "ink:0x4200000000000000000000000000000000000010",
+          "role": "admin"
         },
         {
           "permission": "upgrade",
-          "from": "0x4200000000000000000000000000000000000011"
+          "from": "ink:0x4200000000000000000000000000000000000011",
+          "role": "admin"
         },
         {
           "permission": "upgrade",
-          "from": "0x4200000000000000000000000000000000000012"
+          "from": "ink:0x4200000000000000000000000000000000000012",
+          "role": "admin"
         },
         {
           "permission": "upgrade",
-          "from": "0x4200000000000000000000000000000000000013"
+          "from": "ink:0x4200000000000000000000000000000000000013",
+          "role": "admin"
         },
         {
           "permission": "upgrade",
-          "from": "0x4200000000000000000000000000000000000014"
+          "from": "ink:0x4200000000000000000000000000000000000014",
+          "role": "admin"
         },
         {
           "permission": "upgrade",
-          "from": "0x4200000000000000000000000000000000000015"
+          "from": "ink:0x4200000000000000000000000000000000000015",
+          "role": "admin"
         },
         {
           "permission": "upgrade",
-          "from": "0x4200000000000000000000000000000000000016"
+          "from": "ink:0x4200000000000000000000000000000000000016",
+          "role": "admin"
         },
         {
           "permission": "upgrade",
-          "from": "0x4200000000000000000000000000000000000017"
+          "from": "ink:0x4200000000000000000000000000000000000017",
+          "role": "admin"
         },
         {
           "permission": "upgrade",
-          "from": "0x4200000000000000000000000000000000000018"
+          "from": "ink:0x4200000000000000000000000000000000000018",
+          "role": "admin"
         },
         {
           "permission": "upgrade",
-          "from": "0x4200000000000000000000000000000000000019"
+          "from": "ink:0x4200000000000000000000000000000000000019",
+          "role": "admin"
         },
         {
           "permission": "upgrade",
-          "from": "0x420000000000000000000000000000000000001A"
+          "from": "ink:0x420000000000000000000000000000000000001A",
+          "role": "admin"
         },
         {
           "permission": "upgrade",
-          "from": "0x4200000000000000000000000000000000000020"
+          "from": "ink:0x4200000000000000000000000000000000000020",
+          "role": "admin"
         },
         {
           "permission": "upgrade",
-          "from": "0x4200000000000000000000000000000000000021"
+          "from": "ink:0x4200000000000000000000000000000000000021",
+          "role": "admin"
         }
       ],
       "sinceTimestamp": 1733498412,
       "sinceBlock": 0,
       "values": {
-        "$admin": "0x4200000000000000000000000000000000000018",
-        "$implementation": "0xC0d3C0D3c0d3C0d3c0d3c0D3C0D3C0d3C0D30018",
+        "$admin": "ink:0x4200000000000000000000000000000000000018",
+        "$implementation": "ink:0xC0d3C0D3c0d3C0d3c0d3c0D3C0D3C0d3C0D30018",
         "$pastUpgrades": [],
         "$upgradeCount": 0,
-        "addressManager": "0x0000000000000000000000000000000000000000",
+        "addressManager": "ink:0x0000000000000000000000000000000000000000",
         "isUpgrading": false,
-        "owner": "0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b"
+        "owner": "ink:0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b"
       },
-      "derivedName": "ProxyAdmin"
+      "implementationNames": {
+        "ink:0x4200000000000000000000000000000000000018": "Proxy",
+        "ink:0xC0d3C0D3c0d3C0d3c0d3c0D3C0D3C0d3C0D30018": "ProxyAdmin"
+      }
     },
     {
       "name": "BaseFeeVault",
-      "address": "0x4200000000000000000000000000000000000019",
+      "address": "ink:0x4200000000000000000000000000000000000019",
       "type": "Contract",
       "template": "opstack/Layer2/BaseFeeVault",
       "sourceHashes": [
@@ -473,33 +461,29 @@
       ],
       "proxyType": "EIP1967 proxy",
       "description": "Collects EIP-1559 base fees, which are withdrawable to the FeesCollector on L1.",
-      "issuedPermissions": [
-        {
-          "permission": "upgrade",
-          "to": "0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b",
-          "via": [{ "address": "0x4200000000000000000000000000000000000018" }]
-        }
-      ],
       "sinceTimestamp": 1733498412,
       "sinceBlock": 0,
       "values": {
-        "$admin": "0x4200000000000000000000000000000000000018",
-        "$implementation": "0xC0d3c0D3c0d3C0D3C0D3C0d3c0D3C0D3c0d30019",
+        "$admin": "ink:0x4200000000000000000000000000000000000018",
+        "$implementation": "ink:0xC0d3c0D3c0d3C0D3C0D3C0d3c0D3C0D3c0d30019",
         "$pastUpgrades": [],
         "$upgradeCount": 0,
         "MIN_WITHDRAWAL_AMOUNT": "2000000000000000000",
         "minWithdrawalAmount": "2000000000000000000",
-        "recipient": "0xa6f0F94C13C4255231958079E7331694205F6c93",
-        "RECIPIENT": "0xa6f0F94C13C4255231958079E7331694205F6c93",
+        "recipient": "ink:0xa6f0F94C13C4255231958079E7331694205F6c93",
+        "RECIPIENT": "ink:0xa6f0F94C13C4255231958079E7331694205F6c93",
         "version": "1.5.0-beta.2",
         "WITHDRAWAL_NETWORK": 0,
         "withdrawalNetwork": 0
       },
-      "derivedName": "BaseFeeVault"
+      "implementationNames": {
+        "ink:0x4200000000000000000000000000000000000019": "Proxy",
+        "ink:0xC0d3c0D3c0d3C0D3C0D3C0d3c0D3C0D3c0d30019": "BaseFeeVault"
+      }
     },
     {
       "name": "BaseFeeVault",
-      "address": "0x420000000000000000000000000000000000001A",
+      "address": "ink:0x420000000000000000000000000000000000001A",
       "type": "Contract",
       "template": "opstack/Layer2/BaseFeeVault",
       "sourceHashes": [
@@ -508,33 +492,29 @@
       ],
       "proxyType": "EIP1967 proxy",
       "description": "Collects EIP-1559 base fees, which are withdrawable to the FeesCollector on L1.",
-      "issuedPermissions": [
-        {
-          "permission": "upgrade",
-          "to": "0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b",
-          "via": [{ "address": "0x4200000000000000000000000000000000000018" }]
-        }
-      ],
       "sinceTimestamp": 1733498412,
       "sinceBlock": 0,
       "values": {
-        "$admin": "0x4200000000000000000000000000000000000018",
-        "$implementation": "0xc0D3c0D3C0d3c0d3c0d3C0d3c0d3C0d3C0D3001A",
+        "$admin": "ink:0x4200000000000000000000000000000000000018",
+        "$implementation": "ink:0xc0D3c0D3C0d3c0d3c0d3C0d3c0d3C0d3C0D3001A",
         "$pastUpgrades": [],
         "$upgradeCount": 0,
         "MIN_WITHDRAWAL_AMOUNT": "2000000000000000000",
         "minWithdrawalAmount": "2000000000000000000",
-        "recipient": "0xa6f0F94C13C4255231958079E7331694205F6c93",
-        "RECIPIENT": "0xa6f0F94C13C4255231958079E7331694205F6c93",
+        "recipient": "ink:0xa6f0F94C13C4255231958079E7331694205F6c93",
+        "RECIPIENT": "ink:0xa6f0F94C13C4255231958079E7331694205F6c93",
         "version": "1.5.0-beta.2",
         "WITHDRAWAL_NETWORK": 0,
         "withdrawalNetwork": 0
       },
-      "derivedName": "BaseFeeVault"
+      "implementationNames": {
+        "ink:0x420000000000000000000000000000000000001A": "Proxy",
+        "ink:0xc0D3c0D3C0d3c0d3c0d3C0d3c0d3C0d3C0D3001A": "BaseFeeVault"
+      }
     },
     {
       "name": "SchemaRegistry",
-      "address": "0x4200000000000000000000000000000000000020",
+      "address": "ink:0x4200000000000000000000000000000000000020",
       "type": "Contract",
       "template": "opstack/Layer2/SchemaRegistry",
       "sourceHashes": [
@@ -543,27 +523,23 @@
       ],
       "proxyType": "EIP1967 proxy",
       "description": "Contracts to register schemas for the Ethereum Attestation Service (EAS).",
-      "issuedPermissions": [
-        {
-          "permission": "upgrade",
-          "to": "0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b",
-          "via": [{ "address": "0x4200000000000000000000000000000000000018" }]
-        }
-      ],
       "sinceTimestamp": 1733498412,
       "sinceBlock": 0,
       "values": {
-        "$admin": "0x4200000000000000000000000000000000000018",
-        "$implementation": "0xc0d3c0d3c0d3C0d3c0d3C0D3C0D3c0d3C0D30020",
+        "$admin": "ink:0x4200000000000000000000000000000000000018",
+        "$implementation": "ink:0xc0d3c0d3c0d3C0d3c0d3C0D3C0D3c0d3C0D30020",
         "$pastUpgrades": [],
         "$upgradeCount": 0,
         "version": "1.3.1-beta.1"
       },
-      "derivedName": "SchemaRegistry"
+      "implementationNames": {
+        "ink:0x4200000000000000000000000000000000000020": "Proxy",
+        "ink:0xc0d3c0d3c0d3C0d3c0d3C0D3C0D3c0d3C0D30020": "SchemaRegistry"
+      }
     },
     {
       "name": "EAS",
-      "address": "0x4200000000000000000000000000000000000021",
+      "address": "ink:0x4200000000000000000000000000000000000021",
       "type": "Contract",
       "template": "opstack/Layer2/EAS",
       "sourceHashes": [
@@ -572,151 +548,194 @@
       ],
       "proxyType": "EIP1967 proxy",
       "description": "Contract containing the main logic for the Ethereum Attestation Service (EAS).",
-      "issuedPermissions": [
-        {
-          "permission": "upgrade",
-          "to": "0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b",
-          "via": [{ "address": "0x4200000000000000000000000000000000000018" }]
-        }
-      ],
       "sinceTimestamp": 1733498412,
       "sinceBlock": 0,
       "values": {
-        "$admin": "0x4200000000000000000000000000000000000018",
-        "$implementation": "0xC0D3c0D3C0d3c0D3c0D3C0D3c0D3c0d3c0d30021",
+        "$admin": "ink:0x4200000000000000000000000000000000000018",
+        "$implementation": "ink:0xC0D3c0D3C0d3c0D3c0D3C0D3c0D3c0d3c0d30021",
         "$pastUpgrades": [],
         "$upgradeCount": 0,
         "getAttestTypeHash": "0xfeb2925a02bae3dae48d424a0437a2b6ac939aa9230ddc55a1a76f065d988076",
         "getDomainSeparator": "0x8b1502ef4acf895d0b4cef3305e43784b3359909cafef6549541a157aff15267",
         "getName": "EAS",
         "getRevokeTypeHash": "0xb5d556f07587ec0f08cf386545cc4362c702a001650c2058002615ee5c9d1e75",
-        "getSchemaRegistry": "0x4200000000000000000000000000000000000020",
+        "getSchemaRegistry": "ink:0x4200000000000000000000000000000000000020",
         "version": "1.4.1-beta.1"
       },
-      "derivedName": "EAS"
+      "implementationNames": {
+        "ink:0x4200000000000000000000000000000000000021": "Proxy",
+        "ink:0xC0D3c0D3C0d3c0D3c0D3C0D3c0D3c0d3c0d30021": "EAS"
+      }
     },
     {
-      "address": "0x661235a238B11191211fa95D4Dd9E423d521E0Be",
+      "address": "ink:0x661235a238B11191211fa95D4Dd9E423d521E0Be",
       "type": "EOA",
       "proxyType": "EOA"
     },
     {
-      "address": "0x69d3Cf86B2Bf1a9e99875B7e2D9B6a84426c171f",
+      "address": "ink:0x69d3Cf86B2Bf1a9e99875B7e2D9B6a84426c171f",
       "type": "EOA",
       "proxyType": "EOA"
     },
     {
       "name": "SuperchainProxyAdminOwner_L2Alias",
-      "address": "0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b",
+      "address": "ink:0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b",
       "type": "EOA",
       "proxyType": "EOA",
+      "controlsMajorityOfUpgradePermissions": true,
       "receivedPermissions": [
         {
           "permission": "upgrade",
-          "from": "0x4200000000000000000000000000000000000007",
-          "via": [{ "address": "0x4200000000000000000000000000000000000018" }]
+          "from": "ink:0x4200000000000000000000000000000000000007",
+          "role": "admin",
+          "via": [
+            { "address": "ink:0x4200000000000000000000000000000000000018" }
+          ]
         },
         {
           "permission": "upgrade",
-          "from": "0x420000000000000000000000000000000000000F",
-          "via": [{ "address": "0x4200000000000000000000000000000000000018" }]
+          "from": "ink:0x420000000000000000000000000000000000000F",
+          "role": "admin",
+          "via": [
+            { "address": "ink:0x4200000000000000000000000000000000000018" }
+          ]
         },
         {
           "permission": "upgrade",
-          "from": "0x4200000000000000000000000000000000000010",
-          "via": [{ "address": "0x4200000000000000000000000000000000000018" }]
+          "from": "ink:0x4200000000000000000000000000000000000010",
+          "role": "admin",
+          "via": [
+            { "address": "ink:0x4200000000000000000000000000000000000018" }
+          ]
         },
         {
           "permission": "upgrade",
-          "from": "0x4200000000000000000000000000000000000011",
-          "via": [{ "address": "0x4200000000000000000000000000000000000018" }]
+          "from": "ink:0x4200000000000000000000000000000000000011",
+          "role": "admin",
+          "via": [
+            { "address": "ink:0x4200000000000000000000000000000000000018" }
+          ]
         },
         {
           "permission": "upgrade",
-          "from": "0x4200000000000000000000000000000000000012",
-          "via": [{ "address": "0x4200000000000000000000000000000000000018" }]
+          "from": "ink:0x4200000000000000000000000000000000000012",
+          "role": "admin",
+          "via": [
+            { "address": "ink:0x4200000000000000000000000000000000000018" }
+          ]
         },
         {
           "permission": "upgrade",
-          "from": "0x4200000000000000000000000000000000000013",
-          "via": [{ "address": "0x4200000000000000000000000000000000000018" }]
+          "from": "ink:0x4200000000000000000000000000000000000013",
+          "role": "admin",
+          "via": [
+            { "address": "ink:0x4200000000000000000000000000000000000018" }
+          ]
         },
         {
           "permission": "upgrade",
-          "from": "0x4200000000000000000000000000000000000014",
-          "via": [{ "address": "0x4200000000000000000000000000000000000018" }]
+          "from": "ink:0x4200000000000000000000000000000000000014",
+          "role": "admin",
+          "via": [
+            { "address": "ink:0x4200000000000000000000000000000000000018" }
+          ]
         },
         {
           "permission": "upgrade",
-          "from": "0x4200000000000000000000000000000000000015",
-          "via": [{ "address": "0x4200000000000000000000000000000000000018" }]
+          "from": "ink:0x4200000000000000000000000000000000000015",
+          "role": "admin",
+          "via": [
+            { "address": "ink:0x4200000000000000000000000000000000000018" }
+          ]
         },
         {
           "permission": "upgrade",
-          "from": "0x4200000000000000000000000000000000000016",
-          "via": [{ "address": "0x4200000000000000000000000000000000000018" }]
+          "from": "ink:0x4200000000000000000000000000000000000016",
+          "role": "admin",
+          "via": [
+            { "address": "ink:0x4200000000000000000000000000000000000018" }
+          ]
         },
         {
           "permission": "upgrade",
-          "from": "0x4200000000000000000000000000000000000017",
-          "via": [{ "address": "0x4200000000000000000000000000000000000018" }]
+          "from": "ink:0x4200000000000000000000000000000000000017",
+          "role": "admin",
+          "via": [
+            { "address": "ink:0x4200000000000000000000000000000000000018" }
+          ]
         },
         {
           "permission": "upgrade",
-          "from": "0x4200000000000000000000000000000000000018",
-          "via": [{ "address": "0x4200000000000000000000000000000000000018" }]
+          "from": "ink:0x4200000000000000000000000000000000000018",
+          "role": "admin",
+          "via": [
+            { "address": "ink:0x4200000000000000000000000000000000000018" }
+          ]
         },
         {
           "permission": "upgrade",
-          "from": "0x4200000000000000000000000000000000000019",
-          "via": [{ "address": "0x4200000000000000000000000000000000000018" }]
+          "from": "ink:0x4200000000000000000000000000000000000019",
+          "role": "admin",
+          "via": [
+            { "address": "ink:0x4200000000000000000000000000000000000018" }
+          ]
         },
         {
           "permission": "upgrade",
-          "from": "0x420000000000000000000000000000000000001A",
-          "via": [{ "address": "0x4200000000000000000000000000000000000018" }]
+          "from": "ink:0x420000000000000000000000000000000000001A",
+          "role": "admin",
+          "via": [
+            { "address": "ink:0x4200000000000000000000000000000000000018" }
+          ]
         },
         {
           "permission": "upgrade",
-          "from": "0x4200000000000000000000000000000000000020",
-          "via": [{ "address": "0x4200000000000000000000000000000000000018" }]
+          "from": "ink:0x4200000000000000000000000000000000000020",
+          "role": "admin",
+          "via": [
+            { "address": "ink:0x4200000000000000000000000000000000000018" }
+          ]
         },
         {
           "permission": "upgrade",
-          "from": "0x4200000000000000000000000000000000000021",
-          "via": [{ "address": "0x4200000000000000000000000000000000000018" }]
+          "from": "ink:0x4200000000000000000000000000000000000021",
+          "role": "admin",
+          "via": [
+            { "address": "ink:0x4200000000000000000000000000000000000018" }
+          ]
         }
       ],
       "directlyReceivedPermissions": [
         {
           "permission": "act",
-          "from": "0x4200000000000000000000000000000000000018"
+          "from": "ink:0x4200000000000000000000000000000000000018",
+          "role": ".owner"
         }
       ]
     },
     {
-      "address": "0x88FF1e5b602916615391F55854588EFcBB7663f0",
+      "address": "ink:0x88FF1e5b602916615391F55854588EFcBB7663f0",
       "type": "EOA",
       "proxyType": "EOA"
     },
     {
-      "address": "0xa6f0F94C13C4255231958079E7331694205F6c93",
+      "address": "ink:0xa6f0F94C13C4255231958079E7331694205F6c93",
       "type": "EOA",
       "proxyType": "EOA"
     },
     {
-      "address": "0xDeaDDEaDDeAdDeAdDEAdDEaddeAddEAdDEAd0001",
+      "address": "ink:0xDeaDDEaDDeAdDeAdDEAdDEaddeAddEAdDEAd0001",
       "type": "EOA",
       "proxyType": "EOA"
     },
     {
-      "address": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+      "address": "ink:0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
       "type": "EOA",
       "proxyType": "EOA"
     }
   ],
   "abis": {
-    "0x4200000000000000000000000000000000000007": [
+    "ink:0x4200000000000000000000000000000000000007": [
       "constructor(address _admin)",
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event Upgraded(address indexed implementation)",
@@ -726,7 +745,7 @@
       "function upgradeTo(address _implementation)",
       "function upgradeToAndCall(address _implementation, bytes _data) payable returns (bytes)"
     ],
-    "0x420000000000000000000000000000000000000F": [
+    "ink:0x420000000000000000000000000000000000000F": [
       "constructor(address _admin)",
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event Upgraded(address indexed implementation)",
@@ -736,7 +755,7 @@
       "function upgradeTo(address _implementation)",
       "function upgradeToAndCall(address _implementation, bytes _data) payable returns (bytes)"
     ],
-    "0x4200000000000000000000000000000000000010": [
+    "ink:0x4200000000000000000000000000000000000010": [
       "constructor(address _admin)",
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event Upgraded(address indexed implementation)",
@@ -746,7 +765,7 @@
       "function upgradeTo(address _implementation)",
       "function upgradeToAndCall(address _implementation, bytes _data) payable returns (bytes)"
     ],
-    "0x4200000000000000000000000000000000000011": [
+    "ink:0x4200000000000000000000000000000000000011": [
       "constructor(address _admin)",
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event Upgraded(address indexed implementation)",
@@ -756,7 +775,7 @@
       "function upgradeTo(address _implementation)",
       "function upgradeToAndCall(address _implementation, bytes _data) payable returns (bytes)"
     ],
-    "0x4200000000000000000000000000000000000012": [
+    "ink:0x4200000000000000000000000000000000000012": [
       "constructor(address _admin)",
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event Upgraded(address indexed implementation)",
@@ -766,7 +785,7 @@
       "function upgradeTo(address _implementation)",
       "function upgradeToAndCall(address _implementation, bytes _data) payable returns (bytes)"
     ],
-    "0x4200000000000000000000000000000000000013": [
+    "ink:0x4200000000000000000000000000000000000013": [
       "constructor(address _admin)",
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event Upgraded(address indexed implementation)",
@@ -776,7 +795,7 @@
       "function upgradeTo(address _implementation)",
       "function upgradeToAndCall(address _implementation, bytes _data) payable returns (bytes)"
     ],
-    "0x4200000000000000000000000000000000000014": [
+    "ink:0x4200000000000000000000000000000000000014": [
       "constructor(address _admin)",
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event Upgraded(address indexed implementation)",
@@ -786,7 +805,7 @@
       "function upgradeTo(address _implementation)",
       "function upgradeToAndCall(address _implementation, bytes _data) payable returns (bytes)"
     ],
-    "0x4200000000000000000000000000000000000015": [
+    "ink:0x4200000000000000000000000000000000000015": [
       "constructor(address _admin)",
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event Upgraded(address indexed implementation)",
@@ -796,7 +815,7 @@
       "function upgradeTo(address _implementation)",
       "function upgradeToAndCall(address _implementation, bytes _data) payable returns (bytes)"
     ],
-    "0x4200000000000000000000000000000000000016": [
+    "ink:0x4200000000000000000000000000000000000016": [
       "constructor(address _admin)",
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event Upgraded(address indexed implementation)",
@@ -806,7 +825,7 @@
       "function upgradeTo(address _implementation)",
       "function upgradeToAndCall(address _implementation, bytes _data) payable returns (bytes)"
     ],
-    "0x4200000000000000000000000000000000000017": [
+    "ink:0x4200000000000000000000000000000000000017": [
       "constructor(address _admin)",
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event Upgraded(address indexed implementation)",
@@ -816,7 +835,7 @@
       "function upgradeTo(address _implementation)",
       "function upgradeToAndCall(address _implementation, bytes _data) payable returns (bytes)"
     ],
-    "0x4200000000000000000000000000000000000018": [
+    "ink:0x4200000000000000000000000000000000000018": [
       "constructor(address _admin)",
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event Upgraded(address indexed implementation)",
@@ -826,7 +845,7 @@
       "function upgradeTo(address _implementation)",
       "function upgradeToAndCall(address _implementation, bytes _data) payable returns (bytes)"
     ],
-    "0x4200000000000000000000000000000000000019": [
+    "ink:0x4200000000000000000000000000000000000019": [
       "constructor(address _admin)",
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event Upgraded(address indexed implementation)",
@@ -836,7 +855,7 @@
       "function upgradeTo(address _implementation)",
       "function upgradeToAndCall(address _implementation, bytes _data) payable returns (bytes)"
     ],
-    "0x420000000000000000000000000000000000001A": [
+    "ink:0x420000000000000000000000000000000000001A": [
       "constructor(address _admin)",
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event Upgraded(address indexed implementation)",
@@ -846,7 +865,7 @@
       "function upgradeTo(address _implementation)",
       "function upgradeToAndCall(address _implementation, bytes _data) payable returns (bytes)"
     ],
-    "0x4200000000000000000000000000000000000020": [
+    "ink:0x4200000000000000000000000000000000000020": [
       "constructor(address _admin)",
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event Upgraded(address indexed implementation)",
@@ -856,7 +875,7 @@
       "function upgradeTo(address _implementation)",
       "function upgradeToAndCall(address _implementation, bytes _data) payable returns (bytes)"
     ],
-    "0x4200000000000000000000000000000000000021": [
+    "ink:0x4200000000000000000000000000000000000021": [
       "constructor(address _admin)",
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event Upgraded(address indexed implementation)",
@@ -866,7 +885,30 @@
       "function upgradeTo(address _implementation)",
       "function upgradeToAndCall(address _implementation, bytes _data) payable returns (bytes)"
     ],
-    "0xC0d3c0d3c0D3c0D3C0d3C0D3C0D3c0d3c0d30007": [
+    "ink:0x93e57A196454CB919193fa9946f14943cf733845": [
+      "function DECIMALS() view returns (uint256)",
+      "function baseFee() view returns (uint256)",
+      "function baseFeeScalar() view returns (uint32)",
+      "function blobBaseFee() view returns (uint256)",
+      "function blobBaseFeeScalar() view returns (uint32)",
+      "function decimals() pure returns (uint256)",
+      "function gasPrice() view returns (uint256)",
+      "function getL1Fee(bytes _data) view returns (uint256)",
+      "function getL1FeeUpperBound(uint256 _unsignedTxSize) view returns (uint256)",
+      "function getL1GasUsed(bytes _data) view returns (uint256)",
+      "function getOperatorFee(uint256 _gasUsed) view returns (uint256)",
+      "function isEcotone() view returns (bool)",
+      "function isFjord() view returns (bool)",
+      "function isIsthmus() view returns (bool)",
+      "function l1BaseFee() view returns (uint256)",
+      "function overhead() view returns (uint256)",
+      "function scalar() view returns (uint256)",
+      "function setEcotone()",
+      "function setFjord()",
+      "function setIsthmus()",
+      "function version() view returns (string)"
+    ],
+    "ink:0xC0d3c0d3c0D3c0D3C0d3C0D3C0D3c0d3c0d30007": [
       "constructor()",
       "event FailedRelayedMessage(bytes32 indexed msgHash)",
       "event Initialized(uint8 version)",
@@ -895,27 +937,7 @@
       "function version() view returns (string)",
       "function xDomainMessageSender() view returns (address)"
     ],
-    "0xc0d3C0d3C0d3c0D3C0D3C0d3C0d3C0D3C0D3000f": [
-      "function DECIMALS() view returns (uint256)",
-      "function baseFee() view returns (uint256)",
-      "function baseFeeScalar() view returns (uint32)",
-      "function blobBaseFee() view returns (uint256)",
-      "function blobBaseFeeScalar() view returns (uint32)",
-      "function decimals() pure returns (uint256)",
-      "function gasPrice() view returns (uint256)",
-      "function getL1Fee(bytes _data) view returns (uint256)",
-      "function getL1FeeUpperBound(uint256 _unsignedTxSize) view returns (uint256)",
-      "function getL1GasUsed(bytes _data) view returns (uint256)",
-      "function isEcotone() view returns (bool)",
-      "function isFjord() view returns (bool)",
-      "function l1BaseFee() view returns (uint256)",
-      "function overhead() view returns (uint256)",
-      "function scalar() view returns (uint256)",
-      "function setEcotone()",
-      "function setFjord()",
-      "function version() view returns (string)"
-    ],
-    "0xC0d3c0d3c0D3c0d3C0D3c0D3C0d3C0D3C0D30010": [
+    "ink:0xC0d3c0d3c0D3c0d3C0D3c0D3C0d3C0D3C0D30010": [
       "constructor()",
       "event DepositFinalized(address indexed l1Token, address indexed l2Token, address indexed from, address to, uint256 amount, bytes extraData)",
       "event ERC20BridgeFinalized(address indexed localToken, address indexed remoteToken, address indexed from, address to, uint256 amount, bytes extraData)",
@@ -942,7 +964,7 @@
       "function withdraw(address _l2Token, uint256 _amount, uint32 _minGasLimit, bytes _extraData) payable",
       "function withdrawTo(address _l2Token, address _to, uint256 _amount, uint32 _minGasLimit, bytes _extraData) payable"
     ],
-    "0xC0D3C0d3c0d3c0d3C0D3c0d3C0D3c0d3c0D30011": [
+    "ink:0xC0D3C0d3c0d3c0d3C0D3c0d3C0D3c0d3c0D30011": [
       "constructor(address _recipient, uint256 _minWithdrawalAmount, uint8 _withdrawalNetwork)",
       "event Withdrawal(uint256 value, address to, address from)",
       "event Withdrawal(uint256 value, address to, address from, uint8 withdrawalNetwork)",
@@ -957,7 +979,7 @@
       "function withdraw()",
       "function withdrawalNetwork() view returns (uint8 network_)"
     ],
-    "0xc0D3c0d3C0d3c0d3c0D3c0d3c0D3c0D3c0D30012": [
+    "ink:0xc0D3c0d3C0d3c0d3c0D3c0d3c0D3c0D3c0D30012": [
       "constructor()",
       "event Initialized(uint8 version)",
       "event OptimismMintableERC20Created(address indexed localToken, address indexed remoteToken, address deployer)",
@@ -971,11 +993,11 @@
       "function initialize(address _bridge)",
       "function version() view returns (string)"
     ],
-    "0xC0D3C0d3C0D3c0D3C0d3c0D3C0d3c0d3C0d30013": [
+    "ink:0xC0D3C0d3C0D3c0D3C0d3c0D3C0d3c0d3C0d30013": [
       "function getL1BlockNumber() view returns (uint256)",
       "function version() view returns (string)"
     ],
-    "0xC0D3c0d3c0d3c0d3c0D3C0d3C0D3C0D3c0d30014": [
+    "ink:0xC0D3c0d3c0d3c0d3c0D3C0d3C0D3C0D3c0d30014": [
       "constructor()",
       "event ERC721BridgeFinalized(address indexed localToken, address indexed remoteToken, address indexed from, address to, uint256 tokenId, bytes extraData)",
       "event ERC721BridgeInitiated(address indexed localToken, address indexed remoteToken, address indexed from, address to, uint256 tokenId, bytes extraData)",
@@ -991,31 +1013,7 @@
       "function paused() view returns (bool)",
       "function version() view returns (string)"
     ],
-    "0xc0d3C0D3C0D3c0D3C0D3C0d3C0D3c0D3c0d30015": [
-      "error NotDepositor()",
-      "event GasPayingTokenSet(address indexed token, uint8 indexed decimals, bytes32 name, bytes32 symbol)",
-      "function DEPOSITOR_ACCOUNT() pure returns (address addr_)",
-      "function baseFeeScalar() view returns (uint32)",
-      "function basefee() view returns (uint256)",
-      "function batcherHash() view returns (bytes32)",
-      "function blobBaseFee() view returns (uint256)",
-      "function blobBaseFeeScalar() view returns (uint32)",
-      "function gasPayingToken() view returns (address addr_, uint8 decimals_)",
-      "function gasPayingTokenName() view returns (string name_)",
-      "function gasPayingTokenSymbol() view returns (string symbol_)",
-      "function hash() view returns (bytes32)",
-      "function isCustomGasToken() view returns (bool)",
-      "function l1FeeOverhead() view returns (uint256)",
-      "function l1FeeScalar() view returns (uint256)",
-      "function number() view returns (uint64)",
-      "function sequenceNumber() view returns (uint64)",
-      "function setGasPayingToken(address _token, uint8 _decimals, bytes32 _name, bytes32 _symbol)",
-      "function setL1BlockValues(uint64 _number, uint64 _timestamp, uint256 _basefee, bytes32 _hash, uint64 _sequenceNumber, bytes32 _batcherHash, uint256 _l1FeeOverhead, uint256 _l1FeeScalar)",
-      "function setL1BlockValuesEcotone()",
-      "function timestamp() view returns (uint64)",
-      "function version() pure returns (string)"
-    ],
-    "0xC0D3C0d3C0d3c0d3C0d3C0D3c0D3c0d3c0D30016": [
+    "ink:0xC0D3C0d3C0d3c0d3C0d3C0D3c0D3c0d3c0D30016": [
       "event MessagePassed(uint256 indexed nonce, address indexed sender, address indexed target, uint256 value, uint256 gasLimit, bytes data, bytes32 withdrawalHash)",
       "event WithdrawerBalanceBurnt(uint256 indexed amount)",
       "function MESSAGE_VERSION() view returns (uint16)",
@@ -1025,7 +1023,7 @@
       "function sentMessages(bytes32) view returns (bool)",
       "function version() view returns (string)"
     ],
-    "0xc0d3C0d3C0d3C0d3C0d3c0d3C0D3C0d3C0D30017": [
+    "ink:0xc0d3C0d3C0d3C0d3C0d3c0d3C0D3C0d3C0D30017": [
       "constructor(address _bridge, uint256 _remoteChainId)",
       "event OptimismMintableERC721Created(address indexed localToken, address indexed remoteToken, address deployer)",
       "function BRIDGE() view returns (address)",
@@ -1034,7 +1032,7 @@
       "function isOptimismMintableERC721(address) view returns (bool)",
       "function version() view returns (string)"
     ],
-    "0xC0d3C0D3c0d3C0d3c0d3c0D3C0D3C0d3C0D30018": [
+    "ink:0xC0d3C0D3c0d3C0d3c0d3c0D3C0D3C0d3C0D30018": [
       "constructor(address _owner)",
       "event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)",
       "function addressManager() view returns (address)",
@@ -1055,7 +1053,7 @@
       "function upgrade(address _proxy, address _implementation)",
       "function upgradeAndCall(address _proxy, address _implementation, bytes _data) payable"
     ],
-    "0xC0d3c0D3c0d3C0D3C0D3C0d3c0D3C0D3c0d30019": [
+    "ink:0xC0d3c0D3c0d3C0D3C0D3C0d3c0D3C0D3c0d30019": [
       "constructor(address _recipient, uint256 _minWithdrawalAmount, uint8 _withdrawalNetwork)",
       "event Withdrawal(uint256 value, address to, address from)",
       "event Withdrawal(uint256 value, address to, address from, uint8 withdrawalNetwork)",
@@ -1069,7 +1067,7 @@
       "function withdraw()",
       "function withdrawalNetwork() view returns (uint8 network_)"
     ],
-    "0xc0D3c0D3C0d3c0d3c0d3C0d3c0d3C0d3C0D3001A": [
+    "ink:0xc0D3c0D3C0d3c0d3c0d3C0d3c0d3C0d3C0D3001A": [
       "constructor(address _recipient, uint256 _minWithdrawalAmount, uint8 _withdrawalNetwork)",
       "event Withdrawal(uint256 value, address to, address from)",
       "event Withdrawal(uint256 value, address to, address from, uint8 withdrawalNetwork)",
@@ -1083,14 +1081,14 @@
       "function withdraw()",
       "function withdrawalNetwork() view returns (uint8 network_)"
     ],
-    "0xc0d3c0d3c0d3C0d3c0d3C0D3C0D3c0d3C0D30020": [
+    "ink:0xc0d3c0d3c0d3C0d3c0d3C0D3C0D3c0d3C0D30020": [
       "error AlreadyExists()",
       "event Registered(bytes32 indexed uid, address indexed registerer, tuple(bytes32 uid, address resolver, bool revocable, string schema) schema)",
       "function getSchema(bytes32 uid) view returns (tuple(bytes32 uid, address resolver, bool revocable, string schema))",
       "function register(string schema, address resolver, bool revocable) returns (bytes32)",
       "function version() view returns (string)"
     ],
-    "0xC0D3c0D3C0d3c0D3c0D3C0D3c0D3c0d3c0d30021": [
+    "ink:0xC0D3c0D3C0d3c0D3c0D3C0D3c0D3c0d3c0d30021": [
       "constructor()",
       "error AccessDenied()",
       "error AlreadyRevoked()",
@@ -1143,22 +1141,48 @@
       "function revokeOffchain(bytes32 data) returns (uint64)",
       "function timestamp(bytes32 data) returns (uint64)",
       "function version() view returns (string)"
+    ],
+    "ink:0xFf256497D61dcd71a9e9Ff43967C13fdE1F72D12": [
+      "function DEPOSITOR_ACCOUNT() pure returns (address addr_)",
+      "function baseFeeScalar() view returns (uint32)",
+      "function basefee() view returns (uint256)",
+      "function batcherHash() view returns (bytes32)",
+      "function blobBaseFee() view returns (uint256)",
+      "function blobBaseFeeScalar() view returns (uint32)",
+      "function gasPayingToken() pure returns (address addr_, uint8 decimals_)",
+      "function gasPayingTokenName() pure returns (string name_)",
+      "function gasPayingTokenSymbol() pure returns (string symbol_)",
+      "function hash() view returns (bytes32)",
+      "function isCustomGasToken() pure returns (bool is_)",
+      "function l1FeeOverhead() view returns (uint256)",
+      "function l1FeeScalar() view returns (uint256)",
+      "function number() view returns (uint64)",
+      "function operatorFeeConstant() view returns (uint64)",
+      "function operatorFeeScalar() view returns (uint32)",
+      "function sequenceNumber() view returns (uint64)",
+      "function setL1BlockValues(uint64 _number, uint64 _timestamp, uint256 _basefee, bytes32 _hash, uint64 _sequenceNumber, bytes32 _batcherHash, uint256 _l1FeeOverhead, uint256 _l1FeeScalar)",
+      "function setL1BlockValuesEcotone()",
+      "function setL1BlockValuesIsthmus()",
+      "function timestamp() view returns (uint64)",
+      "function version() pure returns (string)"
     ]
   },
   "usedTemplates": {
-    "opstack/Layer2/BaseFeeVault": "0x8ac3d4d02e60f9d0fc5d1b3bb4d0fd144402bddf02d54e01810b634978000c62",
-    "opstack/Layer2/EAS": "0x544625cb6730381fe1dd5389cefeed7886901b154fbf10f9a3cb134e42ff2173",
-    "opstack/Layer2/GasPriceOracle": "0x98613b8b76dab2084336195d79927dfe87cab8bf2c7f92b855fdb25500c0e63f",
-    "opstack/Layer2/L1Block": "0xae883e6710bcb5f0f7074b3d7666d33f74f8adcd1ec572b0758104af1ac24246",
-    "opstack/Layer2/L1BlockNumber": "0x09a7d99039caa076ae26fc79331e2653bbefdf9a9efe083f3428ecf6df6e2220",
-    "opstack/Layer2/L2CrossDomainMessenger": "0x05066a856424429898e25025458ca628bf5303d5522f22f706e1df91aa16f0b3",
-    "opstack/Layer2/L2ERC721Bridge": "0x644697262bc7ef1d94db87e01ff4b4e29d630d90b37a33b34ef22c611a333661",
-    "opstack/Layer2/L2ProxyAdmin": "0xe1da3bb7340074b7a35f28ceedc964c6860a07d9911440e5c498aaee0cdae276",
-    "opstack/Layer2/L2StandardBridge": "0xa3f1df939baca30632b5ffcdac284af5eacd42a15fc6fc8adf2a1e3ddf5c7559",
-    "opstack/Layer2/L2ToL1MessagePasser": "0xf46a7ab8a1471c982b2994a70ac0e6503118d153e19b6fd4d0cdaf4037964408",
-    "opstack/Layer2/OptimismMintableERC20Factory": "0x9d5a3f4adcea192ed605c14cd14a034f2fcb5cfd3d6620a0202dcf010499fa33",
-    "opstack/Layer2/OptimismMintableERC721Factory": "0x051481764ef505e8cdcd9bc207d1e9374219d23ef8541bc4bc409e29d9a5b678",
-    "opstack/Layer2/SchemaRegistry": "0x2b2e5b40b1ba5e7d9d13df6e72a7803eab26ed8d0860160fc9271f33b88e0978",
-    "opstack/Layer2/SequencerFeeVault": "0x305f40bd865fb7d166ae19b5fae4b12eb9ee28180718da92aacbfe7d9c91f789"
-  }
+    "opstack/Layer2/BaseFeeVault": "0x356a6cb706ffd52cc68d7a5c06197e72a7388bb32090967ad5ce5a683b508aa4",
+    "opstack/Layer2/EAS": "0x6fbb45d11251921c07e800160fe95b7bb7e81f6f3b7d0c02107126e904d8cd9c",
+    "opstack/Layer2/GasPriceOracle": "0x8f497de83556de92a063c31d97188024782f910b9b1f254812e9e6b58ece0ccf",
+    "opstack/Layer2/L1Block": "0x285f931e841dfeccb9fd8de970781403669decd9880ffbed39a4c35bf5c15333",
+    "opstack/Layer2/L1BlockNumber": "0x21c6e550d144ce1c4b375c15824ea847ca6ac0e5fcd4f3f388bd296e8f014797",
+    "opstack/Layer2/L2CrossDomainMessenger": "0xe22f4bc25e3233f9cbc95891feb31bb13e525003e5dac36ec019619b44a06b89",
+    "opstack/Layer2/L2ERC721Bridge": "0x6fbb45d11251921c07e800160fe95b7bb7e81f6f3b7d0c02107126e904d8cd9c",
+    "opstack/Layer2/L2ProxyAdmin": "0xd86564ec3c7e3195dd10abf37058aeeb801c6cb63d35c2b81df15ec0b67ea5ff",
+    "opstack/Layer2/L2StandardBridge": "0xa3a1bc50117017a509d0dbef8f13b9b8e3bae9146504b23939e69814c6f31060",
+    "opstack/Layer2/L2ToL1MessagePasser": "0x3f407b76384248e32af67feefe154f34a2c61ee1576e0e3037e095d556534fc3",
+    "opstack/Layer2/OptimismMintableERC20Factory": "0x6fbb45d11251921c07e800160fe95b7bb7e81f6f3b7d0c02107126e904d8cd9c",
+    "opstack/Layer2/OptimismMintableERC721Factory": "0x6fbb45d11251921c07e800160fe95b7bb7e81f6f3b7d0c02107126e904d8cd9c",
+    "opstack/Layer2/SchemaRegistry": "0x6fbb45d11251921c07e800160fe95b7bb7e81f6f3b7d0c02107126e904d8cd9c",
+    "opstack/Layer2/SequencerFeeVault": "0x356a6cb706ffd52cc68d7a5c06197e72a7388bb32090967ad5ce5a683b508aa4"
+  },
+  "usedBlockNumbers": { "ink": 19952652 },
+  "permissionsConfigHash": "0x0328573278406238bf49a1d37798462b4f440b8688203997b3b87d11020d85a1"
 }

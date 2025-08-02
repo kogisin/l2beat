@@ -2,10 +2,9 @@ import { EthereumAddress, UnixTime } from '@l2beat/shared-pure'
 import {
   DA_BRIDGES,
   DA_LAYERS,
-  NEW_CRYPTOGRAPHY,
+  REASON_FOR_BEING_OTHER,
   RISK_VIEW,
 } from '../../common'
-import { REASON_FOR_BEING_OTHER } from '../../common'
 import { BADGES } from '../../common/badges'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
@@ -29,6 +28,8 @@ const isForcedBatchDisallowed =
   discovery.getContractValue<string>('Validium', 'forceBatchAddress') !==
   '0x0000000000000000000000000000000000000000'
 
+const rollupModuleContract = discovery.getContract('Validium')
+
 export const lumia: ScalingProject = polygonCDKStack({
   addedAt: UnixTime(1718181773), // 2024-06-12T08:42:53Z
   additionalBadges: [BADGES.DA.DAC],
@@ -41,7 +42,7 @@ export const lumia: ScalingProject = polygonCDKStack({
       'Lumia is a Validium built on the PolygonCDK stack focusing on real world assets, restaking and account abstraction.',
     links: {
       websites: ['https://lumia.org/'],
-      apps: ['https://bridge.lumia.org/'],
+      bridges: ['https://bridge.lumia.org/'],
       explorers: ['https://explorer.lumia.org/', 'https://lens.lumia.org/'],
       documentation: ['https://docs.lumia.org/'],
       repositories: [
@@ -85,12 +86,13 @@ export const lumia: ScalingProject = polygonCDKStack({
       ],
     },
   },
-  rollupModuleContract: discovery.getContract('Validium'),
+  rollupModuleContract,
   rollupVerifierContract: discovery.getContract('Verifier'),
   isForcedBatchDisallowed,
   chainConfig: {
     name: 'lumia',
     chainId: 994873017,
+    gasTokens: ['LUMIA'],
     explorerUrl: 'https://explorer.lumia.org',
     sinceTimestamp: UnixTime(1719499031),
     apis: [
@@ -116,20 +118,23 @@ export const lumia: ScalingProject = polygonCDKStack({
       },
     }),
   ],
-  nonTemplateTechnology: {
-    newCryptography: {
-      ...NEW_CRYPTOGRAPHY.ZK_BOTH,
-    },
-  },
-  stateDerivation: {
-    nodeSoftware:
-      'Node software can be found [here](https://github.com/0xPolygon/cdk-validium-node).',
-    compressionScheme: 'No compression scheme yet.',
-    genesisState:
-      'The genesis state, whose corresponding root is accessible as Batch 0 root in the `getRollupBatchNumToStateRoot(5,0)` method of PolygonRollupManager, is available [here](https://github.com/0xPolygonHermez/zkevm-contracts/blob/1ad7089d04910c319a257ff4f3674ffd6fc6e64e/tools/addRollupType/genesis.json).',
-    dataFormat:
-      'The trusted sequencer request signatures from DAC members off-chain, and posts hashed batches with signatures to the WirexPayChainValidium contract.',
-  },
+  // project-specific sequencer txs (can be listed when we are able to split the shared agglayer trackedTxs):
+  // nonTemplateTrackedTxs: [
+  //   {
+  //     uses: [
+  //       { type: 'liveness', subtype: 'batchSubmissions' },
+  //       { type: 'l2costs', subtype: 'batchSubmissions' },
+  //     ],
+  //     query: {
+  //       formula: 'functionCall',
+  //       address: rollupModuleContract.address,
+  //       selector: '0xb910e0f9',
+  //       functionSignature:
+  //         'function sequenceBatches(tuple(bytes transactions, bytes32 forcedGlobalExitRoot, uint64 forcedTimestamp, bytes32 forcedBlockHashL1)[] batches, uint32 l1InfoTreeLeafCount, uint64 maxSequenceTimestamp, bytes32 expectedFinalAccInputHash, address l2Coinbase)',
+  //       sinceTimestamp: UnixTime(1741176767),
+  //     },
+  //   },
+  // ],
   customDa: PolygoncdkDAC({
     dac: {
       requiredMembers: requiredSignaturesDAC,

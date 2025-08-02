@@ -1,17 +1,18 @@
-import { z } from 'zod'
+import { v } from '@l2beat/validate'
 import type { FetchProjects, FetchResult } from './FetchInterface'
 
-const RollupWtfResponse = z.record(
-  z.object({
-    name: z.string(),
-    label: z.string(),
-    website: z.string(),
-    explorer: z.string(),
-    parentChain: z.string(),
-    da: z.string(),
-    stack: z.string(),
-    provider: z.string(),
-    g2Enabled: z.boolean().optional(),
+const RollupWtfResponse = v.record(
+  v.string(),
+  v.object({
+    name: v.string(),
+    label: v.string(),
+    website: v.string(),
+    explorer: v.string(),
+    parentChain: v.string(),
+    da: v.string(),
+    stack: v.string(),
+    provider: v.string(),
+    g2Enabled: v.boolean().optional(),
   }),
 )
 
@@ -27,6 +28,13 @@ const idRemapping: Record<string, string> = {
   'boba-network': 'bobanetwork',
   'arbitrum-nova': 'nova',
   'arbitrum-one': 'arbitrum',
+  'corn-mainnet': 'corn',
+  'pepe-unchained-gupg0lo9wf': 'pepeunchained',
+  'onyx-6l1k4gho61': 'onyx',
+  'g7-network': 'game7',
+  'corn-maizenet': 'corn',
+  pontem: 'superlumio',
+  polygon: 'polygon-pos',
 }
 
 export class RollupWtfFetcher implements FetchProjects {

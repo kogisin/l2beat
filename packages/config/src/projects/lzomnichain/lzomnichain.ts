@@ -1,9 +1,8 @@
 import { ProjectId, UnixTime } from '@l2beat/shared-pure'
-
-import { CONTRACTS } from '../../common'
-import { BRIDGE_RISK_VIEW } from '../../common'
+import { BRIDGE_RISK_VIEW, CONTRACTS } from '../../common'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { Bridge } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 import { languageJoin } from '../../utils/languageJoin'
 import {
   INBOUND_PROOF_LIBRARIES,
@@ -54,12 +53,6 @@ export const lzOmnichain: Bridge = {
         'Transfers need to be independently confirmed by oracle attesting to source chain checkpoints and Relayer providing proof of the transfer event.',
       sentiment: 'bad',
     },
-    sourceUpgradeability: {
-      value: 'Yes',
-      description:
-        "Omnichain tokens can be individually upgradable and it's security assumptions must be individually assessed for each individual token.",
-      sentiment: 'bad',
-    },
     destinationToken: BRIDGE_RISK_VIEW.CANONICAL,
   },
   technology: {
@@ -105,7 +98,7 @@ export const lzOmnichain: Bridge = {
   },
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails(
           'TSS Oracle',
           'Contract used to submit source chain block hashes. One of the default Oracles.',
@@ -142,7 +135,7 @@ export const lzOmnichain: Bridge = {
     risks: [CONTRACTS.UPGRADE_NO_DELAY_RISK],
   },
   permissions: {
-    [discovery.chain]: {
+    ethereum: {
       actors: [
         discovery.getPermissionDetails(
           'Default Relayer',
@@ -161,4 +154,5 @@ export const lzOmnichain: Bridge = {
       ],
     },
   },
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

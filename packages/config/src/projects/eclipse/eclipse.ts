@@ -1,8 +1,8 @@
 import {
   EthereumAddress,
+  formatSeconds,
   ProjectId,
   UnixTime,
-  formatSeconds,
 } from '@l2beat/shared-pure'
 import {
   CONTRACTS,
@@ -15,11 +15,16 @@ import {
 import { BADGES } from '../../common/badges'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
+import {
+  generateDiscoveryDrivenContracts,
+  generateDiscoveryDrivenPermissions,
+} from '../../templates/generateDiscoveryDrivenSections'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('eclipse')
 
 const withdrawalDelaySeconds = discovery.getContractValue<number>(
-  'CanonicalBridge',
+  'CanonicalBridgeV2',
   'fraudWindowDuration',
 )
 
@@ -42,7 +47,7 @@ export const eclipse: ScalingProject = {
     purposes: ['Universal'],
     links: {
       websites: ['https://eclipse.xyz/'],
-      apps: ['https://app.eclipse.xyz/'],
+      bridges: ['https://app.eclipse.xyz/'],
       documentation: ['https://docs.eclipse.xyz/'],
       explorers: ['https://eclipsescan.xyz/'],
       repositories: ['https://github.com/Eclipse-Laboratories-Inc'],
@@ -74,6 +79,10 @@ export const eclipse: ScalingProject = {
         namespace: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAGVjbGlwc2U=',
       },
     ],
+    activityConfig: {
+      type: 'slot',
+      startSlot: 1,
+    },
   },
   dataAvailability: {
     layer: DA_LAYERS.CELESTIA,
@@ -90,89 +99,56 @@ export const eclipse: ScalingProject = {
     sequencerFailure: RISK_VIEW.SEQUENCER_NO_MECHANISM(false),
     proposerFailure: RISK_VIEW.PROPOSER_CANNOT_WITHDRAW,
   },
-  technology: {
-    stateCorrectness: {
-      name: 'No state validation',
-      description: `Eclipse implements a custom permissioned bridge. Withdrawals need to be actively authorized by a Multisig. Moreover, there is no mechanism to send arbitrary messages from Eclipse back to Ethereum. There is a ${formatSeconds(withdrawalDelaySeconds)} delay for withdrawals.`,
-      references: [
-        {
-          title:
-            'CanonicalBridge.sol - Etherscan source code, authorizeWithdraw() function',
-          url: 'https://etherscan.io/address/0x2B08D7cF7EafF0f5f6623d9fB09b080726D4be11#code#F1#L183',
-        },
-        {
-          title:
-            'Mailbox.sol - Etherscan source code, receiveMessage() function calls CanonicalBridge',
-          url: 'https://etherscan.io/address/0x4cef0fa54dc06ce0ea198dab2f57d28a9dee712b#code#F1#L199',
-        },
-        {
-          title:
-            'Treasury.sol - Etherscan source code, emergencyWithdraw() function',
-          url: 'https://etherscan.io/address/0xF1F7a359C3f33EE8A66bdCbf4c897D25Caf90978#code',
-        },
-      ],
-      risks: [
-        {
-          category: 'Users can be censored if',
-          text: 'the bridge operators decide not to mint tokens after observing a deposit.',
-        },
-        {
-          category: 'Funds can be stolen if',
-          text: 'the Treasury owner decides to transfer the funds locked on L1.',
-        },
-      ],
-    },
+  stateValidation: {
+    categories: [
+      {
+        title: 'No state validation',
+        description: `Eclipse implements a custom permissioned bridge. Withdrawals need to be actively authorized by a Multisig. Moreover, there is no mechanism to send arbitrary messages from Eclipse back to Ethereum. There is a ${formatSeconds(withdrawalDelaySeconds)} delay for withdrawals.`,
+        references: [
+          {
+            title:
+              'CanonicalBridge.sol - Etherscan source code, authorizeWithdraw() function',
+            url: 'https://etherscan.io/address/0x2B08D7cF7EafF0f5f6623d9fB09b080726D4be11#code#F1#L183',
+          },
+          {
+            title:
+              'Mailbox.sol - Etherscan source code, receiveMessage() function calls CanonicalBridge',
+            url: 'https://etherscan.io/address/0x4cef0fa54dc06ce0ea198dab2f57d28a9dee712b#code#F1#L199',
+          },
+          {
+            title:
+              'Treasury.sol - Etherscan source code, emergencyWithdraw() function',
+            url: 'https://etherscan.io/address/0xF1F7a359C3f33EE8A66bdCbf4c897D25Caf90978#code',
+          },
+        ],
+        risks: [
+          {
+            category: 'Users can be censored if',
+            text: 'the bridge operators decide not to mint tokens after observing a deposit.',
+          },
+          {
+            category: 'Funds can be stolen if',
+            text: 'the Treasury owner decides to transfer the funds locked on L1.',
+          },
+        ],
+      },
+    ],
   },
+  permissions: generateDiscoveryDrivenPermissions([discovery]),
   contracts: {
-    addresses: {
-      [discovery.chain]: [
-        discovery.getContractDetails('CanonicalBridge', {
-          description:
-            'Entry point to deposit ETH. It is registered as a module in the Mailbox contract.',
-        }),
-        discovery.getContractDetails('Mailbox', {
-          description:
-            'Contract receiving messages from registered modules to send to Eclipse. It doesn’t have any functionality to send messages back to Ethereum.',
-        }),
-        discovery.getContractDetails('Treasury', {
-          description: 'Holds the funds locked on Ethereum.',
-        }),
-      ],
-    },
+    addresses: generateDiscoveryDrivenContracts([discovery]),
     risks: [CONTRACTS.UPGRADE_NO_DELAY_RISK],
   },
-  permissions: {
-    [discovery.chain]: {
-      actors: [
-        discovery.getMultisigPermission(
-          'AuthorityMultisig',
-          "Can pause and upgrade the EtherBridge and Mailbox contracts and change all parameters in the 'CanonicalBridge' contract or authorize/cancel withdrawals.",
-        ),
-        discovery.getMultisigPermission(
-          'TreasuryOwner',
-          'Can upgrade and transfer funds from the Treasury.',
-        ),
-        discovery.getPermissionDetails(
-          'WithdrawerEOA',
-          [
-            discovery.getAccessControlRolePermission(
-              'CanonicalBridge',
-              'WITHDRAW_AUTHORITY_ROLE',
-            )[1],
-          ],
-          `Can authorize arbitrary withdrawals from the Treasury (via the 'CanonicalBridge' contract) with a ${formatSeconds(withdrawalDelaySeconds)} delay.`,
-        ),
-        discovery.getPermissionDetails(
-          'PauserEOA',
-          [
-            discovery.getAccessControlRolePermission(
-              'CanonicalBridge',
-              'PAUSER_ROLE',
-            )[1],
-          ],
-          `Can pause standard withdrawals from the 'CanonicalBridge' contract and cancel withdrawals during the standard ${formatSeconds(withdrawalDelaySeconds)} delay.`,
-        ),
-      ],
-    },
+  chainConfig: {
+    name: 'eclipse',
+    chainId: undefined,
+    apis: [
+      {
+        type: 'svm-rpc',
+        url: 'https://eclipse.helius-rpc.com',
+        callsPerMinute: 120,
+      },
+    ],
   },
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

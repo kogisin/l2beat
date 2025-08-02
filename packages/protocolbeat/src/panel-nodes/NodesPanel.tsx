@@ -7,6 +7,8 @@ import type {
   ApiProjectResponse,
   FieldValue,
 } from '../api/types'
+import { ErrorState } from '../components/ErrorState'
+import { LoadingState } from '../components/LoadingState'
 import { usePanelStore } from '../store/store'
 import { NodesApp } from './NodesApp'
 import type { Field, Node } from './store/State'
@@ -27,15 +29,15 @@ export function NodesPanel() {
   useLoadNodes(response.data, project)
 
   if (response.isLoading) {
-    return <div>Loading</div>
+    return <LoadingState />
   }
   if (response.isError) {
-    return <div>Error</div>
+    return <ErrorState />
   }
 
   return (
     <div className="h-full w-full overflow-x-hidden">
-      <NodesApp panelMode />
+      <NodesApp />
     </div>
   )
 }
@@ -43,6 +45,7 @@ export function NodesPanel() {
 function useLoadNodes(data: ApiProjectResponse | undefined, project: string) {
   const clear = useNodeStore((state) => state.clear)
   const loadNodes = useNodeStore((state) => state.loadNodes)
+  const preferences = useNodeStore((state) => state.userPreferences)
 
   useEffect(() => {
     clear()
@@ -53,6 +56,7 @@ function useLoadNodes(data: ApiProjectResponse | undefined, project: string) {
     for (const chain of data.entries) {
       const hueShift = chain.project.startsWith('shared') ? 90 : 0
 
+      const initialAddresses = chain.initialContracts.map((x) => x.address)
       for (const contract of [
         ...chain.initialContracts,
         ...chain.discoveredContracts,
@@ -62,8 +66,14 @@ function useLoadNodes(data: ApiProjectResponse | undefined, project: string) {
           string,
         ]
         const fallback = `${prefix}:${address.slice(0, 6)}…${address.slice(-4)}`
+        const keysToHideOnLoad = preferences.hideLargeArrays
+          ? getKeysToHideOnLoad(contract.fields)
+          : []
+
         const node: Node = {
           id: contract.address,
+          isInitial: initialAddresses.includes(contract.address),
+          hasTemplate: contract.template !== undefined,
           name: contract.name ?? fallback,
           addressType: contract.type,
           address,
@@ -72,6 +82,7 @@ function useLoadNodes(data: ApiProjectResponse | undefined, project: string) {
           hueShift,
           data: null,
           fields: toNodeFields(contract.fields),
+          hiddenFields: keysToHideOnLoad,
         }
         nodes.push(node)
       }
@@ -80,14 +91,17 @@ function useLoadNodes(data: ApiProjectResponse | undefined, project: string) {
         const fallback = `EOA ${prefix}:${address.slice(0, 6)}…${address.slice(-4)}`
         const node: Node = {
           id: eoa.address,
+          isInitial: false,
+          hasTemplate: false,
           name: eoa.name ?? fallback,
-          addressType: 'EOA',
+          addressType: eoa.type,
           address,
           box: { x: 0, y: 0, width: NODE_WIDTH, height: 0 },
           color: 0,
           hueShift,
           data: null,
           fields: [],
+          hiddenFields: [],
         }
         nodes.push(node)
       }
@@ -99,20 +113,27 @@ function useLoadNodes(data: ApiProjectResponse | undefined, project: string) {
 function useSynchronizeSelection() {
   const [lastSelection, rememberSelection] = useState<readonly string[]>([])
   const selectedGlobal = usePanelStore((state) => state.selected)
+  const highlightGlobal = usePanelStore((state) => state.highlight)
   const selectGlobal = usePanelStore((state) => state.select)
   const selectedNodes = useStore((state) => state.selected)
+  const hiddenNodes = useStore((state) => state.hidden)
   const selectNodes = useStore((state) => state.selectAndFocus)
 
   useEffect(() => {
     const eq = (a: readonly string[], b: readonly string[]) =>
       a.length === b.length && a.every((x, i) => b[i] === x)
 
+    const visibleSelectedNodes = selectedNodes.filter(
+      (id) => !hiddenNodes.includes(id),
+    )
+
+    highlightGlobal(visibleSelectedNodes)
     if (selectedNodes.length > 0 && !eq(lastSelection, selectedNodes)) {
       rememberSelection(selectedNodes)
       selectGlobal(selectedNodes[0])
     } else if (selectedGlobal && !lastSelection.includes(selectedGlobal)) {
       rememberSelection([selectedGlobal])
-      selectNodes([selectedGlobal])
+      selectNodes(selectedGlobal)
     }
   }, [
     lastSelection,
@@ -120,6 +141,7 @@ function useSynchronizeSelection() {
     selectedGlobal,
     selectGlobal,
     selectedNodes,
+    hiddenNodes,
     selectNodes,
   ])
 }
@@ -145,14 +167,21 @@ function getNodeFields(
   }
 
   if (value.type === 'object') {
-    return Object.entries(value.value).flatMap(([key, value]) =>
-      getNodeFields(`${path}.${key}`, value, bannedKeys, bannedValues),
+    return value.values.flatMap(([key, value]) =>
+      getNodeFields(
+        `${path}.${extractFieldValue(key)}`,
+        value,
+        bannedKeys,
+        bannedValues,
+      ),
     )
-  } else if (value.type === 'array') {
+  }
+  if (value.type === 'array') {
     return value.values.flatMap((value, i) =>
       getNodeFields(`${path}[${i}]`, value, bannedKeys, bannedValues),
     )
-  } else if (value.type === 'address') {
+  }
+  if (value.type === 'address') {
     if (bannedValues.includes(value.address)) {
       return []
     }
@@ -167,18 +196,42 @@ function getNodeFields(
         },
       },
     ]
-  } else {
-    return []
+  }
+  return []
+}
+
+function extractFieldValue(value: FieldValue): string {
+  switch (value.type) {
+    case 'string':
+      return value.value
+    case 'address':
+      return value.address
+    default:
+      return ''
   }
 }
 
 function getAddresses(value: FieldValue | undefined): string[] {
   if (value?.type === 'array') {
     return value.values.flatMap((v) => getAddresses(v))
-  } else if (value?.type === 'object') {
+  }
+  if (value?.type === 'object') {
     return Object.values(value).flatMap((v) => getAddresses(v))
-  } else if (value?.type === 'address') {
+  }
+  if (value?.type === 'address') {
     return [value.address]
   }
   return []
+}
+
+const LARGE_ARRAY_THRESHOLD = 10
+
+function getKeysToHideOnLoad(fields: ApiField[]): string[] {
+  const largeArrays = fields.filter(
+    (field) =>
+      field.value.type === 'array' &&
+      field.value.values.length > LARGE_ARRAY_THRESHOLD,
+  )
+
+  return toNodeFields(largeArrays).map((field) => field.name)
 }

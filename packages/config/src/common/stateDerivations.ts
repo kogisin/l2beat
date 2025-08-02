@@ -15,6 +15,12 @@ type SupportedOPStackChains =
   | 'SHAPE'
   | 'UNICHAIN'
   | 'INK'
+  | 'SNAXCHAIN'
+  | 'METAL'
+  | 'SUPERSEED'
+  | 'POLYNOMIAL'
+  | 'MINT'
+  | 'SNAXCHAIN'
 type OPStackInfo = [string, string] // [config, genesis file]
 
 const OPStackInfos: Record<SupportedOPStackChains, OPStackInfo> = {
@@ -73,6 +79,26 @@ const OPStackInfos: Record<SupportedOPStackChains, OPStackInfo> = {
   INK: [
     'https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/ink.toml',
     'https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/extra/genesis/mainnet/ink.json.zst',
+  ],
+  SNAXCHAIN: [
+    'https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/snax.toml',
+    'https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/extra/genesis/mainnet/snax.json.zst',
+  ],
+  METAL: [
+    'https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/metal.toml',
+    'https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/extra/genesis/mainnet/metal.json.zst',
+  ],
+  SUPERSEED: [
+    'https://api.conduit.xyz/file/v1/optimism/rollup/superseed-mainnet-0',
+    'https://api.conduit.xyz/file/v1/optimism/genesis/superseed-mainnet-0',
+  ],
+  POLYNOMIAL: [
+    'https://api.conduit.xyz/file/v1/optimism/rollup/polynomial-mainnet-0',
+    'https://api.conduit.xyz/file/v1/optimism/genesis/polynomial-mainnet-0',
+  ],
+  MINT: [
+    'https://api.conduit.xyz/file/v1/optimism/rollup/mint-mainnet-0',
+    'https://api.conduit.xyz/file/v1/optimism/genesis/mint-mainnet-0',
   ],
 }
 

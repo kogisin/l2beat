@@ -1,6 +1,5 @@
-import { expect } from 'earl'
-
 import chalk from 'chalk'
+import { expect } from 'earl'
 import { formatAsciiBorder } from './formatAsciiBorder'
 
 describe(formatAsciiBorder.name, () => {
@@ -12,7 +11,7 @@ describe(formatAsciiBorder.name, () => {
     )
   })
 
-  it('should print a border where mutliple widths', () => {
+  it('should print a border where multiple widths', () => {
     const lines = ['line 1', 'line 23', 'line 345']
     const withBorder = formatAsciiBorder(lines)
     expect(withBorder).toEqual(

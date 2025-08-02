@@ -1,16 +1,21 @@
-import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
+import {
+  ChainSpecificAddress,
+  EthereumAddress,
+  ProjectId,
+  UnixTime,
+} from '@l2beat/shared-pure'
 import { CONTRACTS, DA_BRIDGES, DA_LAYERS, DA_MODES } from '../../common'
 import { BADGES } from '../../common/badges'
 import { EXITS } from '../../common/exits'
 import { FORCE_TRANSACTIONS } from '../../common/forceTransactions'
-import { NEW_CRYPTOGRAPHY } from '../../common/newCryptography'
 import { OPERATOR } from '../../common/operator'
 import { RISK_VIEW } from '../../common/riskView'
 import { getStage } from '../../common/stages/getStage'
-import { STATE_CORRECTNESS } from '../../common/stateCorrectness'
+import { STATE_VALIDATION } from '../../common/stateValidation'
 import { TECHNOLOGY_DATA_AVAILABILITY } from '../../common/technologyDataAvailability'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('termstructure')
 
@@ -62,10 +67,10 @@ export const termstructure: ScalingProject = {
       'Term Structure introduces a distinct ZK Rollup solution democratizing fixed-rate and fixed-term borrowing and lending as well as fixed income trading by offering low transaction fees and enabling forced withdrawals.',
     purposes: ['Payments', 'Exchange', 'Lending'],
     category: 'ZK Rollup',
-    stack: 'ZKsync Lite',
+    stacks: ['ZKsync Lite'],
     links: {
       websites: ['https://ts.finance/'],
-      apps: ['https://app.ts.finance/'],
+      bridges: ['https://app.ts.finance/'],
       documentation: ['https://docs.ts.finance/'],
       explorers: ['https://explorer.ts.finance/'],
       repositories: ['https://github.com/term-structure/'],
@@ -80,14 +85,13 @@ export const termstructure: ScalingProject = {
       explanation:
         'Term Structure is a ZK rollup based on ZKsync Lite’s code base that posts state diffs to the L1. For a transaction to be considered final, the state diffs have to be submitted and validity proof should be generated, submitted, and verified. ',
     },
-    finality: {
-      finalizationPeriod: 0,
-    },
   },
   config: {
     escrows: [
       discovery.getEscrowDetails({
-        address: EthereumAddress('0x09E01425780094a9754B2bd8A3298f73ce837CF9'),
+        address: ChainSpecificAddress(
+          'eth:0x09E01425780094a9754B2bd8A3298f73ce837CF9',
+        ),
         sinceTimestamp: UnixTime(1716263903),
         tokens: '*',
       }),
@@ -148,51 +152,51 @@ export const termstructure: ScalingProject = {
     sequencerFailure: RISK_VIEW.SEQUENCER_FORCE_VIA_L1(expirationPeriod),
     proposerFailure: RISK_VIEW.PROPOSER_USE_ESCAPE_HATCH_ZK,
   },
-  stage: getStage({
-    stage0: {
-      callsItselfRollup: true,
-      stateRootsPostedToL1: true,
-      dataAvailabilityOnL1: true,
-      rollupNodeSourceAvailable: 'UnderReview',
+  stage: getStage(
+    {
+      stage0: {
+        callsItselfRollup: true,
+        stateRootsPostedToL1: true,
+        dataAvailabilityOnL1: true,
+        rollupNodeSourceAvailable: 'UnderReview',
+        stateVerificationOnL1: true,
+        fraudProofSystemAtLeast5Outsiders: null,
+      },
+      stage1: {
+        principle: false,
+        usersHave7DaysToExit: false,
+        usersCanExitWithoutCooperation: true,
+        securityCouncilProperlySetUp: null,
+      },
+      stage2: {
+        proofSystemOverriddenOnlyInCaseOfABug: null,
+        fraudProofSystemIsPermissionless: null,
+        delayWith30DExitWindow: false,
+      },
     },
-    stage1: {
-      principle: false,
-      stateVerificationOnL1: true,
-      fraudProofSystemAtLeast5Outsiders: null,
-      usersHave7DaysToExit: false,
-      usersCanExitWithoutCooperation: true,
-      securityCouncilProperlySetUp: null,
+    {
+      additionalConsiderations: {
+        short:
+          'Term Structure provides the infrastructure for fixed-rate leverage, lending and borrowing. Arbitrary contracts are not supported.',
+        long: 'Term Structure provides the infrastructure for fixed-rate leverage, lending and borrowing. Arbitrary contracts are not supported.',
+      },
     },
-    stage2: {
-      proofSystemOverriddenOnlyInCaseOfABug: null,
-      fraudProofSystemIsPermissionless: null,
-      delayWith30DExitWindow: false,
-    },
-  }),
+  ),
+  stateValidation: {
+    categories: [
+      {
+        ...STATE_VALIDATION.VALIDITY_PROOFS,
+        references: [
+          {
+            title:
+              'RollupFacet.sol - Etherscan source code, verifyOneBlock function',
+            url: 'https://etherscan.io/address/0x955cdD2E56Ca2776a101a552A318d28fe311398D#code',
+          },
+        ],
+      },
+    ],
+  },
   technology: {
-    stateCorrectness: {
-      ...STATE_CORRECTNESS.VALIDITY_PROOFS,
-      references: [
-        {
-          title:
-            'RollupFacet.sol - Etherscan source code, verifyOneBlock function',
-          url: 'https://etherscan.io/address/0x955cdD2E56Ca2776a101a552A318d28fe311398D#code',
-        },
-      ],
-    },
-    newCryptography: {
-      ...NEW_CRYPTOGRAPHY.ZK_SNARKS,
-      references: [
-        {
-          title: 'Verifier.sol - Etherscan source code',
-          url: 'https://etherscan.io/address/0x23369A60E5A8f422E38d799eD55e7AD8Ed4A86cE',
-        },
-        {
-          title: 'EvacuVerifier.sol - Etherscan source code',
-          url: 'https://etherscan.io/address/0x9c7Df3981A89eD04588907843fe2a6c1BcCc4467#code',
-        },
-      ],
-    },
     dataAvailability: {
       ...TECHNOLOGY_DATA_AVAILABILITY.ON_CHAIN_CALLDATA,
       references: [
@@ -290,7 +294,7 @@ export const termstructure: ScalingProject = {
     ],
   },
   permissions: {
-    [discovery.chain]: {
+    ethereum: {
       actors: [
         discovery.getPermissionDetails(
           'Admins',
@@ -341,7 +345,7 @@ export const termstructure: ScalingProject = {
   },
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails('ZkTrueUp', {
           description:
             'Main contract of the system. It manages deposits, withdrawals, verification, permissions and DeFi operations.',
@@ -355,4 +359,5 @@ export const termstructure: ScalingProject = {
     },
     risks: [CONTRACTS.UPGRADE_NO_DELAY_RISK],
   },
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

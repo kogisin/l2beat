@@ -1,7 +1,7 @@
 {
   "$schema": "../../../../../../discovery/schemas/contract.v2.schema.json",
   "displayName": "PolygonRollupManager",
-  "description": "The central shared managing contract for Layer 2s on the Polygon AggLayer. This contract receives L2 state roots as well as ZK proofs. All connected Layer 2s can be globally paused by activating the 'Emergency State'. This can be done by the {{emergencyCouncilAdminAC}} or by anyone after {{_HALT_AGGREGATION_TIMEOUT}} of inactive verifiers.",
+  "description": "The central shared managing contract for Layer 2s on the Polygon Agglayer. This contract receives L2 state roots as well as ZK proofs. All connected Layer 2s can be globally paused by activating the 'Emergency State'. This can be done by the {{emergencyCouncilAdminAC}} or by anyone after {{_HALT_AGGREGATION_TIMEOUT}} of inactive verifiers.",
   "types": {
     "IsGreaterThanOne": {
       "typeCaster": "GreaterThan",
@@ -147,12 +147,18 @@
     },
     "rollupsDataV2": {
       "description": "Maps rollup contracts and their verifier. Any change should be picked up also by the specific rollup config, unless it's a new rollup. [rollupContract, chainID, verifier, forkID, rollupVerifierType, programVKey]",
-      "severity": "MEDIUM",
+      "severity": "LOW",
       "handler": {
         "type": "array",
         "method": "rollupIDToRollupDataV2",
         "startIndex": 1,
-        "pickFields": [
+        "length": "{{ rollupCount }}",
+        "ignoreRelative": true
+      },
+      "edit": [
+        "map",
+        [
+          "pick",
           "rollupContract",
           "chainID",
           "verifier",
@@ -160,10 +166,8 @@
           "rollupTypeID",
           "rollupVerifierType",
           "programVKey"
-        ],
-        "length": "{{ rollupCount }}",
-        "ignoreRelative": true
-      }
+        ]
+      ]
     },
     "rollupTypes": {
       "description": "struct consensusImplementation, verifier, forkID, rollupVerifierType, obsolete, programVKey",
@@ -172,28 +176,32 @@
         "method": "rollupTypeMap",
         "startIndex": 1,
         "length": "{{ rollupTypeCount }}",
-        "pickFields": [
+        "ignoreRelative": true
+      },
+      "edit": [
+        "map",
+        [
+          "pick",
           "consensusImplementation",
           "verifier",
           "forkID",
           "rollupVerifierType",
           "obsolete",
           "programVKey"
-        ],
-        "ignoreRelative": true
-      }
+        ]
+      ]
     },
-    "isVerifyingBatches": {
-      "description": "Checks if lastVerifiedBatch for a rollupID is greater than one. Works like a trigger for statetransition projects becoming active after deployment. Mind that index here is rollupID-1.",
-      "handler": {
-        "type": "array",
-        "method": "rollupIDToRollupData",
-        "startIndex": 1,
-        "length": "{{ rollupCount }}",
-        "pickFields": ["lastVerifiedBatch"]
-      },
-      "returnType": "(IsGreaterThanOne[][])"
-    },
+    //"isVerifyingBatches": {
+    //  "description": "Checks if lastVerifiedBatch for a rollupID is greater than one. Works like a trigger for statetransition projects becoming active after deployment. Mind that index here is rollupID-1.",
+    //  "handler": {
+    //    "type": "array",
+    //    "method": "rollupIDToRollupData",
+    //    "startIndex": 1,
+    //    "length": "{{ rollupCount }}"
+    //    // "pickFields": ["lastVerifiedBatch"]
+    //  },
+    //  //"edit": ["map", ["map", ["format", "IsGreaterThanOne"]]]
+    //},
     "pessimisticProofSenders": {
       "description": "Lists any rollupID that sends a pessimistic proof.",
       "handler": {

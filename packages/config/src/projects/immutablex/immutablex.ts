@@ -1,19 +1,19 @@
-import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
+import { ChainSpecificAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
 import {
   CONTRACTS,
   DA_BRIDGES,
   DA_LAYERS,
   DA_MODES,
+  DaCommitteeSecurityRisk,
+  DaEconomicSecurityRisk,
   EXITS,
   FORCE_TRANSACTIONS,
-  NEW_CRYPTOGRAPHY,
   OPERATOR,
+  REASON_FOR_BEING_OTHER,
   RISK_VIEW,
-  STATE_CORRECTNESS,
+  STATE_VALIDATION,
   TECHNOLOGY_DATA_AVAILABILITY,
 } from '../../common'
-import { REASON_FOR_BEING_OTHER } from '../../common'
-import { DaCommitteeSecurityRisk, DaEconomicSecurityRisk } from '../../common'
 import { BADGES } from '../../common/badges'
 import { formatDelay } from '../../common/formatDelays'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
@@ -26,6 +26,7 @@ import {
   generateDiscoveryDrivenContracts,
   generateDiscoveryDrivenPermissions,
 } from '../../templates/generateDiscoveryDrivenSections'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 import { StarkexDAC } from '../../templates/starkex-template'
 
 const discovery = new ProjectDiscovery('immutablex')
@@ -70,11 +71,11 @@ export const immutablex: ScalingProject = {
     description:
       'Immutable X is a NFT-focused Validium providing zero gas fees, instant trades and scalability for applications.',
     purposes: ['NFT', 'Exchange'],
-    stack: 'StarkEx',
-    category: 'Validium',
+    stacks: ['StarkEx'],
+    category: 'Other',
     links: {
       websites: ['https://immutable.com/'],
-      apps: ['https://market.immutable.com/'],
+      bridges: ['https://market.immutable.com/'],
       documentation: [
         'https://docs.starkware.co/starkex/perpetual/perpetual_overview.html',
       ],
@@ -98,7 +99,9 @@ export const immutablex: ScalingProject = {
     associatedTokens: ['IMX'],
     escrows: [
       discovery.getEscrowDetails({
-        address: EthereumAddress('0x5FDCCA53617f4d2b9134B29090C87D01058e27e9'),
+        address: ChainSpecificAddress(
+          'eth:0x5FDCCA53617f4d2b9134B29090C87D01058e27e9',
+        ),
         sinceTimestamp: UnixTime(1615389188),
         tokens: ['ETH', 'IMX', 'USDC', 'OMI'],
         description: 'Main StarkEx contract, used also as an escrow.',
@@ -134,9 +137,10 @@ export const immutablex: ScalingProject = {
     },
     proposerFailure: RISK_VIEW.PROPOSER_USE_ESCAPE_HATCH_MP_NFT,
   },
+  stateValidation: {
+    categories: [STATE_VALIDATION.STARKEX_VALIDITY_PROOFS],
+  },
   technology: {
-    stateCorrectness: STATE_CORRECTNESS.STARKEX_VALIDITY_PROOFS,
-    newCryptography: NEW_CRYPTOGRAPHY.ZK_STARKS,
     dataAvailability: TECHNOLOGY_DATA_AVAILABILITY.STARKEX_OFF_CHAIN,
     operator: OPERATOR.STARKEX_OPERATOR,
     forceTransactions: FORCE_TRANSACTIONS.STARKEX_SPOT_WITHDRAW(),
@@ -224,4 +228,5 @@ export const immutablex: ScalingProject = {
         ),
     },
   }),
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

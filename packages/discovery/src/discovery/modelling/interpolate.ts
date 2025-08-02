@@ -1,5 +1,5 @@
-import type { EntryParameters } from '../output/types'
-import type { ContractValue } from '../output/types'
+import { ChainSpecificAddress } from '@l2beat/shared-pure'
+import type { ContractValue, EntryParameters } from '../output/types'
 
 export function interpolateModelTemplate(
   content: string,
@@ -11,12 +11,17 @@ export function interpolateModelTemplate(
     tryCastingToName(String(values['$.address']), addressToNameMap, false),
   )
   const withValuesReplaced = withSelfReplaced.replace(
-    /&([a-zA-Z0-9_$.]+)(:raw)?(\|lower)?/g,
-    (_match, key, raw, lower) => {
+    /&([a-zA-Z0-9_$.]+)(:raw)?(\|lower)?(\|quote)?(\|orNil)?/g,
+    (_match, key, raw, lower, _quote, _orNil) => {
       const leaveRaw = raw !== undefined
       const toLower = lower !== undefined
+      const quote = _quote !== undefined
+      const orNil = _orNil !== undefined
       const value = values[key]
       if (value === undefined) {
+        if (orNil) {
+          return 'nil'
+        }
         throw new Error(
           `Field "${key}" not found in contract ${values['$.name']}`,
         )
@@ -25,12 +30,19 @@ export function interpolateModelTemplate(
         return `(${value
           .map((v) => tryCastingToName(String(v), addressToNameMap, leaveRaw))
           .map((v) => (toLower ? v.toLowerCase() : v))
+          .map((v) => (quote ? `"${v}"` : v))
           .join('; ')})`
       }
       const processedValue = toLower
         ? String(value).toLowerCase()
         : String(value)
-      return tryCastingToName(processedValue, addressToNameMap, leaveRaw)
+      const casted = tryCastingToName(
+        processedValue,
+        addressToNameMap,
+        leaveRaw,
+      )
+      const quoted = quote ? `"${casted}"` : casted
+      return quoted
     },
   )
   return withValuesReplaced
@@ -45,7 +57,11 @@ export function tryCastingToName(
     return value
   }
   const name = addressToNameMap[value.toLowerCase()]
-  return name ? normalizeId(name) : value
+  return name ? normalizeId(name) : quoteEthereumAddress(value)
+}
+
+export function quoteEthereumAddress(value: string) {
+  return ChainSpecificAddress.check(value) ? `"${value.toLowerCase()}"` : value
 }
 
 // Clingo ids need to start with a lowercase letter

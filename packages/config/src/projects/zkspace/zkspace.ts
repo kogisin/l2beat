@@ -1,8 +1,9 @@
 import {
+  ChainSpecificAddress,
   EthereumAddress,
+  formatSeconds,
   ProjectId,
   UnixTime,
-  formatSeconds,
 } from '@l2beat/shared-pure'
 
 import {
@@ -10,7 +11,6 @@ import {
   DA_BRIDGES,
   DA_LAYERS,
   DA_MODES,
-  NEW_CRYPTOGRAPHY,
   RISK_VIEW,
 } from '../../common'
 import { BADGES } from '../../common/badges'
@@ -19,6 +19,7 @@ import { getStage } from '../../common/stages/getStage'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import { HARDCODED } from '../../discovery/values/hardcoded'
 import type { ScalingProject } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 import { zkswap } from '../zkswap/zkswap'
 
 const discovery = new ProjectDiscovery('zkspace')
@@ -48,11 +49,11 @@ export const zkspace: ScalingProject = {
     description:
       'ZKBase is an infrastructure protocol based on Zero-Knowledge (ZK) proof technology. It aims to support various projects across the Bitcoin and Ethereum networks.',
     purposes: ['NFT', 'Exchange', 'Payments'],
-    stack: 'ZKsync Lite',
+    stacks: ['ZKsync Lite'],
     category: 'ZK Rollup',
     links: {
       websites: ['https://zkbase.org/'],
-      apps: ['https://zkbase.app'],
+      bridges: ['https://zkbase.app'],
       documentation: ['https://en.wiki.zks.org/'],
       explorers: ['https://explorer.zkbase.app/'],
       repositories: ['https://github.com/l2labs/zkswap-contracts'],
@@ -67,15 +68,14 @@ export const zkspace: ScalingProject = {
       explanation:
         'ZK Space is a ZK rollup based on ZKsync Lite’s code base that posts state diffs to the L1. For a transaction to be considered final, the state diffs have to be submitted and validity proof should be generated, submitted, and verified. ',
     },
-    finality: {
-      finalizationPeriod,
-    },
   },
   config: {
     associatedTokens: ['ZKS'],
     escrows: [
       discovery.getEscrowDetails({
-        address: EthereumAddress('0x5CDAF83E077DBaC2692b5864CA18b61d67453Be8'),
+        address: ChainSpecificAddress(
+          'eth:0x5CDAF83E077DBaC2692b5864CA18b61d67453Be8',
+        ),
         sinceTimestamp: UnixTime(1639569183),
         tokens: '*',
       }),
@@ -126,46 +126,46 @@ export const zkspace: ScalingProject = {
     sequencerFailure: RISK_VIEW.SEQUENCER_FORCE_VIA_L1(forcedWithdrawalDelay),
     proposerFailure: RISK_VIEW.PROPOSER_USE_ESCAPE_HATCH_ZK,
   },
-  stage: getStage({
-    stage0: {
-      callsItselfRollup: true,
-      stateRootsPostedToL1: true,
-      dataAvailabilityOnL1: true,
-      rollupNodeSourceAvailable: false,
+  stage: getStage(
+    {
+      stage0: {
+        callsItselfRollup: true,
+        stateRootsPostedToL1: true,
+        dataAvailabilityOnL1: true,
+        rollupNodeSourceAvailable: false,
+        stateVerificationOnL1: true,
+        fraudProofSystemAtLeast5Outsiders: null,
+      },
+      stage1: {
+        principle: false,
+        usersHave7DaysToExit: false,
+        usersCanExitWithoutCooperation: true,
+        securityCouncilProperlySetUp: null,
+      },
+      stage2: {
+        proofSystemOverriddenOnlyInCaseOfABug: null,
+        fraudProofSystemIsPermissionless: null,
+        delayWith30DExitWindow: false,
+      },
     },
-    stage1: {
-      principle: false,
-      stateVerificationOnL1: true,
-      fraudProofSystemAtLeast5Outsiders: null,
-      usersHave7DaysToExit: false,
-      usersCanExitWithoutCooperation: true,
-      securityCouncilProperlySetUp: null,
+    {
+      additionalConsiderations: {
+        short:
+          'ZKBase provides the infrastructure for token transfer, swaps and NFT minting. Arbitrary contracts are not supported.',
+        long: 'ZKBase provides the infrastructure for token transfer, swaps and NFT minting. Arbitrary contracts are not supported.',
+      },
     },
-    stage2: {
-      proofSystemOverriddenOnlyInCaseOfABug: null,
-      fraudProofSystemIsPermissionless: null,
-      delayWith30DExitWindow: false,
-    },
-  }),
+  ),
+  stateValidation: zkswap.stateValidation,
   technology: {
-    stateCorrectness: zkswap.technology.stateCorrectness,
-    newCryptography: {
-      ...NEW_CRYPTOGRAPHY.ZK_SNARKS,
-      references: [
-        {
-          title: 'ZKSpace Whitepaper',
-          url: 'https://github.com/l2labs/zkspace-whitepaper',
-        },
-      ],
-    },
-    dataAvailability: zkswap.technology.dataAvailability,
-    operator: zkswap.technology.operator,
-    forceTransactions: zkswap.technology.forceTransactions,
-    exitMechanisms: zkswap.technology.exitMechanisms,
+    dataAvailability: zkswap.technology?.dataAvailability,
+    operator: zkswap.technology?.operator,
+    forceTransactions: zkswap.technology?.forceTransactions,
+    exitMechanisms: zkswap.technology?.exitMechanisms,
   },
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails('ZkSync', {
           description:
             'The main Rollup contract. Operator commits blocks, provides ZK proof which is validated by the Verifier contract and process withdrawals (executes blocks). Users deposit ETH and ERC20 tokens. This contract defines the upgrade delay in the UPGRADE_NOTICE_PERIOD constant that is currently set to 8 days.',
@@ -202,7 +202,7 @@ export const zkspace: ScalingProject = {
     risks: [CONTRACTS.UPGRADE_WITH_DELAY_RISK(upgradeDelayString)],
   },
   permissions: {
-    [discovery.chain]: {
+    ethereum: {
       actors: [
         discovery.getPermissionDetails(
           'zkSpace Admin',
@@ -241,4 +241,5 @@ export const zkspace: ScalingProject = {
       type: 'general',
     },
   ],
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

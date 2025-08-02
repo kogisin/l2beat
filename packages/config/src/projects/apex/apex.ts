@@ -1,4 +1,4 @@
-import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
+import { ChainSpecificAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
 import {
   CONTRACTS,
   DA_BRIDGES,
@@ -6,13 +6,12 @@ import {
   DA_MODES,
   EXITS,
   FORCE_TRANSACTIONS,
-  NEW_CRYPTOGRAPHY,
   OPERATOR,
+  REASON_FOR_BEING_OTHER,
   RISK_VIEW,
-  STATE_CORRECTNESS,
+  STATE_VALIDATION,
   TECHNOLOGY_DATA_AVAILABILITY,
 } from '../../common'
-import { REASON_FOR_BEING_OTHER } from '../../common'
 import { BADGES } from '../../common/badges'
 import { formatDelay } from '../../common/formatDelays'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
@@ -25,6 +24,7 @@ import {
   generateDiscoveryDrivenContracts,
   generateDiscoveryDrivenPermissions,
 } from '../../templates/generateDiscoveryDrivenSections'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 import { StarkexDAC } from '../../templates/starkex-template'
 
 const discovery = new ProjectDiscovery('apex')
@@ -102,6 +102,7 @@ export const apex: ScalingProject = {
   type: 'layer2',
   id: ProjectId('apex'),
   addedAt: UnixTime(1663927910), // 2022-09-23T10:11:50Z
+  archivedAt: UnixTime(1752072188),
   capability: 'appchain',
   badges: [
     BADGES.VM.AppChain,
@@ -111,7 +112,11 @@ export const apex: ScalingProject = {
   ],
   reasonsForBeingOther: [REASON_FOR_BEING_OTHER.LOW_DAC_THRESHOLD],
   display: {
+    redWarning:
+      'Critical contract references can be changed by an EOA which could result in the loss of all funds.',
     architectureImage: 'starkex',
+    headerWarning:
+      'Apex Pro and the associated StarkEx instances [were sunset](https://www.apex.exchange/blog/detail/ApeX-Pro-Sunset-Delisting-Timeline-for-Trading-Pairs).',
     name: 'ApeX',
     slug: 'apex',
     description: `ApeX Pro is a non-custodial trading platform that delivers
@@ -120,11 +125,11 @@ export const apex: ScalingProject = {
       two independent StarkEx instances, one for USDC and one for USDT, but that
       technical distinction is not visible to the user.`,
     purposes: ['Exchange'],
-    stack: 'StarkEx',
-    category: 'Validium',
+    stacks: ['StarkEx'],
+    category: 'Other',
     links: {
       websites: ['https://apex.exchange/'],
-      apps: ['https://pro.apex.exchange/'],
+      bridges: ['https://pro.apex.exchange/'],
       documentation: ['https://apex-pro.gitbook.io/apex-pro?lang=en-US'],
       repositories: ['https://github.com/ApeX-Protocol/core'],
       socialMedia: [
@@ -148,12 +153,16 @@ export const apex: ScalingProject = {
     associatedTokens: ['APEX'],
     escrows: [
       discovery.getEscrowDetails({
-        address: EthereumAddress('0xA1D5443F2FB80A5A55ac804C948B45ce4C52DCbb'),
+        address: ChainSpecificAddress(
+          'eth:0xA1D5443F2FB80A5A55ac804C948B45ce4C52DCbb',
+        ),
         sinceTimestamp: UnixTime(1660252039),
         tokens: ['USDC'],
       }),
       discovery.getEscrowDetails({
-        address: EthereumAddress('0xe53A6eD882Eb3f90cCe0390DDB04c876C5482E6b'),
+        address: ChainSpecificAddress(
+          'eth:0xe53A6eD882Eb3f90cCe0390DDB04c876C5482E6b',
+        ),
         tokens: ['USDT'],
       }),
     ],
@@ -183,9 +192,10 @@ export const apex: ScalingProject = {
     },
     proposerFailure: RISK_VIEW.PROPOSER_USE_ESCAPE_HATCH_MP_AVGPRICE,
   },
+  stateValidation: {
+    categories: [STATE_VALIDATION.STARKEX_VALIDITY_PROOFS],
+  },
   technology: {
-    stateCorrectness: STATE_CORRECTNESS.STARKEX_VALIDITY_PROOFS,
-    newCryptography: NEW_CRYPTOGRAPHY.ZK_STARKS,
     dataAvailability: TECHNOLOGY_DATA_AVAILABILITY.STARKEX_OFF_CHAIN,
     operator: OPERATOR.STARKEX_OPERATOR,
     forceTransactions:
@@ -225,4 +235,5 @@ export const apex: ScalingProject = {
       membersCount: dacConfig.membersCount,
     },
   }),
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

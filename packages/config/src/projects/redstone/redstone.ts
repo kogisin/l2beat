@@ -1,12 +1,12 @@
-import { UnixTime, formatSeconds } from '@l2beat/shared-pure'
-
-import { DA_LAYERS, REASON_FOR_BEING_OTHER } from '../../common'
+import { formatSeconds, UnixTime } from '@l2beat/shared-pure'
 import {
+  DA_LAYERS,
   DaCommitteeSecurityRisk,
   DaEconomicSecurityRisk,
   DaFraudDetectionRisk,
   DaRelayerFailureRisk,
   DaUpgradeabilityRisk,
+  REASON_FOR_BEING_OTHER,
 } from '../../common'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
@@ -44,7 +44,7 @@ export const redstone: ScalingProject = opStackL2({
       "Redstone is a chain built for onchain games and autonomous worlds running MUD. It's an implementation of OP Plasma with DA challenges.",
     links: {
       websites: ['https://redstone.xyz/'],
-      apps: ['https://redstone.xyz/deposit'],
+      bridges: ['https://redstone.xyz/deposit'],
       documentation: ['https://redstone.xyz/docs'],
       explorers: ['https://explorer.redstone.xyz/'],
       repositories: ['https://github.com/latticexyz/redstone'],
@@ -111,11 +111,11 @@ However, there is a mechanism that allows users to challenge unavailability of d
       risks: [
         {
           category: 'Funds can be lost if',
-          text: `the sequencer posts an invalid data availability commitment and there are no challengers.`,
+          text: 'the sequencer posts an invalid data availability commitment and there are no challengers.',
         },
         {
           category: 'Funds can be lost if',
-          text: `the sequencer posts an invalid data availability commitment, and he is able to outspend the challengers.`,
+          text: 'the sequencer posts an invalid data availability commitment, and he is able to outspend the challengers.',
         },
       ],
     },

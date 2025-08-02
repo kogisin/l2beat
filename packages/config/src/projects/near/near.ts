@@ -1,25 +1,12 @@
 import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
 import { utils } from 'ethers'
 
-import { CONTRACTS } from '../../common'
-import { BRIDGE_RISK_VIEW } from '../../common'
+import { BRIDGE_RISK_VIEW, CONTRACTS } from '../../common'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { Bridge } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('near')
-
-const threshold = discovery.getContractValue<number>(
-  'BridgeAdminMultisig',
-  '$threshold',
-)
-
-const owners: string[] = discovery.getContractValue<string[]>(
-  'BridgeAdminMultisig',
-  '$members',
-)
-
-const size = owners.length
-const adminThresholdString = `${threshold} / ${size}`
 
 const lockDurationSeconds = discovery.getContractValue<number>(
   'NearBridge',
@@ -37,19 +24,22 @@ export const near: Bridge = {
   type: 'bridge',
   id: ProjectId('near'),
   addedAt: UnixTime(1662628329), // 2022-09-08T09:12:09Z
+  archivedAt: UnixTime(1744156800), // 2024-04-09T00:00:00Z
   display: {
     name: 'Rainbow Bridge',
     slug: 'near',
+    warning:
+      'Deposits are paused and funds are being migrated to the new "Omnibridge". See the announcement [here](https://x.com/NEARProtocol/status/1908247501032824914).',
     links: {
       websites: ['https://near.org/'],
       explorers: ['https://explorer.near.org/', 'https://aurorascan.dev/'],
-      apps: ['https://rainbowbridge.app/'],
+      bridges: ['https://rainbowbridge.app/'],
       repositories: ['https://github.com/aurora-is-near/rainbow-bridge'],
       socialMedia: ['https://twitter.com/auroraisnear'],
     },
     description:
       'Rainbow bridge is a light client based bridge between NEAR/AURORA and Ethereum that allows for asset and data movement between these chains. For better gas efficiency from NEAR to Ethereum, it leverages optimistic validation, which adds some trust assumption and latency.',
-    category: 'Token Bridge',
+    category: 'Single-chain',
   },
   config: {
     associatedTokens: ['AURORA'],
@@ -74,11 +64,6 @@ export const near: Bridge = {
       description:
         'Transfers out of the bridge are validated using Optimistic Light Client of Near Chain on Ethereum. Transfers into NEAR are validated by Ethereum light client on NEAR side.',
       sentiment: 'warning',
-    },
-    sourceUpgradeability: {
-      value: 'Yes',
-      description: `Bridge cannot be upgraded but ${adminThresholdString} Admin Multisig can move all funds out of the bridge via admin functions with no warning.`,
-      sentiment: 'bad',
     },
     destinationToken: {
       ...BRIDGE_RISK_VIEW.CANONICAL_OR_WRAPPED,
@@ -137,7 +122,7 @@ export const near: Bridge = {
   },
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails('NearBridge', {
           description: 'Contract storing Near state checkpoints.',
         }),
@@ -158,7 +143,7 @@ export const near: Bridge = {
     risks: [CONTRACTS.UPGRADE_NO_DELAY_RISK],
   },
   permissions: {
-    [discovery.chain]: {
+    ethereum: {
       actors: [
         discovery.getMultisigPermission(
           'BridgeAdminMultisig',
@@ -167,4 +152,13 @@ export const near: Bridge = {
       ],
     },
   },
+  milestones: [
+    {
+      title: 'Bridge paused, migration in progress',
+      url: 'https://x.com/NEARProtocol/status/1908247501032824914',
+      date: '2025-04-04T00:00:00Z',
+      type: 'incident',
+    },
+  ],
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

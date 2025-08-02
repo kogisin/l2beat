@@ -1,4 +1,8 @@
-import { EthereumAddress, UnixTime } from '@l2beat/shared-pure'
+import {
+  ChainSpecificAddress,
+  EthereumAddress,
+  UnixTime,
+} from '@l2beat/shared-pure'
 import { DERIVATION, ESCROW, REASON_FOR_BEING_OTHER } from '../../common'
 import { BADGES } from '../../common/badges'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
@@ -6,9 +10,22 @@ import { opStackL2 } from '../../templates/opStack'
 
 const discovery = new ProjectDiscovery('swell')
 const genesisTimestamp = UnixTime(1732696703)
+const disputeGameFactory = discovery.getContract('DisputeGameFactory')
+const sequencerInbox = ChainSpecificAddress.address(
+  discovery.getContractValue<ChainSpecificAddress>(
+    'SystemConfig',
+    'sequencerInbox',
+  ),
+)
+const sequencerAddress = ChainSpecificAddress.address(
+  discovery.getContractValue<ChainSpecificAddress>(
+    'SystemConfig',
+    'batcherHash',
+  ),
+)
 
 export const swell = opStackL2({
-  addedAt: UnixTime(1712341625), // 2024-04-05T18:27:05Z
+  addedAt: UnixTime(1734566400), // 2024-12-19T00:00:00Z
   discovery,
   genesisTimestamp,
   additionalBadges: [BADGES.RaaS.AltLayer],
@@ -22,7 +39,7 @@ export const swell = opStackL2({
       'Swellchain operates as a restaking-focused Layer 2 network built on the OP Stack. The network aims to extend Ethereum security through EigenLayer restaking while leveraging OP stack proven infrastructure for transaction processing and scalability.',
     links: {
       websites: ['https://swellnetwork.io/'],
-      apps: ['https://app.swellnetwork.io/layer2/swell-l2'],
+      bridges: ['https://app.swellnetwork.io/layer2/swell-l2'],
       documentation: ['https://build.swellnetwork.io/docs'],
       explorers: ['https://explorer.swellnetwork.io/'],
       repositories: ['https://github.com/SwellNetwork'],
@@ -33,20 +50,13 @@ export const swell = opStackL2({
       ],
     },
   },
-  finality: {
-    type: 'OPStack',
-    minTimestamp: UnixTime(1732701647),
-    genesisTimestamp: UnixTime(1732696703),
-    l2BlockTimeSeconds: 2,
-    lag: 0,
-    stateUpdate: 'disabled',
-  },
   stateDerivation: DERIVATION.OPSTACK('SWELL'),
   isNodeAvailable: true,
   chainConfig: {
     name: 'swell',
     chainId: 1923,
     sinceTimestamp: UnixTime(1732696703),
+    coingeckoPlatform: 'swellchain',
     apis: [
       {
         type: 'rpc',
@@ -55,9 +65,53 @@ export const swell = opStackL2({
       },
     ],
   },
+  hasSuperchainScUpgrades: true,
+  nonTemplateTrackedTxs: [
+    {
+      uses: [
+        { type: 'liveness', subtype: 'batchSubmissions' },
+        { type: 'l2costs', subtype: 'batchSubmissions' },
+      ],
+      query: {
+        formula: 'transfer',
+        from: EthereumAddress('0xf854cd5B26bfd73d51236c0122798907Ed65B1f2'), // old sequencer
+        to: sequencerInbox,
+        sinceTimestamp: genesisTimestamp,
+        untilTimestamp: UnixTime(1743876083),
+      },
+    },
+    {
+      uses: [
+        { type: 'liveness', subtype: 'batchSubmissions' },
+        { type: 'l2costs', subtype: 'batchSubmissions' },
+      ],
+      query: {
+        formula: 'transfer',
+        from: sequencerAddress,
+        to: sequencerInbox,
+        sinceTimestamp: UnixTime(1743876083),
+      },
+    },
+    {
+      uses: [
+        { type: 'liveness', subtype: 'stateUpdates' },
+        { type: 'l2costs', subtype: 'stateUpdates' },
+      ],
+      query: {
+        formula: 'functionCall',
+        address: ChainSpecificAddress.address(disputeGameFactory.address),
+        selector: '0x82ecf2f6',
+        functionSignature:
+          'function create(uint32 _gameType, bytes32 _rootClaim, bytes _extraData) payable returns (address proxy_)',
+        sinceTimestamp: genesisTimestamp,
+      },
+    },
+  ],
   nonTemplateEscrows: [
     discovery.getEscrowDetails({
-      address: EthereumAddress('0xecf3376512EDAcA4FBB63d2c67d12a0397d24121'),
+      address: ChainSpecificAddress(
+        'eth:0xecf3376512EDAcA4FBB63d2c67d12a0397d24121',
+      ),
       tokens: ['wstETH'],
       ...ESCROW.CANONICAL_EXTERNAL,
       description:

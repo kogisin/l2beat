@@ -1,7 +1,13 @@
-import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
+import {
+  ChainSpecificAddress,
+  EthereumAddress,
+  ProjectId,
+  UnixTime,
+} from '@l2beat/shared-pure'
 import { BRIDGE_RISK_VIEW } from '../../common'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { Bridge } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('stargate')
 
@@ -38,7 +44,6 @@ export const stargate: Bridge = {
         'Transfers need to be independently confirmed by oracle attesting to source chain checkpoints and Relayer providing merkle proof of the transfer event.',
       sentiment: 'bad',
     },
-    sourceUpgradeability: BRIDGE_RISK_VIEW.UPGRADABLE_NO,
     destinationToken: BRIDGE_RISK_VIEW.CANONICAL,
   },
   technology: {
@@ -82,61 +87,81 @@ export const stargate: Bridge = {
     // from the pool factory: 0x06d538690af257da524f25d0cd52fd85b1c2173e. For Ether pool (SGETH) there is additional Escrow contract
     escrows: [
       discovery.getEscrowDetails({
-        address: EthereumAddress('0xdf0770dF86a8034b3EFEf0A1Bb3c889B8332FF56'),
+        address: ChainSpecificAddress(
+          'eth:0xdf0770dF86a8034b3EFEf0A1Bb3c889B8332FF56',
+        ),
         sinceTimestamp: UnixTime(1647511732),
         tokens: ['USDC'],
         description: 'USDC Escrow',
       }),
       discovery.getEscrowDetails({
-        address: EthereumAddress('0x38EA452219524Bb87e18dE1C24D3bB59510BD783'),
+        address: ChainSpecificAddress(
+          'eth:0x38EA452219524Bb87e18dE1C24D3bB59510BD783',
+        ),
         sinceTimestamp: UnixTime(1647511732),
         tokens: ['USDT'],
         description: 'USDT Escrow',
       }),
       discovery.getEscrowDetails({
-        address: EthereumAddress('0x692953e758c3669290cb1677180c64183cEe374e'),
+        address: ChainSpecificAddress(
+          'eth:0x692953e758c3669290cb1677180c64183cEe374e',
+        ),
         sinceTimestamp: UnixTime(1656354769),
         tokens: ['USDD'],
         description: 'USDD Escrow',
       }),
       discovery.getEscrowDetails({
-        address: EthereumAddress('0x0Faf1d2d3CED330824de3B8200fc8dc6E397850d'),
+        address: ChainSpecificAddress(
+          'eth:0x0Faf1d2d3CED330824de3B8200fc8dc6E397850d',
+        ),
         sinceTimestamp: UnixTime(1668459527),
         tokens: ['DAI'],
         description: 'DAI Escrow',
       }),
       discovery.getEscrowDetails({
-        address: EthereumAddress('0xfA0F307783AC21C39E939ACFF795e27b650F6e68'),
+        address: ChainSpecificAddress(
+          'eth:0xfA0F307783AC21C39E939ACFF795e27b650F6e68',
+        ),
         sinceTimestamp: UnixTime(1668459527),
-        tokens: ['FRAX'],
+        tokens: ['FRAX.legacy'],
         description: 'FRAX Escrow',
       }),
       discovery.getEscrowDetails({
-        address: EthereumAddress('0xE8F55368C82D38bbbbDb5533e7F56AfC2E978CC2'),
+        address: ChainSpecificAddress(
+          'eth:0xE8F55368C82D38bbbbDb5533e7F56AfC2E978CC2',
+        ),
         sinceTimestamp: UnixTime(1668459587),
         tokens: ['LUSD'],
         description: 'LUSD Escrow',
       }),
       discovery.getEscrowDetails({
-        address: EthereumAddress('0xd8772edBF88bBa2667ed011542343b0eDDaCDa47'),
+        address: ChainSpecificAddress(
+          'eth:0xd8772edBF88bBa2667ed011542343b0eDDaCDa47',
+        ),
         sinceTimestamp: UnixTime(1673830559),
         tokens: ['Metis'],
         description: 'METIS Escrow',
       }),
       discovery.getEscrowDetails({
-        address: EthereumAddress('0x430Ebff5E3E80A6C58E7e6ADA1d90F5c28AA116d'),
+        address: ChainSpecificAddress(
+          'eth:0x430Ebff5E3E80A6C58E7e6ADA1d90F5c28AA116d',
+        ),
         sinceTimestamp: UnixTime(1673830559),
         tokens: ['USDT'],
         description: 'USDT Pool 2',
       }),
       discovery.getEscrowDetails({
-        address: EthereumAddress('0x1CE66c52C36757Daf6551eDc04800A0Ec9983A09'),
+        address: ChainSpecificAddress(
+          'eth:0x1CE66c52C36757Daf6551eDc04800A0Ec9983A09',
+        ),
         sinceTimestamp: UnixTime(1677032255),
         tokens: ['WOO'],
         description: 'WOO Pool',
       }),
       discovery.getEscrowDetails({
-        address: EthereumAddress('0xA572d137666DCbAdFA47C3fC41F15e90134C618c'),
+        address: ChainSpecificAddress(
+          'eth:0xA572d137666DCbAdFA47C3fC41F15e90134C618c',
+        ),
         sinceTimestamp: UnixTime(1677032255),
         tokens: ['mETH'],
         description: 'mETH Pool',
@@ -153,7 +178,7 @@ export const stargate: Bridge = {
   },
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails(
           'Router',
           'Entry point for the user interaction with StarGate Bridge, handles the logic of swaps and adding liquidity, send messages to the bridge.',
@@ -182,7 +207,7 @@ export const stargate: Bridge = {
     risks: [],
   },
   permissions: {
-    [discovery.chain]: {
+    ethereum: {
       actors: [
         discovery.getMultisigPermission(
           'StarGate Multisig',
@@ -195,25 +220,32 @@ export const stargate: Bridge = {
         discovery.getPermissionDetails(
           'LayerZero Relayer',
           discovery.formatPermissionedAccounts([
-            EthereumAddress('0x902F09715B6303d4173037652FA7377e5b98089E'),
+            ChainSpecificAddress(
+              'eth:0x902F09715B6303d4173037652FA7377e5b98089E',
+            ),
           ]),
           'Contract authorized to relay messages and - as a result - withdraw funds from the bridge.',
         ),
         discovery.getPermissionDetails(
           'LayerZero Relayer Admin owner',
           discovery.formatPermissionedAccounts([
-            EthereumAddress('0x76F6d257CEB5736CbcAAb5c48E4225a45F74d6e5'),
+            ChainSpecificAddress(
+              'eth:0x76F6d257CEB5736CbcAAb5c48E4225a45F74d6e5',
+            ),
           ]),
           'Can upgrade LayerZero relayer contract with no delay.',
         ),
         discovery.getPermissionDetails(
           'LayerZero Oracle Admin owner',
           discovery.formatPermissionedAccounts([
-            EthereumAddress('0x7B80f2924E3Ad59a55f4bcC38AB63480599Be6c8'),
+            ChainSpecificAddress(
+              'eth:0x7B80f2924E3Ad59a55f4bcC38AB63480599Be6c8',
+            ),
           ]),
           'Can upgrade LayerZero oracle contract with no delay.',
         ),
       ],
     },
   },
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

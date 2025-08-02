@@ -1,5 +1,4 @@
 import { getDiscoveryPaths } from '@l2beat/discovery'
-import { CliLogger } from '@l2beat/shared'
 import {
   boolean,
   command,
@@ -10,6 +9,7 @@ import {
   string,
   subcommands,
 } from 'cmd-ts'
+import { getPlainLogger } from '../implementations/common/getPlainLogger'
 import { executeCompareAll } from '../implementations/compare-flat-sources/executeCompareAll'
 import { executeCompareProjects } from '../implementations/compare-flat-sources/executeCompareProjects'
 import { executeCompareSourceOnSource } from '../implementations/compare-flat-sources/executeCompareSourceOnSource'
@@ -18,7 +18,7 @@ import { discoveryPath } from './args'
 
 const forceTableFlag = flag({
   description:
-    'Force the table to be displayed even if the terminal is too small',
+    'Force the table to be displayed even if the terminal is too small.',
   type: boolean,
   long: 'force-table',
   short: 'f',
@@ -27,7 +27,7 @@ const forceTableFlag = flag({
 
 const CompareProjectSources = command({
   name: 'compare-project-sources',
-  description: 'Compare similarities between flat contracts of two projects',
+  description: 'Compare similarities between flat contracts of two projects.',
   version: '1.0.0',
   args: {
     firstProject: positional({ type: string, displayName: 'firstProject' }),
@@ -36,7 +36,6 @@ const CompareProjectSources = command({
     discoveryPath,
   },
   handler: async (args) => {
-    const logger = new CliLogger()
     const paths = getDiscoveryPaths()
     if (args.discoveryPath) {
       paths.discovery = args.discoveryPath
@@ -47,7 +46,7 @@ const CompareProjectSources = command({
       firstProjectPath: args.firstProject,
       secondProjectPath: args.secondProject,
       paths,
-      logger,
+      logger: getPlainLogger(),
     })
   },
 })
@@ -62,7 +61,6 @@ const CompareProjectSourceOnSource = command({
     discoveryPath,
   },
   handler: async (args) => {
-    const logger = new CliLogger()
     const paths = getDiscoveryPaths()
     if (args.discoveryPath) {
       paths.discovery = args.discoveryPath
@@ -72,14 +70,14 @@ const CompareProjectSourceOnSource = command({
       forceTable: args.forceTableFlag,
       projectPath: args.projectPath,
       paths,
-      logger,
+      logger: getPlainLogger(),
     })
   },
 })
 
 const MostSimilarFlatSources = command({
   name: 'most-similar-flat-sources',
-  description: 'Compare and find the most similar project to the one given',
+  description: 'Compare and find the most similar project to the one given.',
   version: '1.0.0',
   args: {
     project: positional({ type: string, displayName: 'project' }),
@@ -87,7 +85,6 @@ const MostSimilarFlatSources = command({
     discoveryPath,
   },
   handler: async (args) => {
-    const logger = new CliLogger()
     const paths = getDiscoveryPaths()
     if (args.discoveryPath) {
       paths.discovery = args.discoveryPath
@@ -97,14 +94,14 @@ const MostSimilarFlatSources = command({
       projectPath: args.project,
       forceTable: args.forceTableFlag,
       paths,
-      logger,
+      logger: getPlainLogger(),
     })
   },
 })
 
 const CompareAllFlatSources = command({
   name: 'compare-all-flat-sources',
-  description: 'Compare similarities of all projects',
+  description: 'Compare similarities of all projects.',
   version: '1.0.0',
   args: {
     discoveryPath,
@@ -128,7 +125,6 @@ const CompareAllFlatSources = command({
     }),
   },
   handler: async (args) => {
-    const logger = new CliLogger()
     const paths = getDiscoveryPaths()
     if (args.discoveryPath) {
       paths.discovery = args.discoveryPath
@@ -139,14 +135,14 @@ const CompareAllFlatSources = command({
       minProjectSimilarity: args.minProjectSimilarity,
       showGraph: args.showGraph,
       paths,
-      logger,
+      logger: getPlainLogger(),
     })
   },
 })
 
 export const CompareFlatSources = subcommands({
   name: 'compare-flat-sources',
-  description: 'Compare project similarities based on flat sources',
+  description: 'Compare project similarities based on flat sources.',
   cmds: {
     all: CompareAllFlatSources,
     similar: MostSimilarFlatSources,

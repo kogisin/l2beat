@@ -1,4 +1,5 @@
-import { type Node, grammar } from 'ohm-js'
+import { type Parser, v } from '@l2beat/validate'
+import { grammar, type Node } from 'ohm-js'
 
 // In Ohm grammar, uppercase ids are for syntactic rules
 // which allow spaces in-between tokens.
@@ -40,7 +41,7 @@ const semantics = clingoFactGrammar.createSemantics().addOperation('toValue', {
   },
 
   Number(_maybeMinus, _digits, _maybeDot, _maybeDecimal) {
-    return parseFloat(this.sourceString)
+    return Number.parseFloat(this.sourceString)
   },
 
   atom(_chars) {
@@ -56,10 +57,39 @@ const semantics = clingoFactGrammar.createSemantics().addOperation('toValue', {
   },
 })
 
-export const parseClingoFact = (fact: string) => {
+export type ClingoValue =
+  | string
+  | number
+  | null
+  | undefined
+  | ClingoFact
+  | ClingoValue[]
+
+export const ClingoValue: Parser<ClingoValue> = v.lazy(() =>
+  v.union([
+    v.string(),
+    v.number(),
+    v.null().transform(() => undefined),
+    v.undefined(),
+    ClingoFact,
+    v.array(ClingoValue),
+  ]),
+)
+
+export type ClingoFact = {
+  atom: string
+  params: ClingoValue[]
+}
+
+export const ClingoFact: Parser<ClingoFact> = v.object({
+  atom: v.string(),
+  params: v.array(ClingoValue),
+})
+
+export function parseClingoFact(fact: string): ClingoFact {
   const parsed = clingoFactGrammar.match(fact, 'Fact')
   if (parsed.failed()) {
     throw new Error(parsed.message)
   }
-  return semantics(parsed).toValue()
+  return ClingoFact.parse(semantics(parsed).toValue())
 }

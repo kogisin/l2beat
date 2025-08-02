@@ -7,6 +7,9 @@ import {
   ZOOM_SENSITIVITY,
 } from '../utils/constants'
 
+// Small constant for smoothing zoom
+const ZOOM_SMOOTHING_FACTOR = 0.75
+
 export function onWheel(
   state: State,
   event: WheelEvent,
@@ -19,7 +22,10 @@ export function onWheel(
   if (event.ctrlKey || event.metaKey) {
     const rect = container.getBoundingClientRect()
 
-    let desiredChange = -deltaY * ZOOM_SENSITIVITY
+    // Apply smoothing to the delta to prevent jumpy zooming
+    const smoothedDeltaY = deltaY * ZOOM_SMOOTHING_FACTOR
+
+    let desiredChange = -smoothedDeltaY * ZOOM_SENSITIVITY
     if (event.ctrlKey && !state.input.ctrlPressed) {
       // NOTE(radomski): This is a magic value but there is no other way to
       // handle this nicely in a compact way. The `onwheel` event triggers
@@ -33,6 +39,11 @@ export function onWheel(
       desiredChange = desiredChange * 8
     }
 
+    // Apply additional smoothing for touch events (pinch gesture)
+    if (event.ctrlKey && !state.input.ctrlPressed) {
+      desiredChange = desiredChange * ZOOM_SMOOTHING_FACTOR
+    }
+
     let newScale = scale * (1 + desiredChange)
     newScale = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, newScale))
     const change = newScale / scale - 1
@@ -44,14 +55,13 @@ export function onWheel(
         scale: scale * (1 + change),
       },
     }
-  } else {
-    return {
-      transform: {
-        offsetX: offsetX - deltaX,
-        offsetY: offsetY - deltaY,
-        scale,
-      },
-    }
+  }
+  return {
+    transform: {
+      offsetX: offsetX - deltaX,
+      offsetY: offsetY - deltaY,
+      scale,
+    },
   }
 }
 

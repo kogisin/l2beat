@@ -1,4 +1,4 @@
-import { UnixTime } from '@l2beat/shared-pure'
+import { ProjectId, UnixTime } from '@l2beat/shared-pure'
 import { BADGES } from '../../common/badges'
 import type { ScalingProject } from '../../internalTypes'
 import { underReviewL2 } from '../../templates/underReview'
@@ -7,7 +7,8 @@ export const airas: ScalingProject = underReviewL2({
   id: 'airas',
   capability: 'universal',
   addedAt: UnixTime(1742829632), //24 March 2025 15:20:32
-  badges: [BADGES.VM.EVM, BADGES.RaaS.Zeeve, BADGES.Stack.PolygonCDK],
+  badges: [BADGES.VM.EVM, BADGES.RaaS.Zeeve, BADGES.Stack.CDKErigon],
+  archivedAt: UnixTime(1744629590), // 2025-04-14T11:20:00.000Z,
   display: {
     name: 'AIRAS',
     slug: 'airas',
@@ -15,10 +16,10 @@ export const airas: ScalingProject = underReviewL2({
       'AIRAS (Artificial Intelligence Real Assets System) is a ZK Rollup designed to power autonomous applications for real-world assets, leveraging AI and blockchain to drive efficiency, transparency, and automation in asset management.',
     purposes: ['RWA'],
     category: 'ZK Rollup',
-    stack: 'Polygon',
+    stacks: ['Agglayer CDK'],
     links: {
       websites: ['https://airas.com/'],
-      apps: ['https://bridge.airas.com'],
+      bridges: ['https://bridge.airas.com'],
       documentation: ['https://airas.gitbook.io/airas'],
       explorers: ['https://explorer.airas.com'],
       repositories: [],
@@ -28,6 +29,9 @@ export const airas: ScalingProject = underReviewL2({
         'https://t.me/airas_network',
       ],
     },
+  },
+  ecosystemInfo: {
+    id: ProjectId('agglayer'),
   },
   chainConfig: {
     gasTokens: ['AIRAS'],

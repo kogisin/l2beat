@@ -1,19 +1,20 @@
-import { assert, EthereumAddress } from '@l2beat/shared-pure'
+import { assert, ChainSpecificAddress, unique } from '@l2beat/shared-pure'
+import { v } from '@l2beat/validate'
 import { utils } from 'ethers'
-import * as z from 'zod'
 
 import type { ContractValue } from '../../output/types'
 import type { IProvider } from '../../provider/IProvider'
 import { ProxyDetector } from '../../proxies/ProxyDetector'
 import { get$Implementations } from '../../utils/extractors'
+import { getSighash } from '../getSighash'
 import type { Handler, HandlerResult } from '../Handler'
 import { toContractValue } from '../utils/toContractValue'
 
-export type PolygonCDKScheduledTransactionsHandlerDefinition = z.infer<
+export type PolygonCDKScheduledTransactionsHandlerDefinition = v.infer<
   typeof PolygonCDKScheduledTransactionsHandlerDefinition
 >
-export const PolygonCDKScheduledTransactionsHandlerDefinition = z.strictObject({
-  type: z.literal('polygoncdkScheduledTransactions'),
+export const PolygonCDKScheduledTransactionsHandlerDefinition = v.strictObject({
+  type: v.literal('polygoncdkScheduledTransactions'),
 })
 
 const abi = new utils.Interface([
@@ -53,7 +54,7 @@ const additionalDecodeMap: Record<
     assert(data !== undefined)
 
     const metadata = await provider.getSource(
-      EthereumAddress(implementation.toString()),
+      ChainSpecificAddress.fromLong(provider.chain, implementation.toString()),
     )
     const contractInterface = new utils.Interface(metadata.abi)
     const tx = contractInterface.parseTransaction({ data: data.toString() })
@@ -84,7 +85,7 @@ export class PolygonCDKScheduledTransactionHandler implements Handler {
 
   async execute(
     provider: IProvider,
-    address: EthereumAddress,
+    address: ChainSpecificAddress,
   ): Promise<HandlerResult> {
     const transactions = await this.getTransactions(provider, address)
     const value = this.transformIntoContractValue(transactions)
@@ -107,7 +108,7 @@ export class PolygonCDKScheduledTransactionHandler implements Handler {
     }))
   }
 
-  async getTransactions(provider: IProvider, address: EthereumAddress) {
+  async getTransactions(provider: IProvider, address: ChainSpecificAddress) {
     const callLogs = await provider.getLogs(address, [
       abi.getEventTopic('CallScheduled'),
     ])
@@ -120,7 +121,7 @@ export class PolygonCDKScheduledTransactionHandler implements Handler {
     return await Promise.all(
       parsed.map(async (entry) =>
         this.decodeCall(
-          provider.switchBlock(entry.blockNumber),
+          await provider.switchBlock(entry.blockNumber),
           this.extractCallFromResult(entry.parsedLog.args),
         ),
       ),
@@ -141,9 +142,11 @@ export class PolygonCDKScheduledTransactionHandler implements Handler {
     const detector = new ProxyDetector()
     const result = await detector.detectProxy(
       provider,
-      EthereumAddress(entry.target),
+      ChainSpecificAddress.fromLong(provider.chain, entry.target),
     )
-    const addresses = [EthereumAddress(entry.target)]
+    const addresses = [
+      ChainSpecificAddress.fromLong(provider.chain, entry.target),
+    ]
     if (result !== undefined) {
       addresses.push(...get$Implementations(result.values))
     }
@@ -151,9 +154,12 @@ export class PolygonCDKScheduledTransactionHandler implements Handler {
     const metadatas = await Promise.all(
       addresses.map((a) => provider.getSource(a)),
     )
-    const contractInterface = new utils.Interface([
-      ...new Set(metadatas.flatMap((m) => m.abi)),
-    ])
+    const contractInterface = new utils.Interface(
+      unique(
+        metadatas.flatMap((m) => m.abi).filter((f) => f.startsWith('function')),
+        (f) => getSighash(f),
+      ),
+    )
     const decodedCalldata = await this.decodeCalldata(
       provider,
       contractInterface,

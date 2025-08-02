@@ -1,18 +1,23 @@
-import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
+import {
+  ChainSpecificAddress,
+  EthereumAddress,
+  ProjectId,
+  UnixTime,
+} from '@l2beat/shared-pure'
 
 import {
   CONTRACTS,
   EXITS,
   FORCE_TRANSACTIONS,
-  NEW_CRYPTOGRAPHY,
   OPERATOR,
   RISK_VIEW,
-  STATE_CORRECTNESS,
+  STATE_VALIDATION,
   TECHNOLOGY_DATA_AVAILABILITY,
 } from '../../common'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import { getSHARPVerifierContracts } from '../../discovery/starkware'
 import type { ScalingProject } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('layer2financezk')
 
@@ -23,7 +28,7 @@ export const layer2financezk: ScalingProject = {
   id: ProjectId('layer2financezk'),
   capability: 'universal',
   addedAt: UnixTime(1654522914), // 2022-06-06T13:41:54Z
-  isArchived: true,
+  archivedAt: UnixTime(1677196800), // 2023-02-24T00:00:00.000Z,
   display: {
     name: 'L2.Finance-zk',
     slug: 'layer2financezk',
@@ -32,7 +37,7 @@ export const layer2financezk: ScalingProject = {
     description:
       'Celer’s ScalingProject.finance in ZK proofs Mode Built with StarkEx from StarkWare.',
     purposes: ['Exchange'],
-    stack: 'StarkEx',
+    stacks: ['StarkEx'],
     category: 'Validium',
     links: {
       websites: ['https://layer2.finance/'],
@@ -85,9 +90,10 @@ export const layer2financezk: ScalingProject = {
     sequencerFailure: RISK_VIEW.SEQUENCER_FORCE_VIA_L1(),
     proposerFailure: RISK_VIEW.PROPOSER_USE_ESCAPE_HATCH_MP,
   },
+  stateValidation: {
+    categories: [STATE_VALIDATION.STARKEX_VALIDITY_PROOFS],
+  },
   technology: {
-    stateCorrectness: STATE_CORRECTNESS.STARKEX_VALIDITY_PROOFS,
-    newCryptography: NEW_CRYPTOGRAPHY.ZK_STARKS,
     dataAvailability: TECHNOLOGY_DATA_AVAILABILITY.STARKEX_OFF_CHAIN,
     operator: OPERATOR.STARKEX_OPERATOR,
     forceTransactions: FORCE_TRANSACTIONS.STARKEX_SPOT_WITHDRAW(),
@@ -95,7 +101,7 @@ export const layer2financezk: ScalingProject = {
   },
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails('StarkExchange', {
           name: 'StarkExchange',
         }),
@@ -122,12 +128,14 @@ export const layer2financezk: ScalingProject = {
     risks: [CONTRACTS.UPGRADE_NO_DELAY_RISK],
   },
   permissions: {
-    [discovery.chain]: {
+    ethereum: {
       actors: [
         discovery.getPermissionDetails(
           'Governor',
           discovery.formatPermissionedAccounts([
-            '0x1E153596BceB29c6EAE88DDB290eBeCC3FE9735e',
+            ChainSpecificAddress(
+              'eth:0x1E153596BceB29c6EAE88DDB290eBeCC3FE9735e',
+            ),
           ]),
           'Can upgrade implementation of the system, potentially gaining access to all funds stored in the bridge. Currently there is no delay before the upgrade, so the users will not have time to migrate.',
         ),
@@ -139,25 +147,32 @@ export const layer2financezk: ScalingProject = {
         discovery.getPermissionDetails(
           'SHARP Verifier Governor',
           discovery.formatPermissionedAccounts([
-            '0x3DE55343499f59CEB3f1dE47F2Cd7Eab28F2F5C6',
+            ChainSpecificAddress(
+              'eth:0x3DE55343499f59CEB3f1dE47F2Cd7Eab28F2F5C6',
+            ),
           ]),
           'Can upgrade implementation of SHARP Verifier, potentially with code approving fraudulent state. Currently there is no delay before the upgrade, so the users will not have time to migrate.',
         ),
         discovery.getPermissionDetails(
           'Broker Owner',
           discovery.formatPermissionedAccounts([
-            '0xe0b79Cf6311E72caF7D31a552BFec67841Dd5988',
+            ChainSpecificAddress(
+              'eth:0xe0b79Cf6311E72caF7D31a552BFec67841Dd5988',
+            ),
           ]),
           'Most Broker functionality is restricted only for the owner, it includes managing rides, setting prices or slippages, burning shares.',
         ),
         discovery.getPermissionDetails(
           'Broker Owner',
           discovery.formatPermissionedAccounts([
-            '0x85A732d8e21f1890BdeA4eDddCf4Dd0E70a31EA5',
+            ChainSpecificAddress(
+              'eth:0x85A732d8e21f1890BdeA4eDddCf4Dd0E70a31EA5',
+            ),
           ]),
           'Most Broker functionality is restricted only for the owner, it includes managing rides, setting prices or slippages, burning shares.',
         ),
       ],
     },
   },
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

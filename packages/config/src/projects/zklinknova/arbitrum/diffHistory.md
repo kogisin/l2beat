@@ -1,3 +1,516 @@
+Generated with discovered.json: 0x162f3143581361e2b38c04b9ac8524c5a5fc3514
+
+# Diff at Thu, 31 Jul 2025 10:58:42 GMT:
+
+- author: Mateusz Radomski (<radomski.main@protonmail.com>)
+- comparing to: main@07319d194d312aca8103826b7db44d44613cc7fa block: 1753687799
+- current timestamp: 1753687799
+
+## Description
+
+Discovery rerun on the same block number with only config-related changes.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 1753687799 (main branch discovery), not current.
+
+```diff
+    contract ArbitrumL1ERC20Bridge (0xfB0Ad0B3C2605A7CA33d6badd0C685E11b8F5585) {
+    +++ description: None
+      name:
+-        "L1ERC20Bridge"
++        "ArbitrumL1ERC20Bridge"
+    }
+```
+
+```diff
+    contract ArbitrumzkLink (0xFF73a1a1d27951A005eb23276dc99CB7F8d5420A) {
+    +++ description: None
+      name:
+-        "zkLink"
++        "ArbitrumzkLink"
+    }
+```
+
+Generated with discovered.json: 0x78b7fa04c42b1767bb6c5a6f60f341f844ab7af6
+
+# Diff at Mon, 14 Jul 2025 12:47:20 GMT:
+
+- author: Mateusz Radomski (<radomski.main@protonmail.com>)
+- comparing to: main@9f4300dad2f3d080cd56fa311d4a848556c74e72 block: 314504547
+- current block number: 314504547
+
+## Description
+
+Discovery rerun on the same block number with only config-related changes.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 314504547 (main branch discovery), not current.
+
+```diff
+    EOA  (0x24a257B7D975E7ec6219C4cFCbcF6E504253c7A9) {
+    +++ description: None
+      address:
+-        "0x24a257B7D975E7ec6219C4cFCbcF6E504253c7A9"
++        "arb1:0x24a257B7D975E7ec6219C4cFCbcF6E504253c7A9"
+    }
+```
+
+```diff
+    contract ArbitrumProxyAdmin (0x48698A17D193bFc882395AC06a1DEdbb222F2917) {
+    +++ description: None
+      address:
+-        "0x48698A17D193bFc882395AC06a1DEdbb222F2917"
++        "arb1:0x48698A17D193bFc882395AC06a1DEdbb222F2917"
+      values.owner:
+-        "0xa29fFe244898CBec19DFEaAfB5cE671389FfF60F"
++        "arb1:0xa29fFe244898CBec19DFEaAfB5cE671389FfF60F"
+      implementationNames.0x48698A17D193bFc882395AC06a1DEdbb222F2917:
+-        "ProxyAdmin"
+      implementationNames.arb1:0x48698A17D193bFc882395AC06a1DEdbb222F2917:
++        "ProxyAdmin"
+    }
+```
+
+```diff
+    EOA  (0x4D9b22B92Ff9faFAc013f82faCA88BDa8E778cb5) {
+    +++ description: None
+      address:
+-        "0x4D9b22B92Ff9faFAc013f82faCA88BDa8E778cb5"
++        "arb1:0x4D9b22B92Ff9faFAc013f82faCA88BDa8E778cb5"
+    }
+```
+
+```diff
+    EOA  (0x6B7551DBbaE2fb728cF851baee5c3A52DF6F60a4) {
+    +++ description: None
+      address:
+-        "0x6B7551DBbaE2fb728cF851baee5c3A52DF6F60a4"
++        "arb1:0x6B7551DBbaE2fb728cF851baee5c3A52DF6F60a4"
+    }
+```
+
+```diff
+    EOA  (0x7785bccF9110C188Dad39bE49D4Cdf6c6CC03F10) {
+    +++ description: None
+      address:
+-        "0x7785bccF9110C188Dad39bE49D4Cdf6c6CC03F10"
++        "arb1:0x7785bccF9110C188Dad39bE49D4Cdf6c6CC03F10"
+    }
+```
+
+```diff
+    EOA  (0x7804969714BF5Ff6356E25acF2Bcb657368c8A01) {
+    +++ description: None
+      address:
+-        "0x7804969714BF5Ff6356E25acF2Bcb657368c8A01"
++        "arb1:0x7804969714BF5Ff6356E25acF2Bcb657368c8A01"
+    }
+```
+
+```diff
+    contract ArbitrumL2Gateway (0x7bd79DEd935B542fb22c74305a4d2A293C18483a) {
+    +++ description: None
+      address:
+-        "0x7bd79DEd935B542fb22c74305a4d2A293C18483a"
++        "arb1:0x7bd79DEd935B542fb22c74305a4d2A293C18483a"
+      values.$admin:
+-        "0xa29fFe244898CBec19DFEaAfB5cE671389FfF60F"
++        "arb1:0xa29fFe244898CBec19DFEaAfB5cE671389FfF60F"
+      values.$implementation:
+-        "0x413552461b0b2c13f117d885b52AaA2f23374B1D"
++        "arb1:0x413552461b0b2c13f117d885b52AaA2f23374B1D"
+      values.$pastUpgrades.0.2.0:
+-        "0xA194FB4EaB262EC9886A119609bbB2800bdD3a2E"
++        "arb1:0xA194FB4EaB262EC9886A119609bbB2800bdD3a2E"
+      values.$pastUpgrades.1.2.0:
+-        "0x413552461b0b2c13f117d885b52AaA2f23374B1D"
++        "arb1:0x413552461b0b2c13f117d885b52AaA2f23374B1D"
+      values.ARB_SYS:
+-        "0x0000000000000000000000000000000000000064"
++        "arb1:0x0000000000000000000000000000000000000064"
+      values.getRemoteGateway:
+-        "0x273D59aed2d793167c162E64b9162154B07583C0"
++        "arb1:0x273D59aed2d793167c162E64b9162154B07583C0"
+      values.owner:
+-        "0xa29fFe244898CBec19DFEaAfB5cE671389FfF60F"
++        "arb1:0xa29fFe244898CBec19DFEaAfB5cE671389FfF60F"
+      values.ZKLINK:
+-        "0xFF73a1a1d27951A005eb23276dc99CB7F8d5420A"
++        "arb1:0xFF73a1a1d27951A005eb23276dc99CB7F8d5420A"
+      implementationNames.0x7bd79DEd935B542fb22c74305a4d2A293C18483a:
+-        "ERC1967Proxy"
+      implementationNames.0x413552461b0b2c13f117d885b52AaA2f23374B1D:
+-        "ArbitrumL2Gateway"
+      implementationNames.arb1:0x7bd79DEd935B542fb22c74305a4d2A293C18483a:
++        "ERC1967Proxy"
+      implementationNames.arb1:0x413552461b0b2c13f117d885b52AaA2f23374B1D:
++        "ArbitrumL2Gateway"
+    }
+```
+
+```diff
+    contract ArbitrumOwner (0xa29fFe244898CBec19DFEaAfB5cE671389FfF60F) {
+    +++ description: None
+      address:
+-        "0xa29fFe244898CBec19DFEaAfB5cE671389FfF60F"
++        "arb1:0xa29fFe244898CBec19DFEaAfB5cE671389FfF60F"
+      values.$implementation:
+-        "0x3E5c63644E683549055b9Be8653de26E0B4CD36E"
++        "arb1:0x3E5c63644E683549055b9Be8653de26E0B4CD36E"
+      values.$members.0:
+-        "0xd30898ECdc21C72250a5fd1dbD37FF7D63237Db5"
++        "arb1:0xd30898ECdc21C72250a5fd1dbD37FF7D63237Db5"
+      values.$members.1:
+-        "0x7785bccF9110C188Dad39bE49D4Cdf6c6CC03F10"
++        "arb1:0x7785bccF9110C188Dad39bE49D4Cdf6c6CC03F10"
+      values.$members.2:
+-        "0x4D9b22B92Ff9faFAc013f82faCA88BDa8E778cb5"
++        "arb1:0x4D9b22B92Ff9faFAc013f82faCA88BDa8E778cb5"
+      values.$members.3:
+-        "0xF801886AE2e127A269B0F11892edb54F692d02dF"
++        "arb1:0xF801886AE2e127A269B0F11892edb54F692d02dF"
+      values.$members.4:
+-        "0x24a257B7D975E7ec6219C4cFCbcF6E504253c7A9"
++        "arb1:0x24a257B7D975E7ec6219C4cFCbcF6E504253c7A9"
+      values.$members.5:
+-        "0xC75EFCffEE930706daec5CaCA012551f6a1845D7"
++        "arb1:0xC75EFCffEE930706daec5CaCA012551f6a1845D7"
+      values.$members.6:
+-        "0xd8F26118505417Ef6468Ac8A2AE1E5117245Db92"
++        "arb1:0xd8F26118505417Ef6468Ac8A2AE1E5117245Db92"
+      values.$members.7:
+-        "0xcC1A2bd1a459be0C7fAd3B7F9Fa9a6CBBFE9BFa5"
++        "arb1:0xcC1A2bd1a459be0C7fAd3B7F9Fa9a6CBBFE9BFa5"
+      implementationNames.0xa29fFe244898CBec19DFEaAfB5cE671389FfF60F:
+-        "GnosisSafeProxy"
+      implementationNames.0x3E5c63644E683549055b9Be8653de26E0B4CD36E:
+-        "GnosisSafeL2"
+      implementationNames.arb1:0xa29fFe244898CBec19DFEaAfB5cE671389FfF60F:
++        "GnosisSafeProxy"
+      implementationNames.arb1:0x3E5c63644E683549055b9Be8653de26E0B4CD36E:
++        "GnosisSafeL2"
+    }
+```
+
+```diff
+    EOA  (0xC75EFCffEE930706daec5CaCA012551f6a1845D7) {
+    +++ description: None
+      address:
+-        "0xC75EFCffEE930706daec5CaCA012551f6a1845D7"
++        "arb1:0xC75EFCffEE930706daec5CaCA012551f6a1845D7"
+    }
+```
+
+```diff
+    EOA  (0xcC1A2bd1a459be0C7fAd3B7F9Fa9a6CBBFE9BFa5) {
+    +++ description: None
+      address:
+-        "0xcC1A2bd1a459be0C7fAd3B7F9Fa9a6CBBFE9BFa5"
++        "arb1:0xcC1A2bd1a459be0C7fAd3B7F9Fa9a6CBBFE9BFa5"
+    }
+```
+
+```diff
+    EOA  (0xd30898ECdc21C72250a5fd1dbD37FF7D63237Db5) {
+    +++ description: None
+      address:
+-        "0xd30898ECdc21C72250a5fd1dbD37FF7D63237Db5"
++        "arb1:0xd30898ECdc21C72250a5fd1dbD37FF7D63237Db5"
+    }
+```
+
+```diff
+    EOA  (0xd8F26118505417Ef6468Ac8A2AE1E5117245Db92) {
+    +++ description: None
+      address:
+-        "0xd8F26118505417Ef6468Ac8A2AE1E5117245Db92"
++        "arb1:0xd8F26118505417Ef6468Ac8A2AE1E5117245Db92"
+    }
+```
+
+```diff
+    EOA  (0xF801886AE2e127A269B0F11892edb54F692d02dF) {
+    +++ description: None
+      address:
+-        "0xF801886AE2e127A269B0F11892edb54F692d02dF"
++        "arb1:0xF801886AE2e127A269B0F11892edb54F692d02dF"
+    }
+```
+
+```diff
+    contract L1ERC20Bridge (0xfB0Ad0B3C2605A7CA33d6badd0C685E11b8F5585) {
+    +++ description: None
+      address:
+-        "0xfB0Ad0B3C2605A7CA33d6badd0C685E11b8F5585"
++        "arb1:0xfB0Ad0B3C2605A7CA33d6badd0C685E11b8F5585"
+      values.$admin:
+-        "0x48698A17D193bFc882395AC06a1DEdbb222F2917"
++        "arb1:0x48698A17D193bFc882395AC06a1DEdbb222F2917"
+      values.$implementation:
+-        "0x1202e0557A23531D09015C802e993d6423685FfB"
++        "arb1:0x1202e0557A23531D09015C802e993d6423685FfB"
+      values.$pastUpgrades.0.2.0:
+-        "0x5f58BcCE409CDaFBbD705e720743b1EfF9fef28c"
++        "arb1:0x5f58BcCE409CDaFBbD705e720743b1EfF9fef28c"
+      values.$pastUpgrades.1.2.0:
+-        "0x1202e0557A23531D09015C802e993d6423685FfB"
++        "arb1:0x1202e0557A23531D09015C802e993d6423685FfB"
+      values.l2Bridge:
+-        "0x6B7551DBbaE2fb728cF851baee5c3A52DF6F60a4"
++        "arb1:0x6B7551DBbaE2fb728cF851baee5c3A52DF6F60a4"
+      values.l2TokenBeacon:
+-        "0x7804969714BF5Ff6356E25acF2Bcb657368c8A01"
++        "arb1:0x7804969714BF5Ff6356E25acF2Bcb657368c8A01"
+      implementationNames.0xfB0Ad0B3C2605A7CA33d6badd0C685E11b8F5585:
+-        "TransparentUpgradeableProxy"
+      implementationNames.0x1202e0557A23531D09015C802e993d6423685FfB:
+-        "L1ERC20Bridge"
+      implementationNames.arb1:0xfB0Ad0B3C2605A7CA33d6badd0C685E11b8F5585:
++        "TransparentUpgradeableProxy"
+      implementationNames.arb1:0x1202e0557A23531D09015C802e993d6423685FfB:
++        "L1ERC20Bridge"
+    }
+```
+
+```diff
+    contract zkLink (0xFF73a1a1d27951A005eb23276dc99CB7F8d5420A) {
+    +++ description: None
+      address:
+-        "0xFF73a1a1d27951A005eb23276dc99CB7F8d5420A"
++        "arb1:0xFF73a1a1d27951A005eb23276dc99CB7F8d5420A"
+      values.$admin:
+-        "0xa29fFe244898CBec19DFEaAfB5cE671389FfF60F"
++        "arb1:0xa29fFe244898CBec19DFEaAfB5cE671389FfF60F"
+      values.$implementation:
+-        "0xe2cd603BFAe63EEFBDf0C51485f835D8B419A305"
++        "arb1:0xe2cd603BFAe63EEFBDf0C51485f835D8B419A305"
+      values.$pastUpgrades.0.2.0:
+-        "0x50efC7f1290479cb879473512D89fDC80B726211"
++        "arb1:0x50efC7f1290479cb879473512D89fDC80B726211"
+      values.$pastUpgrades.1.2.0:
+-        "0x04C6a52f3bf9F73618cD70F234AdB95a73325D1e"
++        "arb1:0x04C6a52f3bf9F73618cD70F234AdB95a73325D1e"
+      values.$pastUpgrades.2.2.0:
+-        "0xe2cd603BFAe63EEFBDf0C51485f835D8B419A305"
++        "arb1:0xe2cd603BFAe63EEFBDf0C51485f835D8B419A305"
+      values.forwardFeeAllocator:
+-        "0xa29fFe244898CBec19DFEaAfB5cE671389FfF60F"
++        "arb1:0xa29fFe244898CBec19DFEaAfB5cE671389FfF60F"
+      values.gateway:
+-        "0x7bd79DEd935B542fb22c74305a4d2A293C18483a"
++        "arb1:0x7bd79DEd935B542fb22c74305a4d2A293C18483a"
+      values.getGateway:
+-        "0x7bd79DEd935B542fb22c74305a4d2A293C18483a"
++        "arb1:0x7bd79DEd935B542fb22c74305a4d2A293C18483a"
+      values.getGovernor:
+-        "0xa29fFe244898CBec19DFEaAfB5cE671389FfF60F"
++        "arb1:0xa29fFe244898CBec19DFEaAfB5cE671389FfF60F"
+      values.owner:
+-        "0xa29fFe244898CBec19DFEaAfB5cE671389FfF60F"
++        "arb1:0xa29fFe244898CBec19DFEaAfB5cE671389FfF60F"
+      implementationNames.0xFF73a1a1d27951A005eb23276dc99CB7F8d5420A:
+-        "ERC1967Proxy"
+      implementationNames.0xe2cd603BFAe63EEFBDf0C51485f835D8B419A305:
+-        "ZkLink"
+      implementationNames.arb1:0xFF73a1a1d27951A005eb23276dc99CB7F8d5420A:
++        "ERC1967Proxy"
+      implementationNames.arb1:0xe2cd603BFAe63EEFBDf0C51485f835D8B419A305:
++        "ZkLink"
+    }
+```
+
+```diff
++   Status: CREATED
+    contract ArbitrumProxyAdmin (0x48698A17D193bFc882395AC06a1DEdbb222F2917)
+    +++ description: None
+```
+
+```diff
++   Status: CREATED
+    contract ArbitrumL2Gateway (0x7bd79DEd935B542fb22c74305a4d2A293C18483a)
+    +++ description: None
+```
+
+```diff
++   Status: CREATED
+    contract ArbitrumOwner (0xa29fFe244898CBec19DFEaAfB5cE671389FfF60F)
+    +++ description: None
+```
+
+```diff
++   Status: CREATED
+    contract L1ERC20Bridge (0xfB0Ad0B3C2605A7CA33d6badd0C685E11b8F5585)
+    +++ description: None
+```
+
+```diff
++   Status: CREATED
+    contract zkLink (0xFF73a1a1d27951A005eb23276dc99CB7F8d5420A)
+    +++ description: None
+```
+
+Generated with discovered.json: 0xfc6d33d131a7559872b438b64062a4b692bb0937
+
+# Diff at Fri, 04 Jul 2025 12:19:30 GMT:
+
+- author: Mateusz Radomski (<radomski.main@protonmail.com>)
+- comparing to: main@1f56dc47fe915564d4555300304da4d3bcbc087f block: 314504547
+- current block number: 314504547
+
+## Description
+
+Discovery rerun on the same block number with only config-related changes.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 314504547 (main branch discovery), not current.
+
+```diff
+    contract ArbitrumProxyAdmin (0x48698A17D193bFc882395AC06a1DEdbb222F2917) {
+    +++ description: None
+      directlyReceivedPermissions.0.from:
+-        "arbitrum:0xfB0Ad0B3C2605A7CA33d6badd0C685E11b8F5585"
++        "arb1:0xfB0Ad0B3C2605A7CA33d6badd0C685E11b8F5585"
+    }
+```
+
+```diff
+    contract ArbitrumOwner (0xa29fFe244898CBec19DFEaAfB5cE671389FfF60F) {
+    +++ description: None
+      receivedPermissions.0.from:
+-        "arbitrum:0x7bd79DEd935B542fb22c74305a4d2A293C18483a"
++        "arb1:0x7bd79DEd935B542fb22c74305a4d2A293C18483a"
+      receivedPermissions.1.via.0.address:
+-        "arbitrum:0x48698A17D193bFc882395AC06a1DEdbb222F2917"
++        "arb1:0x48698A17D193bFc882395AC06a1DEdbb222F2917"
+      receivedPermissions.1.from:
+-        "arbitrum:0xfB0Ad0B3C2605A7CA33d6badd0C685E11b8F5585"
++        "arb1:0xfB0Ad0B3C2605A7CA33d6badd0C685E11b8F5585"
+      receivedPermissions.2.from:
+-        "arbitrum:0xFF73a1a1d27951A005eb23276dc99CB7F8d5420A"
++        "arb1:0xFF73a1a1d27951A005eb23276dc99CB7F8d5420A"
+      directlyReceivedPermissions.0.from:
+-        "arbitrum:0x48698A17D193bFc882395AC06a1DEdbb222F2917"
++        "arb1:0x48698A17D193bFc882395AC06a1DEdbb222F2917"
+    }
+```
+
+Generated with discovered.json: 0x84f9010162dafe3c7a6a70f944322af52eeeb4c9
+
+# Diff at Fri, 23 May 2025 09:41:21 GMT:
+
+- author: Adrian Adamiak (<adrian@adamiak.net>)
+- comparing to: main@69cd181abbc3c830a6caf2f4429b37cae72ffdb8 block: 314504547
+- current block number: 314504547
+
+## Description
+
+Introduced .role field on each permission, defaulting to field name on which it was defined (with '.' prefix)
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 314504547 (main branch discovery), not current.
+
+```diff
+    contract ArbitrumProxyAdmin (0x48698A17D193bFc882395AC06a1DEdbb222F2917) {
+    +++ description: None
+      directlyReceivedPermissions.0.role:
++        "admin"
+    }
+```
+
+```diff
+    contract ArbitrumOwner (0xa29fFe244898CBec19DFEaAfB5cE671389FfF60F) {
+    +++ description: None
+      receivedPermissions.2.role:
++        "admin"
+      receivedPermissions.1.role:
++        "admin"
+      receivedPermissions.0.role:
++        "admin"
+      directlyReceivedPermissions.0.role:
++        ".owner"
+    }
+```
+
+Generated with discovered.json: 0xf5a325f3f7345cd44216019ce3995b6800fd1019
+
+# Diff at Tue, 29 Apr 2025 08:19:30 GMT:
+
+- author: Adrian Adamiak (<adrian@adamiak.net>)
+- comparing to: main@ef7477af00fe0b57a2f7cacf7e958c12494af662 block: 314504547
+- current block number: 314504547
+
+## Description
+
+Field .issuedPermissions is removed from the output as no longer needed. Added 'permissionsConfigHash' due to refactoring of the modelling process (into a separate command).
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 314504547 (main branch discovery), not current.
+
+```diff
+    contract ArbitrumL2Gateway (0x7bd79DEd935B542fb22c74305a4d2A293C18483a) {
+    +++ description: None
+      issuedPermissions:
+-        [{"permission":"upgrade","to":"0xa29fFe244898CBec19DFEaAfB5cE671389FfF60F","via":[]}]
+    }
+```
+
+```diff
+    contract L1ERC20Bridge (0xfB0Ad0B3C2605A7CA33d6badd0C685E11b8F5585) {
+    +++ description: None
+      issuedPermissions:
+-        [{"permission":"upgrade","to":"0xa29fFe244898CBec19DFEaAfB5cE671389FfF60F","via":[{"address":"0x48698A17D193bFc882395AC06a1DEdbb222F2917"}]}]
+    }
+```
+
+```diff
+    contract zkLink (0xFF73a1a1d27951A005eb23276dc99CB7F8d5420A) {
+    +++ description: None
+      issuedPermissions:
+-        [{"permission":"upgrade","to":"0xa29fFe244898CBec19DFEaAfB5cE671389FfF60F","via":[]}]
+    }
+```
+
+Generated with discovered.json: 0xbcbd4989f7547ca8a237748e62de7b8afb20a7ec
+
+# Diff at Thu, 10 Apr 2025 14:43:53 GMT:
+
+- author: Mateusz Radomski (<radomski.main@protonmail.com>)
+- comparing to: main@f38a3c9bf359344e4c4cd3006f58271cb8f78d15 block: 314504547
+- current block number: 314504547
+
+## Description
+
+Discovery rerun on the same block number with only config-related changes.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 314504547 (main branch discovery), not current.
+
+```diff
+    contract ArbitrumProxyAdmin (0x48698A17D193bFc882395AC06a1DEdbb222F2917) {
+    +++ description: None
+      displayName:
+-        "ProxyAdmin"
+    }
+```
+
 Generated with discovered.json: 0x99ab8af981769d6faa28bd0201f2e55d353dd64f
 
 # Diff at Tue, 11 Mar 2025 08:13:19 GMT:

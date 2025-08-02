@@ -6,7 +6,7 @@ import type { ScalingProject } from '../../internalTypes'
 import { AnytrustDAC } from '../../templates/anytrust-template'
 import { orbitStackL3 } from '../../templates/orbitStack'
 
-const discovery = new ProjectDiscovery('muster', 'arbitrum')
+const discovery = new ProjectDiscovery('muster')
 
 export const muster: ScalingProject = orbitStackL3({
   addedAt: UnixTime(1718609683), // 2024-06-17T07:34:43Z
@@ -21,12 +21,12 @@ export const muster: ScalingProject = orbitStackL3({
     slug: 'muster',
     redWarning:
       'Critical contracts can be upgraded by an EOA which could result in the loss of all funds.',
-    category: 'Optimium',
+    category: 'Other',
     description:
       'Muster Network is an Arbitrum Orbit L3 gaming chain aiming to transform digital ownership for brands and games while managing blockchain infrastructure and security.',
     links: {
       websites: ['https://cometh.io/'],
-      apps: [
+      bridges: [
         'https://bridge.arbitrum.io/?destinationChain=muster&sourceChain=arbitrum-one',
       ],
       documentation: ['https://docs.cometh.io/marketplace'],
@@ -46,9 +46,10 @@ export const muster: ScalingProject = orbitStackL3({
       },
     ],
   },
+  hostChain: 'arbitrum',
   discovery,
   bridge: discovery.getContract('Bridge'),
   rollupProxy: discovery.getContract('RollupProxy'),
   sequencerInbox: discovery.getContract('SequencerInbox'),
-  customDa: AnytrustDAC({ discovery }),
+  customDa: AnytrustDAC({ discovery, hostChain: 'arbitrum' }),
 })

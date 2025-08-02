@@ -7,13 +7,12 @@ import {
   DA_MODES,
   EXITS,
   FORCE_TRANSACTIONS,
-  NEW_CRYPTOGRAPHY,
   OPERATOR,
+  REASON_FOR_BEING_OTHER,
   RISK_VIEW,
-  STATE_CORRECTNESS,
+  STATE_VALIDATION,
   TECHNOLOGY_DATA_AVAILABILITY,
 } from '../../common'
-import { REASON_FOR_BEING_OTHER } from '../../common'
 import { BADGES } from '../../common/badges'
 import { formatDelay } from '../../common/formatDelays'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
@@ -26,6 +25,7 @@ import {
   generateDiscoveryDrivenContracts,
   generateDiscoveryDrivenPermissions,
 } from '../../templates/generateDiscoveryDrivenSections'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 import { StarkexDAC } from '../../templates/starkex-template'
 
 const discovery = new ProjectDiscovery('deversifi')
@@ -50,6 +50,7 @@ export const deversifi: ScalingProject = {
   id: ProjectId('deversifi'),
   capability: 'appchain',
   addedAt: UnixTime(1623153328), // 2021-06-08T11:55:28Z
+  archivedAt: UnixTime(1743724800), // 2025-04-04T00:00:00.000Z,
   badges: [
     BADGES.VM.AppChain,
     BADGES.DA.DAC,
@@ -65,11 +66,11 @@ export const deversifi: ScalingProject = {
       'The [RhinoFi StarkEx Validium is being deprecated](https://support.rhino.fi/en/article/important-upgrade-rhino-revamp-is-coming-cuks7m/). The RhinofiAdminMultisig upgraded the implementation of the core contract and subsequently [withdrew all funds](https://etherscan.io/tx/0x9c1692398b107161c7af2c1c02316d449bdf03b15e84b69170373b2864dba754). The Validium is no longer operational and funds are currently held in a multisig on Ethereum (2025/03/10).',
     description: 'rhino.fi is a Validium based on the StarkEx technology.',
     purposes: ['Exchange'],
-    stack: 'StarkEx',
-    category: 'Validium',
+    stacks: ['StarkEx'],
+    category: 'Other',
     links: {
       websites: ['https://rhino.fi/'],
-      apps: ['https://app.rhino.fi/'],
+      bridges: ['https://app.rhino.fi/'],
       documentation: [
         'https://docs.rhino.fi/',
         'https://support.rhino.fi/en/',
@@ -154,9 +155,10 @@ export const deversifi: ScalingProject = {
     },
     proposerFailure: RISK_VIEW.PROPOSER_USE_ESCAPE_HATCH_MP,
   },
+  stateValidation: {
+    categories: [STATE_VALIDATION.STARKEX_VALIDITY_PROOFS],
+  },
   technology: {
-    stateCorrectness: STATE_CORRECTNESS.STARKEX_VALIDITY_PROOFS,
-    newCryptography: NEW_CRYPTOGRAPHY.ZK_STARKS,
     dataAvailability: TECHNOLOGY_DATA_AVAILABILITY.STARKEX_OFF_CHAIN,
     operator: OPERATOR.STARKEX_OPERATOR,
     forceTransactions: FORCE_TRANSACTIONS.STARKEX_SPOT_WITHDRAW(),
@@ -190,4 +192,5 @@ export const deversifi: ScalingProject = {
     },
   ],
   customDa: StarkexDAC({ discovery }),
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

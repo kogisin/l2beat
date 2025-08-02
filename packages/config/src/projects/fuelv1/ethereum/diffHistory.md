@@ -1,4 +1,41 @@
-Generated with discovered.json: 0x13f9dd6025667cc019f049b1256090f0983d1fff
+Generated with discovered.json: 0x99309276701a67096d33bfe5030c368397f87f65
+
+# Diff at Mon, 14 Jul 2025 12:45:06 GMT:
+
+- author: Mateusz Radomski (<radomski.main@protonmail.com>)
+- comparing to: main@9f4300dad2f3d080cd56fa311d4a848556c74e72 block: 21594621
+- current block number: 21594621
+
+## Description
+
+Discovery rerun on the same block number with only config-related changes.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 21594621 (main branch discovery), not current.
+
+```diff
+    contract Fuel (0x6880f6Fd960D1581C2730a451A22EED1081cfD72) {
+    +++ description: None
+      address:
+-        "0x6880f6Fd960D1581C2730a451A22EED1081cfD72"
++        "eth:0x6880f6Fd960D1581C2730a451A22EED1081cfD72"
+      implementationNames.0x6880f6Fd960D1581C2730a451A22EED1081cfD72:
+-        ""
+      implementationNames.eth:0x6880f6Fd960D1581C2730a451A22EED1081cfD72:
++        ""
+    }
+```
+
+```diff
++   Status: CREATED
+    contract Fuel (0x6880f6Fd960D1581C2730a451A22EED1081cfD72)
+    +++ description: None
+```
+
+Generated with discovered.json: 0xad9e9a8fc8f953ccc7d8013f15105a48e5d59093
 
 # Diff at Tue, 04 Mar 2025 10:39:11 GMT:
 

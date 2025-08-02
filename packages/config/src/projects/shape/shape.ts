@@ -8,7 +8,7 @@ import { opStackL2 } from '../../templates/opStack'
 const discovery = new ProjectDiscovery('shape')
 
 export const shape: ScalingProject = opStackL2({
-  addedAt: UnixTime(1730131160), // 2024-10-28
+  addedAt: UnixTime(1727654400), // 2024-09-30
   additionalBadges: [BADGES.RaaS.Alchemy],
   discovery,
   reasonsForBeingOther: [REASON_FOR_BEING_OTHER.CLOSED_PROOFS],
@@ -19,8 +19,11 @@ export const shape: ScalingProject = opStackL2({
       "Shape is a Rollup on Ethereum based on the OP Stack. It is a chain for creators, innovating by giving creators 80% of the Sequencer fee as 'gasback'.",
     links: {
       websites: ['https://shape.network/'],
-      apps: ['https://superbridge.app/shape-mainnet'],
-      documentation: ['https://docs.shape.network/documentation/introduction'],
+      bridges: [
+        'https://superbridge.app/shape-mainnet',
+        'https://shape-mainnet.bridge.alchemy.com/',
+      ],
+      documentation: ['https://docs.shape.network/'],
       explorers: ['https://shapescan.xyz/'],
       repositories: ['https://github.com/shape-network'],
       socialMedia: [
@@ -29,14 +32,6 @@ export const shape: ScalingProject = opStackL2({
         'https://warpcast.com/shape-l2',
       ],
     },
-  },
-  finality: {
-    type: 'OPStack',
-    minTimestamp: UnixTime(1721744473),
-    genesisTimestamp: UnixTime(1721744473),
-    l2BlockTimeSeconds: 2,
-    lag: 0,
-    stateUpdate: 'disabled',
   },
   isNodeAvailable: true,
   chainConfig: {
@@ -53,4 +48,13 @@ export const shape: ScalingProject = opStackL2({
   },
   genesisTimestamp: UnixTime(1721744473),
   stateDerivation: DERIVATION.OPSTACK('SHAPE'),
+  milestones: [
+    {
+      title: 'Mainnet Launch',
+      url: 'https://www.alchemy.com/blog/shape-is-live',
+      date: '2024-09-30T00:00:00Z',
+      description: 'Shape Mainnet is now live.',
+      type: 'general',
+    },
+  ],
 })

@@ -1,4 +1,269 @@
-Generated with discovered.json: 0xce8bd172464507bdfb29202d524ad0dafa9e8c14
+Generated with discovered.json: 0x63b548095a91ace224b68cff30abf2bfa28264c0
+
+# Diff at Mon, 14 Jul 2025 12:44:47 GMT:
+
+- author: Mateusz Radomski (<radomski.main@protonmail.com>)
+- comparing to: main@9f4300dad2f3d080cd56fa311d4a848556c74e72 block: 22466421
+- current block number: 22466421
+
+## Description
+
+Discovery rerun on the same block number with only config-related changes.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 22466421 (main branch discovery), not current.
+
+```diff
+    EOA  (0x1D93fE338A035f297819EA867275661a4f5B4fdD) {
+    +++ description: None
+      address:
+-        "0x1D93fE338A035f297819EA867275661a4f5B4fdD"
++        "eth:0x1D93fE338A035f297819EA867275661a4f5B4fdD"
+    }
+```
+
+```diff
+    contract AztecFeeDistributor (0x41A57F5581aDf11b25F3eDb7C1DB19f18bb76734) {
+    +++ description: Contract responsible for collecting transaction fees and reimbursing gas to whitelisted Rollup Providers.
+      address:
+-        "0x41A57F5581aDf11b25F3eDb7C1DB19f18bb76734"
++        "eth:0x41A57F5581aDf11b25F3eDb7C1DB19f18bb76734"
+      values.factory:
+-        "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f"
++        "eth:0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f"
+      values.owner:
+-        "0xE298a76986336686CC3566469e3520d23D1a8aaD"
++        "eth:0xE298a76986336686CC3566469e3520d23D1a8aaD"
+      values.rollupProcessor:
+-        "0x737901bea3eeb88459df9ef1BE8fF3Ae1B42A2ba"
++        "eth:0x737901bea3eeb88459df9ef1BE8fF3Ae1B42A2ba"
+      values.router:
+-        "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
++        "eth:0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
+      values.WETH:
+-        "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
++        "eth:0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+      implementationNames.0x41A57F5581aDf11b25F3eDb7C1DB19f18bb76734:
+-        "AztecFeeDistributor"
+      implementationNames.eth:0x41A57F5581aDf11b25F3eDb7C1DB19f18bb76734:
++        "AztecFeeDistributor"
+    }
+```
+
+```diff
+    contract TurboVerifier (0x48Cb7BA00D087541dC8E2B3738f80fDd1FEe8Ce8) {
+    +++ description: Turbo Plonk ZK verifier.
+      address:
+-        "0x48Cb7BA00D087541dC8E2B3738f80fDd1FEe8Ce8"
++        "eth:0x48Cb7BA00D087541dC8E2B3738f80fDd1FEe8Ce8"
+      implementationNames.0x48Cb7BA00D087541dC8E2B3738f80fDd1FEe8Ce8:
+-        "TurboVerifier"
+      implementationNames.eth:0x48Cb7BA00D087541dC8E2B3738f80fDd1FEe8Ce8:
++        "TurboVerifier"
+    }
+```
+
+```diff
+    contract RollupProcessor (0x737901bea3eeb88459df9ef1BE8fF3Ae1B42A2ba) {
+    +++ description: None
+      address:
+-        "0x737901bea3eeb88459df9ef1BE8fF3Ae1B42A2ba"
++        "eth:0x737901bea3eeb88459df9ef1BE8fF3Ae1B42A2ba"
+      values.feeDistributor:
+-        "0x41A57F5581aDf11b25F3eDb7C1DB19f18bb76734"
++        "eth:0x41A57F5581aDf11b25F3eDb7C1DB19f18bb76734"
+      values.owner:
+-        "0x0000000000000000000000000000000000000000"
++        "eth:0x0000000000000000000000000000000000000000"
++++ description: Can call the ProcessRollup function
++++ severity: LOW
+      values.rollupProviders.0:
+-        "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
++        "eth:0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
++++ description: Address of the ZK verifier.
++++ severity: LOW
+      values.verifier:
+-        "0x48Cb7BA00D087541dC8E2B3738f80fDd1FEe8Ce8"
++        "eth:0x48Cb7BA00D087541dC8E2B3738f80fDd1FEe8Ce8"
+      implementationNames.0x737901bea3eeb88459df9ef1BE8fF3Ae1B42A2ba:
+-        "RollupProcessor"
+      implementationNames.eth:0x737901bea3eeb88459df9ef1BE8fF3Ae1B42A2ba:
++        "RollupProcessor"
+    }
+```
+
+```diff
+    EOA  (0x7fb9f93Cc6614dDd76c893EC8b5310674aC3Fc5f) {
+    +++ description: None
+      address:
+-        "0x7fb9f93Cc6614dDd76c893EC8b5310674aC3Fc5f"
++        "eth:0x7fb9f93Cc6614dDd76c893EC8b5310674aC3Fc5f"
+    }
+```
+
+```diff
+    contract Aztec Multisig (0xE298a76986336686CC3566469e3520d23D1a8aaD) {
+    +++ description: None
+      address:
+-        "0xE298a76986336686CC3566469e3520d23D1a8aaD"
++        "eth:0xE298a76986336686CC3566469e3520d23D1a8aaD"
+      values.$implementation:
+-        "0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552"
++        "eth:0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552"
+      values.$members.0:
+-        "0x1D93fE338A035f297819EA867275661a4f5B4fdD"
++        "eth:0x1D93fE338A035f297819EA867275661a4f5B4fdD"
+      values.$members.1:
+-        "0x7fb9f93Cc6614dDd76c893EC8b5310674aC3Fc5f"
++        "eth:0x7fb9f93Cc6614dDd76c893EC8b5310674aC3Fc5f"
+      implementationNames.0xE298a76986336686CC3566469e3520d23D1a8aaD:
+-        "Proxy"
+      implementationNames.0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552:
+-        "GnosisSafe"
+      implementationNames.eth:0xE298a76986336686CC3566469e3520d23D1a8aaD:
++        "Proxy"
+      implementationNames.eth:0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552:
++        "GnosisSafe"
+    }
+```
+
+```diff
+    EOA FirstAnvilAddress (0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266) {
+    +++ description: None
+      address:
+-        "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
++        "eth:0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+    }
+```
+
+```diff
+    EOA  (0xFcF75295f242C4E87203Abb5d7C9BbEda90a8895) {
+    +++ description: None
+      address:
+-        "0xFcF75295f242C4E87203Abb5d7C9BbEda90a8895"
++        "eth:0xFcF75295f242C4E87203Abb5d7C9BbEda90a8895"
+    }
+```
+
+```diff
++   Status: CREATED
+    contract AztecFeeDistributor (0x41A57F5581aDf11b25F3eDb7C1DB19f18bb76734)
+    +++ description: Contract responsible for collecting transaction fees and reimbursing gas to whitelisted Rollup Providers.
+```
+
+```diff
++   Status: CREATED
+    contract TurboVerifier (0x48Cb7BA00D087541dC8E2B3738f80fDd1FEe8Ce8)
+    +++ description: Turbo Plonk ZK verifier.
+```
+
+```diff
++   Status: CREATED
+    contract RollupProcessor (0x737901bea3eeb88459df9ef1BE8fF3Ae1B42A2ba)
+    +++ description: None
+```
+
+```diff
++   Status: CREATED
+    contract Aztec Multisig (0xE298a76986336686CC3566469e3520d23D1a8aaD)
+    +++ description: None
+```
+
+```diff
++   Status: CREATED
+    EOA FirstAnvilAddress (0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266)
+    +++ description: None
+```
+
+Generated with discovered.json: 0xd5d524abf4190e6b2177d7f54e1226967efb6bfe
+
+# Diff at Wed, 28 May 2025 08:03:21 GMT:
+
+- author: Mateusz Radomski (<radomski.main@protonmail.com>)
+- comparing to: main@cb2cc891f49c23ee5f8d9c8d2c9ed16ac097ce95 block: 22466421
+- current block number: 22466421
+
+## Description
+
+Discovery rerun on the same block number with only config-related changes.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 22466421 (main branch discovery), not current.
+
+```diff
+    EOA FirstAnvilAddress (0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266) {
+    +++ description: None
+      unverified:
+-        true
+      proxyType:
+-        "EIP7702 EOA"
++        "immutable"
+      values.$immutable:
++        true
+    }
+```
+
+Generated with discovered.json: 0xb46460f6fc92d9eb104af0ce3b5ad84a8d930376
+
+# Diff at Mon, 12 May 2025 09:57:13 GMT:
+
+- author: sekuba (<29250140+sekuba@users.noreply.github.com>)
+- comparing to: main@43865580b95b7ff3abb4f43944aed50cc5d69ee3 block: 22445442
+- current block number: 22466421
+
+## Description
+
+Since the private key of the operator EOA is public, its 7702 delegations are spammy.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 22445442 (main branch discovery), not current.
+
+```diff
+    contract Aztec Multisig (0xE298a76986336686CC3566469e3520d23D1a8aaD) {
+    +++ description: None
+      name:
+-        "AztecMultisig"
++        "Aztec Multisig"
+    }
+```
+
+Generated with discovered.json: 0xfa5d68df3deccdd4cbbb83fc2bdc32ca7ca4702e
+
+# Diff at Fri, 09 May 2025 10:53:25 GMT:
+
+- author: sekuba (<29250140+sekuba@users.noreply.github.com>)
+- comparing to: main@b9a3516de49f42efd9d26f04918d74a8d92c6204 block: 21387141
+- current block number: 22445442
+
+## Description
+
+The public address (private key was made public so anyone can operate the chain) set a 7702-authorization to a drainer because there were some minor tokens in the EOA.
+
+## Watched changes
+
+```diff
+    EOA FirstAnvilAddress (0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266) {
+    +++ description: None
+      proxyType:
+-        "EOA"
++        "EIP7702 EOA"
+      unverified:
++        true
+      values:
++        {"$implementation":"0x698Cd6D2618bAa3E35ECb7322919C5fce95886Cf"}
+    }
+```
+
+Generated with discovered.json: 0x52c1db69319d4512301017df98d222cf1bbfbd5c
 
 # Diff at Tue, 04 Mar 2025 10:38:58 GMT:
 

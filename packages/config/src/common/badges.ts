@@ -157,6 +157,17 @@ export const badges = [
     },
   },
   {
+    id: 'AvailVector',
+    type: BadgeType.DA,
+    name: 'Avail with Vector',
+    description:
+      'This project utilizes Avail and has Vector enabled, facilitating the bridging of data availability commitments between Avail and Ethereum.',
+    action: {
+      type: 'publicDaHighlight',
+      slug: 'avail',
+    },
+  },
+  {
     id: 'Celestia',
     type: BadgeType.DA,
     name: 'Celestia',
@@ -381,14 +392,15 @@ export const badges = [
     },
   },
   {
-    id: 'AggLayer',
+    id: 'Agglayer',
     type: BadgeType.Infra,
-    name: 'Part of the AggLayer',
-    description: 'The project is part of the AggLayer',
+    name: 'Part of the Agglayer',
+    description:
+      'The project is part of the Agglayer, meaning that it uses the shared Agglayer contracts',
     action: {
       type: 'scalingFilter',
       id: 'infrastructure',
-      value: 'AggLayer',
+      value: 'Agglayer',
     },
   },
   {
@@ -461,14 +473,15 @@ export const badges = [
     },
   },
   {
-    id: 'PolygonCDK',
+    id: 'CDKErigon',
     type: BadgeType.Stack,
-    name: 'Built on the Polygon CDK stack',
-    description: 'The project is built on the Polygon CDK stack',
+    name: 'Built on the CDK Erigon stack',
+    description:
+      'The project is built using the multistack Agglayer CDK, and is based on the Erigon stack',
     action: {
       type: 'scalingFilter',
       id: 'stack',
-      value: 'Polygon',
+      value: 'Agglayer CDK',
     },
   },
   {
@@ -479,8 +492,15 @@ export const badges = [
     action: {
       type: 'scalingFilter',
       id: 'stack',
-      value: 'Cartesi',
+      value: 'Cartesi Rollups',
     },
+  },
+  {
+    id: 'OPKailua',
+    type: BadgeType.Stack,
+    name: 'Built on the OP Kailua stack',
+    description: 'The project is built on the OP Kailua stack',
+    action: undefined,
   },
   {
     id: 'SNStack',
@@ -599,14 +619,22 @@ export const badges = [
     type: BadgeType.Other,
     name: 'Account Abstraction',
     description: 'This project supports account abstraction',
-    action: undefined,
+    action: {
+      type: 'scalingFilter',
+      id: 'other',
+      value: 'Account Abstraction',
+    },
   },
   {
     id: 'Governance',
     type: BadgeType.Other,
     name: 'Governance',
     description: 'This project features token voting',
-    action: undefined,
+    action: {
+      type: 'scalingFilter',
+      id: 'other',
+      value: 'Governance',
+    },
   },
   {
     id: 'L3HostChain',
@@ -624,7 +652,11 @@ export const badges = [
     name: 'Based Sequencing',
     description:
       'This project is ordering its transactions through Ethereum block proposers',
-    action: undefined,
+    action: {
+      type: 'scalingFilter',
+      id: 'other',
+      value: 'Based Sequencing',
+    },
   },
   {
     id: 'EspressoPreconfs',
@@ -632,7 +664,11 @@ export const badges = [
     name: 'Espresso Preconfs',
     description:
       'The project integrates with Espresso preconfirmations. The chain batch poster publishes blocks to Espresso Network and runs in a Trusted Execution Environment (TEE) programmed to verify that only Espresso-validated batches reach the host chain.',
-    action: undefined,
+    action: {
+      type: 'scalingFilter',
+      id: 'other',
+      value: 'Espresso Preconfs',
+    },
   },
   {
     id: 'MigratedFromL1',
@@ -640,14 +676,22 @@ export const badges = [
     name: 'Migrated from L1 to Ethereum L2',
     description:
       'This project has migrated from being a standalone L1 blockchain to an Ethereum L2',
-    action: undefined,
+    action: {
+      type: 'scalingFilter',
+      id: 'other',
+      value: 'Migrated from L1 to Ethereum L2',
+    },
   },
   {
     id: 'SharedBridge',
     type: BadgeType.Other,
     name: 'Shared Bridge',
     description: 'This project uses a shared bridge contract',
-    action: undefined,
+    action: {
+      type: 'scalingFilter',
+      id: 'other',
+      value: 'Shared Bridge',
+    },
   },
 ] as const satisfies Badge[]
 

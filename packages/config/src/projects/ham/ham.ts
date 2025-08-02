@@ -5,10 +5,11 @@ import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
 import { opStackL3 } from '../../templates/opStack'
 
-const discovery = new ProjectDiscovery('ham', 'base')
+const discovery = new ProjectDiscovery('ham')
 
 export const ham: ScalingProject = opStackL3({
   addedAt: UnixTime(1722499160), // 2024-08-01T07:59:20Z
+  hostChain: 'base',
   discovery,
   additionalBadges: [BADGES.L3ParentChain.Base, BADGES.RaaS.Caldera],
   additionalPurposes: ['Social'],
@@ -23,7 +24,7 @@ export const ham: ScalingProject = opStackL3({
       'Ham Chain is an OP stack Optimium L3 on Base enabling Tips and SocialFi on the Farcaster social network.',
     links: {
       websites: ['https://ham.fun/'],
-      apps: [
+      bridges: [
         'https://ham.bridge.caldera.xyz/',
         'https://ham.fun/bridge',
         'https://relay.link/ham',
@@ -53,7 +54,7 @@ export const ham: ScalingProject = opStackL3({
     apis: [
       {
         type: 'rpc',
-        url: 'https://rpc.ham.fun',
+        url: 'https://ham.calderachain.xyz/http',
         callsPerMinute: 1500,
       },
     ],

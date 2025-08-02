@@ -1,21 +1,19 @@
-import { EthereumAddress, UnixTime } from '@l2beat/shared-pure'
+import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
 import { BADGES } from '../../common/badges'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
 import { zkStackL2 } from '../../templates/zkStack'
 
 const discovery = new ProjectDiscovery('zeronetwork')
-const discovery_ZKstackGovL2 = new ProjectDiscovery(
-  'shared-zk-stack',
-  'zksync2',
-)
-const bridge = discovery.getContract('L1SharedBridge')
+const v26UpgradeTS = UnixTime(1742860739)
+const chainId = 543210
+
+const bridge = discovery.getContract('L1NativeTokenVault')
 
 export const zeronetwork: ScalingProject = zkStackL2({
   discovery,
-  discovery_ZKstackGovL2,
   additionalBadges: [BADGES.RaaS.Caldera],
-  addedAt: UnixTime(1721214420), // 2024-07-17T11:07:00Z
+  addedAt: UnixTime(1731369600), // 2024-11-12T00:00:00Z
   display: {
     name: 'ZERO Network',
     slug: 'zeronetwork',
@@ -23,7 +21,7 @@ export const zeronetwork: ScalingProject = zkStackL2({
       'ZERO Network is an L2 by the Zerion wallet team, utilizing the ZK stack and native account abstraction, allowing Zerion wallet users gasless and prioritized transactions.',
     links: {
       websites: ['https://zero.network/'],
-      apps: [
+      bridges: [
         'https://bridge.zero.network/',
         'https://app.zerion.io/bridge?outputChain=zero&inputChain=ethereum',
       ],
@@ -40,9 +38,12 @@ export const zeronetwork: ScalingProject = zkStackL2({
       ],
     },
   },
+  ecosystemInfo: {
+    id: ProjectId('the-elastic-network'),
+  },
   chainConfig: {
     name: 'zeronetwork',
-    chainId: 543210,
+    chainId,
     explorerUrl: 'https://explorer.zero.network',
     sinceTimestamp: UnixTime(1729616414),
     apis: [
@@ -54,17 +55,19 @@ export const zeronetwork: ScalingProject = zkStackL2({
     ],
   },
   diamondContract: discovery.getContract('ZeroNetworkZkEvm'),
+  usesEthereumBlobs: true,
   nonTemplateTrackedTxs: [
     {
       uses: [{ type: 'l2costs', subtype: 'batchSubmissions' }],
       query: {
         formula: 'sharedBridge',
         chainId: 543210,
-        address: discovery.getContract('ValidatorTimelock').address,
+        address: EthereumAddress('0x5D8ba173Dc6C3c90C8f7C04C9288BeF5FDbAd06E'),
         selector: '0x6edd4f12',
         functionSignature:
           'function commitBatchesSharedBridge(uint256 _chainId, (uint64 batchNumber, bytes32 batchHash, uint64 indexRepeatedStorageChanges, uint256 numberOfLayer1Txs, bytes32 priorityOperationsHash, bytes32 l2LogsTreeRoot, uint256 timestamp, bytes32 commitment) _lastCommittedBatchData, (uint64 batchNumber, uint64 timestamp, uint64 indexRepeatedStorageChanges, bytes32 newStateRoot, uint256 numberOfLayer1Txs, bytes32 priorityOperationsHash, bytes32 bootloaderHeapInitialContentsHash, bytes32 eventsQueueStateHash, bytes systemLogs, bytes pubdataCommitments)[] _newBatchesData)',
         sinceTimestamp: UnixTime(1729616414),
+        untilTimestamp: v26UpgradeTS,
       },
     },
     {
@@ -75,11 +78,12 @@ export const zeronetwork: ScalingProject = zkStackL2({
       query: {
         formula: 'sharedBridge',
         chainId: 543210,
-        address: discovery.getContract('ValidatorTimelock').address,
+        address: EthereumAddress('0x5D8ba173Dc6C3c90C8f7C04C9288BeF5FDbAd06E'),
         selector: '0xc37533bb',
         functionSignature:
           'function proveBatchesSharedBridge(uint256 _chainId,(uint64 batchNumber, bytes32 batchHash, uint64 indexRepeatedStorageChanges, uint256 numberOfLayer1Txs, bytes32 priorityOperationsHash, bytes32 l2LogsTreeRoot, uint256 timestamp, bytes32 commitment) _prevBatch, (uint64 batchNumber, bytes32 batchHash, uint64 indexRepeatedStorageChanges, uint256 numberOfLayer1Txs, bytes32 priorityOperationsHash, bytes32 l2LogsTreeRoot, uint256 timestamp, bytes32 commitment)[] _committedBatches, (uint256[] recursiveAggregationInput, uint256[] serializedProof) _proof)',
         sinceTimestamp: UnixTime(1729616414),
+        untilTimestamp: v26UpgradeTS,
       },
     },
     {
@@ -90,11 +94,54 @@ export const zeronetwork: ScalingProject = zkStackL2({
       query: {
         formula: 'sharedBridge',
         chainId: 543210,
-        address: discovery.getContract('ValidatorTimelock').address,
+        address: EthereumAddress('0x5D8ba173Dc6C3c90C8f7C04C9288BeF5FDbAd06E'),
         selector: '0x6f497ac6',
         functionSignature:
           'function executeBatchesSharedBridge(uint256 _chainId, (uint64 batchNumber, bytes32 batchHash, uint64 indexRepeatedStorageChanges, uint256 numberOfLayer1Txs, bytes32 priorityOperationsHash, bytes32 l2LogsTreeRoot, uint256 timestamp, bytes32 commitment)[] _batchesData)',
         sinceTimestamp: UnixTime(1729616414),
+        untilTimestamp: v26UpgradeTS,
+      },
+    },
+    {
+      uses: [{ type: 'l2costs', subtype: 'batchSubmissions' }],
+      query: {
+        formula: 'sharedBridge',
+        chainId,
+        address: EthereumAddress('0x8c0bfc04ada21fd496c55b8c50331f904306f564'),
+        selector: '0x98f81962',
+        functionSignature:
+          'function commitBatchesSharedBridge(uint256 _chainId, uint256 _processBatchFrom, uint256 _processBatchTo, bytes)',
+        sinceTimestamp: v26UpgradeTS,
+      },
+    },
+    {
+      uses: [
+        { type: 'liveness', subtype: 'proofSubmissions' },
+        { type: 'l2costs', subtype: 'proofSubmissions' },
+      ],
+      query: {
+        formula: 'sharedBridge',
+        chainId,
+        address: EthereumAddress('0x8c0bfc04ada21fd496c55b8c50331f904306f564'),
+        selector: '0xe12a6137',
+        functionSignature:
+          'function proveBatchesSharedBridge(uint256 _chainId, uint256, uint256, bytes)',
+        sinceTimestamp: v26UpgradeTS,
+      },
+    },
+    {
+      uses: [
+        { type: 'liveness', subtype: 'stateUpdates' },
+        { type: 'l2costs', subtype: 'stateUpdates' },
+      ],
+      query: {
+        formula: 'sharedBridge',
+        chainId,
+        address: EthereumAddress('0x8c0bfc04ada21fd496c55b8c50331f904306f564'),
+        selector: '0xcf02827d',
+        functionSignature:
+          'function executeBatchesSharedBridge(uint256 _chainId, uint256 _processBatchFrom, uint256 _processBatchTo, bytes)',
+        sinceTimestamp: v26UpgradeTS,
       },
     },
   ],
@@ -117,7 +164,7 @@ export const zeronetwork: ScalingProject = zkStackL2({
   ],
   milestones: [
     {
-      title: 'Mainnet launch',
+      title: 'Mainnet Launch',
       url: 'https://zero.network/blog/zer-mainnet-welcome-to-a-world-without-gas-fees',
       date: '2024-11-12T00:00:00Z',
       description: 'ZERϴ launches their mainnet.',

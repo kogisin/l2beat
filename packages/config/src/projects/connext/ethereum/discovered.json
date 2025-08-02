@@ -1,17 +1,17 @@
 {
   "name": "connext",
   "chain": "ethereum",
-  "blockNumber": 21285557,
-  "configHash": "0x7fde6bbcc21ef5c7732e4bdaea9aaeae290afc254124c94794023438eb776dfd",
+  "timestamp": 1753682687,
+  "configHash": "0xd8d81b28c10298af4a2c3702c9be6c5f39006e29f44e6b74f315711a3b1884b3",
   "entries": [
     {
-      "address": "0x155B15a7e9Ff0e34cEaF2439589D5C661ADC9493",
+      "address": "eth:0x155B15a7e9Ff0e34cEaF2439589D5C661ADC9493",
       "type": "EOA",
       "proxyType": "EOA"
     },
     {
       "name": "TransactionManager",
-      "address": "0x31eFc4AeAA7c39e54A33FDc3C46ee2Bd70ae0A09",
+      "address": "eth:0x31eFc4AeAA7c39e54A33FDc3C46ee2Bd70ae0A09",
       "type": "Contract",
       "sourceHashes": [
         "0x5a10f30a0039faccfa89f130d4f1114d81bb965bf1e050e64d2806982289ad52"
@@ -25,22 +25,24 @@
         "delay": 604800,
         "getChainId": 1,
         "getStoredChainId": 1,
-        "interpreter": "0x5b9E4D0Dd21f4E071729A9eB522A2366AbeD149a",
+        "interpreter": "eth:0x5b9E4D0Dd21f4E071729A9eB522A2366AbeD149a",
         "isAssetOwnershipRenounced": false,
         "isRouterOwnershipRenounced": false,
         "MAX_TIMEOUT": 2592000,
         "MIN_TIMEOUT": 86400,
-        "owner": "0x155B15a7e9Ff0e34cEaF2439589D5C661ADC9493",
-        "proposed": "0x0000000000000000000000000000000000000000",
-        "proposedTimestamp": 0,
+        "owner": "eth:0x155B15a7e9Ff0e34cEaF2439589D5C661ADC9493",
+        "proposed": "eth:0xed7c5FEfE0790DB355b0316F41269006ecd87653",
+        "proposedTimestamp": 1753521239,
         "renounced": false,
         "routerOwnershipTimestamp": 0
       },
-      "derivedName": "TransactionManager"
+      "implementationNames": {
+        "eth:0x31eFc4AeAA7c39e54A33FDc3C46ee2Bd70ae0A09": "TransactionManager"
+      }
     },
     {
       "name": "FulfillInterpreter",
-      "address": "0x5b9E4D0Dd21f4E071729A9eB522A2366AbeD149a",
+      "address": "eth:0x5b9E4D0Dd21f4E071729A9eB522A2366AbeD149a",
       "type": "Contract",
       "sourceHashes": [
         "0xd97bc069bf47ba9568177032f0a27cb51ad0564b0a2c9480fdcd09f5e3dff02d"
@@ -50,13 +52,20 @@
       "sinceBlock": 13548432,
       "values": {
         "$immutable": true,
-        "getTransactionManager": "0x31eFc4AeAA7c39e54A33FDc3C46ee2Bd70ae0A09"
+        "getTransactionManager": "eth:0x31eFc4AeAA7c39e54A33FDc3C46ee2Bd70ae0A09"
       },
-      "derivedName": "FulfillInterpreter"
+      "implementationNames": {
+        "eth:0x5b9E4D0Dd21f4E071729A9eB522A2366AbeD149a": "FulfillInterpreter"
+      }
+    },
+    {
+      "address": "eth:0xed7c5FEfE0790DB355b0316F41269006ecd87653",
+      "type": "EOA",
+      "proxyType": "EOA"
     }
   ],
   "abis": {
-    "0x31eFc4AeAA7c39e54A33FDc3C46ee2Bd70ae0A09": [
+    "eth:0x31eFc4AeAA7c39e54A33FDc3C46ee2Bd70ae0A09": [
       "constructor(uint256 _chainId)",
       "event AssetAdded(address indexed addedAssetId, address indexed caller)",
       "event AssetOwnershipRenounced(bool renounced)",
@@ -109,12 +118,14 @@
       "function routerOwnershipTimestamp() view returns (uint256)",
       "function variantTransactionData(bytes32) view returns (bytes32)"
     ],
-    "0x5b9E4D0Dd21f4E071729A9eB522A2366AbeD149a": [
+    "eth:0x5b9E4D0Dd21f4E071729A9eB522A2366AbeD149a": [
       "constructor(address transactionManager)",
       "event Executed(bytes32 indexed transactionId, address callTo, address assetId, address fallbackAddress, uint256 amount, bytes callData, bytes returnData, bool success, bool isContract)",
       "function execute(bytes32 transactionId, address callTo, address assetId, address fallbackAddress, uint256 amount, bytes callData) payable returns (bool, bool, bytes)",
       "function getTransactionManager() view returns (address)"
     ]
   },
-  "usedTemplates": {}
+  "usedTemplates": {},
+  "usedBlockNumbers": { "ethereum": 23015739 },
+  "permissionsConfigHash": "0x7d50df971908a9164c834454f24eb4da5a6846ba6d16e0be5e79372a9202752e"
 }

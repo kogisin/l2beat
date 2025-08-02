@@ -1,18 +1,17 @@
 import {
   assert,
-  EthereumAddress,
+  ChainSpecificAddress,
   ProjectId,
   UnixTime,
 } from '@l2beat/shared-pure'
-
-import { CONTRACTS } from '../../common'
-import { BRIDGE_RISK_VIEW } from '../../common'
+import { BRIDGE_RISK_VIEW, CONTRACTS } from '../../common'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { Bridge } from '../../internalTypes'
 import {
   generateDiscoveryDrivenContracts,
   generateDiscoveryDrivenPermissions,
 } from '../../templates/generateDiscoveryDrivenSections'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('sonicgateway')
 
@@ -49,7 +48,7 @@ export const sonicgateway: Bridge = {
       websites: ['https://gateway.soniclabs.com/'],
       documentation: ['https://docs.soniclabs.com/sonic/sonic-gateway'],
       explorers: [],
-      apps: ['https://gateway.soniclabs.com/ethereum/sonic/s'],
+      bridges: ['https://gateway.soniclabs.com/ethereum/sonic/s'],
       repositories: [],
       socialMedia: [
         'https://x.com/SonicLabs',
@@ -60,13 +59,15 @@ export const sonicgateway: Bridge = {
     },
     description:
       'The Sonic Gateway is a token bridge built for token transfers between Ethereum and Sonic. It has a quasi-symmetrical design for two-way bridging but converts Ethereum-locked FTM into S on Sonic.',
-    category: 'Token Bridge',
+    category: 'Single-chain',
   },
   config: {
     associatedTokens: ['FTM'],
     escrows: [
       discovery.getEscrowDetails({
-        address: EthereumAddress('0xa1E2481a9CD0Cb0447EeB1cbc26F1b3fff3bec20'),
+        address: ChainSpecificAddress(
+          'eth:0xa1E2481a9CD0Cb0447EeB1cbc26F1b3fff3bec20',
+        ),
         tokens: [
           'FTM',
           'USDT',
@@ -85,16 +86,27 @@ export const sonicgateway: Bridge = {
   },
   riskView: {
     validatedBy: {
-      value: 'Third Party',
-      description:
-        'Transfers need to be signed by a threshold of 6/8 Validators and then relayed to the destination chain.',
+      value: `Multisig (${validatorThresholdString})`,
+      description: `${validatorThresholdString} Validators with onchain signer addresses. Identities of the signers are not publicly disclosed.`,
       sentiment: 'bad',
     },
-    sourceUpgradeability: {
-      value: 'Yes',
-      description:
-        'The code that secures the system can be changed arbitrarily and without notice.',
-      sentiment: 'bad',
+    governance: {
+      upgrade: {
+        value: `Multisig (${discovery.getMultisigStats('SonicGatewayMultisig')})`,
+        description: `Critical contracts can be upgraded by the ${discovery.getMultisigStats('SonicGatewayMultisig')} SonicGatewayMultisig`,
+        sentiment: 'bad',
+      },
+      pause: {
+        value: 'Not pausable',
+        sentiment: 'good',
+        description:
+          "There is no pause function in the bridge's smart contract.",
+      },
+    },
+    livenessFailure: {
+      value: 'Reclaim funds',
+      description: `If the operators do not service the bridge, deposited funds do not arrive at the destination chain but can be reclaimed on the source chain after ${timeUntilDeadString}.`,
+      sentiment: 'warning',
     },
     destinationToken: BRIDGE_RISK_VIEW.CANONICAL,
   },
@@ -175,4 +187,5 @@ State updates are expected regularly (currently every ${heartBeatInterval} Sonic
       type: 'general',
     },
   ],
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

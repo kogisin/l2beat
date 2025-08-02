@@ -1,5 +1,5 @@
-import { EthereumAddress, UnixTime } from '@l2beat/shared-pure'
-import { DERIVATION, ESCROW, REASON_FOR_BEING_OTHER } from '../../common'
+import { UnixTime } from '@l2beat/shared-pure'
+import { DERIVATION, REASON_FOR_BEING_OTHER } from '../../common'
 import { BADGES } from '../../common/badges'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import { opStackL2 } from '../../templates/opStack'
@@ -8,7 +8,7 @@ const discovery = new ProjectDiscovery('worldchain')
 const genesisTimestamp = UnixTime(1719335639)
 
 export const worldchain = opStackL2({
-  addedAt: UnixTime(1729586060), // 2024-10-22T08:34:20Z
+  addedAt: UnixTime(1729123200), // 2024-10-17T00:00:00Z
   genesisTimestamp,
   discovery,
   additionalBadges: [BADGES.RaaS.Alchemy],
@@ -21,7 +21,7 @@ export const worldchain = opStackL2({
       'World Chain is an OP Stack Rollup built to scale Proof of Personhood, aiming to offer priority blockspace for users with a World ID.',
     links: {
       websites: ['https://worldcoin.org/world-chain'],
-      apps: [
+      bridges: [
         'https://worldchain-mainnet.bridge.alchemy.com/',
         'https://worldcoin.org/download-app',
       ],
@@ -43,6 +43,8 @@ export const worldchain = opStackL2({
   associatedTokens: ['WLD'],
   chainConfig: {
     name: 'worldchain',
+    coingeckoPlatform: 'world-chain',
+    sinceTimestamp: genesisTimestamp,
     chainId: 480,
     apis: [
       {
@@ -51,14 +53,6 @@ export const worldchain = opStackL2({
         callsPerMinute: 1500,
       },
     ],
-  },
-  finality: {
-    type: 'OPStack',
-    minTimestamp: genesisTimestamp,
-    genesisTimestamp: genesisTimestamp,
-    l2BlockTimeSeconds: 2,
-    lag: 0,
-    stateUpdate: 'disabled',
   },
   stateDerivation: DERIVATION.OPSTACK('WORLD'),
   isNodeAvailable: 'UnderReview',
@@ -72,13 +66,4 @@ export const worldchain = opStackL2({
     },
   ],
   hasProperSecurityCouncil: false,
-  nonTemplateEscrows: [
-    discovery.getEscrowDetails({
-      address: EthereumAddress('0x153A69e4bb6fEDBbAaF463CB982416316c84B2dB'),
-      name: 'External USDC Vault',
-      ...ESCROW.CANONICAL_EXTERNAL,
-      description: 'Custom external escrow for USDC bridged to Worldchain.',
-      tokens: ['USDC'],
-    }),
-  ],
 })

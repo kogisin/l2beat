@@ -1,3 +1,31 @@
+import {
+  EIP_7821_TRANSACTION_SELECTOR,
+  EIP712_methods,
+  EIP7821_methods,
+  ENTRY_POINT_ADDRESS_0_6_0,
+  ENTRY_POINT_ADDRESS_0_7_0,
+  ENTRY_POINT_ADDRESS_0_8_0,
+  ERC20ROUTER_methods,
+  ERC20ROUTER_TRANSACTION_SELECTOR,
+  ERC4337_methods,
+  isEip712,
+  isEip7821,
+  isErc20Router,
+  isErc4337,
+  isGnosisSafe,
+  isMulticallv3,
+  type Method,
+  MULTICALL_V3,
+  MULTICALL_V3_ZKSYNCERA,
+  MULTICALLV3_methods,
+  type Operation,
+  SAFE_EXEC_TRANSACTION_SELECTOR,
+  SAFE_MULTI_SEND_CALL_ONLY_1_3_0,
+  SAFE_methods,
+  WHITEBIT_TRANSACTION_SELECTOR,
+} from '@l2beat/shared/uops'
+
+import { assert, type Block, type Transaction } from '@l2beat/shared-pure'
 import type {
   BlockRatio,
   CountedBlock,
@@ -5,29 +33,6 @@ import type {
   CountedTransaction,
   StatResults,
 } from '@/types'
-
-import {
-  EIP712_methods,
-  ENTRY_POINT_ADDRESS_0_6_0,
-  ENTRY_POINT_ADDRESS_0_7_0,
-  ERC20ROUTER_TRANSACTION_SELECTOR,
-  ERC20ROUTER_methods,
-  ERC4337_methods,
-  MULTICALLV3_methods,
-  MULTICALL_V3,
-  MULTICALL_V3_ZKSYNCERA,
-  type Method,
-  type Operation,
-  SAFE_EXEC_TRANSACTION_SELECTOR,
-  SAFE_MULTI_SEND_CALL_ONLY_1_3_0,
-  SAFE_methods,
-  isEip712,
-  isErc20Router,
-  isErc4337,
-  isGnosisSafe,
-  isMulticallv3,
-} from '@l2beat/shared'
-import { assert, type Block, type Transaction } from '@l2beat/shared-pure'
 import { generateId } from '../../utils/generateId'
 import { rankBlocks } from '../../utils/rankBlocks'
 import { traverseOperationTree } from '../../utils/traverseOperationTree'
@@ -100,13 +105,15 @@ export class RpcCounter implements Counter {
       .concat(EIP712_methods)
       .concat(MULTICALLV3_methods)
       .concat(ERC20ROUTER_methods)
+      .concat(EIP7821_methods)
 
     if (
       isErc4337(tx) ||
       isGnosisSafe(tx) ||
       isEip712(tx) ||
       isMulticallv3(tx) ||
-      isErc20Router(tx)
+      isErc20Router(tx) ||
+      isEip7821(tx)
     ) {
       const countedOperation = this.countUserOperations(
         tx.data as string,
@@ -165,6 +172,18 @@ export class RpcCounter implements Counter {
           level,
           methodSelector: '',
           methodName: operation.name,
+          count: operation.count,
+          children: [],
+        }
+      }
+
+      if (operation.type === 'transfer') {
+        return {
+          id: generateId(),
+          level,
+          methodSelector: '',
+          methodName: operation.name,
+          contractAddress: operation.to,
           count: operation.count,
           children: [],
         }
@@ -256,7 +275,9 @@ export class RpcCounter implements Counter {
         if (
           operation.contractAddress?.toLowerCase() !==
             ENTRY_POINT_ADDRESS_0_6_0 &&
-          operation.contractAddress?.toLowerCase() !== ENTRY_POINT_ADDRESS_0_7_0
+          operation.contractAddress?.toLowerCase() !==
+            ENTRY_POINT_ADDRESS_0_7_0 &&
+          operation.contractAddress?.toLowerCase() !== ENTRY_POINT_ADDRESS_0_8_0
         ) {
           return
         }
@@ -290,6 +311,8 @@ export class RpcCounter implements Counter {
         return 'ERC-4337 Entry Point 0.6.0'
       case ENTRY_POINT_ADDRESS_0_7_0:
         return 'ERC-4337 Entry Point 0.7.0'
+      case ENTRY_POINT_ADDRESS_0_8_0:
+        return 'ERC-4337 Entry Point 0.8.0'
       case SAFE_MULTI_SEND_CALL_ONLY_1_3_0:
         return 'Safe: Multi Send Call Only 1.3.0'
       case SAFE_EXEC_TRANSACTION_SELECTOR:
@@ -305,6 +328,10 @@ export class RpcCounter implements Counter {
         return 'Safe: Singleton 1.3.0'
       case ERC20ROUTER_TRANSACTION_SELECTOR:
         return 'ERC-20 Router'
+      case EIP_7821_TRANSACTION_SELECTOR:
+        return 'EIP-7821'
+      case WHITEBIT_TRANSACTION_SELECTOR:
+        return 'WhiteBIT sweeper'
     }
 
     switch (type) {
@@ -314,6 +341,8 @@ export class RpcCounter implements Counter {
         return 'EIP-2930'
       case '2':
         return 'EIP-1559'
+      case '4':
+        return 'EIP-7702'
       case '113':
         return 'EIP-712'
     }
@@ -338,7 +367,9 @@ export class RpcCounter implements Counter {
             operation.contractAddress?.toLowerCase() !==
               ENTRY_POINT_ADDRESS_0_6_0 &&
             operation.contractAddress?.toLowerCase() !==
-              ENTRY_POINT_ADDRESS_0_7_0
+              ENTRY_POINT_ADDRESS_0_7_0 &&
+            operation.contractAddress?.toLowerCase() !==
+              ENTRY_POINT_ADDRESS_0_8_0
           ) {
             return
           }

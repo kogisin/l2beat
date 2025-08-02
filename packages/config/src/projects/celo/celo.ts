@@ -1,4 +1,9 @@
-import { EthereumAddress, UnixTime, formatSeconds } from '@l2beat/shared-pure'
+import {
+  EthereumAddress,
+  formatSeconds,
+  ProjectId,
+  UnixTime,
+} from '@l2beat/shared-pure'
 import { CONTRACTS, REASON_FOR_BEING_OTHER } from '../../common'
 import { BADGES } from '../../common/badges'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
@@ -6,6 +11,7 @@ import type { ScalingProject } from '../../internalTypes'
 import { EIGENDA_DA_PROVIDER, opStackL2 } from '../../templates/opStack'
 
 const discovery = new ProjectDiscovery('celo')
+const chainId = 42220
 
 export const celo: ScalingProject = opStackL2({
   capability: 'universal',
@@ -21,12 +27,16 @@ export const celo: ScalingProject = opStackL2({
     slug: 'celo',
     description:
       'Celo is an Ethereum Optimium based on the OP stack, scaling real-world solutions & leading a thriving new digital economy for all.',
-    category: 'Optimium',
-    stack: 'OP Stack',
+    category: 'Other',
+    stacks: ['OP Stack'],
     links: {
       websites: ['https://celo.org/'],
       documentation: ['https://docs.celo.org/'],
-      explorers: ['https://explorer.celo.org/mainnet/', 'https://celoscan.io'],
+      explorers: [
+        'https://explorer.celo.org/mainnet/',
+        'https://celoscan.io',
+        'https://celo.blockscout.com/',
+      ],
       repositories: ['https://github.com/celo-org'],
       socialMedia: [
         'https://x.com/Celo',
@@ -35,11 +45,12 @@ export const celo: ScalingProject = opStackL2({
       ],
     },
   },
+  hasSuperchainScUpgrades: true,
   associatedTokens: ['CELO'],
   chainConfig: {
     gasTokens: ['CELO'],
     name: 'celo',
-    chainId: 42220,
+    chainId,
     explorerUrl: 'https://celoscan.io',
     coingeckoPlatform: 'celo',
     sinceTimestamp: UnixTime(1742960663),
@@ -59,7 +70,7 @@ export const celo: ScalingProject = opStackL2({
       },
       {
         type: 'etherscan',
-        url: 'https://api.celoscan.io/api',
+        chainId,
         contractCreationUnsupported: true,
       },
     ],
@@ -98,4 +109,12 @@ export const celo: ScalingProject = opStackL2({
     startBlock: 31060842,
     adjustCount: { type: 'SubtractOne' },
   },
+  nonTemplateDaTracking: [
+    {
+      type: 'eigen-da',
+      customerId: '0xecf08b0a4f196e06e9aece95d5dd724bc121f09c',
+      daLayer: ProjectId('eigenda'),
+      sinceTimestamp: UnixTime(1741806000),
+    },
+  ],
 })

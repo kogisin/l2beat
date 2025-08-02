@@ -1,9 +1,8 @@
 import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
-
-import { CONTRACTS } from '../../common'
-import { BRIDGE_RISK_VIEW } from '../../common'
+import { BRIDGE_RISK_VIEW, CONTRACTS } from '../../common'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { Bridge } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('debridge')
 
@@ -27,7 +26,7 @@ export const debridge: Bridge = {
         'https://reddit.com/r/debridge/',
         'https://linkedin.com/company/debridge-finance',
       ],
-      apps: ['https://app.debridge.finance'],
+      bridges: ['https://app.debridge.finance'],
     },
     description:
       'deBridge is an interoperability layer that enables messaging between various blockchains. For the typical token transfer, "deToken" is minted on the destination chain.',
@@ -40,7 +39,7 @@ export const debridge: Bridge = {
         tokens: [
           'USDC',
           'WETH',
-          'FRAX',
+          'FRAX.legacy',
           'ETH',
           'USDT',
           'WBTC',
@@ -92,16 +91,11 @@ export const debridge: Bridge = {
       description: 'Signed off-chain by 8 or more deBridge oracles.',
       sentiment: 'bad',
     },
-    sourceUpgradeability: {
-      value: 'Yes',
-      description: 'The bridge can be upgraded by 2/3 MSig.',
-      sentiment: 'bad',
-    },
     destinationToken: BRIDGE_RISK_VIEW.WRAPPED,
   },
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails(
           'DeBridgeGate',
           'The main point of cross-chain interactions, this contract allows user to send message to other chain and claim funds when bridging back to Ethereum.',
@@ -115,7 +109,7 @@ export const debridge: Bridge = {
     risks: [CONTRACTS.UPGRADE_NO_DELAY_RISK],
   },
   permissions: {
-    [discovery.chain]: {
+    ethereum: {
       actors: [
         discovery.getMultisigPermission(
           'Admin Multisig',
@@ -129,4 +123,5 @@ export const debridge: Bridge = {
       ],
     },
   },
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

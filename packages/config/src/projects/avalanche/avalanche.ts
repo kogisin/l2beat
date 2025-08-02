@@ -1,6 +1,12 @@
-import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
+import {
+  ChainSpecificAddress,
+  EthereumAddress,
+  ProjectId,
+  UnixTime,
+} from '@l2beat/shared-pure'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { Bridge } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('avalanche')
 
@@ -13,11 +19,11 @@ export const avalanche: Bridge = {
     slug: 'avalanche',
     description:
       'Avalanche Bridge is an externally validated bridge. It uses a set of Wardens using secure SGX Enclave to sign transfers. On Ethereum side it uses periodically rotated EOA address for an Escrow. In the announcement, 3 out of 4 Warden signatures are required, however the exact number is impossible to verify for an external observer.',
-    category: 'Token Bridge',
+    category: 'Single-chain',
     links: {
       websites: ['https://avax.network/'],
       explorers: ['https://subnets.avax.network/'],
-      apps: ['https://bridge.avax.network/'],
+      bridges: ['https://bridge.avax.network/'],
       repositories: ['https://github.com/ava-labs'],
       socialMedia: [
         'https://twitter.com/avax',
@@ -96,19 +102,34 @@ export const avalanche: Bridge = {
   },
   riskView: {
     validatedBy: {
-      value: 'Third Party',
-      description: '6/8 Intel SGX',
+      value: 'Offchain 6/8',
+      description:
+        'A 6/8 Intel SGX allegedgly controls the escrowing EOA. Identities of the signers are not publicly disclosed.',
       sentiment: 'bad',
     },
-    sourceUpgradeability: {
-      value: 'EOA',
-      description: 'Avalanche Bridge uses EOA for Escrow',
+    governance: {
+      upgrade: {
+        value: 'EOA',
+        description: 'Avalanche Bridge uses an EOA as escrow.',
+        sentiment: 'bad',
+      },
+      pause: {
+        value: 'EOA',
+        sentiment: 'bad',
+        description:
+          'There is no formal pause function as this bridge does not use smart contracts, but the operator can stop processing messages anytime.',
+      },
+    },
+    livenessFailure: {
+      value: 'No mechanism',
+      description:
+        'If the operators do not service the bridge, deposited funds do not arrive at the destination chain and are stuck.',
       sentiment: 'bad',
     },
     destinationToken: {
       value: 'Wrapped',
       description:
-        'Tokens transferred end up as wrapped ERC20 proxies, the contract is named BridgeToken',
+        'Tokens transferred end up as wrapped ERC20 tokens, the contract implementation is named BridgeToken',
       sentiment: 'bad',
     },
   },
@@ -166,11 +187,14 @@ export const avalanche: Bridge = {
         discovery.getPermissionDetails(
           'Bridge Wardens',
           discovery.formatPermissionedAccounts([
-            EthereumAddress('0x8EB8a3b98659Cce290402893d0123abb75E3ab28'),
+            ChainSpecificAddress(
+              'eth:0x8EB8a3b98659Cce290402893d0123abb75E3ab28',
+            ),
           ]),
-          'Off-chain Multisig 6/8 using Intel SGX, which controls all the funds deposited to the bridge. There is no possibility to verify whether Intel SGX technology is being used.',
+          'Off-chain Multisig 6/8 (EOA on Ethereum) using Intel SGX, which controls all the funds deposited to the bridge. There is no possibility to verify whether Intel SGX technology is being used.',
         ),
       ],
     },
   },
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

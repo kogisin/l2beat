@@ -1,6 +1,6 @@
-import { assert, type EthereumAddress } from '@l2beat/shared-pure'
+import { assert, type ChainSpecificAddress } from '@l2beat/shared-pure'
+import { v } from '@l2beat/validate'
 import { type providers, utils } from 'ethers'
-import { z } from 'zod'
 import type { ContractValue } from '../../output/types'
 
 import type { IProvider } from '../../provider/IProvider'
@@ -9,12 +9,12 @@ import { toContractValue } from '../utils/toContractValue'
 import { toEventFragment } from '../utils/toEventFragment'
 import { ConstructorArgsHandler } from './ConstructorArgsHandler'
 
-export type LayerZeroMultisigHandlerDefinition = z.infer<
+export type LayerZeroMultisigHandlerDefinition = v.infer<
   typeof LayerZeroMultisigHandlerDefinition
 >
 
-export const LayerZeroMultisigHandlerDefinition = z.strictObject({
-  type: z.literal('layerZeroMultisig'),
+export const LayerZeroMultisigHandlerDefinition = v.strictObject({
+  type: v.literal('layerZeroMultisig'),
 })
 
 const UPDATE_SIGNER_EVENT_FRAGMENT = toEventFragment(
@@ -54,7 +54,7 @@ export class LayerZeroMultisigHandler implements Handler {
 
   async execute(
     provider: IProvider,
-    address: EthereumAddress,
+    address: ChainSpecificAddress,
   ): Promise<HandlerResult> {
     const constructorArgs = await this.constructorArgsHandler.execute(
       provider,
@@ -74,7 +74,7 @@ export class LayerZeroMultisigHandler implements Handler {
     assert(
       typeof ctorValue === 'object' &&
         !Array.isArray(ctorValue) &&
-        isNotEthereumAddress(ctorValue),
+        isNotChainSpecificAddress(ctorValue),
       'constructorArgs.value is not an object',
     )
     assert(Array.isArray(ctorValue._signers), 'signers is not an array')
@@ -109,8 +109,8 @@ export class LayerZeroMultisigHandler implements Handler {
   }
 }
 
-function isNotEthereumAddress<T extends object>(
-  value: T | EthereumAddress,
+function isNotChainSpecificAddress<T extends object>(
+  value: T | ChainSpecificAddress,
 ): value is T {
   return typeof value !== 'string'
 }

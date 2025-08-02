@@ -6,6 +6,7 @@ import {
 } from '../../common'
 import { linkByDA } from '../../common/linkByDA'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 import type { BaseProject } from '../../types'
 
 const discovery = new ProjectDiscovery('vector')
@@ -20,11 +21,13 @@ export const vector: BaseProject = {
   statuses: {
     yellowWarning: undefined,
     redWarning: undefined,
-    isUnderReview: false,
-    isUnverified: false,
+    emergencyWarning: undefined,
+    reviewStatus: undefined,
+    unverifiedContracts: [],
   },
   display: {
-    description: `Vector is a data availability bridge using Zero-Knowledge proofs to verify Avail data availability attestations on Ethereum.`,
+    description:
+      'Vector is a data availability bridge using Zero-Knowledge proofs to verify Avail data availability attestations on Ethereum.',
     links: {
       documentation: ['https://docs.succinct.xyz/'],
       repositories: ['https://github.com/succinctlabs/sp1-vector'],
@@ -35,19 +38,18 @@ export const vector: BaseProject = {
     name: 'Vector',
     daLayer: ProjectId('avail'),
     technology: {
-      description: ` 
-      ## Architecture
-        
-      ![Avail vector architecture](/images/da-bridge-technology/avail/vector/architecture.png#center)
-      
-       The Vector bridge is a data availability bridge that facilitates data availability commitments to be bridged between Avail and Ethereum.
-       The SP1 Vector bridge is composed of three main components: the **Vector** contract, the **Succinct Gateway** contracts, and the **Verifier** contracts.  <br /> 
-       By default, Vector operates asynchronously, handling requests in a fulfillment-based manner. First, zero-knowledge proofs of Avail block ranges are requested for proving. Requests can be submitted either off-chain through the Succinct API, or onchain through the requestCall() method of the Succinct Gateway smart contract.
-       Alternatively, it is possible to run an SP1 Vector operator with local proving, allowing for self-generating the proofs.
-       Once a proving request is received, the off-chain prover generates the proof and relays it to the Vector contract. The Vector contract verifies the proof with the corresponding verifier contract and, if successful, stores the data commitment in storage. <br /> 
-  
-      By default, Vector on Ethereum is updated by the Succinct operator at a cadence of approximately 1.5 hours.
-      `,
+      description: `
+## Architecture
+
+![Avail vector architecture](/images/da-bridge-technology/avail/vector/architecture.png#center)
+
+The Vector bridge is a data availability bridge that facilitates data availability commitments to be bridged between Avail and Ethereum.
+The SP1 Vector bridge is composed of three main components: the **Vector** contract, the **Succinct Gateway** contracts, and the **Verifier** contracts.  <br /> 
+By default, Vector operates asynchronously, handling requests in a fulfillment-based manner. First, zero-knowledge proofs of Avail block ranges are requested for proving. Requests can be submitted either off-chain through the Succinct API, or onchain through the requestCall() method of the Succinct Gateway smart contract.
+Alternatively, it is possible to run an SP1 Vector operator with local proving, allowing for self-generating the proofs.
+Once a proving request is received, the off-chain prover generates the proof and relays it to the Vector contract. The Vector contract verifies the proof with the corresponding verifier contract and, if successful, stores the data commitment in storage. <br /> 
+
+By default, Vector on Ethereum is updated by the Succinct operator at a cadence of approximately 1.5 hours.`,
       references: [
         {
           title: 'SP1 Vector Operator',
@@ -81,9 +83,7 @@ export const vector: BaseProject = {
     },
   },
   contracts: {
-    addresses: {
-      ethereum: discovery.getDiscoveredContracts(),
-    },
+    addresses: discovery.getDiscoveredContracts(),
     risks: [
       {
         category: 'Funds can be lost if',
@@ -95,7 +95,16 @@ export const vector: BaseProject = {
       },
     ],
   },
-  permissions: {
-    ethereum: discovery.getDiscoveredPermissions(),
-  },
+  permissions: discovery.getDiscoveredPermissions(),
+  milestones: [
+    {
+      title: 'Plonky3 vulnerability patch',
+      url: 'https://x.com/SuccinctLabs/status/1929773028034204121',
+      date: '2025-06-04T00:00:00.00Z',
+      description:
+        'SP1 verifier is patched to fix critical vulnerability in Plonky3 proof system (SP1 dependency).',
+      type: 'incident',
+    },
+  ],
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

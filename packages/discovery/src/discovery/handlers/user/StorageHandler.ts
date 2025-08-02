@@ -1,15 +1,15 @@
-import type { Bytes, EthereumAddress } from '@l2beat/shared-pure'
+import type { Bytes, ChainSpecificAddress } from '@l2beat/shared-pure'
+import { v } from '@l2beat/validate'
 import { utils } from 'ethers'
-import * as z from 'zod'
 
 import { getErrorMessage } from '../../../utils/getErrorMessage'
 import type { IProvider } from '../../provider/IProvider'
 import type { Handler, HandlerResult } from '../Handler'
 import {
-  Reference,
-  type ReferenceInput,
   generateReferenceInput,
   getReferencedName,
+  Reference,
+  type ReferenceInput,
   resolveReference,
 } from '../reference'
 import { SingleSlot } from '../storageCommon'
@@ -17,15 +17,19 @@ import { NumberFromString } from '../types'
 import { bytes32ToContractValue } from '../utils/bytes32ToContractValue'
 import { valueToBigInt } from '../utils/valueToBigInt'
 
-export type StorageHandlerDefinition = z.infer<typeof StorageHandlerDefinition>
-export const StorageHandlerDefinition = z.strictObject({
-  type: z.literal('storage'),
-  slot: z.union([SingleSlot, z.array(SingleSlot).min(1)]),
-  offset: z.optional(
-    z.union([z.number().int().nonnegative(), NumberFromString, Reference]),
-  ),
-  returnType: z.optional(z.enum(['address', 'bytes', 'number', 'uint8'])),
-  ignoreRelative: z.optional(z.boolean()),
+export type StorageHandlerDefinition = v.infer<typeof StorageHandlerDefinition>
+export const StorageHandlerDefinition = v.strictObject({
+  type: v.literal('storage'),
+  slot: v.union([SingleSlot, v.array(SingleSlot).check((v) => v.length >= 1)]),
+  offset: v
+    .union([
+      v.number().check((v) => Number.isInteger(v) && v >= 0),
+      NumberFromString,
+      Reference,
+    ])
+    .optional(),
+  returnType: v.enum(['address', 'bytes', 'number', 'uint8']).optional(),
+  ignoreRelative: v.boolean().optional(),
 })
 
 export class StorageHandler implements Handler {
@@ -40,7 +44,7 @@ export class StorageHandler implements Handler {
 
   async execute(
     provider: IProvider,
-    address: EthereumAddress,
+    address: ChainSpecificAddress,
     previousResults: Record<string, HandlerResult | undefined>,
   ): Promise<HandlerResult> {
     const referenceInput = generateReferenceInput(

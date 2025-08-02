@@ -1,6 +1,5 @@
-import { EthereumAddress, UnixTime } from '@l2beat/shared-pure'
-import { REASON_FOR_BEING_OTHER } from '../../common'
-import { ESCROW } from '../../common'
+import { ChainSpecificAddress, UnixTime } from '@l2beat/shared-pure'
+import { ESCROW, REASON_FOR_BEING_OTHER } from '../../common'
 import { BADGES } from '../../common/badges'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
@@ -9,7 +8,7 @@ import { opStackL2 } from '../../templates/opStack'
 const discovery = new ProjectDiscovery('lisk')
 
 export const lisk: ScalingProject = opStackL2({
-  addedAt: UnixTime(1695904849), // 2023-09-28T12:40:49Z
+  addedAt: UnixTime(1731369600), // 2024-11-12T00:00:00Z
   discovery,
   genesisTimestamp: UnixTime(1714728793),
   associatedTokens: ['LSK'],
@@ -22,7 +21,10 @@ export const lisk: ScalingProject = opStackL2({
       'Lisk is an OP stack rollup on Ethereum that migrated from the L1 blockchain of the same name.',
     links: {
       websites: ['https://lisk.com/'],
-      apps: ['https://bridge.lisk.com/bridge/lisk', 'https://portal.lisk.com/'],
+      bridges: [
+        'https://bridge.lisk.com/bridge/lisk',
+        'https://portal.lisk.com/',
+      ],
       documentation: ['https://docs.lisk.com/'],
       explorers: ['https://blockscout.lisk.com/'],
       repositories: ['https://github.com/LiskHQ/lisk-node'],
@@ -38,22 +40,25 @@ export const lisk: ScalingProject = opStackL2({
       ],
     },
   },
+  milestones: [
+    {
+      title: 'Mainnet Launch',
+      url: 'https://lisk.com/blog/posts/lisk-user-mainnet-is-live/',
+      date: '2024-11-12T00:00:00Z',
+      description: 'Lisk launches its User Mainnet.',
+      type: 'general',
+    },
+  ],
   l1StandardBridgePremintedTokens: ['LSK'],
-  nonTemplateExcludedTokens: ['USDC'],
-  finality: {
-    type: 'OPStack',
-    genesisTimestamp: UnixTime(1714728791),
-    minTimestamp: UnixTime(1714746983), // first blob
-    l2BlockTimeSeconds: 2,
-    lag: 0,
-    stateUpdate: 'analyze',
-  },
+  nonTemplateExcludedTokens: ['USDC', 'wstETH'],
   // not ready yet, check this PR https://github.com/ethereum-optimism/superchain-registry/pull/234 or the prepared links in `DERIVATION.OPSTACK('LISK')`
   // stateDerivation: DERIVATION.OPSTACK('LISK'),
   isNodeAvailable: true,
   chainConfig: {
     name: 'lisk',
     chainId: 1135,
+    coingeckoPlatform: 'lisk',
+    sinceTimestamp: UnixTime(1714746983),
     apis: [
       {
         type: 'rpc',
@@ -64,12 +69,33 @@ export const lisk: ScalingProject = opStackL2({
   },
   nonTemplateEscrows: [
     discovery.getEscrowDetails({
-      address: EthereumAddress('0xE3622468Ea7dD804702B56ca2a4f88C0936995e6'),
+      address: ChainSpecificAddress(
+        'eth:0xE3622468Ea7dD804702B56ca2a4f88C0936995e6',
+      ),
       name: 'External USDC Vault',
       ...ESCROW.CANONICAL_EXTERNAL,
       description:
         'Custom externally governed escrow for USDC bridged to Lisk.',
       tokens: ['USDC'],
+    }),
+    discovery.getEscrowDetails({
+      address: ChainSpecificAddress(
+        'eth:0xEb99c8c87c5e0C2dCb01E2A1E35AA01f5889F677',
+      ),
+      name: 'External EURC Vault',
+      ...ESCROW.CANONICAL_EXTERNAL,
+      description:
+        'Custom externally governed escrow for EURC bridged to Lisk.',
+      tokens: ['EURC'],
+    }),
+    discovery.getEscrowDetails({
+      address: ChainSpecificAddress(
+        'eth:0x9348AF23B01F2B517AFE8f29B3183d2Bb7d69Fcf',
+      ),
+      tokens: ['wstETH'],
+      ...ESCROW.CANONICAL_EXTERNAL,
+      description:
+        'wstETH Vault for custom wstETH Gateway. Fully controlled by Lido governance.',
     }),
   ],
 })

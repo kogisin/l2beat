@@ -14,25 +14,23 @@ export const ethernity: ScalingProject = opStackL2({
   discovery,
   reasonsForBeingOther: [REASON_FOR_BEING_OTHER.NO_PROOFS],
   display: {
-    name: 'Ethernity',
-    slug: 'ethernity',
+    name: 'Epic Chain',
+    slug: 'epicchain',
     description:
-      'Ethernity is a Rollup on Ethereum leveraging the OP stack. With a primary focus on the entertainment sector, Ethernity Chain aims to cultivate a vibrant ecosystem of world-class applications where developers and users alike are directly rewarded for their contributions.',
-    category: 'Optimistic Rollup',
+      'Epic chain, previously Ehternity, is a low-cost Layer 2 solution on the Superchain, designed to bring global entertainment franchises onto the blockchain.',
     links: {
-      websites: ['https://ethernity.io/'],
-      apps: [
+      websites: ['https://epicchain.io/'],
+      bridges: [
+        'https://swap.epicchain.io/',
         'https://bridge.gelato.network/bridge/ethernity-mainnet',
-        'https://app.ethernity.io/',
       ],
-      documentation: ['https://docs.ethernity.io/'],
       explorers: ['https://ernscan.io/'],
+      documentation: [],
       socialMedia: [
-        'https://x.com/EthernityChain',
-        'https://instagram.com/ethernity',
-        'https://ethernitychain.medium.com/',
-        'https://t.me/ethernitychain',
-        'https://discord.com/invite/EthernityChain',
+        'https://x.com/EpicOnChain',
+        'https://t.me/epiconchain',
+        'https://instagram.com/epiconchain/',
+        'https://facebook.com/EpicOnChain',
       ],
     },
   },

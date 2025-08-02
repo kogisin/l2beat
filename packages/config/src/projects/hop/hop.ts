@@ -1,7 +1,7 @@
 import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
-import { BRIDGE_RISK_VIEW } from '../../common'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { Bridge } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('hop')
 
@@ -124,7 +124,6 @@ export const hop: Bridge = {
         'Messages are relayed to the destination chain and assumed to be correct unless challenged within the 24 hour fraud proof window.',
       sentiment: 'warning',
     },
-    sourceUpgradeability: BRIDGE_RISK_VIEW.UPGRADABLE_NO,
     destinationToken: {
       value: 'Canonical',
       description:
@@ -134,7 +133,7 @@ export const hop: Bridge = {
   },
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails('USDC Bridge'),
         discovery.getContractDetails('DAI Bridge'),
         discovery.getContractDetails('USDT Bridge'),
@@ -148,7 +147,7 @@ export const hop: Bridge = {
     risks: [],
   },
   permissions: {
-    [discovery.chain]: {
+    ethereum: {
       actors: [
         discovery.getMultisigPermission(
           'Hop Multisig',
@@ -157,4 +156,5 @@ export const hop: Bridge = {
       ],
     },
   },
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

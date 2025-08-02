@@ -6,10 +6,10 @@ import type { ScalingProject } from '../../internalTypes'
 import { AnytrustDAC } from '../../templates/anytrust-template'
 import { orbitStackL2 } from '../../templates/orbitStack'
 
-const discovery = new ProjectDiscovery('hychain', 'ethereum')
+const discovery = new ProjectDiscovery('hychain')
 
 export const hychain: ScalingProject = orbitStackL2({
-  addedAt: UnixTime(1710846977), // 2024-03-19T11:16:17Z
+  addedAt: UnixTime(1709942400), // 2024-03-09T00:00:00Z
   additionalBadges: [BADGES.RaaS.Caldera],
   additionalPurposes: ['Gaming'],
   reasonsForBeingOther: [
@@ -23,7 +23,7 @@ export const hychain: ScalingProject = orbitStackL2({
       'HYCHAIN is a gaming-focused Orbit stack Optimium that was created to eliminate onboarding and technical challenges for web3 games aiming for widespread adoption.',
     links: {
       websites: ['https://hychain.com'],
-      apps: ['https://bridge.hychain.com'],
+      bridges: ['https://bridge.hychain.com'],
       documentation: ['https://docs.hychain.com'],
       explorers: ['https://explorer.hychain.com'],
       repositories: ['https://github.com/kintoxyz'],
@@ -51,5 +51,14 @@ export const hychain: ScalingProject = orbitStackL2({
     ],
     gasTokens: ['TOPIA'],
   },
-  customDa: AnytrustDAC({ discovery }),
+  customDa: AnytrustDAC({ discovery, hostChain: 'ethereum' }),
+  milestones: [
+    {
+      title: 'Mainnet Launch',
+      url: 'https://x.com/WINRProtocol/status/1867223130684735514',
+      date: '2024-03-09T00:00:00Z',
+      description: 'HYCHAIN launches its Mainnet.',
+      type: 'general',
+    },
+  ],
 })

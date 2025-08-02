@@ -2,10 +2,11 @@ import type { EntryParameters } from '@l2beat/discovery'
 import {
   assert,
   ChainId,
+  ChainSpecificAddress,
   EthereumAddress,
+  formatSeconds,
   ProjectId,
   type UnixTime,
-  formatSeconds,
 } from '@l2beat/shared-pure'
 import {
   CONTRACTS,
@@ -37,8 +38,8 @@ import type {
   ProjectActivityConfig,
   ProjectContract,
   ProjectDaTrackingConfig,
+  ProjectEcosystemInfo,
   ProjectEscrow,
-  ProjectFinalityConfig,
   ProjectPermissions,
   ProjectScalingCapability,
   ProjectScalingPurpose,
@@ -51,10 +52,7 @@ import type {
   TableReadyValue,
 } from '../types'
 import { getActivityConfig } from './activity'
-import {
-  generateDiscoveryDrivenContracts,
-  generateDiscoveryDrivenPermissions,
-} from './generateDiscoveryDrivenSections'
+import { getDiscoveryInfo } from './getDiscoveryInfo'
 import { mergeBadges, mergePermissions } from './utils'
 
 export interface DAProvider {
@@ -68,7 +66,6 @@ export interface ZkStackConfigCommon {
   addedAt: UnixTime
   capability?: ProjectScalingCapability
   discovery: ProjectDiscovery
-  discovery_ZKstackGovL2: ProjectDiscovery
   display: Omit<ProjectScalingDisplay, 'provider' | 'category' | 'purposes'>
   daProvider?: DAProvider
   upgradeability?: {
@@ -81,7 +78,6 @@ export interface ZkStackConfigCommon {
   diamondContract: EntryParameters
   activityConfig?: ProjectActivityConfig
   nonTemplateTrackedTxs?: Layer2TxConfig[]
-  finality?: ProjectFinalityConfig
   l2OutputOracle?: EntryParameters
   portal?: EntryParameters
   milestones?: Milestone[]
@@ -93,16 +89,20 @@ export interface ZkStackConfigCommon {
   isNodeAvailable?: boolean | 'UnderReview'
   nodeSourceLink?: string
   chainConfig?: ChainConfig
-  usesBlobs?: boolean
   isUnderReview?: boolean
   stage?: ProjectScalingStage
   additionalBadges?: Badge[]
   useDiscoveryMetaOnly?: boolean
   additionalPurposes?: ProjectScalingPurpose[]
   overridingPurposes?: ProjectScalingPurpose[]
+  archivedAt?: UnixTime
   nonTemplateRiskView?: Partial<ProjectScalingRiskView>
   nonTemplateTechnology?: Partial<ProjectScalingTechnology>
   reasonsForBeingOther?: ReasonForBeingInOther[]
+  ecosystemInfo?: ProjectEcosystemInfo
+  validatorTimelockOnGateway?: EntryParameters
+  /** Set to true if projects posts blobs to Ethereum */
+  usesEthereumBlobs?: boolean
   /** Configure to enable DA metrics tracking for chain using Celestia DA */
   celestiaDa?: {
     namespace: string
@@ -125,7 +125,6 @@ export type Upgradeability = {
 }
 
 export function zkStackL2(templateVars: ZkStackConfigCommon): ScalingProject {
-  const { discovery, discovery_ZKstackGovL2 } = templateVars
   const daProvider = templateVars.daProvider
   if (daProvider) {
     assert(
@@ -134,43 +133,54 @@ export function zkStackL2(templateVars: ZkStackConfigCommon): ScalingProject {
     )
   }
 
-  const protVotingDelayS = discovery_ZKstackGovL2.getContractValue<number>(
+  const protVotingDelayS = templateVars.discovery.getContractValue<number>(
     'ZkProtocolGovernor',
     'votingDelay',
   )
-  const protVotingPeriodS = discovery_ZKstackGovL2.getContractValue<number>(
+  const protVotingPeriodS = templateVars.discovery.getContractValue<number>(
     'ZkProtocolGovernor',
     'votingPeriod',
   )
 
   const protLateQuorumVoteExtensionS =
-    discovery_ZKstackGovL2.getContractValue<number>(
+    templateVars.discovery.getContractValue<number>(
       'ZkProtocolGovernor',
       'lateQuorumVoteExtension',
     )
-  const protTlMinDelayS = discovery_ZKstackGovL2.getContractValue<number>(
+  const protTlMinDelayS = templateVars.discovery.getContractValue<number>(
     'ProtocolTimelockController',
     'getMinDelay',
   )
-  const executionDelayS = discovery.getContractValue<number>(
+  const settlesOnGateway =
+    templateVars.discovery.getContractValue<string>(
+      templateVars.diamondContract.name ?? 'ZKsync',
+      'getSettlementLayer',
+    ) === 'eth:0x6E96D1172a6593D5027Af3c2664C5112Ca75F2B9'
+  let executionDelayS = templateVars.discovery.getContractValue<number>(
     'ValidatorTimelock',
     'executionDelay',
   )
+  if (settlesOnGateway) {
+    // add gateway VTL delay (usually 0)
+    executionDelayS += Number(
+      templateVars.validatorTimelockOnGateway?.values?.executionDelay,
+    )
+  }
   const executionDelay = executionDelayS > 0 && formatSeconds(executionDelayS)
 
-  const legalVetoStandardS = discovery.getContractValue<number>(
+  const legalVetoStandardS = templateVars.discovery.getContractValue<number>(
     'ProtocolUpgradeHandler',
     'STANDARD_LEGAL_VETO_PERIOD',
   )
-  const legalVetoExtendedS = discovery.getContractValue<number>(
+  const legalVetoExtendedS = templateVars.discovery.getContractValue<number>(
     'ProtocolUpgradeHandler',
     'EXTENDED_LEGAL_VETO_PERIOD',
   )
-  const upgradeDelayPeriodS = discovery.getContractValue<number>(
+  const upgradeDelayPeriodS = templateVars.discovery.getContractValue<number>(
     'ProtocolUpgradeHandler',
     'UPGRADE_DELAY_PERIOD',
   )
-  const upgradeWaitOrExpireS = discovery.getContractValue<number>(
+  const upgradeWaitOrExpireS = templateVars.discovery.getContractValue<number>(
     'ProtocolUpgradeHandler',
     'UPGRADE_WAIT_OR_EXPIRE_PERIOD',
   )
@@ -188,58 +198,59 @@ export function zkStackL2(templateVars: ZkStackConfigCommon): ScalingProject {
     upgradeWaitOrExpireS +
     upgradeDelayPeriodS
 
-  const softFreezeS = discovery.getContractValue<number>(
+  const softFreezeS = templateVars.discovery.getContractValue<number>(
     'ProtocolUpgradeHandler',
     'SOFT_FREEZE_PERIOD',
   )
-  const hardFreezeS = discovery.getContractValue<number>(
+  const hardFreezeS = templateVars.discovery.getContractValue<number>(
     'ProtocolUpgradeHandler',
     'HARD_FREEZE_PERIOD',
   )
 
-  const scMemberCount = discovery.getContractValue<string[]>(
+  const scMemberCount = templateVars.discovery.getContractValue<string[]>(
     'SecurityCouncil',
     '$members',
   ).length
-  const scApprovalThreshold = discovery.getContractValue<number>(
+  const scApprovalThreshold = templateVars.discovery.getContractValue<number>(
     'SecurityCouncil',
     'APPROVE_UPGRADE_SECURITY_COUNCIL_THRESHOLD',
   )
-  const scMainThreshold = discovery.getContractValue<number>(
+  const scMainThreshold = templateVars.discovery.getContractValue<number>(
     'SecurityCouncil',
     'EIP1271_THRESHOLD',
   )
-  const guardiansMemberCount = discovery.getContractValue<string[]>(
-    'Guardians',
-    '$members',
-  ).length
-  const guardiansMainThreshold = discovery.getContractValue<number>(
-    'Guardians',
-    'EIP1271_THRESHOLD',
-  )
-  const guardiansExtendThreshold = discovery.getContractValue<number>(
-    'Guardians',
-    'EXTEND_LEGAL_VETO_THRESHOLD',
-  )
+  const guardiansMemberCount = templateVars.discovery.getContractValue<
+    string[]
+  >('Guardians', '$members').length
+  const guardiansMainThreshold =
+    templateVars.discovery.getContractValue<number>(
+      'Guardians',
+      'EIP1271_THRESHOLD',
+    )
+  const guardiansExtendThreshold =
+    templateVars.discovery.getContractValue<number>(
+      'Guardians',
+      'EXTEND_LEGAL_VETO_THRESHOLD',
+    )
   const protocolStartProposalThresholdM =
-    discovery_ZKstackGovL2.getContractValueBigInt(
+    templateVars.discovery.getContractValueBigInt(
       'ZkProtocolGovernor',
       'proposalThreshold',
     ) / 1000000000000000000000000n // result: M of tokens
   const protocolQuorumM =
-    discovery_ZKstackGovL2.getContractValueBigInt(
+    templateVars.discovery.getContractValueBigInt(
       'ZkProtocolGovernor',
       'currentQuorum',
     ) / 1000000000000000000000000n // result: M of tokens
   const scThresholdString = `${scMainThreshold}/${scMemberCount}`
   const guardiansThresholdString = `${guardiansMainThreshold}/${guardiansMemberCount}`
 
-  const allDiscoveries = [templateVars.discovery, discovery_ZKstackGovL2]
   return {
     type: 'layer2',
     id: ProjectId(templateVars.discovery.projectName),
     addedAt: templateVars.addedAt,
     capability: templateVars.capability ?? 'universal',
+    archivedAt: templateVars.archivedAt,
     badges: mergeBadges(
       [
         BADGES.Stack.ZKStack,
@@ -254,10 +265,19 @@ export function zkStackL2(templateVars: ZkStackConfigCommon): ScalingProject {
         'Universal',
         ...(templateVars.additionalPurposes ?? []),
       ],
-      upgradesAndGovernanceImage: 'zk-stack',
-      ...templateVars.display,
-      stack: 'ZK Stack',
-      category: daProvider !== undefined ? 'Validium' : 'ZK Rollup',
+      upgradesAndGovernanceImage: 'zkstack',
+      stacks: ['ZK Stack'],
+      architectureImage:
+        templateVars.daProvider !== undefined
+          ? 'zkstack-validium'
+          : settlesOnGateway
+            ? 'zkstack-rollup-gateway'
+            : 'zkstack-rollup',
+      category: templateVars.reasonsForBeingOther
+        ? 'Other'
+        : daProvider !== undefined
+          ? 'Validium'
+          : 'ZK Rollup',
       liveness: {
         explanation: executionDelay
           ? `${templateVars.display.name} is a ${
@@ -267,17 +287,8 @@ export function zkStackL2(templateVars: ZkStackConfigCommon): ScalingProject {
             } to the L1. Transactions within a state diff can be considered final when proven on L1 using a ZK proof, except that an operator can revert them if not executed yet. Currently, there is at least a ${executionDelay} delay between state diffs verification and the execution of the corresponding state actions.`
           : undefined,
       },
-      finality: {
-        finalizationPeriod: executionDelayS,
-        warnings: {
-          timeToInclusion: {
-            sentiment: 'warning',
-            value:
-              'Proven but not executed batches can be reverted by the validator(s) or the StateTransitionManager.',
-          },
-        },
-      },
-      tvlWarning: templateVars.display.tvlWarning,
+      tvsWarning: templateVars.display.tvsWarning,
+      ...templateVars.display,
     },
     config: {
       associatedTokens: templateVars.associatedTokens,
@@ -295,16 +306,13 @@ export function zkStackL2(templateVars: ZkStackConfigCommon): ScalingProject {
         },
       ),
       daTracking: getDaTracking(templateVars),
-      trackedTxs:
-        daProvider !== undefined
-          ? undefined
-          : (templateVars.nonTemplateTrackedTxs ?? []),
-      finality: daProvider !== undefined ? undefined : templateVars.finality,
+      trackedTxs: templateVars.nonTemplateTrackedTxs, // difficult to templatize as upgrades are not synced
     },
     chainConfig: templateVars.chainConfig && {
       ...templateVars.chainConfig,
       gasTokens: templateVars.chainConfig?.gasTokens ?? ['ETH'],
     },
+    ecosystemInfo: templateVars.ecosystemInfo,
     dataAvailability: {
       layer: daProvider?.layer ?? DA_LAYERS.ETH_BLOBS_OR_CALLDATA,
       bridge: daProvider?.bridge ?? DA_BRIDGES.ENSHRINED,
@@ -316,10 +324,10 @@ export function zkStackL2(templateVars: ZkStackConfigCommon): ScalingProject {
         secondLine: formatExecutionDelay(executionDelayS),
       },
       dataAvailability:
-        (templateVars.nonTemplateRiskView?.dataAvailability ??
-        daProvider !== undefined)
-          ? RISK_VIEW.DATA_EXTERNAL
-          : RISK_VIEW.DATA_ON_CHAIN_STATE_DIFFS,
+        templateVars.nonTemplateRiskView?.dataAvailability ??
+        (daProvider !== undefined
+          ? daProvider?.riskView
+          : RISK_VIEW.DATA_ON_CHAIN_STATE_DIFFS),
       exitWindow:
         templateVars.nonTemplateRiskView?.exitWindow ??
         RISK_VIEW.EXIT_WINDOW_ZKSTACK(upgradeDelayWithScApprovalS),
@@ -343,11 +351,11 @@ export function zkStackL2(templateVars: ZkStackConfigCommon): ScalingProject {
                 stateRootsPostedToL1: true,
                 dataAvailabilityOnL1: true,
                 rollupNodeSourceAvailable: true,
+                stateVerificationOnL1: true,
+                fraudProofSystemAtLeast5Outsiders: null,
               },
               stage1: {
                 principle: false,
-                stateVerificationOnL1: true,
-                fraudProofSystemAtLeast5Outsiders: null,
                 usersHave7DaysToExit: false,
                 usersCanExitWithoutCooperation: false,
                 securityCouncilProperlySetUp: null,
@@ -402,10 +410,32 @@ export function zkStackL2(templateVars: ZkStackConfigCommon): ScalingProject {
         },
         EXITS.FORCED_MESSAGING('forced-messages'),
       ],
+      otherConsiderations:
+        templateVars.nonTemplateTechnology?.otherConsiderations ??
+        (settlesOnGateway
+          ? [
+              {
+                name: 'Gateway - Intermediate Settlement Layer',
+                description: `This chain settles on the Gateway, a validity rollup on Ethereum used as a specialized settlement layer. Chains settling on the Gateway keep the same overall architecture as when settling on Ethereum, but their main entrypoints and bridge messaging are replicated on both Ethereum and the Gateway. This abstracts away the intermediate settlement layer for users. Operators provide data and proofs on the Gateway as they would on Ethereum, and proofs are then aggregated into a single Gateway validity proof on Ethereum for all chains settling on the Gateway. Since ZK stack rollups use state diffs for data availability, pubdata posted to the Gateway must be relayed via L2->L1 messages by a 'RelayedSLDAValidator' contract. Unless stated otherwise, the permissions and governance for a given chain are synced between the Gateway and Ethereum.`,
+                references: [
+                  {
+                    title: 'Gateway - ZKsync Era Documentation',
+                    url: 'https://matter-labs.github.io/zksync-era/core/latest/specs/contracts/gateway/overview.html',
+                  },
+                ],
+                risks: [
+                  {
+                    category: 'Funds can be stolen if',
+                    text: "the Gateway settlement rollup's additional trust assumptions (different operators, separate rollup) are exploited.",
+                  },
+                ],
+              },
+            ]
+          : undefined),
     },
     upgradesAndGovernance: (() => {
       const description = `
-There are two main paths for contract upgrades in the shared ZK stack ecosystem - standard and emergency - both converging on the shared upgrade proxy contract ProtocolUpgradeHandler.
+There are two main paths for contract upgrades in the shared ZK stack ecosystem - standard and emergency - both converging on the shared upgrade management contract ProtocolUpgradeHandler.
 The standard path involves a governance proposal and voting through the DAO, multiple timelock delays and finally approval by the Guardians or ${scApprovalThreshold} SecurityCouncil participants.
 The emergency path allows for contract upgrades without any delay by the EmergencyUpgradeBoard, which acts as a 3/3 Multisig between SecurityCouncil, Guardians and the FoundationMultisig.
 ## Standard path
@@ -419,7 +449,7 @@ A proposal is only successful if it reaches both quorum (${protocolQuorumM}M ZK 
       )} is guaranteed by a potential late quorum vote extension.
 In the successful case, it can be queued in the ${formatSeconds(
         protTlMinDelayS,
-      )} timelock which forwards it to Ethereum as an L2->L1 log.
+      )} timelock which forwards it via the Gateway to Ethereum as an L2->L1 log.
 ### On Ethereum
 After the execution of the proposal-containing batch (${executionDelay} delay), the proposal is now picked up by the ProtocolUpgradeHandler and enters the ${formatSeconds(
         legalVetoStandardS,
@@ -430,15 +460,15 @@ This serves as a window in which a veto could be coordinated offchain, to be the
 After this a proposal enters a \*waiting\* state of ${formatSeconds(
         upgradeWaitOrExpireS,
       )}, from which it can be immediately approved (cancelling the delay) by ${scApprovalThreshold} participants of the SecurityCouncil.
-For the unlikely case that the SC does not approve here, the Guardians can instead approve the proposal, or nobody. In the two latter cases, the waiting period is enforced in full.
-A proposal cannot be actively cancelled in the ProtocolUpgradeHandler, but will be expired if not approved within the waiting period. An approved proposal now enters the \*pendingExecution\* state for a final delay of 1d, and can then be executed.
+For the unlikely case that the Security Council does not approve here, the Guardians can instead approve the proposal, or nobody. In the two latter cases, the waiting period is enforced in full.
+A proposal cannot be actively cancelled in the ProtocolUpgradeHandler, but will expire if not approved within the waiting period. An approved proposal now enters the \*pendingExecution\* state for a final delay of ${formatSeconds(upgradeDelayPeriodS)} and can then be executed.
 ### Other governance tracks
 There are two other tracks of Governance also starting with DAO Delegate proposals the ZKsync Era rollup: 1) Token Program Proposals that add new minters, allocations or upgrade the ZK token and
 2) Governance Advisory Proposals that e.g. change the ZK Credo or other offchain Governance Procedures without onchain targets.
 The protocol for these two other tracks is similar to the first part of the standard path described above (albeit having different quorum and timelock values), and not passing over to the Ethereum L1.
 Further customizations are that the ZkFoundationMultisig can propose to the ZkTokenGovernor without a threshold and that the Guardians' L2 alias can cancel proposals in the ZkTokenGovernor and the ZkGovOpsGovernor.
 ## Emergency path
-SecurityCouncil (${scThresholdString}), Guardians (${guardiansThresholdString}) and ZkFoundationMultisig (${discovery.getMultisigStats(
+SecurityCouncil (${scThresholdString}), Guardians (${guardiansThresholdString}) and ZkFoundationMultisig (${templateVars.discovery.getMultisigStats(
         'ZK Foundation Multisig',
       )}) form a de-facto 3/3 Multisig
 by pushing an immediate upgrade proposal through the EmergencyUpgradeBoard, which circumvents all delays and executes immediately via the ProtocolUpgradeHandler.
@@ -451,25 +481,27 @@ The cumulative duration of the upgrade paths from the moment of a voted 'success
         upgradeDelayNoScS,
       )} for the path in which the SecurityCouncil is not approving the proposal.
 ## Freezing
-The SecurityCouncil can freeze (pause withdrawals and settlement) all chains connected to the current StateTransitionManager.
+The SecurityCouncil can freeze (pause withdrawals and settlement) all chains connected to the current ChainTypeManager.
 Either for a softFreeze of ${formatSeconds(
         softFreezeS,
       )} or a hardFreeze of ${formatSeconds(hardFreezeS)}.
 After a softFreeze and / or a hardFreeze, a proposal from the EmergencyUpgradeBoard has to be passed before subsequent freezes are possible.
 Only the SecurityCouncil can unfreeze an active freeze.
-## Elastic Chain Operator and ChainAdmin
+## ZK cluster Admin and Chain Admin
 Apart from the paths that can upgrade all shared implementations, the ZK stack governance system defines other roles that can modify the system:
-A single *Elastic Chain operator* role that governs parameters in the shared contracts and a *ChainAdmin* role (in the chain-specific diamond contract) for managing parameters of each individual Hyperchain that builds on the stack.
-These chain-specific actions include setting a transaction filterer that can censor L1 -> L2 messages, setting fee parameters and adding / removing Validators in the ValidatorTimelock.
-ZKsync Era's ChainAdmin differs from the others as it also has the above *Elastic Chain Operator* role in the shared ZK stack contracts.`
+A single *ZK cluster Admin* role who governs parameters in the shared contracts and a *Chain Admin* role (defined in each chain-specific diamond contract) for managing parameters of each individual ZK chain that builds on the stack.
+These chain-specific actions include critical operations like setting a transaction filterer that can censor L1 -> L2 messages, changing the DA mode, migrating the chain to a different settlement layer and standard operations like setting fee parameters and adding / removing Validators in the ValidatorTimelock.
+For rollups, data availability on Ethereum is validated by a RollupL1DAValidator contract (or a RelayedSLDAValidator on the Gateway). Each rollup can become a permanent rollup (through their Chain Admin) which disallows DA changes to non-whitelisted sources or settlement layers in the future.
+The source of truth for rollup-compliant DA validator contracts is the RollupDAManager contract, which is administered via the ProtocolUpgradeHandler.
+ZKsync Era's Chain Admin differs from the others as it also has the above *ZK cluster Admin* role in the shared ZK stack contracts.`
       return description
     })(),
     permissions: mergePermissions(
-      generateDiscoveryDrivenPermissions(allDiscoveries),
+      templateVars.discovery.getDiscoveredPermissions(),
       templateVars.nonTemplatePermissions ?? {},
     ),
     contracts: {
-      addresses: generateDiscoveryDrivenContracts(allDiscoveries),
+      addresses: templateVars.discovery.getDiscoveredContracts(),
       risks: [
         CONTRACTS.UPGRADE_WITH_DELAY_RISK_WITH_EXCEPTION(
           // a bit hacky, but re-using the function from arbitrum (3 cases: standard (with or without extension by Guardians), emergency)
@@ -487,11 +519,11 @@ ZKsync Era's ChainAdmin differs from the others as it also has the above *Elasti
             nodeSoftware: `The node software is open-source, and its source code can be found [here](https://github.com/matter-labs/zksync-era).
     The main node software does not rely on Layer 1 (L1) to reconstruct the state, but you can use [this tool](https://github.com/eqlabs/zksync-state-reconstruct) for that purpose. Currently, there is no straightforward method to inject the state into the main node, but ZKsync is actively working on a solution for this.`,
             compressionScheme:
-              'Bytecodes undergo compression before deployment on Layer 1 (L1). You can find additional information on this process [here](https://github.com/matter-labs/zksync-era/blob/main/docs/guides/advanced/11_compression.md).',
+              'Bytecodes undergo compression before deployment on Layer 1 (L1). You can find additional information on this process [here](https://github.com/matter-labs/zksync-era/blob/main/docs/src/guides/advanced/11_compression.md).',
             genesisState:
               'There have been neither genesis states nor regenesis.',
             dataFormat:
-              'Details on data format can be found [here](https://github.com/matter-labs/zksync-era/blob/main/docs/guides/advanced/09_pubdata.md).',
+              'Details on data format can be found [here](https://github.com/matter-labs/zksync-era/blob/main/docs/src/guides/advanced/09_pubdata.md).',
           },
     stateValidation: {
       description:
@@ -500,7 +532,7 @@ ZKsync Era's ChainAdmin differs from the others as it also has the above *Elasti
         {
           title: 'Prover Architecture',
           description:
-            'ZKsync Era proof system Boojum can be found [here](https://github.com/matter-labs/era-boojum/tree/main) and contains essential tools like the Prover, the Verifier, and other backend components. The specs of the system can be found [here](https://github.com/matter-labs/zksync-era/tree/main/docs/specs/prover).',
+            'ZKsync Era proof system Boojum can be found [here](https://github.com/matter-labs/era-boojum/tree/main) and contains essential tools like the Prover, the Verifier, and other backend components. The specs of the system can be found [here](https://github.com/matter-labs/zksync-era/tree/main/prover).',
         },
         {
           title: 'ZK Circuits',
@@ -533,7 +565,7 @@ ZKsync Era's ChainAdmin differs from the others as it also has the above *Elasti
           {
             name: 'ZKsyncEraVerifier',
             description:
-              'ZKsync Era utilizes [Boojum](https://github.com/matter-labs/era-boojum/tree/main) as the main proving stack for their system. Boojum is an implementation of the [Redshift](https://eprint.iacr.org/2019/1400.pdf) protocol. The protocol makes use of recursive proof aggregation. The final Redshift proof is wrapped in a SNARK (Plonk + KZG) proof.',
+              'ZKsync Era utilizes [Boojum](https://github.com/matter-labs/zksync-crypto/tree/main/crates/boojum) as the main proving stack for their system. Boojum is an implementation of the [Redshift](https://eprint.iacr.org/2019/1400.pdf) protocol. The protocol makes use of recursive proof aggregation. The final Redshift proof is wrapped in a SNARK (Plonk + KZG) proof.',
             verified: 'no',
             contractAddress: EthereumAddress(
               '0x06aa7a7B07108F7C5539645e32DD5c21cBF9EB66',
@@ -543,7 +575,7 @@ ZKsync Era's ChainAdmin differs from the others as it also has the above *Elasti
               {
                 name: 'Final wrap',
                 ...PROOFS.PLONKSNARK('Aztec ceremony'),
-                link: 'https://github.com/matter-labs/era-zkevm_test_harness/blob/v1.5.0/circuit_definitions/src/circuit_definitions/aux_layer/wrapper.rs',
+                link: 'https://github.com/matter-labs/zksync-protocol/blob/main/crates/circuit_definitions/src/circuit_definitions/aux_layer/wrapper.rs',
               },
               {
                 name: 'Aggregation circuit',
@@ -551,7 +583,7 @@ ZKsync Era's ChainAdmin differs from the others as it also has the above *Elasti
                 mainArithmetization: 'Plonkish',
                 mainPCS: 'LPC',
                 trustedSetup: 'None',
-                link: 'https://github.com/matter-labs/era-zkevm_test_harness/blob/v1.5.0/circuit_definitions/src/circuit_definitions/recursion_layer/mod.rs#L45',
+                link: 'https://github.com/matter-labs/zksync-protocol/blob/7dfcc81eccc3984793646a5a47e4cd68757955a2/crates/circuit_definitions/src/circuit_definitions/recursion_layer/mod.rs#L45',
               },
               {
                 name: 'Main circuit',
@@ -559,7 +591,7 @@ ZKsync Era's ChainAdmin differs from the others as it also has the above *Elasti
                 mainArithmetization: 'Plonkish',
                 mainPCS: 'LPC',
                 trustedSetup: 'None',
-                link: 'https://github.com/matter-labs/era-zkevm_circuits',
+                link: 'https://github.com/matter-labs/zksync-protocol/tree/main/crates/zkevm_circuits',
               },
             ],
           },
@@ -569,6 +601,7 @@ ZKsync Era's ChainAdmin differs from the others as it also has the above *Elasti
     milestones: templateVars.milestones ?? [],
     reasonsForBeingOther: templateVars.reasonsForBeingOther,
     scopeOfAssessment: templateVars.scopeOfAssessment,
+    discoveryInfo: getDiscoveryInfo([templateVars.discovery]),
   }
 }
 
@@ -583,50 +616,56 @@ function technologyDA(DA: DAProvider | undefined): ProjectTechnologyChoice {
 function getDaTracking(
   templateVars: ZkStackConfigCommon,
 ): ProjectDaTrackingConfig[] | undefined {
+  // Return non-template tracking if it exists
   if (templateVars.nonTemplateDaTracking) {
     return templateVars.nonTemplateDaTracking
   }
 
-  const validatorTimelock =
-    templateVars.discovery.getContractDetails('ValidatorTimelock').address
+  if (templateVars.usesEthereumBlobs) {
+    const validatorTimelock =
+      templateVars.discovery.getContractDetails('ValidatorTimelock').address
 
-  const validatorsVTL = templateVars.discovery.getContractValue<string[]>(
-    'ValidatorTimelock',
-    'validatorsVTL',
-  )
+    const validatorsVTL = templateVars.discovery.getContractValue<
+      ChainSpecificAddress[]
+    >('ValidatorTimelock', 'validatorsVTL')
 
-  const inboxDeploymentBlockNumber =
-    templateVars.discovery.getContract('ValidatorTimelock').sinceBlock ?? 0
+    const inboxDeploymentBlockNumber =
+      templateVars.discovery.getContract('ValidatorTimelock').sinceBlock ?? 0
 
-  return templateVars.usesBlobs
-    ? [
-        {
-          type: 'ethereum',
-          daLayer: ProjectId('ethereum'),
-          sinceBlock: inboxDeploymentBlockNumber,
-          inbox: validatorTimelock,
-          sequencers: validatorsVTL,
-        },
-      ]
-    : templateVars.celestiaDa
-      ? [
-          {
-            type: 'celestia',
-            daLayer: ProjectId('celestia'),
-            // TODO: update to value from discovery
-            sinceBlock: templateVars.celestiaDa.sinceBlock,
-            namespace: templateVars.celestiaDa.namespace,
-          },
-        ]
-      : templateVars.availDa
-        ? [
-            {
-              type: 'avail',
-              daLayer: ProjectId('avail'),
-              // TODO: update to value from discovery
-              sinceBlock: templateVars.availDa.sinceBlock,
-              appId: templateVars.availDa.appId,
-            },
-          ]
-        : undefined
+    return [
+      {
+        type: 'ethereum',
+        daLayer: ProjectId('ethereum'),
+        sinceBlock: inboxDeploymentBlockNumber,
+        inbox: validatorTimelock,
+        sequencers: validatorsVTL.map((a) => ChainSpecificAddress.address(a)),
+      },
+    ]
+  }
+
+  if (templateVars.celestiaDa) {
+    return [
+      {
+        type: 'celestia',
+        daLayer: ProjectId('celestia'),
+        // TODO: update to value from discovery
+        sinceBlock: templateVars.celestiaDa.sinceBlock,
+        namespace: templateVars.celestiaDa.namespace,
+      },
+    ]
+  }
+
+  if (templateVars.availDa) {
+    return [
+      {
+        type: 'avail',
+        daLayer: ProjectId('avail'),
+        // TODO: update to value from discovery
+        sinceBlock: templateVars.availDa.sinceBlock,
+        appId: templateVars.availDa.appId,
+      },
+    ]
+  }
+
+  return undefined
 }

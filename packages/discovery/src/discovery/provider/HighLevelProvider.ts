@@ -1,9 +1,12 @@
+import type { Logger } from '@l2beat/backend-tools'
 import type { BlobsInBlock } from '@l2beat/shared'
 import {
   assert,
   Bytes,
+  ChainSpecificAddress,
   type EthereumAddress,
   type Hash256,
+  type UnixTime,
 } from '@l2beat/shared-pure'
 import { type providers, utils } from 'ethers'
 import type { ContractSource } from '../../utils/IEtherscanClient'
@@ -12,10 +15,12 @@ import { isRevert } from '../utils/isRevert'
 import type { BatchingAndCachingProvider } from './BatchingAndCachingProvider'
 import type { DebugTransactionCallResponse } from './DebugTransactionTrace'
 import type { ContractDeployment, IProvider, RawProviders } from './IProvider'
+import type { IStatelessProvider } from './IStatelessProvider'
 import { ProviderMeasurement, ProviderStats } from './Stats'
 
 interface AllProviders {
-  get(chain: string, blockNumber: number): IProvider
+  get(chain: string, timestamp: UnixTime): Promise<IProvider>
+  getByBlockNumber(chain: string, blockNumber: number): Promise<IProvider>
 }
 
 export class HighLevelProvider implements IProvider {
@@ -25,35 +30,53 @@ export class HighLevelProvider implements IProvider {
     private readonly allProviders: AllProviders,
     private readonly provider: BatchingAndCachingProvider,
     readonly chain: string,
+    readonly timestamp: UnixTime,
     readonly blockNumber: number,
   ) {}
-  switchBlock(blockNumber: number): IProvider {
-    return this.allProviders.get(this.chain, blockNumber)
+
+  static createStateless(
+    allProviders: AllProviders,
+    provider: BatchingAndCachingProvider,
+    chain: string,
+  ): IStatelessProvider {
+    return new HighLevelProvider(allProviders, provider, chain, 0, 0)
   }
 
-  switchChain(chain: string, blockNumber: number): IProvider {
-    return this.allProviders.get(chain, blockNumber)
+  switchBlock(blockNumber: number): Promise<IProvider> {
+    return this.allProviders.getByBlockNumber(this.chain, blockNumber)
+  }
+
+  switchChain(
+    chain: string,
+    timestamp: UnixTime | undefined = undefined,
+  ): Promise<IProvider> {
+    return this.allProviders.get(chain, timestamp ?? this.timestamp)
   }
 
   raw<T>(
     cacheKey: string,
-    fn: (providers: RawProviders) => Promise<T>,
+    fn: (providers: RawProviders, logger: Logger) => Promise<T>,
   ): Promise<T> {
     return this.provider.raw(cacheKey, fn)
   }
 
-  async call(address: EthereumAddress, data: Bytes): Promise<Bytes> {
+  async call(address: ChainSpecificAddress, data: Bytes): Promise<Bytes> {
     let duration = -performance.now()
-    const result = await this.provider.call(address, data, this.blockNumber)
+    const rawAddress = this.safeGetRawAddress(address)
+    const result = await this.provider.call(rawAddress, data, this.blockNumber)
     duration += performance.now()
     this.stats.mark(ProviderMeasurement.CALL, duration)
     return result
   }
 
-  async callUnbatched(address: EthereumAddress, data: Bytes): Promise<Bytes> {
+  async callUnbatched(
+    address: ChainSpecificAddress,
+    data: Bytes,
+  ): Promise<Bytes> {
     let duration = -performance.now()
+    const rawAddress = this.safeGetRawAddress(address)
     const result = await this.provider.callUnbatched(
-      address,
+      rawAddress,
       data,
       this.blockNumber,
     )
@@ -63,11 +86,12 @@ export class HighLevelProvider implements IProvider {
   }
 
   async callMethod<T>(
-    address: EthereumAddress,
+    address: ChainSpecificAddress,
     abi: string | utils.FunctionFragment,
     args: unknown[],
   ): Promise<T | undefined> {
     let duration = -performance.now()
+    const rawAddress = this.safeGetRawAddress(address)
     const coder = new utils.Interface([abi])
     const fragment =
       typeof abi === 'string' ? Object.values(coder.functions)[0] : abi
@@ -77,7 +101,7 @@ export class HighLevelProvider implements IProvider {
     let decodedResult: utils.Result | undefined
     try {
       const result = await this.provider.call(
-        address,
+        rawAddress,
         callData,
         this.blockNumber,
       )
@@ -102,11 +126,12 @@ export class HighLevelProvider implements IProvider {
   }
 
   async callMethodUnbatched<T>(
-    address: EthereumAddress,
+    address: ChainSpecificAddress,
     abi: string | utils.FunctionFragment,
     args: unknown[],
   ): Promise<T | undefined> {
     let duration = -performance.now()
+    const rawAddress = this.safeGetRawAddress(address)
     const coder = new utils.Interface([abi])
     const fragment =
       typeof abi === 'string' ? Object.values(coder.functions)[0] : abi
@@ -116,7 +141,7 @@ export class HighLevelProvider implements IProvider {
     let decodedResult: utils.Result | undefined
     try {
       const result = await this.provider.callUnbatched(
-        address,
+        rawAddress,
         callData,
         this.blockNumber,
       )
@@ -141,12 +166,13 @@ export class HighLevelProvider implements IProvider {
   }
 
   async getStorage(
-    address: EthereumAddress,
+    address: ChainSpecificAddress,
     slot: number | bigint | Bytes,
   ): Promise<Bytes> {
     let duration = -performance.now()
+    const rawAddress = this.safeGetRawAddress(address)
     const result = await this.provider.getStorage(
-      address,
+      rawAddress,
       slot,
       this.blockNumber,
     )
@@ -157,26 +183,28 @@ export class HighLevelProvider implements IProvider {
   }
 
   async getStorageAsAddress(
-    address: EthereumAddress,
+    address: ChainSpecificAddress,
     slot: number | bigint | Bytes,
-  ): Promise<EthereumAddress> {
+  ): Promise<ChainSpecificAddress> {
     let duration = -performance.now()
+    const rawAddress = this.safeGetRawAddress(address)
     const result = bytes32ToAddress(
-      await this.provider.getStorage(address, slot, this.blockNumber),
+      await this.provider.getStorage(rawAddress, slot, this.blockNumber),
     )
     duration += performance.now()
     this.stats.mark(ProviderMeasurement.GET_STORAGE, duration)
 
-    return result
+    return ChainSpecificAddress.fromLong(this.chain, result.toString())
   }
 
   async getStorageAsBigint(
-    address: EthereumAddress,
+    address: ChainSpecificAddress,
     slot: number | bigint | Bytes,
   ): Promise<bigint> {
     let duration = -performance.now()
+    const rawAddress = this.safeGetRawAddress(address)
     const value = await this.provider.getStorage(
-      address,
+      rawAddress,
       slot,
       this.blockNumber,
     )
@@ -186,12 +214,13 @@ export class HighLevelProvider implements IProvider {
   }
 
   async getLogs(
-    address: EthereumAddress,
+    address: ChainSpecificAddress,
     topics: (string | string[] | null)[],
   ): Promise<providers.Log[]> {
     let duration = -performance.now()
+    const rawAddress = this.safeGetRawAddress(address)
     const result = await this.provider.getLogs(
-      address,
+      rawAddress,
       topics,
       0,
       this.blockNumber,
@@ -207,18 +236,19 @@ export class HighLevelProvider implements IProvider {
   }
 
   async getEvents(
-    address: EthereumAddress,
+    address: ChainSpecificAddress,
     abi: string,
     args: unknown[] = [],
   ): Promise<{ log: providers.Log; event: utils.Result }[]> {
     let duration = -performance.now()
+    const rawAddress = this.safeGetRawAddress(address)
     const coder = new utils.Interface([abi])
     const fragment = Object.values(coder.events)[0]
     assert(fragment, `Unknown fragment for event: ${abi}`)
 
     const topics = coder.encodeFilterTopics(fragment, args)
     const logs = await this.provider.getLogs(
-      address,
+      rawAddress,
       topics,
       0,
       this.blockNumber,
@@ -242,6 +272,14 @@ export class HighLevelProvider implements IProvider {
     return result
   }
 
+  async getBlockNumberAtOrBefore(timestamp: UnixTime): Promise<number> {
+    let duration = -performance.now()
+    const result = await this.provider.getBlockNumberAtOrBefore(timestamp)
+    duration += performance.now()
+    this.stats.mark(ProviderMeasurement.GET_BLOCK_NUMBER_AT_OR_BEFORE, duration)
+    return result
+  }
+
   async getTransaction(
     transactionHash: Hash256,
   ): Promise<providers.TransactionResponse | undefined> {
@@ -262,27 +300,30 @@ export class HighLevelProvider implements IProvider {
     return result
   }
 
-  async getBytecode(address: EthereumAddress): Promise<Bytes> {
+  async getBytecode(address: ChainSpecificAddress): Promise<Bytes> {
     let duration = -performance.now()
-    const result = await this.provider.getBytecode(address, this.blockNumber)
+    const rawAddress = this.safeGetRawAddress(address)
+    const result = await this.provider.getBytecode(rawAddress, this.blockNumber)
     duration += performance.now()
     this.stats.mark(ProviderMeasurement.GET_BYTECODE, duration)
     return result
   }
 
-  async getSource(address: EthereumAddress): Promise<ContractSource> {
+  async getSource(address: ChainSpecificAddress): Promise<ContractSource> {
     let duration = -performance.now()
-    const result = await this.provider.getSource(address)
+    const rawAddress = this.safeGetRawAddress(address)
+    const result = await this.provider.getSource(rawAddress)
     duration += performance.now()
     this.stats.mark(ProviderMeasurement.GET_SOURCE, duration)
     return result
   }
 
   async getDeployment(
-    address: EthereumAddress,
+    address: ChainSpecificAddress,
   ): Promise<ContractDeployment | undefined> {
     let duration = -performance.now()
-    const result = await this.provider.getDeployment(address)
+    const rawAddress = this.safeGetRawAddress(address)
+    const result = await this.provider.getDeployment(rawAddress)
     duration += performance.now()
     this.stats.mark(ProviderMeasurement.GET_DEPLOYMENT, duration)
     return result
@@ -298,5 +339,13 @@ export class HighLevelProvider implements IProvider {
 
   getCelestiaBlockResultLogs(height: number) {
     return this.provider.getCelestiaBlockResultLogs(height)
+  }
+
+  private safeGetRawAddress(address: ChainSpecificAddress): EthereumAddress {
+    assert(
+      ChainSpecificAddress.longChain(address) === this.chain,
+      'Chain mismatch',
+    )
+    return ChainSpecificAddress.address(address)
   }
 }

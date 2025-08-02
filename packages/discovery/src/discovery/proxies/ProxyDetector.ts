@@ -1,14 +1,14 @@
-import { assert, EthereumAddress } from '@l2beat/shared-pure'
-import type { ContractValue } from '../output/types'
-
+import { assert, ChainSpecificAddress } from '@l2beat/shared-pure'
 import { codeIsEIP7702, codeIsEOA } from '../analysis/codeIsEOA'
-import type { ManualProxyType } from '../config/RawDiscoveryConfig'
-import type { IProvider } from '../provider/IProvider'
+import type { ManualProxyType } from '../config/StructureConfig'
+import type { ContractValue } from '../output/types'
+import type { ContractDeployment, IProvider } from '../provider/IProvider'
 import { get$Implementations } from '../utils/extractors'
 import { detectArbitrumProxy } from './auto/ArbitrumProxy'
 import { detectAxelarProxy as getAxelarProxy } from './auto/AxelarProxy'
 import { detectBeaconProxy } from './auto/BeaconProxy'
 import { detectEip897Proxy } from './auto/Eip897Proxy'
+import { detectEip1167Proxy } from './auto/Eip1167Proxy'
 import { detectEip1967Proxy } from './auto/Eip1967Proxy'
 import { detectEip2535proxy } from './auto/Eip2535Proxy'
 import { detectGnosisSafe } from './auto/GnosisSafe'
@@ -20,18 +20,19 @@ import { detectZeppelinOSProxy } from './auto/ZeppelinOSProxy'
 import { getCallImplementationProxy } from './manual/CallImplementationProxy'
 import { getEternalStorageProxy } from './manual/EthernalStorageProxy'
 import { getEverclearProxy } from './manual/EverclearProxy'
+import { getImmutableProxy } from './manual/immutableProxy'
 import { getLightLinkProxy } from './manual/LightLinkProxy'
 import { getNewArbitrumProxy } from './manual/NewArbitrumProxy'
 import { getOpticsBeaconProxy } from './manual/OpticsBeaconProxy'
 import { getPolygonExtensionProxy } from './manual/PolygonExtensionProxy'
+import { gatTaikoForkProxy } from './manual/TaikoForkProxy'
 import { getZkSpaceProxy } from './manual/ZkSpaceProxy'
 import { getZkSyncLiteProxy } from './manual/ZkSyncLiteProxy'
-import { getImmutableProxy } from './manual/immutableProxy'
 import type { ProxyDetails, ProxyResult } from './types'
 
 type Detector = (
   provider: IProvider,
-  address: EthereumAddress,
+  address: ChainSpecificAddress,
 ) => Promise<ProxyDetails | undefined>
 
 const DEFAULT_AUTO_DETECTORS: Detector[] = [
@@ -47,6 +48,7 @@ const DEFAULT_AUTO_DETECTORS: Detector[] = [
   detectZeppelinOSProxy,
   detectEip2535proxy,
   detectBeaconProxy,
+  detectEip1167Proxy,
 ]
 
 export const MANUAL_DETECTORS: Record<ManualProxyType, Detector> = {
@@ -60,6 +62,7 @@ export const MANUAL_DETECTORS: Record<ManualProxyType, Detector> = {
   'Axelar proxy': getAxelarProxy,
   'LightLink proxy': getLightLinkProxy,
   'Everclear proxy': getEverclearProxy,
+  'TaikoFork proxy': gatTaikoForkProxy,
   immutable: getImmutableProxy,
 }
 
@@ -71,85 +74,96 @@ export class ProxyDetector {
 
   async detectProxy(
     provider: IProvider,
-    address: EthereumAddress,
+    address: ChainSpecificAddress,
     manualProxyType?: ManualProxyType,
   ): Promise<ProxyResult> {
     const eoaProxy = await this.getEOAProxy(provider, address)
 
-    const proxy =
-      eoaProxy ??
-      (manualProxyType
-        ? await this.getManualProxy(provider, address, manualProxyType)
-        : await this.getAutoProxy(provider, address))
+    const proxy = manualProxyType
+      ? await this.getManualProxy(provider, address, manualProxyType)
+      : (eoaProxy ?? (await this.getAutoProxy(provider, address)))
 
-    if (proxy) {
-      adjust$Arrays(proxy.values)
-    } else if (manualProxyType) {
-      throw new Error(`Manual proxy detection failed: ${manualProxyType}`)
-    }
-
-    return proxy ?? this.getManualProxy(provider, address, 'immutable')
+    return this.processProxyDetails(
+      provider,
+      address,
+      proxy,
+      eoaProxy !== undefined,
+    )
   }
 
   async getEOAProxy(
     provider: IProvider,
-    address: EthereumAddress,
-  ): Promise<ProxyResult | undefined> {
+    address: ChainSpecificAddress,
+  ): Promise<ProxyDetails | undefined> {
     const code = await provider.getBytecode(address)
     const isEOA = codeIsEOA(code)
     if (isEOA) {
       if (codeIsEIP7702(code)) {
-        const implementation = EthereumAddress(code.slice(3, 23).toString())
+        const implementation = ChainSpecificAddress.fromLong(
+          provider.chain,
+          code.slice(3, 23).toString(),
+        )
 
         return {
           type: 'EIP7702 EOA',
           values: {
             $implementation: implementation.toString(),
           },
-          addresses: [implementation],
-          deployment: undefined,
         }
-      } else {
-        return { type: 'EOA', values: {}, addresses: [], deployment: undefined }
       }
+      return { type: 'EOA', values: {} }
     }
   }
 
   async getAutoProxy(
     provider: IProvider,
-    address: EthereumAddress,
-  ): Promise<ProxyResult | undefined> {
+    address: ChainSpecificAddress,
+  ): Promise<ProxyDetails | undefined> {
     const checks = await Promise.all(
       this.autoDetectors.map((detect) => detect(provider, address)),
     )
+
     const result = checks.find((x) => x !== undefined)
-
-    if (result === undefined) {
-      return undefined
-    }
-
-    return {
-      ...result,
-      addresses: [address, ...get$Implementations(result.values)],
-      deployment: await provider.getDeployment(address),
-    }
+    return result
   }
 
   async getManualProxy(
     provider: IProvider,
-    address: EthereumAddress,
+    address: ChainSpecificAddress,
     manualProxyType: ManualProxyType,
-  ): Promise<ProxyResult> {
+  ): Promise<ProxyDetails> {
     const detector = this.manualDetectors[manualProxyType]
 
     const result = await detector(provider, address)
-    assert(result !== undefined)
+    assert(result !== undefined, 'Manual proxy detection failed')
 
-    return {
-      ...result,
-      addresses: [address, ...get$Implementations(result.values)],
-      deployment: await provider.getDeployment(address),
+    return result
+  }
+
+  private async processProxyDetails(
+    provider: IProvider,
+    address: ChainSpecificAddress,
+    proxy: ProxyDetails | undefined,
+    isEOA: boolean,
+  ): Promise<ProxyResult> {
+    const workingProxy =
+      proxy ?? (await this.getManualProxy(provider, address, 'immutable'))
+
+    const addresses = []
+    let deployment: ContractDeployment | undefined
+    if (!isEOA) {
+      addresses.push(address)
+      deployment = await provider.getDeployment(address)
     }
+    addresses.push(...get$Implementations(workingProxy.values))
+
+    const result = {
+      ...workingProxy,
+      addresses,
+      deployment,
+    }
+    adjust$Arrays(result.values)
+    return result
   }
 }
 

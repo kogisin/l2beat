@@ -1,34 +1,48 @@
+import type { ProjectService } from '@l2beat/config'
 import type { Database } from '@l2beat/database'
 import {
   type ConfigReader,
-  type DiscoveryConfig,
+  type ConfigRegistry,
   type DiscoveryDiff,
   type DiscoveryOutput,
   diffDiscovery,
 } from '@l2beat/discovery'
 import { ChainId } from '@l2beat/shared-pure'
+import { canTrackedTxsBeAffected } from '../../UpdateNotifier'
 
 export interface DashboardProject {
   name: string
-  diff?: DiscoveryDiff[]
-  config?: DiscoveryConfig
+  changes: {
+    diff?: DiscoveryDiff[]
+    trackedTxsAffected?: boolean
+  }
+  config?: ConfigRegistry
 }
 
 export async function getDashboardProjects(
-  configs: DiscoveryConfig[],
+  configs: ConfigRegistry[],
   configReader: ConfigReader,
   db: Database,
   chain: string,
   chainId: number,
+  projectService: ProjectService,
 ): Promise<DashboardProject[]> {
   const projects: DashboardProject[] = []
   for (const config of configs) {
     const discovery = configReader.readDiscovery(config.name, chain)
     const diff: DiscoveryDiff[] = await getDiff(db, discovery, chainId)
+    const trackedTxsAffected = await canTrackedTxsBeAffected(
+      projectService,
+      config.name,
+      diff,
+    )
 
     const project: DashboardProject = {
       name: config.name,
-      diff,
+      changes: {
+        diff,
+        trackedTxsAffected,
+      },
       config: config,
     }
 

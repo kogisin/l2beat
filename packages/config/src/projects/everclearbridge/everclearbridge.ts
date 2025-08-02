@@ -1,7 +1,13 @@
-import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
+import {
+  ChainSpecificAddress,
+  EthereumAddress,
+  ProjectId,
+  UnixTime,
+} from '@l2beat/shared-pure'
 
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { Bridge } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('everclearbridge')
 
@@ -9,7 +15,7 @@ export const everclearbridge: Bridge = {
   type: 'bridge',
   id: ProjectId('everclearbridge'),
   addedAt: UnixTime(1742199959), // 2025-03-17
-  isUnderReview: true,
+  reviewStatus: 'inReview',
   display: {
     name: 'Everclear',
     slug: 'everclearbridge',
@@ -33,7 +39,9 @@ export const everclearbridge: Bridge = {
     associatedTokens: ['CLEAR', 'NEXT'],
     escrows: [
       discovery.getEscrowDetails({
-        address: EthereumAddress('0xa05A3380889115bf313f1Db9d5f335157Be4D816'),
+        address: ChainSpecificAddress(
+          'eth:0xa05A3380889115bf313f1Db9d5f335157Be4D816',
+        ),
         tokens: '*',
         description:
           'The Spoke contract on Ethereum which escrows funds for the bridge.',
@@ -100,4 +108,5 @@ export const everclearbridge: Bridge = {
       'Zircuit',
     ],
   },
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

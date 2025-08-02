@@ -1,4 +1,1974 @@
-Generated with discovered.json: 0x45a419e2504a90e818419078c2109937a8616106
+Generated with discovered.json: 0xf987e4d777ae402a89773e590ad45ef0f2572a15
+
+# Diff at Mon, 14 Jul 2025 12:46:54 GMT:
+
+- author: Mateusz Radomski (<radomski.main@protonmail.com>)
+- comparing to: main@9f4300dad2f3d080cd56fa311d4a848556c74e72 block: 22630069
+- current block number: 22630069
+
+## Description
+
+Discovery rerun on the same block number with only config-related changes.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 22630069 (main branch discovery), not current.
+
+```diff
+    EOA  (0x0577FEC70907676039f7DAF961F8A44bda3Ea9Af) {
+    +++ description: None
+      address:
+-        "0x0577FEC70907676039f7DAF961F8A44bda3Ea9Af"
++        "eth:0x0577FEC70907676039f7DAF961F8A44bda3Ea9Af"
+    }
+```
+
+```diff
+    EOA Giveth EOA 2 (0x105CD22eD3D089Bf5589C59b452f9dE0796Ca52d) {
+    +++ description: None
+      address:
+-        "0x105CD22eD3D089Bf5589C59b452f9dE0796Ca52d"
++        "eth:0x105CD22eD3D089Bf5589C59b452f9dE0796Ca52d"
+    }
+```
+
+```diff
+    EOA  (0x10DD75875a2a8a284529Ae7223B1aCE410d606bd) {
+    +++ description: None
+      address:
+-        "0x10DD75875a2a8a284529Ae7223B1aCE410d606bd"
++        "eth:0x10DD75875a2a8a284529Ae7223B1aCE410d606bd"
+    }
+```
+
+```diff
+    EOA Safe EOA 1 (0x1312E98995bbCc30fc63Db3cef807e20CDd33dca) {
+    +++ description: None
+      address:
+-        "0x1312E98995bbCc30fc63Db3cef807e20CDd33dca"
++        "eth:0x1312E98995bbCc30fc63Db3cef807e20CDd33dca"
+    }
+```
+
+```diff
+    EOA Safe EOA 2 (0x258667E543C913264388B33328337257aF208a8f) {
+    +++ description: None
+      address:
+-        "0x258667E543C913264388B33328337257aF208a8f"
++        "eth:0x258667E543C913264388B33328337257aF208a8f"
+    }
+```
+
+```diff
+    contract Yaru (0x30f64a297cc66a873FB603d1e89D5891962C25ba) {
+    +++ description: Contract handling inbound messages for the Hashi protocol.
+      address:
+-        "0x30f64a297cc66a873FB603d1e89D5891962C25ba"
++        "eth:0x30f64a297cc66a873FB603d1e89D5891962C25ba"
+      values.HASHI:
+-        "0xA86bc62Ac53Dc86687AB6C15fdebC71ad51fB615"
++        "eth:0xA86bc62Ac53Dc86687AB6C15fdebC71ad51fB615"
+      values.YAHO:
+-        "0xbAE4Ebbf42815BB9Bc3720267Ea4496277d60DB8"
++        "eth:0xbAE4Ebbf42815BB9Bc3720267Ea4496277d60DB8"
+      implementationNames.0x30f64a297cc66a873FB603d1e89D5891962C25ba:
+-        "Yaru"
+      implementationNames.eth:0x30f64a297cc66a873FB603d1e89D5891962C25ba:
++        "Yaru"
+    }
+```
+
+```diff
+    EOA  (0x30Fb61178F39c0452cED4AD9A7FEC3344CB10B2E) {
+    +++ description: None
+      address:
+-        "0x30Fb61178F39c0452cED4AD9A7FEC3344CB10B2E"
++        "eth:0x30Fb61178F39c0452cED4AD9A7FEC3344CB10B2E"
+    }
+```
+
+```diff
+    EOA  (0x329c54289Ff5D6B7b7daE13592C6B1EDA1543eD4) {
+    +++ description: None
+      address:
+-        "0x329c54289Ff5D6B7b7daE13592C6B1EDA1543eD4"
++        "eth:0x329c54289Ff5D6B7b7daE13592C6B1EDA1543eD4"
+    }
+```
+
+```diff
+    EOA Gateway EOA 2 (0x3e0A20099626F3d4d4Ea7B0cE0330e88d1Fe65D6) {
+    +++ description: None
+      address:
+-        "0x3e0A20099626F3d4d4Ea7B0cE0330e88d1Fe65D6"
++        "eth:0x3e0A20099626F3d4d4Ea7B0cE0330e88d1Fe65D6"
+    }
+```
+
+```diff
+    contract Gnosis Bridge Multisig (0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6) {
+    +++ description: None
+      address:
+-        "0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6"
++        "eth:0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6"
+      values.$implementation:
+-        "0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552"
++        "eth:0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552"
+      values.$members.0:
+-        "0x4b5F5231e2F08Ad49d79Ce5672A8339a63Cfbd43"
++        "eth:0x4b5F5231e2F08Ad49d79Ce5672A8339a63Cfbd43"
+      values.$members.1:
+-        "0xb8173f558f75EE263013fd6294177bf75279a21e"
++        "eth:0xb8173f558f75EE263013fd6294177bf75279a21e"
+      values.$members.2:
+-        "0xDdf2d07267EAF2cE3E13ee4319bE1F34D55ed992"
++        "eth:0xDdf2d07267EAF2cE3E13ee4319bE1F34D55ed992"
+      values.$members.3:
+-        "0xf59E447E97bC03c2B0C5719e2E551F0B15b724e5"
++        "eth:0xf59E447E97bC03c2B0C5719e2E551F0B15b724e5"
+      values.$members.4:
+-        "0xA07888742c18d7e658132AE0148fF205fFF46481"
++        "eth:0xA07888742c18d7e658132AE0148fF205fFF46481"
+      values.$members.5:
+-        "0x329c54289Ff5D6B7b7daE13592C6B1EDA1543eD4"
++        "eth:0x329c54289Ff5D6B7b7daE13592C6B1EDA1543eD4"
+      values.$members.6:
+-        "0xcF9ebF877688Ed88a7479A6e63457Fd78D4275cE"
++        "eth:0xcF9ebF877688Ed88a7479A6e63457Fd78D4275cE"
+      values.$members.7:
+-        "0x5b10cE4DDD27F57d4D432D409A5321219cbA7893"
++        "eth:0x5b10cE4DDD27F57d4D432D409A5321219cbA7893"
+      values.$members.8:
+-        "0xc44caeb7F0724A156806664d2361fD6f32a2d2C8"
++        "eth:0xc44caeb7F0724A156806664d2361fD6f32a2d2C8"
+      values.$members.9:
+-        "0x839395e20bbB182fa440d08F850E6c7A8f6F0780"
++        "eth:0x839395e20bbB182fa440d08F850E6c7A8f6F0780"
+      values.$members.10:
+-        "0xB646B8b5Fe6cBc7770578B7679208337ef747ae4"
++        "eth:0xB646B8b5Fe6cBc7770578B7679208337ef747ae4"
+      values.$members.11:
+-        "0x10DD75875a2a8a284529Ae7223B1aCE410d606bd"
++        "eth:0x10DD75875a2a8a284529Ae7223B1aCE410d606bd"
+      values.$members.12:
+-        "0x80BA18503a1Fa16Ea22F3ef1Af23e2994EaC1d97"
++        "eth:0x80BA18503a1Fa16Ea22F3ef1Af23e2994EaC1d97"
+      values.$members.13:
+-        "0xb2a33ae0E07fD2ca8DBdE9545F6ce0b3234dc4e8"
++        "eth:0xb2a33ae0E07fD2ca8DBdE9545F6ce0b3234dc4e8"
+      values.$members.14:
+-        "0x57B11cC8F93f2cfeC4c1C5B95213f17cAD81332B"
++        "eth:0x57B11cC8F93f2cfeC4c1C5B95213f17cAD81332B"
+      values.$members.15:
+-        "0x544cE64C3Fc6Da72CEB2456CC4cF19E7c7972eFA"
++        "eth:0x544cE64C3Fc6Da72CEB2456CC4cF19E7c7972eFA"
+      implementationNames.0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6:
+-        "Proxy"
+      implementationNames.0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552:
+-        "GnosisSafe"
+      implementationNames.eth:0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6:
++        "Proxy"
+      implementationNames.eth:0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552:
++        "GnosisSafe"
+    }
+```
+
+```diff
+    EOA Protofire EOA 2 (0x459A3bd49F1ff109bc90b76125533699AaAAf9A6) {
+    +++ description: None
+      address:
+-        "0x459A3bd49F1ff109bc90b76125533699AaAAf9A6"
++        "eth:0x459A3bd49F1ff109bc90b76125533699AaAAf9A6"
+    }
+```
+
+```diff
+    EOA  (0x4743BA328C28dbC2b8B4e083b92cB4baA047494b) {
+    +++ description: None
+      address:
+-        "0x4743BA328C28dbC2b8B4e083b92cB4baA047494b"
++        "eth:0x4743BA328C28dbC2b8B4e083b92cB4baA047494b"
+    }
+```
+
+```diff
+    contract DaiForeignBridge (0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016) {
+    +++ description: Token bridge implementation and escrow for DAI-related tokens. Escrowed Dai can be invested in the Spark protocol for sDai.
+      address:
+-        "0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016"
++        "eth:0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016"
+      values.$admin:
+-        "0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6"
++        "eth:0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6"
+      values.$implementation:
+-        "0xb54042F5bA4B048fEa54aaE70abbbe41AC716299"
++        "eth:0xb54042F5bA4B048fEa54aaE70abbbe41AC716299"
+      values.$pastUpgrades.0.2.0:
+-        "0x710d6eC2b0948dEf1f423Ec77B51b6a55847D2C5"
++        "eth:0x710d6eC2b0948dEf1f423Ec77B51b6a55847D2C5"
+      values.$pastUpgrades.1.2.0:
+-        "0x0D3726e5a9f37234D6B55216fC971D30F150a60F"
++        "eth:0x0D3726e5a9f37234D6B55216fC971D30F150a60F"
+      values.$pastUpgrades.2.2.0:
+-        "0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59"
++        "eth:0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59"
+      values.$pastUpgrades.3.2.0:
+-        "0xd40355B17643Bc26554c9A9BBC95b5CAbd92C2CD"
++        "eth:0xd40355B17643Bc26554c9A9BBC95b5CAbd92C2CD"
+      values.$pastUpgrades.4.2.0:
+-        "0x83c2E0E3B5328E599a3cBa95d97090fA7d0FDE8b"
++        "eth:0x83c2E0E3B5328E599a3cBa95d97090fA7d0FDE8b"
+      values.$pastUpgrades.5.2.0:
+-        "0x7E7669bdff02F2eE75b68B91FB81c2B38F9228C2"
++        "eth:0x7E7669bdff02F2eE75b68B91FB81c2B38F9228C2"
+      values.$pastUpgrades.6.2.0:
+-        "0xEeE4f8dB4410beBD74A76cB711D096c5E66d0473"
++        "eth:0xEeE4f8dB4410beBD74A76cB711D096c5E66d0473"
+      values.$pastUpgrades.7.2.0:
+-        "0x166124b75c798Cedf1B43655E9B5284eBd5203DB"
++        "eth:0x166124b75c798Cedf1B43655E9B5284eBd5203DB"
+      values.$pastUpgrades.8.2.0:
+-        "0xb54042F5bA4B048fEa54aaE70abbbe41AC716299"
++        "eth:0xb54042F5bA4B048fEa54aaE70abbbe41AC716299"
+      values.daiToken:
+-        "0x6B175474E89094C44Da98b954EedeAC495271d0F"
++        "eth:0x6B175474E89094C44Da98b954EedeAC495271d0F"
+      values.erc20token:
+-        "0x6B175474E89094C44Da98b954EedeAC495271d0F"
++        "eth:0x6B175474E89094C44Da98b954EedeAC495271d0F"
+      values.getTrustedForwarder:
+-        "0x0000000000000000000000000000000000000000"
++        "eth:0x0000000000000000000000000000000000000000"
+      values.hashiManager:
+-        "0x9acCFAD714A1e670CD1f6dc666FE892d1d5547BD"
++        "eth:0x9acCFAD714A1e670CD1f6dc666FE892d1d5547BD"
+      values.implementation:
+-        "0xb54042F5bA4B048fEa54aaE70abbbe41AC716299"
++        "eth:0xb54042F5bA4B048fEa54aaE70abbbe41AC716299"
+      values.owner:
+-        "0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6"
++        "eth:0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6"
+      values.proxyOwner:
+-        "0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6"
++        "eth:0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6"
+      values.sDaiToken:
+-        "0x83F20F44975D03b1b09e64809B757c47f942BEeA"
++        "eth:0x83F20F44975D03b1b09e64809B757c47f942BEeA"
+      values.upgradeabilityOwner:
+-        "0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6"
++        "eth:0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6"
+      values.validatorContract:
+-        "0xe1579dEbdD2DF16Ebdb9db8694391fa74EeA201E"
++        "eth:0xe1579dEbdD2DF16Ebdb9db8694391fa74EeA201E"
+      implementationNames.0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016:
+-        "EternalStorageProxy"
+      implementationNames.0xb54042F5bA4B048fEa54aaE70abbbe41AC716299:
+-        "XDaiForeignBridge"
+      implementationNames.eth:0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016:
++        "EternalStorageProxy"
+      implementationNames.eth:0xb54042F5bA4B048fEa54aaE70abbbe41AC716299:
++        "XDaiForeignBridge"
+    }
+```
+
+```diff
+    contract GnosisSafe (0x4b5F5231e2F08Ad49d79Ce5672A8339a63Cfbd43) {
+    +++ description: None
+      address:
+-        "0x4b5F5231e2F08Ad49d79Ce5672A8339a63Cfbd43"
++        "eth:0x4b5F5231e2F08Ad49d79Ce5672A8339a63Cfbd43"
+      values.$implementation:
+-        "0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552"
++        "eth:0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552"
+      values.$members.0:
+-        "0xD1aA7F557af9cC5Ba4Daf87D923d712fdAf1D709"
++        "eth:0xD1aA7F557af9cC5Ba4Daf87D923d712fdAf1D709"
+      values.$members.1:
+-        "0x4743BA328C28dbC2b8B4e083b92cB4baA047494b"
++        "eth:0x4743BA328C28dbC2b8B4e083b92cB4baA047494b"
+      values.$members.2:
+-        "0x52F05Eff62fC36c83d840D9684daCAD3be43D8bf"
++        "eth:0x52F05Eff62fC36c83d840D9684daCAD3be43D8bf"
+      implementationNames.0x4b5F5231e2F08Ad49d79Ce5672A8339a63Cfbd43:
+-        "GnosisSafeProxy"
+      implementationNames.0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552:
+-        "GnosisSafe"
+      implementationNames.eth:0x4b5F5231e2F08Ad49d79Ce5672A8339a63Cfbd43:
++        "GnosisSafeProxy"
+      implementationNames.eth:0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552:
++        "GnosisSafe"
+    }
+```
+
+```diff
+    contract ForeignAMB (0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e) {
+    +++ description: Arbitrary Message Bridge validated by the BridgeValidators. Can be used for token bridges or any other cross-chain messaging.
+      address:
+-        "0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e"
++        "eth:0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e"
+      values.$admin:
+-        "0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6"
++        "eth:0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6"
+      values.$implementation:
+-        "0x098f51bdfb5D6d319DD4FDf06b64773d25bD1316"
++        "eth:0x098f51bdfb5D6d319DD4FDf06b64773d25bD1316"
+      values.$pastUpgrades.0.2.0:
+-        "0xe804Fe5Fb14B02aba636f37Fb6E1c7a08b2f4B16"
++        "eth:0xe804Fe5Fb14B02aba636f37Fb6E1c7a08b2f4B16"
+      values.$pastUpgrades.1.2.0:
+-        "0x2946f6D458F8Cf8723A1d9e95043831D3937461e"
++        "eth:0x2946f6D458F8Cf8723A1d9e95043831D3937461e"
+      values.$pastUpgrades.2.2.0:
+-        "0x54c6dFBB807BE694841A0F1B84CbC49D8FC98ed7"
++        "eth:0x54c6dFBB807BE694841A0F1B84CbC49D8FC98ed7"
+      values.$pastUpgrades.3.2.0:
+-        "0x872796bf7Fe754754d2BEE2c66D7de9B04a5C943"
++        "eth:0x872796bf7Fe754754d2BEE2c66D7de9B04a5C943"
+      values.$pastUpgrades.4.2.0:
+-        "0x82B67a43b69914E611710C62e629dAbB2f7AC6AB"
++        "eth:0x82B67a43b69914E611710C62e629dAbB2f7AC6AB"
+      values.$pastUpgrades.5.2.0:
+-        "0x098f51bdfb5D6d319DD4FDf06b64773d25bD1316"
++        "eth:0x098f51bdfb5D6d319DD4FDf06b64773d25bD1316"
+      values.hashiManager:
+-        "0x93f6eE78451AaCc1Db1db49a12aBfCc4662B9Cc9"
++        "eth:0x93f6eE78451AaCc1Db1db49a12aBfCc4662B9Cc9"
+      values.implementation:
+-        "0x098f51bdfb5D6d319DD4FDf06b64773d25bD1316"
++        "eth:0x098f51bdfb5D6d319DD4FDf06b64773d25bD1316"
+      values.messageSender:
+-        "0x0000000000000000000000000000000000000000"
++        "eth:0x0000000000000000000000000000000000000000"
+      values.owner:
+-        "0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6"
++        "eth:0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6"
+      values.upgradeabilityOwner:
+-        "0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6"
++        "eth:0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6"
+      values.validatorContract:
+-        "0xed84a648b3c51432ad0fD1C2cD2C45677E9d4064"
++        "eth:0xed84a648b3c51432ad0fD1C2cD2C45677E9d4064"
+      implementationNames.0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e:
+-        "EternalStorageProxy"
+      implementationNames.0x098f51bdfb5D6d319DD4FDf06b64773d25bD1316:
+-        "ForeignAMB"
+      implementationNames.eth:0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e:
++        "EternalStorageProxy"
+      implementationNames.eth:0x098f51bdfb5D6d319DD4FDf06b64773d25bD1316:
++        "ForeignAMB"
+    }
+```
+
+```diff
+    EOA Protofire EOA 1 (0x4D1c96B9A49C4469A0b720a22b74b034EDdFe051) {
+    +++ description: None
+      address:
+-        "0x4D1c96B9A49C4469A0b720a22b74b034EDdFe051"
++        "eth:0x4D1c96B9A49C4469A0b720a22b74b034EDdFe051"
+    }
+```
+
+```diff
+    EOA  (0x52F05Eff62fC36c83d840D9684daCAD3be43D8bf) {
+    +++ description: None
+      address:
+-        "0x52F05Eff62fC36c83d840D9684daCAD3be43D8bf"
++        "eth:0x52F05Eff62fC36c83d840D9684daCAD3be43D8bf"
+    }
+```
+
+```diff
+    EOA  (0x544cE64C3Fc6Da72CEB2456CC4cF19E7c7972eFA) {
+    +++ description: None
+      address:
+-        "0x544cE64C3Fc6Da72CEB2456CC4cF19E7c7972eFA"
++        "eth:0x544cE64C3Fc6Da72CEB2456CC4cF19E7c7972eFA"
+    }
+```
+
+```diff
+    EOA  (0x57B11cC8F93f2cfeC4c1C5B95213f17cAD81332B) {
+    +++ description: None
+      address:
+-        "0x57B11cC8F93f2cfeC4c1C5B95213f17cAD81332B"
++        "eth:0x57B11cC8F93f2cfeC4c1C5B95213f17cAD81332B"
+    }
+```
+
+```diff
+    EOA CoW Protocol EOA 1 (0x587C0d02B40822f15f05301d87c16f6a08AaDDde) {
+    +++ description: None
+      address:
+-        "0x587C0d02B40822f15f05301d87c16f6a08AaDDde"
++        "eth:0x587C0d02B40822f15f05301d87c16f6a08AaDDde"
+    }
+```
+
+```diff
+    EOA  (0x5b10cE4DDD27F57d4D432D409A5321219cbA7893) {
+    +++ description: None
+      address:
+-        "0x5b10cE4DDD27F57d4D432D409A5321219cbA7893"
++        "eth:0x5b10cE4DDD27F57d4D432D409A5321219cbA7893"
+    }
+```
+
+```diff
+    contract Hashi Multisig (0x670a3e447F4DE92C012777Ac5591D81E12aD0957) {
+    +++ description: None
+      address:
+-        "0x670a3e447F4DE92C012777Ac5591D81E12aD0957"
++        "eth:0x670a3e447F4DE92C012777Ac5591D81E12aD0957"
+      values.$implementation:
+-        "0x41675C099F32341bf84BFc5382aF534df5C7461a"
++        "eth:0x41675C099F32341bf84BFc5382aF534df5C7461a"
+      values.$members.0:
+-        "0xeca6EAa2C77d8f0aA9247e681C64455deAae51aC"
++        "eth:0xeca6EAa2C77d8f0aA9247e681C64455deAae51aC"
+      values.$members.1:
+-        "0x0577FEC70907676039f7DAF961F8A44bda3Ea9Af"
++        "eth:0x0577FEC70907676039f7DAF961F8A44bda3Ea9Af"
+      values.$members.2:
+-        "0xB1dD1828794075f7521365163A93DE9e68e3c49f"
++        "eth:0xB1dD1828794075f7521365163A93DE9e68e3c49f"
+      values.$members.3:
+-        "0x9bd93c5ad5e0a6be890c82FD77eE42ce8B642eF8"
++        "eth:0x9bd93c5ad5e0a6be890c82FD77eE42ce8B642eF8"
+      implementationNames.0x670a3e447F4DE92C012777Ac5591D81E12aD0957:
+-        "SafeProxy"
+      implementationNames.0x41675C099F32341bf84BFc5382aF534df5C7461a:
+-        "Safe"
+      implementationNames.eth:0x670a3e447F4DE92C012777Ac5591D81E12aD0957:
++        "SafeProxy"
+      implementationNames.eth:0x41675C099F32341bf84BFc5382aF534df5C7461a:
++        "Safe"
+    }
+```
+
+```diff
+    EOA CoW Protocol EOA 2 (0x674c97db4cE6caC04A124d745979f3E4cBa0E9f0) {
+    +++ description: None
+      address:
+-        "0x674c97db4cE6caC04A124d745979f3E4cBa0E9f0"
++        "eth:0x674c97db4cE6caC04A124d745979f3E4cBa0E9f0"
+    }
+```
+
+```diff
+    EOA  (0x67E5855Aa4D5786c086b7FC6B4203a5Ea50E93F8) {
+    +++ description: None
+      address:
+-        "0x67E5855Aa4D5786c086b7FC6B4203a5Ea50E93F8"
++        "eth:0x67E5855Aa4D5786c086b7FC6B4203a5Ea50E93F8"
+    }
+```
+
+```diff
+    contract TokenFactory (0x71d5ba4e37de72415F685490B684538Aae8f0424) {
+    +++ description: None
+      address:
+-        "0x71d5ba4e37de72415F685490B684538Aae8f0424"
++        "eth:0x71d5ba4e37de72415F685490B684538Aae8f0424"
+      values.owner:
+-        "0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6"
++        "eth:0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6"
+      values.tokenImage:
+-        "0x7c24d0061b484B267F286aa2DCe891220Db254b3"
++        "eth:0x7c24d0061b484B267F286aa2DCe891220Db254b3"
+      implementationNames.0x71d5ba4e37de72415F685490B684538Aae8f0424:
+-        "TokenFactory"
+      implementationNames.eth:0x71d5ba4e37de72415F685490B684538Aae8f0424:
++        "TokenFactory"
+    }
+```
+
+```diff
+    contract LayerZeroAdapter (0x7606e9d8655e48159E7beC8541C2E71A7Aa3E418) {
+    +++ description: None
+      address:
+-        "0x7606e9d8655e48159E7beC8541C2E71A7Aa3E418"
++        "eth:0x7606e9d8655e48159E7beC8541C2E71A7Aa3E418"
+      values.endpoint:
+-        "0x1a44076050125825900e736c501f859c50fE728c"
++        "eth:0x1a44076050125825900e736c501f859c50fE728c"
+      values.LAYER_ZERO_ENDPOINT:
+-        "0x1a44076050125825900e736c501f859c50fE728c"
++        "eth:0x1a44076050125825900e736c501f859c50fE728c"
+      values.owner:
+-        "0x67E5855Aa4D5786c086b7FC6B4203a5Ea50E93F8"
++        "eth:0x67E5855Aa4D5786c086b7FC6B4203a5Ea50E93F8"
+      implementationNames.0x7606e9d8655e48159E7beC8541C2E71A7Aa3E418:
+-        "LayerZeroAdapter"
+      implementationNames.eth:0x7606e9d8655e48159E7beC8541C2E71A7Aa3E418:
++        "LayerZeroAdapter"
+    }
+```
+
+```diff
+    contract PermittableToken (0x7c24d0061b484B267F286aa2DCe891220Db254b3) {
+    +++ description: None
+      address:
+-        "0x7c24d0061b484B267F286aa2DCe891220Db254b3"
++        "eth:0x7c24d0061b484B267F286aa2DCe891220Db254b3"
+      values.bridgeContract:
+-        "0x0000000000000000000000000000000000000000"
++        "eth:0x0000000000000000000000000000000000000000"
+      values.owner:
+-        "0xBF3d6f830CE263CAE987193982192Cd990442B53"
++        "eth:0xBF3d6f830CE263CAE987193982192Cd990442B53"
+      implementationNames.0x7c24d0061b484B267F286aa2DCe891220Db254b3:
+-        "PermittableToken"
+      implementationNames.eth:0x7c24d0061b484B267F286aa2DCe891220Db254b3:
++        "PermittableToken"
+    }
+```
+
+```diff
+    EOA  (0x80BA18503a1Fa16Ea22F3ef1Af23e2994EaC1d97) {
+    +++ description: None
+      address:
+-        "0x80BA18503a1Fa16Ea22F3ef1Af23e2994EaC1d97"
++        "eth:0x80BA18503a1Fa16Ea22F3ef1Af23e2994EaC1d97"
+    }
+```
+
+```diff
+    EOA  (0x839395e20bbB182fa440d08F850E6c7A8f6F0780) {
+    +++ description: None
+      address:
+-        "0x839395e20bbB182fa440d08F850E6c7A8f6F0780"
++        "eth:0x839395e20bbB182fa440d08F850E6c7A8f6F0780"
+    }
+```
+
+```diff
+    contract ForeignOmnibridge (0x88ad09518695c6c3712AC10a214bE5109a655671) {
+    +++ description: Token bridge implementation and escrow for ERC-20 tokens.
+      address:
+-        "0x88ad09518695c6c3712AC10a214bE5109a655671"
++        "eth:0x88ad09518695c6c3712AC10a214bE5109a655671"
+      values.$admin:
+-        "0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6"
++        "eth:0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6"
+      values.$implementation:
+-        "0x8eB3b7D8498a6716904577b2579e1c313d48E347"
++        "eth:0x8eB3b7D8498a6716904577b2579e1c313d48E347"
+      values.$pastUpgrades.0.2.0:
+-        "0x280f04a988513610584057Bf3fDE1f56f4d22CA9"
++        "eth:0x280f04a988513610584057Bf3fDE1f56f4d22CA9"
+      values.$pastUpgrades.1.2.0:
+-        "0x4B86181abcAeFc008B561E27C0aee64Bb5eB8dBe"
++        "eth:0x4B86181abcAeFc008B561E27C0aee64Bb5eB8dBe"
+      values.$pastUpgrades.2.2.0:
+-        "0x5275e7264AB0Bb75D970E7442De0Aadd0C0b85ae"
++        "eth:0x5275e7264AB0Bb75D970E7442De0Aadd0C0b85ae"
+      values.$pastUpgrades.3.2.0:
+-        "0xB0a18F960221c6D56871c29e5dD7b838E79c2E94"
++        "eth:0xB0a18F960221c6D56871c29e5dD7b838E79c2E94"
+      values.$pastUpgrades.4.2.0:
+-        "0x7bFF37bda2318125C6B895d4f2B50Bcd9E0cC40e"
++        "eth:0x7bFF37bda2318125C6B895d4f2B50Bcd9E0cC40e"
+      values.$pastUpgrades.5.2.0:
+-        "0x8eB3b7D8498a6716904577b2579e1c313d48E347"
++        "eth:0x8eB3b7D8498a6716904577b2579e1c313d48E347"
+      values.bridgeContract:
+-        "0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e"
++        "eth:0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e"
+      values.implementation:
+-        "0x8eB3b7D8498a6716904577b2579e1c313d48E347"
++        "eth:0x8eB3b7D8498a6716904577b2579e1c313d48E347"
+      values.owner:
+-        "0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6"
++        "eth:0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6"
+      values.tokenFactory:
+-        "0x71d5ba4e37de72415F685490B684538Aae8f0424"
++        "eth:0x71d5ba4e37de72415F685490B684538Aae8f0424"
+      values.upgradeabilityOwner:
+-        "0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6"
++        "eth:0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6"
+      implementationNames.0x88ad09518695c6c3712AC10a214bE5109a655671:
+-        "EternalStorageProxy"
+      implementationNames.0x8eB3b7D8498a6716904577b2579e1c313d48E347:
+-        "ForeignOmnibridge"
+      implementationNames.eth:0x88ad09518695c6c3712AC10a214bE5109a655671:
++        "EternalStorageProxy"
+      implementationNames.eth:0x8eB3b7D8498a6716904577b2579e1c313d48E347:
++        "ForeignOmnibridge"
+    }
+```
+
+```diff
+    EOA Gateway EOA 1 (0x90776017057b84bc47D7e7383b65C463C80a6cdd) {
+    +++ description: None
+      address:
+-        "0x90776017057b84bc47D7e7383b65C463C80a6cdd"
++        "eth:0x90776017057b84bc47D7e7383b65C463C80a6cdd"
+    }
+```
+
+```diff
+    contract HashiManager_Omni (0x93f6eE78451AaCc1Db1db49a12aBfCc4662B9Cc9) {
+    +++ description: A hub contract for the Hashi protocol, an EVM Hash Oracle Aggregator.
+      address:
+-        "0x93f6eE78451AaCc1Db1db49a12aBfCc4662B9Cc9"
++        "eth:0x93f6eE78451AaCc1Db1db49a12aBfCc4662B9Cc9"
+      values.$admin:
+-        "0x30Fb61178F39c0452cED4AD9A7FEC3344CB10B2E"
++        "eth:0x30Fb61178F39c0452cED4AD9A7FEC3344CB10B2E"
+      values.$implementation:
+-        "0x159B36Ed5BA327fd269Fb93c75918257DCfe686d"
++        "eth:0x159B36Ed5BA327fd269Fb93c75918257DCfe686d"
+      values.$pastUpgrades.0.2.0:
+-        "0x159B36Ed5BA327fd269Fb93c75918257DCfe686d"
++        "eth:0x159B36Ed5BA327fd269Fb93c75918257DCfe686d"
+      values.AdaptersFromStorage:
+-        "0x0000000000000000000000000000000000000000"
++        "eth:0x0000000000000000000000000000000000000000"
+      values.implementation:
+-        "0x159B36Ed5BA327fd269Fb93c75918257DCfe686d"
++        "eth:0x159B36Ed5BA327fd269Fb93c75918257DCfe686d"
+      values.owner:
+-        "0x670a3e447F4DE92C012777Ac5591D81E12aD0957"
++        "eth:0x670a3e447F4DE92C012777Ac5591D81E12aD0957"
+      values.upgradeabilityOwner:
+-        "0x30Fb61178F39c0452cED4AD9A7FEC3344CB10B2E"
++        "eth:0x30Fb61178F39c0452cED4AD9A7FEC3344CB10B2E"
+      values.yaho:
+-        "0xbAE4Ebbf42815BB9Bc3720267Ea4496277d60DB8"
++        "eth:0xbAE4Ebbf42815BB9Bc3720267Ea4496277d60DB8"
+      values.yaru:
+-        "0x30f64a297cc66a873FB603d1e89D5891962C25ba"
++        "eth:0x30f64a297cc66a873FB603d1e89D5891962C25ba"
+      implementationNames.0x93f6eE78451AaCc1Db1db49a12aBfCc4662B9Cc9:
+-        "EternalStorageProxy"
+      implementationNames.0x159B36Ed5BA327fd269Fb93c75918257DCfe686d:
+-        "HashiManager"
+      implementationNames.eth:0x93f6eE78451AaCc1Db1db49a12aBfCc4662B9Cc9:
++        "EternalStorageProxy"
+      implementationNames.eth:0x159B36Ed5BA327fd269Fb93c75918257DCfe686d:
++        "HashiManager"
+    }
+```
+
+```diff
+    EOA Gnosis DAO EOA 1 (0x97630E2aE609D4104aBdA91F3066C556403182dd) {
+    +++ description: None
+      address:
+-        "0x97630E2aE609D4104aBdA91F3066C556403182dd"
++        "eth:0x97630E2aE609D4104aBdA91F3066C556403182dd"
+    }
+```
+
+```diff
+    contract HashiManager_DAI (0x9acCFAD714A1e670CD1f6dc666FE892d1d5547BD) {
+    +++ description: A hub contract for the Hashi protocol, an EVM Hash Oracle Aggregator.
+      address:
+-        "0x9acCFAD714A1e670CD1f6dc666FE892d1d5547BD"
++        "eth:0x9acCFAD714A1e670CD1f6dc666FE892d1d5547BD"
+      values.$admin:
+-        "0x30Fb61178F39c0452cED4AD9A7FEC3344CB10B2E"
++        "eth:0x30Fb61178F39c0452cED4AD9A7FEC3344CB10B2E"
+      values.$implementation:
+-        "0x716623daF27f2aFA8D6051A4Eda08E12107a2c83"
++        "eth:0x716623daF27f2aFA8D6051A4Eda08E12107a2c83"
+      values.$pastUpgrades.0.2.0:
+-        "0x716623daF27f2aFA8D6051A4Eda08E12107a2c83"
++        "eth:0x716623daF27f2aFA8D6051A4Eda08E12107a2c83"
+      values.AdaptersFromStorage:
+-        "0x0000000000000000000000000000000000000000"
++        "eth:0x0000000000000000000000000000000000000000"
+      values.implementation:
+-        "0x716623daF27f2aFA8D6051A4Eda08E12107a2c83"
++        "eth:0x716623daF27f2aFA8D6051A4Eda08E12107a2c83"
+      values.owner:
+-        "0x670a3e447F4DE92C012777Ac5591D81E12aD0957"
++        "eth:0x670a3e447F4DE92C012777Ac5591D81E12aD0957"
+      values.upgradeabilityOwner:
+-        "0x30Fb61178F39c0452cED4AD9A7FEC3344CB10B2E"
++        "eth:0x30Fb61178F39c0452cED4AD9A7FEC3344CB10B2E"
+      values.yaho:
+-        "0xbAE4Ebbf42815BB9Bc3720267Ea4496277d60DB8"
++        "eth:0xbAE4Ebbf42815BB9Bc3720267Ea4496277d60DB8"
+      values.yaru:
+-        "0x30f64a297cc66a873FB603d1e89D5891962C25ba"
++        "eth:0x30f64a297cc66a873FB603d1e89D5891962C25ba"
+      implementationNames.0x9acCFAD714A1e670CD1f6dc666FE892d1d5547BD:
+-        "EternalStorageProxy"
+      implementationNames.0x716623daF27f2aFA8D6051A4Eda08E12107a2c83:
+-        "HashiManager"
+      implementationNames.eth:0x9acCFAD714A1e670CD1f6dc666FE892d1d5547BD:
++        "EternalStorageProxy"
+      implementationNames.eth:0x716623daF27f2aFA8D6051A4Eda08E12107a2c83:
++        "HashiManager"
+    }
+```
+
+```diff
+    EOA  (0x9bd93c5ad5e0a6be890c82FD77eE42ce8B642eF8) {
+    +++ description: None
+      address:
+-        "0x9bd93c5ad5e0a6be890c82FD77eE42ce8B642eF8"
++        "eth:0x9bd93c5ad5e0a6be890c82FD77eE42ce8B642eF8"
+    }
+```
+
+```diff
+    EOA  (0xA07888742c18d7e658132AE0148fF205fFF46481) {
+    +++ description: None
+      address:
+-        "0xA07888742c18d7e658132AE0148fF205fFF46481"
++        "eth:0xA07888742c18d7e658132AE0148fF205fFF46481"
+    }
+```
+
+```diff
+    contract Hashi (0xA86bc62Ac53Dc86687AB6C15fdebC71ad51fB615) {
+    +++ description: None
+      address:
+-        "0xA86bc62Ac53Dc86687AB6C15fdebC71ad51fB615"
++        "eth:0xA86bc62Ac53Dc86687AB6C15fdebC71ad51fB615"
+      implementationNames.0xA86bc62Ac53Dc86687AB6C15fdebC71ad51fB615:
+-        "Hashi"
+      implementationNames.eth:0xA86bc62Ac53Dc86687AB6C15fdebC71ad51fB615:
++        "Hashi"
+    }
+```
+
+```diff
+    EOA  (0xB1dD1828794075f7521365163A93DE9e68e3c49f) {
+    +++ description: None
+      address:
+-        "0xB1dD1828794075f7521365163A93DE9e68e3c49f"
++        "eth:0xB1dD1828794075f7521365163A93DE9e68e3c49f"
+    }
+```
+
+```diff
+    EOA  (0xb2a33ae0E07fD2ca8DBdE9545F6ce0b3234dc4e8) {
+    +++ description: None
+      address:
+-        "0xb2a33ae0E07fD2ca8DBdE9545F6ce0b3234dc4e8"
++        "eth:0xb2a33ae0E07fD2ca8DBdE9545F6ce0b3234dc4e8"
+    }
+```
+
+```diff
+    EOA  (0xB646B8b5Fe6cBc7770578B7679208337ef747ae4) {
+    +++ description: None
+      address:
+-        "0xB646B8b5Fe6cBc7770578B7679208337ef747ae4"
++        "eth:0xB646B8b5Fe6cBc7770578B7679208337ef747ae4"
+    }
+```
+
+```diff
+    EOA  (0xb8173f558f75EE263013fd6294177bf75279a21e) {
+    +++ description: None
+      address:
+-        "0xb8173f558f75EE263013fd6294177bf75279a21e"
++        "eth:0xb8173f558f75EE263013fd6294177bf75279a21e"
+    }
+```
+
+```diff
+    contract Yaho (0xbAE4Ebbf42815BB9Bc3720267Ea4496277d60DB8) {
+    +++ description: Contract handling outbound messages for the Hashi protocol.
+      address:
+-        "0xbAE4Ebbf42815BB9Bc3720267Ea4496277d60DB8"
++        "eth:0xbAE4Ebbf42815BB9Bc3720267Ea4496277d60DB8"
+      implementationNames.0xbAE4Ebbf42815BB9Bc3720267Ea4496277d60DB8:
+-        "Yaho"
+      implementationNames.eth:0xbAE4Ebbf42815BB9Bc3720267Ea4496277d60DB8:
++        "Yaho"
+    }
+```
+
+```diff
+    EOA Gnosis DAO EOA 2 (0xbDc141c8D2343f33F40Cb9edD601CcF460CD0dDe) {
+    +++ description: None
+      address:
+-        "0xbDc141c8D2343f33F40Cb9edD601CcF460CD0dDe"
++        "eth:0xbDc141c8D2343f33F40Cb9edD601CcF460CD0dDe"
+    }
+```
+
+```diff
+    EOA  (0xBF3d6f830CE263CAE987193982192Cd990442B53) {
+    +++ description: None
+      address:
+-        "0xBF3d6f830CE263CAE987193982192Cd990442B53"
++        "eth:0xBF3d6f830CE263CAE987193982192Cd990442B53"
+    }
+```
+
+```diff
+    EOA Giveth EOA 1 (0xc073C8E5ED9Aa11CF6776C69b3e13b259Ba9F506) {
+    +++ description: None
+      address:
+-        "0xc073C8E5ED9Aa11CF6776C69b3e13b259Ba9F506"
++        "eth:0xc073C8E5ED9Aa11CF6776C69b3e13b259Ba9F506"
+    }
+```
+
+```diff
+    EOA  (0xc44caeb7F0724A156806664d2361fD6f32a2d2C8) {
+    +++ description: None
+      address:
+-        "0xc44caeb7F0724A156806664d2361fD6f32a2d2C8"
++        "eth:0xc44caeb7F0724A156806664d2361fD6f32a2d2C8"
+    }
+```
+
+```diff
+    EOA  (0xcF9ebF877688Ed88a7479A6e63457Fd78D4275cE) {
+    +++ description: None
+      address:
+-        "0xcF9ebF877688Ed88a7479A6e63457Fd78D4275cE"
++        "eth:0xcF9ebF877688Ed88a7479A6e63457Fd78D4275cE"
+    }
+```
+
+```diff
+    EOA  (0xD1aA7F557af9cC5Ba4Daf87D923d712fdAf1D709) {
+    +++ description: None
+      address:
+-        "0xD1aA7F557af9cC5Ba4Daf87D923d712fdAf1D709"
++        "eth:0xD1aA7F557af9cC5Ba4Daf87D923d712fdAf1D709"
+    }
+```
+
+```diff
+    EOA  (0xDdf2d07267EAF2cE3E13ee4319bE1F34D55ed992) {
+    +++ description: None
+      address:
+-        "0xDdf2d07267EAF2cE3E13ee4319bE1F34D55ed992"
++        "eth:0xDdf2d07267EAF2cE3E13ee4319bE1F34D55ed992"
+    }
+```
+
+```diff
+    contract BridgeValidators_DAI (0xe1579dEbdD2DF16Ebdb9db8694391fa74EeA201E) {
+    +++ description: Custom Multisignature contract for Validators.
+      address:
+-        "0xe1579dEbdD2DF16Ebdb9db8694391fa74EeA201E"
++        "eth:0xe1579dEbdD2DF16Ebdb9db8694391fa74EeA201E"
+      values.$admin:
+-        "0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6"
++        "eth:0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6"
+      values.$implementation:
+-        "0x6943A218d58135793F1FE619414eD476C37ad65a"
++        "eth:0x6943A218d58135793F1FE619414eD476C37ad65a"
++++ description: Array of the signers in the validator multisig
+      values.$members.0:
+-        "0x90776017057b84bc47D7e7383b65C463C80a6cdd"
++        "eth:0x90776017057b84bc47D7e7383b65C463C80a6cdd"
++++ description: Array of the signers in the validator multisig
+      values.$members.1:
+-        "0xfA98B60E02A61B6590f073cAD56e68326652d094"
++        "eth:0xfA98B60E02A61B6590f073cAD56e68326652d094"
++++ description: Array of the signers in the validator multisig
+      values.$members.2:
+-        "0x97630E2aE609D4104aBdA91F3066C556403182dd"
++        "eth:0x97630E2aE609D4104aBdA91F3066C556403182dd"
++++ description: Array of the signers in the validator multisig
+      values.$members.3:
+-        "0x587C0d02B40822f15f05301d87c16f6a08AaDDde"
++        "eth:0x587C0d02B40822f15f05301d87c16f6a08AaDDde"
++++ description: Array of the signers in the validator multisig
+      values.$members.4:
+-        "0x1312E98995bbCc30fc63Db3cef807e20CDd33dca"
++        "eth:0x1312E98995bbCc30fc63Db3cef807e20CDd33dca"
++++ description: Array of the signers in the validator multisig
+      values.$members.5:
+-        "0x4D1c96B9A49C4469A0b720a22b74b034EDdFe051"
++        "eth:0x4D1c96B9A49C4469A0b720a22b74b034EDdFe051"
++++ description: Array of the signers in the validator multisig
+      values.$members.6:
+-        "0xc073C8E5ED9Aa11CF6776C69b3e13b259Ba9F506"
++        "eth:0xc073C8E5ED9Aa11CF6776C69b3e13b259Ba9F506"
+      values.$pastUpgrades.0.2.0:
+-        "0xd760E016226836cC02E329aDDBB6821945Dd5100"
++        "eth:0xd760E016226836cC02E329aDDBB6821945Dd5100"
+      values.$pastUpgrades.1.2.0:
+-        "0x6943A218d58135793F1FE619414eD476C37ad65a"
++        "eth:0x6943A218d58135793F1FE619414eD476C37ad65a"
+      values.F_ADDR:
+-        "0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF"
++        "eth:0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF"
+      values.implementation:
+-        "0x6943A218d58135793F1FE619414eD476C37ad65a"
++        "eth:0x6943A218d58135793F1FE619414eD476C37ad65a"
+      values.owner:
+-        "0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6"
++        "eth:0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6"
+      values.proxyOwner:
+-        "0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6"
++        "eth:0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6"
+      values.upgradeabilityOwner:
+-        "0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6"
++        "eth:0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6"
+      implementationNames.0xe1579dEbdD2DF16Ebdb9db8694391fa74EeA201E:
+-        "EternalStorageProxy"
+      implementationNames.0x6943A218d58135793F1FE619414eD476C37ad65a:
+-        "BridgeValidators"
+      implementationNames.eth:0xe1579dEbdD2DF16Ebdb9db8694391fa74EeA201E:
++        "EternalStorageProxy"
+      implementationNames.eth:0x6943A218d58135793F1FE619414eD476C37ad65a:
++        "BridgeValidators"
+    }
+```
+
+```diff
+    EOA  (0xeca6EAa2C77d8f0aA9247e681C64455deAae51aC) {
+    +++ description: None
+      address:
+-        "0xeca6EAa2C77d8f0aA9247e681C64455deAae51aC"
++        "eth:0xeca6EAa2C77d8f0aA9247e681C64455deAae51aC"
+    }
+```
+
+```diff
+    contract BridgeValidators_Omni (0xed84a648b3c51432ad0fD1C2cD2C45677E9d4064) {
+    +++ description: Custom multisignature contract for Validator addresses.
+      address:
+-        "0xed84a648b3c51432ad0fD1C2cD2C45677E9d4064"
++        "eth:0xed84a648b3c51432ad0fD1C2cD2C45677E9d4064"
+      values.$admin:
+-        "0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6"
++        "eth:0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6"
+      values.$implementation:
+-        "0xD83893F31AA1B6B9D97C9c70D3492fe38D24d218"
++        "eth:0xD83893F31AA1B6B9D97C9c70D3492fe38D24d218"
++++ description: Array of the signers in the validator multisig
+      values.$members.0:
+-        "0x3e0A20099626F3d4d4Ea7B0cE0330e88d1Fe65D6"
++        "eth:0x3e0A20099626F3d4d4Ea7B0cE0330e88d1Fe65D6"
++++ description: Array of the signers in the validator multisig
+      values.$members.1:
+-        "0xfA98B60E02A61B6590f073cAD56e68326652d094"
++        "eth:0xfA98B60E02A61B6590f073cAD56e68326652d094"
++++ description: Array of the signers in the validator multisig
+      values.$members.2:
+-        "0xbDc141c8D2343f33F40Cb9edD601CcF460CD0dDe"
++        "eth:0xbDc141c8D2343f33F40Cb9edD601CcF460CD0dDe"
++++ description: Array of the signers in the validator multisig
+      values.$members.3:
+-        "0x674c97db4cE6caC04A124d745979f3E4cBa0E9f0"
++        "eth:0x674c97db4cE6caC04A124d745979f3E4cBa0E9f0"
++++ description: Array of the signers in the validator multisig
+      values.$members.4:
+-        "0x258667E543C913264388B33328337257aF208a8f"
++        "eth:0x258667E543C913264388B33328337257aF208a8f"
++++ description: Array of the signers in the validator multisig
+      values.$members.5:
+-        "0x459A3bd49F1ff109bc90b76125533699AaAAf9A6"
++        "eth:0x459A3bd49F1ff109bc90b76125533699AaAAf9A6"
++++ description: Array of the signers in the validator multisig
+      values.$members.6:
+-        "0x105CD22eD3D089Bf5589C59b452f9dE0796Ca52d"
++        "eth:0x105CD22eD3D089Bf5589C59b452f9dE0796Ca52d"
+      values.$pastUpgrades.0.2.0:
+-        "0xD83893F31AA1B6B9D97C9c70D3492fe38D24d218"
++        "eth:0xD83893F31AA1B6B9D97C9c70D3492fe38D24d218"
+      values.F_ADDR:
+-        "0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF"
++        "eth:0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF"
+      values.implementation:
+-        "0xD83893F31AA1B6B9D97C9c70D3492fe38D24d218"
++        "eth:0xD83893F31AA1B6B9D97C9c70D3492fe38D24d218"
+      values.owner:
+-        "0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6"
++        "eth:0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6"
+      values.upgradeabilityOwner:
+-        "0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6"
++        "eth:0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6"
+      implementationNames.0xed84a648b3c51432ad0fD1C2cD2C45677E9d4064:
+-        "EternalStorageProxy"
+      implementationNames.0xD83893F31AA1B6B9D97C9c70D3492fe38D24d218:
+-        "BridgeValidators"
+      implementationNames.eth:0xed84a648b3c51432ad0fD1C2cD2C45677E9d4064:
++        "EternalStorageProxy"
+      implementationNames.eth:0xD83893F31AA1B6B9D97C9c70D3492fe38D24d218:
++        "BridgeValidators"
+    }
+```
+
+```diff
+    EOA  (0xf59E447E97bC03c2B0C5719e2E551F0B15b724e5) {
+    +++ description: None
+      address:
+-        "0xf59E447E97bC03c2B0C5719e2E551F0B15b724e5"
++        "eth:0xf59E447E97bC03c2B0C5719e2E551F0B15b724e5"
+    }
+```
+
+```diff
+    EOA Karpatkey EOA (0xfA98B60E02A61B6590f073cAD56e68326652d094) {
+    +++ description: None
+      address:
+-        "0xfA98B60E02A61B6590f073cAD56e68326652d094"
++        "eth:0xfA98B60E02A61B6590f073cAD56e68326652d094"
+    }
+```
+
+```diff
++   Status: CREATED
+    contract Yaru (0x30f64a297cc66a873FB603d1e89D5891962C25ba)
+    +++ description: Contract handling inbound messages for the Hashi protocol.
+```
+
+```diff
++   Status: CREATED
+    contract Gnosis Bridge Multisig (0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6)
+    +++ description: None
+```
+
+```diff
++   Status: CREATED
+    contract DaiForeignBridge (0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016)
+    +++ description: Token bridge implementation and escrow for DAI-related tokens. Escrowed Dai can be invested in the Spark protocol for sDai.
+```
+
+```diff
++   Status: CREATED
+    contract GnosisSafe (0x4b5F5231e2F08Ad49d79Ce5672A8339a63Cfbd43)
+    +++ description: None
+```
+
+```diff
++   Status: CREATED
+    contract ForeignAMB (0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e)
+    +++ description: Arbitrary Message Bridge validated by the BridgeValidators. Can be used for token bridges or any other cross-chain messaging.
+```
+
+```diff
++   Status: CREATED
+    contract Hashi Multisig (0x670a3e447F4DE92C012777Ac5591D81E12aD0957)
+    +++ description: None
+```
+
+```diff
++   Status: CREATED
+    contract TokenFactory (0x71d5ba4e37de72415F685490B684538Aae8f0424)
+    +++ description: None
+```
+
+```diff
++   Status: CREATED
+    contract LayerZeroAdapter (0x7606e9d8655e48159E7beC8541C2E71A7Aa3E418)
+    +++ description: None
+```
+
+```diff
++   Status: CREATED
+    contract PermittableToken (0x7c24d0061b484B267F286aa2DCe891220Db254b3)
+    +++ description: None
+```
+
+```diff
++   Status: CREATED
+    contract ForeignOmnibridge (0x88ad09518695c6c3712AC10a214bE5109a655671)
+    +++ description: Token bridge implementation and escrow for ERC-20 tokens.
+```
+
+```diff
++   Status: CREATED
+    contract HashiManager_Omni (0x93f6eE78451AaCc1Db1db49a12aBfCc4662B9Cc9)
+    +++ description: A hub contract for the Hashi protocol, an EVM Hash Oracle Aggregator.
+```
+
+```diff
++   Status: CREATED
+    contract HashiManager_DAI (0x9acCFAD714A1e670CD1f6dc666FE892d1d5547BD)
+    +++ description: A hub contract for the Hashi protocol, an EVM Hash Oracle Aggregator.
+```
+
+```diff
++   Status: CREATED
+    contract Hashi (0xA86bc62Ac53Dc86687AB6C15fdebC71ad51fB615)
+    +++ description: None
+```
+
+```diff
++   Status: CREATED
+    contract Yaho (0xbAE4Ebbf42815BB9Bc3720267Ea4496277d60DB8)
+    +++ description: Contract handling outbound messages for the Hashi protocol.
+```
+
+```diff
++   Status: CREATED
+    contract BridgeValidators_DAI (0xe1579dEbdD2DF16Ebdb9db8694391fa74EeA201E)
+    +++ description: Custom Multisignature contract for Validators.
+```
+
+```diff
++   Status: CREATED
+    contract BridgeValidators_Omni (0xed84a648b3c51432ad0fD1C2cD2C45677E9d4064)
+    +++ description: Custom multisignature contract for Validator addresses.
+```
+
+Generated with discovered.json: 0xdba0cfe7b3a32d76a6203a8068736f66920d2351
+
+# Diff at Fri, 04 Jul 2025 12:19:11 GMT:
+
+- author: Mateusz Radomski (<radomski.main@protonmail.com>)
+- comparing to: main@1f56dc47fe915564d4555300304da4d3bcbc087f block: 22630069
+- current block number: 22630069
+
+## Description
+
+Discovery rerun on the same block number with only config-related changes.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 22630069 (main branch discovery), not current.
+
+```diff
+    EOA  (0x30Fb61178F39c0452cED4AD9A7FEC3344CB10B2E) {
+    +++ description: None
+      receivedPermissions.0.from:
+-        "ethereum:0x93f6eE78451AaCc1Db1db49a12aBfCc4662B9Cc9"
++        "eth:0x93f6eE78451AaCc1Db1db49a12aBfCc4662B9Cc9"
+      receivedPermissions.1.from:
+-        "ethereum:0x9acCFAD714A1e670CD1f6dc666FE892d1d5547BD"
++        "eth:0x9acCFAD714A1e670CD1f6dc666FE892d1d5547BD"
+    }
+```
+
+```diff
+    contract Gnosis Bridge Multisig (0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6) {
+    +++ description: None
+      receivedPermissions.0.from:
+-        "ethereum:0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016"
++        "eth:0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016"
+      receivedPermissions.1.from:
+-        "ethereum:0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e"
++        "eth:0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e"
+      receivedPermissions.2.from:
+-        "ethereum:0x88ad09518695c6c3712AC10a214bE5109a655671"
++        "eth:0x88ad09518695c6c3712AC10a214bE5109a655671"
+      receivedPermissions.3.from:
+-        "ethereum:0xe1579dEbdD2DF16Ebdb9db8694391fa74EeA201E"
++        "eth:0xe1579dEbdD2DF16Ebdb9db8694391fa74EeA201E"
+      receivedPermissions.4.from:
+-        "ethereum:0xed84a648b3c51432ad0fD1C2cD2C45677E9d4064"
++        "eth:0xed84a648b3c51432ad0fD1C2cD2C45677E9d4064"
+      receivedPermissions.5.from:
+-        "ethereum:0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016"
++        "eth:0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016"
+      receivedPermissions.6.from:
+-        "ethereum:0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e"
++        "eth:0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e"
+      receivedPermissions.7.from:
+-        "ethereum:0x88ad09518695c6c3712AC10a214bE5109a655671"
++        "eth:0x88ad09518695c6c3712AC10a214bE5109a655671"
+      receivedPermissions.8.from:
+-        "ethereum:0xe1579dEbdD2DF16Ebdb9db8694391fa74EeA201E"
++        "eth:0xe1579dEbdD2DF16Ebdb9db8694391fa74EeA201E"
+      receivedPermissions.9.from:
+-        "ethereum:0xed84a648b3c51432ad0fD1C2cD2C45677E9d4064"
++        "eth:0xed84a648b3c51432ad0fD1C2cD2C45677E9d4064"
+    }
+```
+
+```diff
+    contract Hashi Multisig (0x670a3e447F4DE92C012777Ac5591D81E12aD0957) {
+    +++ description: None
+      receivedPermissions.0.from:
+-        "ethereum:0x93f6eE78451AaCc1Db1db49a12aBfCc4662B9Cc9"
++        "eth:0x93f6eE78451AaCc1Db1db49a12aBfCc4662B9Cc9"
+      receivedPermissions.1.from:
+-        "ethereum:0x9acCFAD714A1e670CD1f6dc666FE892d1d5547BD"
++        "eth:0x9acCFAD714A1e670CD1f6dc666FE892d1d5547BD"
+    }
+```
+
+```diff
+    contract BridgeValidators_DAI (0xe1579dEbdD2DF16Ebdb9db8694391fa74EeA201E) {
+    +++ description: Custom Multisignature contract for Validators.
+      receivedPermissions.0.from:
+-        "ethereum:0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016"
++        "eth:0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016"
+    }
+```
+
+```diff
+    contract BridgeValidators_Omni (0xed84a648b3c51432ad0fD1C2cD2C45677E9d4064) {
+    +++ description: Custom multisignature contract for Validator addresses.
+      receivedPermissions.0.from:
+-        "ethereum:0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e"
++        "eth:0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e"
+    }
+```
+
+Generated with discovered.json: 0x0dca27e6b9e14acd91fe9b4c8aa8c5383c80a855
+
+# Diff at Thu, 03 Jul 2025 10:57:03 GMT:
+
+- author: Mateusz Radomski (<radomski.main@protonmail.com>)
+- comparing to: main@fa3b82adfb9dedeb2acea8fde7b79e65d59fb2b6 block: 22630069
+- current block number: 22630069
+
+## Description
+
+Discovery rerun on the same block number with only config-related changes.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 22630069 (main branch discovery), not current.
+
+```diff
+    contract BridgeValidators_DAI (0xe1579dEbdD2DF16Ebdb9db8694391fa74EeA201E) {
+    +++ description: Custom Multisignature contract for Validators.
+      description:
+-        "Custom multisignature contract for Validator addresses."
++        "Custom Multisignature contract for Validators."
+    }
+```
+
+Generated with discovered.json: 0xe20d99981c22600430723d3bb3e71e206747eee6
+
+# Diff at Wed, 04 Jun 2025 08:36:55 GMT:
+
+- author: sekuba (<29250140+sekuba@users.noreply.github.com>)
+- comparing to: main@2c1561a0dd20d4853f867f43267ae9042bbca2cd block: 22495658
+- current block number: 22630069
+
+## Description
+
+New hashi adapters on gnosis chain.
+
+## Watched changes
+
+```diff
+    contract HashiManager_Omni (0x93f6eE78451AaCc1Db1db49a12aBfCc4662B9Cc9) {
+    +++ description: A hub contract for the Hashi protocol, an EVM Hash Oracle Aggregator.
++++ description: Array of the adapters on GnosisChain
++++ severity: HIGH
+      values.adapters.0:
+-        "gno:0x7820FBD555CEC4737242103C3B11E693d9aa7479"
++        "gno:0x9C63010F056E4692A44A510F2F5E8A44B94960Bf"
+    }
+```
+
+```diff
+    contract HashiManager_DAI (0x9acCFAD714A1e670CD1f6dc666FE892d1d5547BD) {
+    +++ description: A hub contract for the Hashi protocol, an EVM Hash Oracle Aggregator.
++++ description: Array of the adapters on GnosisChain
++++ severity: HIGH
+      values.adapters.0:
+-        "gno:0x7820FBD555CEC4737242103C3B11E693d9aa7479"
++        "gno:0x9C63010F056E4692A44A510F2F5E8A44B94960Bf"
+    }
+```
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 22495658 (main branch discovery), not current.
+
+```diff
+    contract ForeignOmnibridge (0x88ad09518695c6c3712AC10a214bE5109a655671) {
+    +++ description: Token bridge implementation and escrow for ERC-20 tokens.
+      values.mediatorContractOnOtherSide:
+-        "0xf6A78083ca3e2a662D6dd1703c939c8aCE2e268d"
++        "gno:0xf6A78083ca3e2a662D6dd1703c939c8aCE2e268d"
+      usedTypes:
++        [{"typeCaster":"ChainPrefix","arg":{"prefix":"gno"}}]
+    }
+```
+
+Generated with discovered.json: 0x6e3309bd21fce326fa8ea88404c830062e27e8ab
+
+# Diff at Fri, 23 May 2025 09:41:18 GMT:
+
+- author: Adrian Adamiak (<adrian@adamiak.net>)
+- comparing to: main@69cd181abbc3c830a6caf2f4429b37cae72ffdb8 block: 22495658
+- current block number: 22495658
+
+## Description
+
+Introduced .role field on each permission, defaulting to field name on which it was defined (with '.' prefix)
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 22495658 (main branch discovery), not current.
+
+```diff
+    EOA  (0x30Fb61178F39c0452cED4AD9A7FEC3344CB10B2E) {
+    +++ description: None
+      receivedPermissions.1.role:
++        "admin"
+      receivedPermissions.0.role:
++        "admin"
+    }
+```
+
+```diff
+    contract Gnosis Bridge Multisig (0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6) {
+    +++ description: None
+      receivedPermissions.9.role:
++        "admin"
+      receivedPermissions.8.permission:
+-        "interact"
++        "upgrade"
+      receivedPermissions.8.from:
+-        "0xe1579dEbdD2DF16Ebdb9db8694391fa74EeA201E"
++        "0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e"
+      receivedPermissions.8.description:
+-        "change the threshold and manage signers."
+      receivedPermissions.8.role:
++        "admin"
+      receivedPermissions.7.from:
+-        "0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e"
++        "0x88ad09518695c6c3712AC10a214bE5109a655671"
+      receivedPermissions.7.role:
++        "admin"
+      receivedPermissions.6.from:
+-        "0x88ad09518695c6c3712AC10a214bE5109a655671"
++        "0xed84a648b3c51432ad0fD1C2cD2C45677E9d4064"
+      receivedPermissions.6.role:
++        "admin"
+      receivedPermissions.5.from:
+-        "0xed84a648b3c51432ad0fD1C2cD2C45677E9d4064"
++        "0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016"
+      receivedPermissions.5.role:
++        "admin"
+      receivedPermissions.4.permission:
+-        "upgrade"
++        "interact"
+      receivedPermissions.4.from:
+-        "0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016"
++        "0xe1579dEbdD2DF16Ebdb9db8694391fa74EeA201E"
+      receivedPermissions.4.description:
++        "change the threshold and manage signers."
+      receivedPermissions.4.role:
++        ".owner"
+      receivedPermissions.3.role:
++        ".owner"
+      receivedPermissions.2.role:
++        ".owner"
+      receivedPermissions.1.role:
++        ".owner"
+      receivedPermissions.0.role:
++        ".owner"
+    }
+```
+
+```diff
+    contract Hashi Multisig (0x670a3e447F4DE92C012777Ac5591D81E12aD0957) {
+    +++ description: None
+      receivedPermissions.1.role:
++        ".owner"
+      receivedPermissions.0.role:
++        ".owner"
+    }
+```
+
+```diff
+    contract BridgeValidators_DAI (0xe1579dEbdD2DF16Ebdb9db8694391fa74EeA201E) {
+    +++ description: Custom multisignature contract for Validator addresses.
+      receivedPermissions.0.role:
++        ".validatorContract"
+    }
+```
+
+```diff
+    contract BridgeValidators_Omni (0xed84a648b3c51432ad0fD1C2cD2C45677E9d4064) {
+    +++ description: Custom multisignature contract for Validator addresses.
+      receivedPermissions.0.role:
++        ".validatorContract"
+    }
+```
+
+Generated with discovered.json: 0xcddac4aec8f66b59402fc21ce694354918929ab5
+
+# Diff at Fri, 16 May 2025 12:33:28 GMT:
+
+- author: sekuba (<29250140+sekuba@users.noreply.github.com>)
+- comparing to: main@9912083f7b773804513e08ee765f8ba71a92980b block: 22337861
+- current block number: 22495658
+
+## Description
+
+SP1HeliosAdapter ref in Hashimanager changed.
+
+## Watched changes
+
+```diff
+    contract HashiManager_Omni (0x93f6eE78451AaCc1Db1db49a12aBfCc4662B9Cc9) {
+    +++ description: A hub contract for the Hashi protocol, an EVM Hash Oracle Aggregator.
++++ description: Array of the adapters on GnosisChain
++++ severity: HIGH
+      values.adapters.0:
+-        "gno:0xCEb436489e9C6d9E4Db76145A6CCE2a06411ea0A"
++        "gno:0x7820FBD555CEC4737242103C3B11E693d9aa7479"
+    }
+```
+
+```diff
+    contract HashiManager_DAI (0x9acCFAD714A1e670CD1f6dc666FE892d1d5547BD) {
+    +++ description: A hub contract for the Hashi protocol, an EVM Hash Oracle Aggregator.
++++ description: Array of the adapters on GnosisChain
++++ severity: HIGH
+      values.adapters.0:
+-        "gno:0xCEb436489e9C6d9E4Db76145A6CCE2a06411ea0A"
++        "gno:0x7820FBD555CEC4737242103C3B11E693d9aa7479"
+    }
+```
+
+Generated with discovered.json: 0xfa00353b4393cd50ece11f6603e33aac18842a8d
+
+# Diff at Tue, 29 Apr 2025 08:19:27 GMT:
+
+- author: Adrian Adamiak (<adrian@adamiak.net>)
+- comparing to: main@ef7477af00fe0b57a2f7cacf7e958c12494af662 block: 22337861
+- current block number: 22337861
+
+## Description
+
+Field .issuedPermissions is removed from the output as no longer needed. Added 'permissionsConfigHash' due to refactoring of the modelling process (into a separate command).
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 22337861 (main branch discovery), not current.
+
+```diff
+    contract DaiForeignBridge (0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016) {
+    +++ description: Token bridge implementation and escrow for DAI-related tokens. Escrowed Dai can be invested in the Spark protocol for sDai.
+      issuedPermissions:
+-        [{"permission":"interact","to":"0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6","description":"change all critical configurations like fees, yield farming for escrowed funds, limits, validating contract references.","via":[]},{"permission":"upgrade","to":"0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6","via":[]},{"permission":"validateBridge3","to":"0xe1579dEbdD2DF16Ebdb9db8694391fa74EeA201E","via":[]}]
+    }
+```
+
+```diff
+    contract ForeignAMB (0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e) {
+    +++ description: Arbitrary Message Bridge validated by the BridgeValidators. Can be used for token bridges or any other cross-chain messaging.
+      issuedPermissions:
+-        [{"permission":"interact","to":"0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6","description":"change external validation logic refered to by this contract (e.g. Hashi).","via":[]},{"permission":"upgrade","to":"0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6","via":[]},{"permission":"validateBridge3","to":"0xed84a648b3c51432ad0fD1C2cD2C45677E9d4064","via":[]}]
+    }
+```
+
+```diff
+    contract ForeignOmnibridge (0x88ad09518695c6c3712AC10a214bE5109a655671) {
+    +++ description: Token bridge implementation and escrow for ERC-20 tokens.
+      issuedPermissions:
+-        [{"permission":"interact","to":"0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6","description":"change all critical configurations like yield farming for escrowed funds and limits.","via":[]},{"permission":"upgrade","to":"0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6","via":[]}]
+    }
+```
+
+```diff
+    contract HashiManager_Omni (0x93f6eE78451AaCc1Db1db49a12aBfCc4662B9Cc9) {
+    +++ description: A hub contract for the Hashi protocol, an EVM Hash Oracle Aggregator.
+      issuedPermissions:
+-        [{"permission":"interact","to":"0x670a3e447F4DE92C012777Ac5591D81E12aD0957","description":"change critical configurations of the Hashi protocol like the validation contract addresses.","via":[]},{"permission":"upgrade","to":"0x30Fb61178F39c0452cED4AD9A7FEC3344CB10B2E","via":[]}]
+    }
+```
+
+```diff
+    contract HashiManager_DAI (0x9acCFAD714A1e670CD1f6dc666FE892d1d5547BD) {
+    +++ description: A hub contract for the Hashi protocol, an EVM Hash Oracle Aggregator.
+      issuedPermissions:
+-        [{"permission":"interact","to":"0x670a3e447F4DE92C012777Ac5591D81E12aD0957","description":"change critical configurations of the Hashi protocol like the validation contract addresses.","via":[]},{"permission":"upgrade","to":"0x30Fb61178F39c0452cED4AD9A7FEC3344CB10B2E","via":[]}]
+    }
+```
+
+```diff
+    contract BridgeValidators_DAI (0xe1579dEbdD2DF16Ebdb9db8694391fa74EeA201E) {
+    +++ description: Custom multisignature contract for Validator addresses.
+      issuedPermissions:
+-        [{"permission":"interact","to":"0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6","description":"change the threshold and manage signers.","via":[]},{"permission":"upgrade","to":"0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6","via":[]}]
+    }
+```
+
+```diff
+    contract BridgeValidators_Omni (0xed84a648b3c51432ad0fD1C2cD2C45677E9d4064) {
+    +++ description: Custom multisignature contract for Validator addresses.
+      issuedPermissions:
+-        [{"permission":"interact","to":"0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6","description":"change the threshold and manage signers.","via":[]},{"permission":"upgrade","to":"0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6","via":[]}]
+    }
+```
+
+Generated with discovered.json: 0xa83cbc41b40a496c5dcdb3e274efe8c4467793b8
+
+# Diff at Thu, 24 Apr 2025 15:59:20 GMT:
+
+- author: sekuba (<29250140+sekuba@users.noreply.github.com>)
+- comparing to: main@f3ec8b7fe4d902b94844aa2f7ddfb2affe4f3f61 block: 22281679
+- current block number: 22337861
+
+## Description
+
+Merge xdai into omni (this) discovery to unite Gnosis bridge as one.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 22281679 (main branch discovery), not current.
+
+```diff
+    contract Giveth EOA 2 (0x105CD22eD3D089Bf5589C59b452f9dE0796Ca52d) {
+    +++ description: None
+      name:
++        "Giveth EOA 2"
+    }
+```
+
+```diff
+    contract Safe EOA 2 (0x258667E543C913264388B33328337257aF208a8f) {
+    +++ description: None
+      name:
++        "Safe EOA 2"
+    }
+```
+
+```diff
+    contract Yaru (0x30f64a297cc66a873FB603d1e89D5891962C25ba) {
+    +++ description: Contract handling inbound messages for the Hashi protocol.
+      description:
++        "Contract handling inbound messages for the Hashi protocol."
+    }
+```
+
+```diff
+    contract undefined (0x30Fb61178F39c0452cED4AD9A7FEC3344CB10B2E) {
+    +++ description: None
+      receivedPermissions.1:
++        {"permission":"upgrade","from":"0x93f6eE78451AaCc1Db1db49a12aBfCc4662B9Cc9"}
+      receivedPermissions.0.from:
+-        "0x93f6eE78451AaCc1Db1db49a12aBfCc4662B9Cc9"
++        "0x9acCFAD714A1e670CD1f6dc666FE892d1d5547BD"
+    }
+```
+
+```diff
+    contract Gateway EOA 2 (0x3e0A20099626F3d4d4Ea7B0cE0330e88d1Fe65D6) {
+    +++ description: None
+      name:
++        "Gateway EOA 2"
+    }
+```
+
+```diff
+    contract Gnosis Bridge Multisig (0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6) {
+    +++ description: None
+      receivedPermissions.9:
++        {"permission":"upgrade","from":"0xe1579dEbdD2DF16Ebdb9db8694391fa74EeA201E"}
+      receivedPermissions.8:
++        {"permission":"interact","from":"0xe1579dEbdD2DF16Ebdb9db8694391fa74EeA201E","description":"change the threshold and manage signers."}
+      receivedPermissions.7:
++        {"permission":"upgrade","from":"0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e"}
+      receivedPermissions.6:
++        {"permission":"upgrade","from":"0x88ad09518695c6c3712AC10a214bE5109a655671"}
+      receivedPermissions.5:
++        {"permission":"upgrade","from":"0xed84a648b3c51432ad0fD1C2cD2C45677E9d4064"}
+      receivedPermissions.4:
++        {"permission":"upgrade","from":"0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016"}
+      receivedPermissions.3:
++        {"permission":"interact","from":"0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e","description":"change external validation logic refered to by this contract (e.g. Hashi)."}
+      receivedPermissions.2.permission:
+-        "upgrade"
++        "interact"
+      receivedPermissions.2.from:
+-        "0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e"
++        "0xed84a648b3c51432ad0fD1C2cD2C45677E9d4064"
+      receivedPermissions.2.description:
++        "change the threshold and manage signers."
+      receivedPermissions.1.permission:
+-        "upgrade"
++        "interact"
+      receivedPermissions.1.description:
++        "change all critical configurations like yield farming for escrowed funds and limits."
+      receivedPermissions.0.permission:
+-        "upgrade"
++        "interact"
+      receivedPermissions.0.from:
+-        "0xed84a648b3c51432ad0fD1C2cD2C45677E9d4064"
++        "0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016"
+      receivedPermissions.0.description:
++        "change all critical configurations like fees, yield farming for escrowed funds, limits, validating contract references."
+    }
+```
+
+```diff
+    contract Protofire EOA 2 (0x459A3bd49F1ff109bc90b76125533699AaAAf9A6) {
+    +++ description: None
+      name:
++        "Protofire EOA 2"
+    }
+```
+
+```diff
+    contract GnosisSafe (0x4b5F5231e2F08Ad49d79Ce5672A8339a63Cfbd43) {
+    +++ description: None
+      category:
++        {"name":"Spam","priority":-1}
+    }
+```
+
+```diff
+    contract ForeignAMB (0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e) {
+    +++ description: Arbitrary Message Bridge validated by the BridgeValidators. Can be used for token bridges or any other cross-chain messaging.
+      issuedPermissions.2:
++        {"permission":"validateBridge3","to":"0xed84a648b3c51432ad0fD1C2cD2C45677E9d4064","via":[]}
+      issuedPermissions.1:
++        {"permission":"upgrade","to":"0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6","via":[]}
+      issuedPermissions.0.permission:
+-        "upgrade"
++        "interact"
+      issuedPermissions.0.description:
++        "change external validation logic refered to by this contract (e.g. Hashi)."
+      description:
++        "Arbitrary Message Bridge validated by the BridgeValidators. Can be used for token bridges or any other cross-chain messaging."
+      category:
++        {"name":"Local Infrastructure","priority":5}
+    }
+```
+
+```diff
+    contract Hashi Multisig (0x670a3e447F4DE92C012777Ac5591D81E12aD0957) {
+    +++ description: None
+      receivedPermissions:
++        [{"permission":"interact","from":"0x9acCFAD714A1e670CD1f6dc666FE892d1d5547BD","description":"change critical configurations of the Hashi protocol like the validation contract addresses."},{"permission":"interact","from":"0x93f6eE78451AaCc1Db1db49a12aBfCc4662B9Cc9","description":"change critical configurations of the Hashi protocol like the validation contract addresses."}]
+    }
+```
+
+```diff
+    contract CoW Protocol EOA 2 (0x674c97db4cE6caC04A124d745979f3E4cBa0E9f0) {
+    +++ description: None
+      name:
++        "CoW Protocol EOA 2"
+    }
+```
+
+```diff
+-   Status: DELETED
+    contract AAVEInterestERC20 (0x87D48c565D0D85770406D248efd7dc3cbd41e729)
+    +++ description: None
+```
+
+```diff
+    contract ForeignOmnibridge (0x88ad09518695c6c3712AC10a214bE5109a655671) {
+    +++ description: Token bridge implementation and escrow for ERC-20 tokens.
+      issuedPermissions.1:
++        {"permission":"upgrade","to":"0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6","via":[]}
+      issuedPermissions.0.permission:
+-        "upgrade"
++        "interact"
+      issuedPermissions.0.description:
++        "change all critical configurations like yield farming for escrowed funds and limits."
+      description:
++        "Token bridge implementation and escrow for ERC-20 tokens."
+      category:
++        {"name":"Local Infrastructure","priority":5}
+    }
+```
+
+```diff
+    contract HashiManager_Omni (0x93f6eE78451AaCc1Db1db49a12aBfCc4662B9Cc9) {
+    +++ description: A hub contract for the Hashi protocol, an EVM Hash Oracle Aggregator.
+      name:
+-        "HashiManager"
++        "HashiManager_Omni"
+      issuedPermissions.1:
++        {"permission":"upgrade","to":"0x30Fb61178F39c0452cED4AD9A7FEC3344CB10B2E","via":[]}
+      issuedPermissions.0.permission:
+-        "upgrade"
++        "interact"
+      issuedPermissions.0.to:
+-        "0x30Fb61178F39c0452cED4AD9A7FEC3344CB10B2E"
++        "0x670a3e447F4DE92C012777Ac5591D81E12aD0957"
+      issuedPermissions.0.description:
++        "change critical configurations of the Hashi protocol like the validation contract addresses."
+      template:
++        "gnosisbridge/HashiManager"
+      description:
++        "A hub contract for the Hashi protocol, an EVM Hash Oracle Aggregator."
+    }
+```
+
+```diff
+    contract Yaho (0xbAE4Ebbf42815BB9Bc3720267Ea4496277d60DB8) {
+    +++ description: Contract handling outbound messages for the Hashi protocol.
+      description:
++        "Contract handling outbound messages for the Hashi protocol."
+    }
+```
+
+```diff
+    contract Gnosis DAO EOA 2 (0xbDc141c8D2343f33F40Cb9edD601CcF460CD0dDe) {
+    +++ description: None
+      name:
++        "Gnosis DAO EOA 2"
+    }
+```
+
+```diff
+    contract BridgeValidators_Omni (0xed84a648b3c51432ad0fD1C2cD2C45677E9d4064) {
+    +++ description: Custom multisignature contract for Validator addresses.
+      name:
+-        "BridgeValidators"
++        "BridgeValidators_Omni"
+      issuedPermissions.1:
++        {"permission":"upgrade","to":"0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6","via":[]}
+      issuedPermissions.0.permission:
+-        "upgrade"
++        "interact"
+      issuedPermissions.0.description:
++        "change the threshold and manage signers."
+      values.requiredSignatures:
+-        4
+      values.validatorList:
+-        ["0x3e0A20099626F3d4d4Ea7B0cE0330e88d1Fe65D6","0xfA98B60E02A61B6590f073cAD56e68326652d094","0xbDc141c8D2343f33F40Cb9edD601CcF460CD0dDe","0x674c97db4cE6caC04A124d745979f3E4cBa0E9f0","0x258667E543C913264388B33328337257aF208a8f","0x459A3bd49F1ff109bc90b76125533699AaAAf9A6","0x105CD22eD3D089Bf5589C59b452f9dE0796Ca52d"]
++++ description: Array of the signers in the validator multisig
+      values.$members:
++        ["0x459A3bd49F1ff109bc90b76125533699AaAAf9A6","0xfA98B60E02A61B6590f073cAD56e68326652d094","0xbDc141c8D2343f33F40Cb9edD601CcF460CD0dDe","0x3e0A20099626F3d4d4Ea7B0cE0330e88d1Fe65D6","0x258667E543C913264388B33328337257aF208a8f","0x674c97db4cE6caC04A124d745979f3E4cBa0E9f0","0x105CD22eD3D089Bf5589C59b452f9dE0796Ca52d"]
+      values.$threshold:
++        4
+      fieldMeta.validatorList:
+-        {"severity":"MEDIUM","description":"Array of the signers in the validator multisig","type":"PERMISSION"}
+      fieldMeta.$members:
++        {"description":"Array of the signers in the validator multisig"}
+      template:
++        "gnosisbridge/BridgeValidators"
+      description:
++        "Custom multisignature contract for Validator addresses."
+      receivedPermissions:
++        [{"permission":"validateBridge3","from":"0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e"}]
+    }
+```
+
+```diff
+    contract Karpatkey EOA (0xfA98B60E02A61B6590f073cAD56e68326652d094) {
+    +++ description: None
+      name:
++        "Karpatkey EOA"
+    }
+```
+
+```diff
++   Status: CREATED
+    contract DaiForeignBridge (0x4aa42145Aa6Ebf72e164C9bBC74fbD3788045016)
+    +++ description: Token bridge implementation and escrow for DAI-related tokens. Escrowed Dai can be invested in the Spark protocol for sDai.
+```
+
+```diff
++   Status: CREATED
+    contract HashiManager_DAI (0x9acCFAD714A1e670CD1f6dc666FE892d1d5547BD)
+    +++ description: A hub contract for the Hashi protocol, an EVM Hash Oracle Aggregator.
+```
+
+```diff
++   Status: CREATED
+    contract BridgeValidators_DAI (0xe1579dEbdD2DF16Ebdb9db8694391fa74EeA201E)
+    +++ description: Custom multisignature contract for Validator addresses.
+```
+
+Generated with discovered.json: 0x2722dba24d027c899a6f9429eaaf5d71cf354d07
+
+# Diff at Thu, 24 Apr 2025 07:16:50 GMT:
+
+- author: Mateusz Radomski (<radomski.main@protonmail.com>)
+- comparing to: main@5e04a862ca14d0cf2b0f2109c8f3cf63d05c6b32 block: 22281679
+- current block number: 22281679
+
+## Description
+
+Discovery rerun on the same block number with only config-related changes.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 22281679 (main branch discovery), not current.
+
+```diff
+    contract HashiManager (0x93f6eE78451AaCc1Db1db49a12aBfCc4662B9Cc9) {
+    +++ description: None
++++ description: Array of the adapters on GnosisChain
++++ severity: HIGH
+      values.adapters.0:
+-        "gnosis:0xCEb436489e9C6d9E4Db76145A6CCE2a06411ea0A"
++        "gno:0xCEb436489e9C6d9E4Db76145A6CCE2a06411ea0A"
++++ description: Array of the reports on GnosisChain
++++ severity: HIGH
+      values.reporters.0:
+-        "gnosis:0x0000000000000000000000000000000000000000"
++        "gno:0x0000000000000000000000000000000000000000"
++++ description: Address of the target contract on GnosisChain
++++ severity: HIGH
+      values.targetAddress:
+-        "gnosis:0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59"
++        "gno:0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59"
+      usedTypes.0.arg.prefix:
+-        "gnosis"
++        "gno"
+    }
+```
+
+Generated with discovered.json: 0x19261fa1b71a8457c50d6306634ede012c1dc78f
+
+# Diff at Wed, 16 Apr 2025 13:11:21 GMT:
+
+- author: sekuba (<29250140+sekuba@users.noreply.github.com>)
+- comparing to: main@db872d8b788e204aeb64e983eeb7178891d61d76 block: 22266420
+- current block number: 22281679
+
+## Description
+
+MS signer change.
+
+## Watched changes
+
+```diff
+    contract Gnosis Bridge Multisig (0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6) {
+    +++ description: None
+      values.$members.10:
+-        "0xd945325557f1FB4374fBf10Ae86D385632Df870A"
++        "0x544cE64C3Fc6Da72CEB2456CC4cF19E7c7972eFA"
+      values.$members.9:
+-        "0x544cE64C3Fc6Da72CEB2456CC4cF19E7c7972eFA"
++        "0xB646B8b5Fe6cBc7770578B7679208337ef747ae4"
+    }
+```
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 22266420 (main branch discovery), not current.
+
+```diff
+    contract Yaru (0x30f64a297cc66a873FB603d1e89D5891962C25ba) {
+    +++ description: None
+      template:
++        "gnosisbridge/Yaru"
+    }
+```
+
+```diff
+    contract HashiManager (0x93f6eE78451AaCc1Db1db49a12aBfCc4662B9Cc9) {
+    +++ description: None
+      fieldMeta.HASHI_IS_MANDATORY:
++        {"severity":"HIGH","description":"If true, Hashi validation is mandatory"}
+    }
+```
+
+```diff
+    contract Yaho (0xbAE4Ebbf42815BB9Bc3720267Ea4496277d60DB8) {
+    +++ description: None
+      template:
++        "gnosisbridge/Yaho"
+    }
+```
+
+Generated with discovered.json: 0x96c87f71fee62bb15b90ba7ebcf0a0658f005e7b
+
+# Diff at Mon, 14 Apr 2025 09:53:17 GMT:
+
+- author: sekuba (<29250140+sekuba@users.noreply.github.com>)
+- comparing to: main@747d4f37c2414630ca17975636bd17d093de850f block: 22123489
+- current block number: 22266420
+
+## Description
+
+Add Hashi related contracts to discovery.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 22123489 (main branch discovery), not current.
+
+```diff
+    contract Gnosis Bridge Multisig (0x42F38ec5A75acCEc50054671233dfAC9C0E7A3F6) {
+    +++ description: None
+      name:
+-        "OmniBridgeGovernance"
++        "Gnosis Bridge Multisig"
+    }
+```
+
+```diff
+    contract Hashi Multisig (0x670a3e447F4DE92C012777Ac5591D81E12aD0957) {
+    +++ description: None
+      name:
+-        "Safe"
++        "Hashi Multisig"
+    }
+```
+
+```diff
+    contract ForeignOmnibridge (0x88ad09518695c6c3712AC10a214bE5109a655671) {
+    +++ description: None
+      name:
+-        "MultiTokenMediator"
++        "ForeignOmnibridge"
+    }
+```
+
+```diff
+    contract HashiManager (0x93f6eE78451AaCc1Db1db49a12aBfCc4662B9Cc9) {
+    +++ description: None
++++ description: Array of the adapters on GnosisChain
++++ severity: HIGH
+      values.adapters.0:
+-        "0xCEb436489e9C6d9E4Db76145A6CCE2a06411ea0A"
++        "gnosis:0xCEb436489e9C6d9E4Db76145A6CCE2a06411ea0A"
++++ description: Array of the reports on GnosisChain
++++ severity: HIGH
+      values.reporters.0:
+-        "0x0000000000000000000000000000000000000000"
++        "gnosis:0x0000000000000000000000000000000000000000"
++++ description: Address of the target contract on GnosisChain
++++ severity: HIGH
+      values.targetAddress:
+-        "0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59"
++        "gnosis:0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59"
+      fieldMeta:
++        {"targetAddress":{"severity":"HIGH","description":"Address of the target contract on GnosisChain"},"adapters":{"severity":"HIGH","description":"Array of the adapters on GnosisChain"},"reporters":{"severity":"HIGH","description":"Array of the reports on GnosisChain"},"threshold":{"severity":"HIGH","description":"Threshold of the adapters on GnosisChain"}}
+      usedTypes:
++        [{"typeCaster":"ChainPrefix","arg":{"prefix":"gnosis"}}]
+    }
+```
+
+```diff
++   Status: CREATED
+    contract Yaru (0x30f64a297cc66a873FB603d1e89D5891962C25ba)
+    +++ description: None
+```
+
+```diff
++   Status: CREATED
+    contract LayerZeroAdapter (0x7606e9d8655e48159E7beC8541C2E71A7Aa3E418)
+    +++ description: None
+```
+
+```diff
++   Status: CREATED
+    contract Hashi (0xA86bc62Ac53Dc86687AB6C15fdebC71ad51fB615)
+    +++ description: None
+```
+
+```diff
++   Status: CREATED
+    contract Yaho (0xbAE4Ebbf42815BB9Bc3720267Ea4496277d60DB8)
+    +++ description: None
+```
+
+Generated with discovered.json: 0x70f663752590412d95d8eefff7d709a38845bb06
 
 # Diff at Tue, 25 Mar 2025 11:02:10 GMT:
 

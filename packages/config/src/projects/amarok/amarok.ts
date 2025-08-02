@@ -3,6 +3,7 @@ import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
 import { CONTRACTS } from '../../common'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { Bridge } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('amarok')
 
@@ -30,7 +31,7 @@ export const amarok: Bridge = {
     messages from other domains. It implements a liquidity network on top of its Hub-and-Spoke architecture.',
     category: 'Liquidity Network',
     links: {
-      apps: ['https://bridge.connext.network/', 'https://connextscan.io/'],
+      bridges: ['https://bridge.connext.network/', 'https://connextscan.io/'],
       websites: ['https://blog.connext.network/'],
       documentation: ['https://docs.connext.network/'],
       repositories: ['https://github.com/connext/monorepo'],
@@ -141,7 +142,7 @@ Although the values can be different for every message-receiving contract on eac
   },
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails(
           'ConnextBridge',
           'The main Connext contract. Following Diamond design pattern, it contains multiple Facets that implement\
@@ -217,7 +218,7 @@ Although the values can be different for every message-receiving contract on eac
     risks: [CONTRACTS.UPGRADE_NO_DELAY_RISK],
   },
   permissions: {
-    [discovery.chain]: {
+    ethereum: {
       actors: [
         discovery.getMultisigPermission(
           'Connext Multisig',
@@ -257,12 +258,6 @@ Although the values can be different for every message-receiving contract on eac
         'For BNB Multichain is used, for other chains their native AMBs are used.',
       sentiment: 'warning',
     },
-    sourceUpgradeability: {
-      value: 'Yes',
-      description: `Connext can be upgraded by a ${discovery.getMultisigStats(
-        'Connext Multisig',
-      )} MultiSig`,
-      sentiment: 'bad',
-    },
   },
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

@@ -12,10 +12,9 @@ import {
   DA_MODES,
   EXITS,
   FORCE_TRANSACTIONS,
-  NEW_CRYPTOGRAPHY,
   OPERATOR,
   RISK_VIEW,
-  STATE_CORRECTNESS,
+  STATE_VALIDATION,
   TECHNOLOGY_DATA_AVAILABILITY,
 } from '../../common'
 import { BADGES } from '../../common/badges'
@@ -24,6 +23,7 @@ import { PROOFS } from '../../common/proofSystems'
 import { getStage } from '../../common/stages/getStage'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('loopring')
 const forcedWithdrawalDelay = discovery.getContractValue<{
@@ -57,11 +57,11 @@ export const loopring: ScalingProject = {
     description:
       'Loopring is a ZK Rollup exchange protocol for trading and payments.',
     purposes: ['NFT', 'Exchange'],
-    stack: 'Loopring',
+    stacks: ['Loopring'],
     category: 'ZK Rollup',
     links: {
       websites: ['https://loopring.org'],
-      apps: ['https://loopring.io/#/trade'],
+      bridges: ['https://loopring.io/#/trade'],
       documentation: [
         'https://github.com/Loopring/protocols/blob/master/packages/loopring_v3/DESIGN.md',
         'https://docs.loopring.io/',
@@ -82,9 +82,6 @@ export const loopring: ScalingProject = {
     liveness: {
       explanation:
         'Loopring is a ZK rollup that posts state diffs to the L1. For a transaction to be considered final, the state diffs have to be submitted and validity proof should be generated, submitted, and verified. ',
-    },
-    finality: {
-      finalizationPeriod,
     },
   },
   chainConfig: {
@@ -132,21 +129,21 @@ export const loopring: ScalingProject = {
         type: 'ethereum',
         daLayer: ProjectId('ethereum'),
         sinceBlock: 0, // Edge Case: config added @ DA Module start
-        inbox: '0x153CdDD727e407Cb951f728F24bEB9A5FaaA8512',
+        inbox: EthereumAddress('0x153CdDD727e407Cb951f728F24bEB9A5FaaA8512'),
         sequencers: [
-          '0x2b263f55Bf2125159Ce8Ec2Bb575C649f822ab46',
-          '0x4774d954D20DB98492B0487BC9F91dc401dBA3aE',
-          '0x53dD53dAf8F112BcA64332eA97398EfbC8a0E234',
-          '0x212e75BF264C4FB3133fA5ef6f47A34367020A1A',
-          '0x238b649E62a0C383b54060b1625516b489183843',
-          '0x3243Ed9fdCDE2345890DDEAf6b083CA4cF0F68f2',
-          '0xbfCc986cA6E6729c1D191cC0179ef060b87a7C42',
-          '0xA921aF7e4dd279e1325399E4E3Bf13d0E57f48Fc',
-          '0xeadb3d065f8d15cc05e92594523516aD36d1c834',
-          '0xB1a6BF349c947A540a5fe6f1e89992ACDad836AB',
-          '0xeDEE915Ae45Cc4B2FDd1Ce12a2f70dCa0B2AD9e5',
-          '0xE6b0cf8ed864F9bfEBa1b03bac785B5aC82cf095',
-          '0x487e8Be2BaD383b5B62fC5fb46005A8Fac10E341',
+          EthereumAddress('0x2b263f55Bf2125159Ce8Ec2Bb575C649f822ab46'),
+          EthereumAddress('0x4774d954D20DB98492B0487BC9F91dc401dBA3aE'),
+          EthereumAddress('0x53dD53dAf8F112BcA64332eA97398EfbC8a0E234'),
+          EthereumAddress('0x212e75BF264C4FB3133fA5ef6f47A34367020A1A'),
+          EthereumAddress('0x238b649E62a0C383b54060b1625516b489183843'),
+          EthereumAddress('0x3243Ed9fdCDE2345890DDEAf6b083CA4cF0F68f2'),
+          EthereumAddress('0xbfCc986cA6E6729c1D191cC0179ef060b87a7C42'),
+          EthereumAddress('0xA921aF7e4dd279e1325399E4E3Bf13d0E57f48Fc'),
+          EthereumAddress('0xeadb3d065f8d15cc05e92594523516aD36d1c834'),
+          EthereumAddress('0xB1a6BF349c947A540a5fe6f1e89992ACDad836AB'),
+          EthereumAddress('0xeDEE915Ae45Cc4B2FDd1Ce12a2f70dCa0B2AD9e5'),
+          EthereumAddress('0xE6b0cf8ed864F9bfEBa1b03bac785B5aC82cf095'),
+          EthereumAddress('0x487e8Be2BaD383b5B62fC5fb46005A8Fac10E341'),
         ],
       },
     ],
@@ -180,12 +177,6 @@ export const loopring: ScalingProject = {
         to: 'proofSubmissions',
       },
     },
-    finality: {
-      lag: 0,
-      type: 'Loopring',
-      minTimestamp: UnixTime(1616396742),
-      stateUpdate: 'disabled',
-    },
   },
   dataAvailability: {
     layer: DA_LAYERS.ETH_CALLDATA,
@@ -213,11 +204,11 @@ export const loopring: ScalingProject = {
         stateRootsPostedToL1: true,
         dataAvailabilityOnL1: true,
         rollupNodeSourceAvailable: true,
+        stateVerificationOnL1: true,
+        fraudProofSystemAtLeast5Outsiders: null,
       },
       stage1: {
         principle: false,
-        stateVerificationOnL1: true,
-        fraudProofSystemAtLeast5Outsiders: null,
         usersHave7DaysToExit: false,
         usersCanExitWithoutCooperation: true,
         securityCouncilProperlySetUp: null,
@@ -230,27 +221,14 @@ export const loopring: ScalingProject = {
     },
     {
       rollupNodeLink: 'https://github.com/Loopring/loopring-subgraph-v2',
+      additionalConsiderations: {
+        short:
+          'Loopring provides an orderbook decentralized exchange for spot trading. Arbitrary contracts are not supported.',
+        long: 'Loopring provides an orderbook decentralized exchange for spot trading. Arbitrary contracts are not supported.',
+      },
     },
   ),
   technology: {
-    stateCorrectness: {
-      ...STATE_CORRECTNESS.VALIDITY_PROOFS,
-      references: [
-        {
-          title: 'Operators - Loopring design doc',
-          url: 'https://github.com/Loopring/protocols/blob/master/packages/loopring_v3/DESIGN.md#operators',
-        },
-      ],
-    },
-    newCryptography: {
-      ...NEW_CRYPTOGRAPHY.ZK_SNARKS,
-      references: [
-        {
-          title: 'Operators - Loopring design doc',
-          url: 'https://github.com/Loopring/protocols/blob/master/packages/loopring_v3/DESIGN.md#operators',
-        },
-      ],
-    },
     dataAvailability: {
       ...TECHNOLOGY_DATA_AVAILABILITY.ON_CHAIN_CALLDATA,
       references: [
@@ -333,7 +311,7 @@ export const loopring: ScalingProject = {
     ],
   },
   permissions: {
-    [discovery.chain]: {
+    ethereum: {
       actors: [
         discovery.getMultisigPermission(
           'LoopringMultisig',
@@ -358,7 +336,7 @@ export const loopring: ScalingProject = {
   },
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails('ExchangeV3', {
           description: 'Main Loopring contract.',
           ...upgrades,
@@ -417,6 +395,15 @@ export const loopring: ScalingProject = {
         description:
           'Groth16 requires a circuit specific trusted setup, so they run their own ceremony. The first phase is run using Powers of Tau ceremony. Some of the instructions on how to regenerate the verification keys can be found [here](https://github.com/Loopring/trusted_setup/tree/loopring-3.6.2).',
       },
+      {
+        ...STATE_VALIDATION.VALIDITY_PROOFS,
+        references: [
+          {
+            title: 'Operators - Loopring design doc',
+            url: 'https://github.com/Loopring/protocols/blob/master/packages/loopring_v3/DESIGN.md#operators',
+          },
+        ],
+      },
     ],
     proofVerification: {
       shortDescription: 'Loopring is a DEX rollup on Ethereum.',
@@ -451,7 +438,7 @@ export const loopring: ScalingProject = {
   milestones: [
     {
       title: 'Loopring ZK Rollup is live',
-      url: 'https://medium.com/loopring-protocol/loopring-deployed-protocol-3-0-on-ethereum-a33103c9e5bf',
+      url: 'https://medium.com/loopring-protocol/loopring-protocol-3-0-zksnarks-for-scalability-845b35a8b75b',
       date: '2019-12-04T00:00:00Z',
       description:
         'Loopring Protocol 3.0 is fully operational with support for orderbook trading on WeDex.',
@@ -504,4 +491,5 @@ export const loopring: ScalingProject = {
       type: 'general',
     },
   ],
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

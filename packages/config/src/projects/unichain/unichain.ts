@@ -1,18 +1,20 @@
-import { EthereumAddress, UnixTime } from '@l2beat/shared-pure'
-import { DERIVATION, SOA } from '../../common'
-import { getStage } from '../../common/stages/getStage'
+import {
+  ChainSpecificAddress,
+  EthereumAddress,
+  UnixTime,
+} from '@l2beat/shared-pure'
+import { DERIVATION, ESCROW, SOA } from '../../common'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
 import { opStackL2 } from '../../templates/opStack'
 
 const discovery = new ProjectDiscovery('unichain')
-const l2discovery = new ProjectDiscovery('unichain', 'unichain')
 const genesisTimestamp = UnixTime(1730748359)
+const chainId = 130
 
 export const unichain: ScalingProject = opStackL2({
-  addedAt: UnixTime(1728932992), // 2024-10-14T19:09:00Z
+  addedAt: UnixTime(1739318400), // 2025-02-11T00:00:00Z
   discovery,
-  additionalDiscoveries: { ['unichain']: l2discovery },
   additionalPurposes: ['Exchange'],
   display: {
     name: 'Unichain',
@@ -21,18 +23,19 @@ export const unichain: ScalingProject = opStackL2({
     description:
       'Unichain, a faster, cheaper L2 designed to be the home for DeFi and the home for multichain liquidity.',
     category: 'Optimistic Rollup',
-    stack: 'OP Stack',
+    stacks: ['OP Stack'],
     links: {
       websites: ['https://unichain.org/'],
-      apps: ['https://unichain.org/bridge'],
+      bridges: ['https://unichain.org/bridge'],
       documentation: ['https://docs.unichain.org/docs'],
-      explorers: ['https://uniscan.xyz/'],
+      explorers: ['https://uniscan.xyz/', 'https://unichain.blockscout.com/'],
       socialMedia: [
         'https://x.com/unichain',
         'https://discord.com/invite/uniswap',
       ],
     },
   },
+  hasSuperchainScUpgrades: true,
   scopeOfAssessment: {
     inScope: [
       SOA.l1Contracts,
@@ -43,49 +46,37 @@ export const unichain: ScalingProject = opStackL2({
     ],
     notInScope: [SOA.specToSourceCode, SOA.sequencerPolicy, SOA.nonGasTokens],
   },
-  stage: getStage(
-    {
-      stage0: {
-        callsItselfRollup: true,
-        stateRootsPostedToL1: true,
-        dataAvailabilityOnL1: true,
-        rollupNodeSourceAvailable: true,
-      },
-      stage1: {
-        principle: false,
-        stateVerificationOnL1: true,
-        fraudProofSystemAtLeast5Outsiders: true,
-        usersHave7DaysToExit: true,
-        usersCanExitWithoutCooperation: true,
-        securityCouncilProperlySetUp: true,
-      },
-      stage2: {
-        proofSystemOverriddenOnlyInCaseOfABug: false,
-        fraudProofSystemIsPermissionless: true,
-        delayWith30DExitWindow: false,
-      },
-    },
-    {
-      rollupNodeLink:
-        'https://github.com/ethereum-optimism/optimism/tree/develop/op-node',
-    },
-  ),
+  hasProperSecurityCouncil: true,
+  nodeSourceLink:
+    'https://github.com/ethereum-optimism/optimism/tree/develop/op-node',
   associatedTokens: ['UNI'],
-  finality: {
-    type: 'OPStack',
-    minTimestamp: genesisTimestamp,
-    genesisTimestamp: genesisTimestamp,
-    l2BlockTimeSeconds: 1,
-    lag: 0,
-    stateUpdate: 'disabled',
-  },
   nonTemplateExcludedTokens: ['USDC'],
   genesisTimestamp,
   stateDerivation: DERIVATION.OPSTACK('UNICHAIN'),
   isNodeAvailable: true,
+  nonTemplateEscrows: [
+    discovery.getEscrowDetails({
+      address: ChainSpecificAddress(
+        'eth:0x755610f5Be536Ad7afBAa7c10F3E938Ea3aa1877',
+      ),
+      tokens: ['wstETH'],
+      ...ESCROW.CANONICAL_EXTERNAL,
+      description:
+        'wstETH Vault for custom wstETH Gateway. Fully controlled by Lido governance.',
+    }),
+    discovery.getEscrowDetails({
+      address: ChainSpecificAddress(
+        'eth:0x1196F688C585D3E5C895Ef8954FFB0dCDAfc566A',
+      ),
+      tokens: ['USDS', 'sUSDS'],
+      ...ESCROW.CANONICAL_EXTERNAL,
+      description:
+        'Maker/Sky-controlled vault for USDS and sUSDS bridged with canonical messaging.',
+    }),
+  ],
   chainConfig: {
     name: 'unichain',
-    chainId: 130,
+    chainId,
     coingeckoPlatform: 'unichain',
     explorerUrl: 'https://uniscan.xyz',
     multicallContracts: [
@@ -103,12 +94,12 @@ export const unichain: ScalingProject = opStackL2({
         url: 'https://mainnet.unichain.org',
         callsPerMinute: 1500,
       },
-      { type: 'etherscan', url: 'https://api.uniscan.xyz/api' },
+      { type: 'etherscan', chainId },
     ],
   },
   milestones: [
     {
-      title: 'Unichain Mainnet Launch',
+      title: 'Mainnet Launch',
       url: 'https://x.com/unichain/status/1889313993296064770',
       date: '2025-02-12T00:00:00Z',
       type: 'general',

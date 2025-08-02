@@ -1,18 +1,22 @@
-import { dirname, posix } from 'path'
-import { assert, type EthereumAddress } from '@l2beat/shared-pure'
+import type { Logger } from '@l2beat/backend-tools'
+import {
+  assert,
+  ChainSpecificAddress,
+  type EthereumAddress,
+  formatJson,
+  type UnixTime,
+} from '@l2beat/shared-pure'
 import { writeFile } from 'fs/promises'
 import { mkdirp } from 'mkdirp'
+import { dirname, posix } from 'path'
 import { rimraf } from 'rimraf'
-import type { DiscoveryLogger } from '../DiscoveryLogger'
 import type { Analysis } from '../analysis/AddressAnalyzer'
-import type { DiscoveryConfig } from '../config/DiscoveryConfig'
+import { TemplateService } from '../analysis/TemplateService'
+import type { ConfigRegistry } from '../config/ConfigRegistry'
 import type { DiscoveryPaths } from '../config/getDiscoveryPaths'
-import { buildAndSaveModels } from '../modelling/build'
-import { buildProjectPageFacts } from '../modelling/projectPageFacts'
 import { removeSharedNesting } from '../source/removeSharedNesting'
 import { flattenDiscoveredSources } from './flattenDiscoveredSource'
 import { toDiscoveryOutput } from './toDiscoveryOutput'
-import { toPrettyJson } from './toPrettyJson'
 import type { DiscoveryOutput } from './types'
 
 export interface SaveDiscoveryResultOptions {
@@ -22,51 +26,70 @@ export interface SaveDiscoveryResultOptions {
   discoveryFilename?: string
   metaFilename?: string
   saveSources?: boolean
-  buildModels?: boolean
-  buildProjectPageFacts?: boolean
   templatesFolder: string
+  /**
+   * Explicit path where the project\'s discovery output should be written.
+   * When provided it overrides the default
+   *   `${paths.discovery}/${project}/${chain}`.
+   */
+  projectDiscoveryFolder?: string
 }
 
 export async function saveDiscoveryResult(
   results: Analysis[],
-  config: DiscoveryConfig,
-  blockNumber: number,
-  logger: DiscoveryLogger,
+  config: ConfigRegistry,
+  timestamp: UnixTime,
+  usedBlockNumbers: Record<string, number>,
+  logger: Logger,
   options: SaveDiscoveryResultOptions,
 ): Promise<void> {
-  const projectDiscoveryFolder = posix.join(
-    options.paths.discovery,
-    config.name,
-    config.chain,
-  )
+  const projectDiscoveryFolder =
+    options.projectDiscoveryFolder ??
+    posix.join(
+      options.paths.discovery,
+      config.structure.name,
+      config.structure.chain,
+    )
   await mkdirp(projectDiscoveryFolder)
 
-  const discoveryOutput = toDiscoveryOutput(config, blockNumber, results)
-  await saveDiscoveredJson(discoveryOutput, projectDiscoveryFolder, options)
-  await saveFlatSources(projectDiscoveryFolder, results, logger, options)
+  const templateService = new TemplateService(options.paths.discovery)
+  const discoveryOutput = toDiscoveryOutput(
+    templateService,
+    config,
+    timestamp,
+    usedBlockNumbers,
+    results,
+  )
+
+  // TODO: Should not be here - drop it and use implementation name once it's ready
+  // if somebody changes the name and decides to re-colorize
+  // then .flat folder will be incorrect
+  const remappedResults = remapNames(results, discoveryOutput)
+
+  await saveDiscoveredJson(
+    discoveryOutput,
+    projectDiscoveryFolder,
+    options.discoveryFilename,
+  )
+  await saveFlatSources(
+    projectDiscoveryFolder,
+    remappedResults,
+    logger,
+    options,
+  )
   if (options.saveSources) {
-    await saveSources(projectDiscoveryFolder, results, options)
-  }
-  if (options.buildModels) {
-    buildAndSaveModels(
-      discoveryOutput,
-      options.templatesFolder,
-      projectDiscoveryFolder,
-    )
-  }
-  if (options.buildProjectPageFacts) {
-    await buildProjectPageFacts(config.name, options.paths)
+    await saveSources(projectDiscoveryFolder, remappedResults, options)
   }
 }
 
-async function saveDiscoveredJson(
+export async function saveDiscoveredJson(
   discoveryOutput: DiscoveryOutput,
   rootPath: string,
-  options: SaveDiscoveryResultOptions,
+  discoveryFilename: string | undefined = undefined,
 ): Promise<void> {
-  const json = await toPrettyJson(discoveryOutput)
-  const discoveryFilename = options.discoveryFilename ?? 'discovered.json'
-  await writeFile(posix.join(rootPath, discoveryFilename), json)
+  const json = formatJson(discoveryOutput)
+  const outputPath = discoveryFilename ?? 'discovered.json'
+  await writeFile(posix.join(rootPath, outputPath), json)
 }
 
 async function saveSources(
@@ -96,7 +119,7 @@ async function saveSources(
           i,
           contract.sourceBundles.length,
           contract.name,
-          contract.address,
+          ChainSpecificAddress.address(contract.address), // TODO(radomski): The output path should prolly change
           sourcesPath,
           allContractNames,
         )
@@ -110,7 +133,7 @@ async function saveSources(
 async function saveFlatSources(
   rootPath: string,
   results: Analysis[],
-  logger: DiscoveryLogger,
+  logger: Logger,
   options: SaveDiscoveryResultOptions,
 ): Promise<void> {
   const flatSourcesFolder = options.flatSourcesFolder ?? '.flat'
@@ -180,4 +203,30 @@ function getImplementationFolder(i: number, sourcesCount: number): string {
     name = `/${name}`
   }
   return name
+}
+
+function remapNames(
+  results: Analysis[],
+  discoveryOutput: DiscoveryOutput,
+): Analysis[] {
+  return results.map((entry) => {
+    if (entry.type === 'EOA') {
+      return entry
+    }
+
+    const matchingEntry = discoveryOutput.entries.find(
+      (e) => e.address === entry.address,
+    )
+
+    if (!matchingEntry) {
+      return entry
+    }
+
+    const newName = matchingEntry.name ?? entry.name
+
+    return {
+      ...entry,
+      name: newName,
+    }
+  })
 }

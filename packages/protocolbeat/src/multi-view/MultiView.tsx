@@ -1,10 +1,11 @@
 import { type ComponentType, useEffect, useRef, useState } from 'react'
 import { BottomBar } from './BottomBar'
+import { useBreakpoint } from './hooks/useBreakpoint'
 import { Panel } from './Panel'
-import { TopBar } from './TopBar'
 import { type PanelId, useMultiViewStore } from './store'
+import { TopBar } from './TopBar'
 
-const RESIZE_AREA = 20
+const RESIZE_AREA = 8
 const MIN_PANEL_WIDTH = 160
 
 export interface MultiViewProps {
@@ -14,6 +15,7 @@ export interface MultiViewProps {
 
 export function MultiView(props: MultiViewProps) {
   const panelContainerRef = useRef<HTMLDivElement>(null)
+  const isMobileOrTablet = useBreakpoint()
 
   const panels = useMultiViewStore((state) => state.panels)
   const fullScreen = useMultiViewStore((state) => state.fullScreen)
@@ -23,7 +25,24 @@ export function MultiView(props: MultiViewProps) {
   const drop = useMultiViewStore((state) => state.drop)
   const order = useMultiViewStore((state) => state.order)
   const setActivePanel = useMultiViewStore((state) => state.setActivePanel)
+  const toggleFullScreen = useMultiViewStore((state) => state.toggleFullScreen)
   const [sizes, setSizes] = useState<number[]>([])
+
+  useEffect(() => {
+    const nodesPanel = panels.find((panel) => panel.id === 'nodes')
+
+    if (isMobileOrTablet && !fullScreen) {
+      if (nodesPanel) {
+        toggleFullScreen('nodes')
+        setActivePanel('nodes')
+      } else {
+        const firstPanel = panels[0]
+        if (firstPanel) {
+          toggleFullScreen(firstPanel.id)
+        }
+      }
+    }
+  }, [isMobileOrTablet, fullScreen, panels, toggleFullScreen, setActivePanel])
 
   function getPanelElements() {
     const container = panelContainerRef.current
@@ -176,8 +195,11 @@ export function MultiView(props: MultiViewProps) {
       >
         {sizes.map((size, i) => (
           <div
-            className="absolute top-0 z-20 h-full"
-            style={{ width: RESIZE_AREA, left: `${size - RESIZE_AREA / 2}px` }}
+            className="absolute top-0 z-20 h-full cursor-col-resize"
+            style={{
+              width: RESIZE_AREA,
+              left: `${size - RESIZE_AREA / 2}px`,
+            }}
             onMouseDown={(e) => e.preventDefault()}
             onDoubleClick={resizeAll}
             key={i}

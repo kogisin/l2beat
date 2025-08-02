@@ -6,6 +6,10 @@ import { TvsPriceRepository } from './repository'
 describeDatabase(TvsPriceRepository.name, (db) => {
   const repository = db.tvsPrice
 
+  beforeEach(async () => {
+    await repository.deleteAll()
+  })
+
   describe(TvsPriceRepository.prototype.insertMany.name, () => {
     it('adds new rows', async () => {
       const records = [
@@ -33,6 +37,22 @@ describeDatabase(TvsPriceRepository.name, (db) => {
 
       const inserted = await repository.insertMany(records)
       expect(inserted).toEqual(1500)
+    })
+  })
+
+  describe(TvsPriceRepository.prototype.getPrice.name, () => {
+    it('returns price for a configuration', async () => {
+      await repository.insertMany([
+        tvsPrice('a', 'eth', UnixTime(100), 1000),
+        tvsPrice('a', 'eth', UnixTime(200), 1100),
+        tvsPrice('a', 'eth', UnixTime(300), 1200),
+        tvsPrice('b', 'btc', UnixTime(100), 20000),
+        tvsPrice('b', 'btc', UnixTime(200), 21000),
+      ])
+
+      const result = await repository.getPrice('a'.repeat(12), UnixTime(200))
+
+      expect(result).toEqual(tvsPrice('a', 'eth', UnixTime(200), 1100))
     })
   })
 
@@ -91,6 +111,46 @@ describeDatabase(TvsPriceRepository.name, (db) => {
         configIds,
         UnixTime(100),
         UnixTime(200),
+      )
+
+      expect(result).toEqual([])
+    })
+  })
+
+  describe(TvsPriceRepository.prototype.getPricesInRangeByPriceId.name, () => {
+    beforeEach(async () => {
+      await repository.insertMany([
+        tvsPrice('a', 'eth', UnixTime(50), 900.5),
+        tvsPrice('a', 'eth', UnixTime(100), 1000.5),
+        tvsPrice('b', 'btc', UnixTime(100), 20000.75),
+        tvsPrice('c', 'eth', UnixTime(150), 1050.25),
+        tvsPrice('a', 'eth', UnixTime(200), 1100.25),
+        tvsPrice('b', 'btc', UnixTime(200), 21000.5),
+        tvsPrice('d', 'usdc', UnixTime(100), 1.0),
+        tvsPrice('d', 'usdc', UnixTime(200), 1.0),
+        tvsPrice('a', 'eth', UnixTime(300), 1200.0),
+      ])
+    })
+
+    it('returns only records for the specified priceId', async () => {
+      const result = await repository.getPricesInRangeByPriceId(
+        'eth',
+        UnixTime(100),
+        UnixTime(200),
+      )
+
+      expect(result).toEqualUnsorted([
+        tvsPrice('a', 'eth', UnixTime(100), 1000.5),
+        tvsPrice('c', 'eth', UnixTime(150), 1050.25),
+        tvsPrice('a', 'eth', UnixTime(200), 1100.25),
+      ])
+    })
+
+    it('returns empty array when no data', async () => {
+      const result = await repository.getPricesInRangeByPriceId(
+        'eth',
+        UnixTime(225),
+        UnixTime(275),
       )
 
       expect(result).toEqual([])

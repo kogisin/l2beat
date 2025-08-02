@@ -4,7 +4,7 @@ import type { CoingeckoId } from './CoingeckoId'
 import type { EthereumAddress } from './EthereumAddress'
 import type { UnixTime } from './UnixTime'
 
-export interface Token {
+export interface LegacyToken {
   id: AssetId
   name: string
   coingeckoId: CoingeckoId
@@ -13,7 +13,13 @@ export interface Token {
   decimals: number
   sinceTimestamp: UnixTime
   untilTimestamp?: UnixTime
-  category: 'ether' | 'stablecoin' | 'other'
+  category:
+    | 'ether'
+    | 'stablecoin'
+    | 'btc'
+    | 'rwaRestricted'
+    | 'rwaPublic'
+    | 'other'
   iconUrl?: string
   chainId: ChainId
   chainName: string
@@ -21,16 +27,16 @@ export interface Token {
   source: 'canonical' | 'external' | 'native'
   supply: 'totalSupply' | 'circulatingSupply' | 'zero'
   excludeFromTotal?: true
-  bridgedUsing?: TokenBridgedUsing
+  bridgedUsing?: LegacyTokenBridgedUsing
   premint?: string
 }
 
-export interface TokenBridge {
+export interface LegacyTokenBridge {
   name: string
   slug?: string
 }
 
-export interface TokenBridgedUsing {
-  bridges: TokenBridge[]
+export interface LegacyTokenBridgedUsing {
+  bridges: LegacyTokenBridge[]
   warning?: string
 }

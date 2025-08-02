@@ -6,12 +6,13 @@ import type { ScalingProject } from '../../internalTypes'
 import { AnytrustDAC } from '../../templates/anytrust-template'
 import { orbitStackL3 } from '../../templates/orbitStack'
 
-const discovery = new ProjectDiscovery('popapex', 'arbitrum')
+const discovery = new ProjectDiscovery('popapex')
 
 export const popapex: ScalingProject = orbitStackL3({
-  addedAt: UnixTime(1710836229), // 2024-03-19T08:17:09Z
+  addedAt: UnixTime(1709164800), // 2024-02-29T00:00:00Z
   additionalBadges: [BADGES.L3ParentChain.Arbitrum, BADGES.RaaS.Conduit],
   additionalPurposes: ['Gaming'],
+  hostChain: 'arbitrum',
   discovery,
   bridge: discovery.getContract('Bridge'),
   rollupProxy: discovery.getContract('RollupProxy'),
@@ -28,7 +29,7 @@ export const popapex: ScalingProject = orbitStackL3({
       'Proof of Play Apex is a gaming-focused L3 settling on Arbitrum using the Orbit Stack and AnyTrust DA.',
     links: {
       websites: ['https://proofofplay.com/'],
-      apps: [
+      bridges: [
         'https://bridge.arbitrum.io/?destinationChain=pop-apex&sourceChain=arbitrum-one',
         'https://piratenation.game/',
       ],
@@ -66,6 +67,13 @@ export const popapex: ScalingProject = orbitStackL3({
         'Proof of Play halts for two days due to a chain misconfiguration.',
       type: 'incident',
     },
+    {
+      title: 'Proof of Play Apex Mainnet',
+      date: '2024-02-29T00:00:00Z',
+      url: 'https://x.com/ProofOfPlay/status/1763218718816092307',
+      description: 'Proof of Play Apex launches it mainnet.',
+      type: 'general',
+    },
   ],
-  customDa: AnytrustDAC({ discovery }),
+  customDa: AnytrustDAC({ discovery, hostChain: 'arbitrum' }),
 })

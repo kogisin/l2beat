@@ -2,10 +2,9 @@ import { UnixTime } from '@l2beat/shared-pure'
 import {
   DA_BRIDGES,
   DA_LAYERS,
-  NEW_CRYPTOGRAPHY,
+  REASON_FOR_BEING_OTHER,
   RISK_VIEW,
 } from '../../common'
-import { REASON_FOR_BEING_OTHER } from '../../common'
 import { BADGES } from '../../common/badges'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
@@ -30,20 +29,20 @@ const isForcedBatchDisallowed =
 
 export const gpt: ScalingProject = polygonCDKStack({
   addedAt: UnixTime(1720180654), // 2024-07-05T11:57:34Z
+  archivedAt: UnixTime(1737676800), // 2025-01-24T00:00:00.000Z,
   additionalBadges: [BADGES.DA.DAC, BADGES.RaaS.Gateway],
   additionalPurposes: ['AI'],
-  isArchived: true,
   reasonsForBeingOther: [REASON_FOR_BEING_OTHER.SMALL_DAC],
   display: {
     name: 'GPT Protocol',
     slug: 'gpt',
     headerWarning:
-      'The operator has stopped servicing this Validium and a fork was [deployed outside the shared Polygon AggLayer contracts](https://app.blocksec.com/explorer/tx/eth/0x6e3d75c42350019dce5484cc45e9db89b2a29bf8ff8c000ddfa2aa5a9df08628).',
+      'The operator has stopped servicing this Validium and a fork was [deployed outside the shared Polygon Agglayer contracts](https://app.blocksec.com/explorer/tx/eth/0x6e3d75c42350019dce5484cc45e9db89b2a29bf8ff8c000ddfa2aa5a9df08628).',
     description:
       'GPT Protocol is a Validium built on the Polygon CDK stack. The purpose of the project is to create a decentralized market of AI compute power.',
     links: {
       websites: ['https://gptprotocol.org/'],
-      apps: [
+      bridges: [
         'https://bridge.gptprotocol.io/',
         'https://assistant.gptprotocol.io/',
         'https://staking.gptprotocol.org/',
@@ -107,11 +106,6 @@ export const gpt: ScalingProject = polygonCDKStack({
   rollupVerifierContract: discovery.getContract('Verifier'),
   isForcedBatchDisallowed,
   nonTemplateEscrows: [], // removed as their rpc is broken and last tvs was USD 81
-  nonTemplateTechnology: {
-    newCryptography: {
-      ...NEW_CRYPTOGRAPHY.ZK_BOTH,
-    },
-  },
   stateDerivation: {
     nodeSoftware:
       'Node software can be found [here](https://github.com/0xPolygon/cdk-validium-node).',
@@ -127,7 +121,7 @@ export const gpt: ScalingProject = polygonCDKStack({
       url: 'https://x.com/gpt_protocol/status/1827155009123090891',
       date: '2024-08-24',
       description:
-        'GPT Protocol launches officially, integrated with Polygon AggLayer.',
+        'GPT Protocol launches officially, integrated with Polygon Agglayer.',
       type: 'general',
     },
   ],

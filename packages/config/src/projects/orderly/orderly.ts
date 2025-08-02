@@ -14,7 +14,7 @@ export const orderly: ScalingProject = opStackL2({
   additionalPurposes: ['Exchange'],
   discovery,
   reasonsForBeingOther: [
-    REASON_FOR_BEING_OTHER.NO_PROOFS,
+    REASON_FOR_BEING_OTHER.CLOSED_PROOFS,
     REASON_FOR_BEING_OTHER.NO_DA_ORACLE,
   ],
   display: {
@@ -27,7 +27,7 @@ export const orderly: ScalingProject = opStackL2({
       'While ETH deposited to Orderly is using an OP Stack canonical bridge, the multichain USDC escrows are sending / receiving their deposit / withdrawal messages through the external LayerZero v1 AMB.',
     links: {
       websites: ['https://orderly.network/'],
-      apps: ['https://app.orderly.network/'],
+      bridges: ['https://app.orderly.network/'],
       documentation: [
         'https://orderly.network/docs/build-on-evm/building-on-evm',
       ],

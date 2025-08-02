@@ -1,8 +1,8 @@
 import {
-  EthereumAddress,
+  ChainSpecificAddress,
+  formatSeconds,
   ProjectId,
   UnixTime,
-  formatSeconds,
 } from '@l2beat/shared-pure'
 
 import {
@@ -12,10 +12,9 @@ import {
   DA_MODES,
   EXITS,
   FORCE_TRANSACTIONS,
-  NEW_CRYPTOGRAPHY,
   OPERATOR,
   RISK_VIEW,
-  STATE_CORRECTNESS,
+  STATE_VALIDATION,
   TECHNOLOGY_DATA_AVAILABILITY,
 } from '../../common'
 import { BADGES } from '../../common/badges'
@@ -28,6 +27,7 @@ import {
   getSHARPVerifierUpgradeDelay,
 } from '../../discovery/starkware'
 import type { ScalingProject } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 import { delayDescriptionFromString } from '../../utils/delayDescription'
 
 const discovery = new ProjectDiscovery('reddioex')
@@ -54,11 +54,11 @@ const freezeGracePeriod = discovery.getContractValue<number>(
 const { committeePermission, minSigners } = getCommittee(discovery)
 
 export const reddioex: ScalingProject = {
-  isArchived: true,
   type: 'layer2',
   id: ProjectId('reddioex'),
+  addedAt: UnixTime(1684838286), // 2023-05-23T10:38:06Z
+  archivedAt: UnixTime(1728259200), // 2024-10-07T00:00:00.000Z,
   capability: 'universal',
-  addedAt: UnixTime(1623153328), // 2021-06-08T11:55:28Z
   badges: [
     BADGES.VM.AppChain,
     BADGES.DA.DAC,
@@ -73,11 +73,11 @@ export const reddioex: ScalingProject = {
     description:
       'RedSonic is a Validium based on the StarkEx technology. Its goal is to power the next generation Web3 apps and games by providing developers with the APIs and SDKs to create digital assets and easily integrate them in-app and in-game.',
     purposes: ['Exchange', 'NFT', 'Gaming'],
-    stack: 'StarkEx',
+    stacks: ['StarkEx'],
     category: 'Validium',
     links: {
       websites: ['https://reddio.com/'],
-      apps: [
+      bridges: [
         'https://reddio.com/explore',
         'https://dashboard.reddio.com',
         'https://bridge.reddio.com',
@@ -101,7 +101,9 @@ export const reddioex: ScalingProject = {
   config: {
     escrows: [
       discovery.getEscrowDetails({
-        address: EthereumAddress('0xB62BcD40A24985f560b5a9745d478791d8F1945C'),
+        address: ChainSpecificAddress(
+          'eth:0xB62BcD40A24985f560b5a9745d478791d8F1945C',
+        ),
         tokens: ['ETH', 'USDC', 'USDT'],
         description: 'Main StarkEx contract, used also as an escrow.',
       }),
@@ -136,9 +138,10 @@ export const reddioex: ScalingProject = {
     sequencerFailure: RISK_VIEW.SEQUENCER_FORCE_VIA_L1(freezeGracePeriod),
     proposerFailure: RISK_VIEW.PROPOSER_USE_ESCAPE_HATCH_MP_NFT,
   },
+  stateValidation: {
+    categories: [STATE_VALIDATION.STARKEX_VALIDITY_PROOFS],
+  },
   technology: {
-    stateCorrectness: STATE_CORRECTNESS.STARKEX_VALIDITY_PROOFS,
-    newCryptography: NEW_CRYPTOGRAPHY.ZK_STARKS,
     dataAvailability: TECHNOLOGY_DATA_AVAILABILITY.STARKEX_OFF_CHAIN,
     operator: OPERATOR.STARKEX_OPERATOR,
     forceTransactions: FORCE_TRANSACTIONS.STARKEX_SPOT_WITHDRAW(),
@@ -146,7 +149,7 @@ export const reddioex: ScalingProject = {
   },
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails('StarkExchange'),
         discovery.getContractDetails(
           'DACommittee',
@@ -162,7 +165,7 @@ export const reddioex: ScalingProject = {
     ],
   },
   permissions: {
-    [discovery.chain]: {
+    ethereum: {
       actors: [
         discovery.getPermissionDetails(
           'Governor',
@@ -189,4 +192,5 @@ export const reddioex: ScalingProject = {
       type: 'general',
     },
   ],
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

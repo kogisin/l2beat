@@ -1,8 +1,14 @@
-import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
+import {
+  ChainSpecificAddress,
+  EthereumAddress,
+  ProjectId,
+  UnixTime,
+} from '@l2beat/shared-pure'
 
 import { BRIDGE_RISK_VIEW } from '../../common'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { Bridge } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('allbridge')
 
@@ -21,7 +27,7 @@ export const allbridge: Bridge = {
     category: 'Hybrid',
     links: {
       websites: ['https://allbridge.io/'],
-      apps: ['https://core.allbridge.io/', 'https://app.allbridge.io/'],
+      bridges: ['https://core.allbridge.io/', 'https://app.allbridge.io/'],
       documentation: [
         'https://docs.allbridge.io/',
         'https://docs-core.allbridge.io/',
@@ -38,19 +44,25 @@ export const allbridge: Bridge = {
   config: {
     escrows: [
       discovery.getEscrowDetails({
-        address: EthereumAddress('0xBBbD1BbB4f9b936C3604906D7592A644071dE884'),
+        address: ChainSpecificAddress(
+          'eth:0xBBbD1BbB4f9b936C3604906D7592A644071dE884',
+        ),
         sinceTimestamp: UnixTime(1636635220),
         tokens: '*',
         description: 'Lock-Mint token bridge',
       }),
       discovery.getEscrowDetails({
-        address: EthereumAddress('0x7DBF07Ad92Ed4e26D5511b4F285508eBF174135D'),
+        address: ChainSpecificAddress(
+          'eth:0x7DBF07Ad92Ed4e26D5511b4F285508eBF174135D',
+        ),
         sinceTimestamp: UnixTime(1662596190),
         tokens: ['USDT'],
         description: 'USDT liquidity pool on Ethereum',
       }),
       discovery.getEscrowDetails({
-        address: EthereumAddress('0xa7062bbA94c91d565Ae33B893Ab5dFAF1Fc57C4d'),
+        address: ChainSpecificAddress(
+          'eth:0xa7062bbA94c91d565Ae33B893Ab5dFAF1Fc57C4d',
+        ),
         sinceTimestamp: UnixTime(1669206935),
         tokens: ['USDC'],
         description: 'USDC liquidity pool on Ethereum',
@@ -176,16 +188,11 @@ export const allbridge: Bridge = {
         'Allbridge taps into three different crosschain messaging protocols: Their in-house AMB with two validators, Wormhole AMB and Circle CCTP.',
       sentiment: 'warning',
     },
-    sourceUpgradeability: {
-      value: 'Yes',
-      description: `Allbridge contracts are immutable but all critical parameters can be changed by an EOA`,
-      sentiment: 'bad',
-    },
     destinationToken: BRIDGE_RISK_VIEW.CANONICAL_OR_WRAPPED,
   },
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails(
           'LPBridge',
           'The main contract for the Allbridge liquidity network.',
@@ -223,7 +230,7 @@ export const allbridge: Bridge = {
     risks: [],
   },
   permissions: {
-    [discovery.chain]: {
+    ethereum: {
       actors: [
         discovery.getPermissionDetails(
           'TokenBridge Admin',
@@ -265,25 +272,32 @@ export const allbridge: Bridge = {
         discovery.getPermissionDetails(
           'AllbridgeMessenger EOA.',
           discovery.formatPermissionedAccounts([
-            EthereumAddress('0x7234dB900E907398EdfAdA744d5Bf8A842B335BA'),
+            ChainSpecificAddress(
+              'eth:0x7234dB900E907398EdfAdA744d5Bf8A842B335BA',
+            ),
           ]),
           'EOA delivering crosschain messages to the AllbridgeMessenger contract.',
         ),
         discovery.getPermissionDetails(
           'WormholeMessenger EOA.',
           discovery.formatPermissionedAccounts([
-            EthereumAddress('0x26f9AA5a00825d37E4ebBa0844fcCF1f852640D5'),
+            ChainSpecificAddress(
+              'eth:0x26f9AA5a00825d37E4ebBa0844fcCF1f852640D5',
+            ),
           ]),
           'EOA delivering crosschain messages to the WormholeMessenger contract.',
         ),
         discovery.getPermissionDetails(
           'CctpBridge messenger EOA.',
           discovery.formatPermissionedAccounts([
-            EthereumAddress('0xb7C522Adb3429e2C7474df324c7a3744A5803414'),
+            ChainSpecificAddress(
+              'eth:0xb7C522Adb3429e2C7474df324c7a3744A5803414',
+            ),
           ]),
           'EOA delivering crosschain messages to the WormholeMessenger contract.',
         ),
       ],
     },
   },
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

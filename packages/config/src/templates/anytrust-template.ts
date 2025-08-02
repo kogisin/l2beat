@@ -1,11 +1,12 @@
-import { DaUpgradeabilityRisk } from '../common'
+import { DA_LAYERS, DaUpgradeabilityRisk } from '../common'
 import type { ProjectDiscovery } from '../discovery/ProjectDiscovery'
 import type {
   DaBridgeRisks,
+  DacInfo,
   DaLayerRisks,
   DaTechnology,
-  DacInfo,
   ProjectCustomDa,
+  TableReadyValue,
 } from '../types'
 import { DAC } from './dac-template'
 
@@ -14,7 +15,9 @@ interface TemplateVars {
     knownMembers?: DacInfo['knownMembers']
   }
   risks?: Partial<DaLayerRisks & DaBridgeRisks>
+  fallback?: TableReadyValue
   discovery: ProjectDiscovery
+  hostChain: string
 }
 
 export function AnytrustDAC(template: TemplateVars): ProjectCustomDa {
@@ -23,7 +26,7 @@ export function AnytrustDAC(template: TemplateVars): ProjectCustomDa {
     requiredSignatures: number
   }>('SequencerInbox', 'dacKeyset')
 
-  const isL2 = template.discovery.chain === 'ethereum'
+  const isL2 = template.hostChain === 'ethereum'
   const diagramType = isL2 ? 'L2' : 'L3'
 
   const technology: DaTechnology = {
@@ -58,11 +61,11 @@ The sequencer distributes the data and collects signatures from Committee member
     risks: [
       {
         category: 'Funds can be lost if',
-        text: `a malicious committee attests to an invalid data availability certificate.`,
+        text: 'a malicious committee attests to an invalid data availability certificate.',
       },
       {
         category: 'Funds can be lost if',
-        text: `the bridge contract or its dependencies receive a malicious code upgrade. There is no delay on code upgrades.`,
+        text: 'the bridge contract or its dependencies receive a malicious code upgrade. There is no delay on code upgrades.',
       },
     ],
     references: [
@@ -85,5 +88,6 @@ The sequencer distributes the data and collects signatures from Committee member
       upgradeability: DaUpgradeabilityRisk.LowOrNoDelay(),
       ...template.risks,
     },
+    fallback: DA_LAYERS.ETH_CALLDATA,
   })
 }

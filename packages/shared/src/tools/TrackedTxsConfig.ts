@@ -41,11 +41,12 @@ export interface TrackedTxFunctionCallConfig {
   address: EthereumAddress
   selector: string
   signature: `function ${string}`
+  topics?: string[]
 }
 
 export interface TrackedTxTransferConfig {
   formula: 'transfer'
-  from: EthereumAddress
+  from?: EthereumAddress
   to: EthereumAddress
 }
 
@@ -61,5 +62,6 @@ export interface TrackedTxSharedBridgeConfig {
   address: EthereumAddress
   signature: `function ${string}`
   selector: string
+  /** Chain ID for Elastic Chain. Rollup ID for Agglayer */
   chainId: number
 }

@@ -15,8 +15,9 @@ export const avail: BaseProject = {
   statuses: {
     yellowWarning: undefined,
     redWarning: undefined,
-    isUnderReview: false,
-    isUnverified: false,
+    emergencyWarning: undefined,
+    reviewStatus: undefined,
+    unverifiedContracts: [],
   },
   display: {
     description:
@@ -25,7 +26,7 @@ export const avail: BaseProject = {
       websites: ['https://www.availproject.org/'],
       documentation: ['https://docs.availproject.org/'],
       repositories: ['https://github.com/availproject/'],
-      apps: ['https://bridge.availproject.org/'],
+      bridges: ['https://bridge.availproject.org/'],
       explorers: [
         'https://explorer.avail.so/#/explorer',
         'https://avail.subscan.io/',
@@ -84,7 +85,7 @@ App-specific data can be reconstructed by app clients, which request and assembl
       references: [
         {
           title: 'Avail Documentation',
-          url: 'https://docs.availproject.org/docs/learn-about-avail/consensus/npos',
+          url: 'https://docs.availproject.org/docs/welcome-to-avail-docs',
         },
         {
           title: 'Avail Light Client - Source Code',
@@ -115,7 +116,8 @@ App-specific data can be reconstructed by app clients, which request and assembl
     */
     consensusAlgorithm: {
       name: 'BABE/GRANDPA',
-      description: `Avail uses the BABE/GRANDPA consensus algorithm. BABE is a block production mechanism that is used to create new blocks in the Avail blockchain. GRANDPA is a finality gadget that is used to finalize blocks.`,
+      description:
+        'Avail uses the BABE/GRANDPA consensus algorithm. BABE is a block production mechanism that is used to create new blocks in the Avail blockchain. GRANDPA is a finality gadget that is used to finalize blocks.',
       blockTime: 20, // seconds
       consensusFinality: 60, //seconds
       unbondingPeriod: UnixTime.DAY * 21, // staking.UnbondingTime
@@ -153,7 +155,7 @@ App-specific data can be reconstructed by app clients, which request and assembl
   },
   milestones: [
     {
-      title: 'Mainnet launch',
+      title: 'Mainnet Launch',
       url: 'https://blog.availproject.org/avail-da-mainnet-is-live/',
       date: '2024-07-23T00:00:00Z',
       description: 'Avail mainnet and the AVAIL token launch.',

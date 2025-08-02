@@ -1,7 +1,9 @@
-import { EthereumAddress, UnixTime } from '@l2beat/shared-pure'
-
-import { REASON_FOR_BEING_OTHER } from '../../common'
-import { ESCROW } from '../../common'
+import {
+  ChainSpecificAddress,
+  EthereumAddress,
+  UnixTime,
+} from '@l2beat/shared-pure'
+import { ESCROW, REASON_FOR_BEING_OTHER } from '../../common'
 import { BADGES } from '../../common/badges'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
@@ -11,10 +13,11 @@ import { orbitStackL2 } from '../../templates/orbitStack'
 const discovery = new ProjectDiscovery('real')
 
 export const real: ScalingProject = orbitStackL2({
-  addedAt: UnixTime(1717598702), // 2024-06-05T14:45:02Z
+  addedAt: UnixTime(1715731200), // 2024-05-15T00:00:00Z
   discovery,
   additionalBadges: [BADGES.RaaS.Gelato],
   additionalPurposes: ['RWA'],
+  archivedAt: UnixTime(1750747670), //2025-06-24T06:47:50Z
   reasonsForBeingOther: [
     REASON_FOR_BEING_OTHER.CLOSED_PROOFS,
     REASON_FOR_BEING_OTHER.SMALL_DAC,
@@ -22,11 +25,13 @@ export const real: ScalingProject = orbitStackL2({
   display: {
     name: 'Re.al',
     slug: 'real',
+    redWarning:
+      "re.al halted block production and state updates on June 20, 2025 without prior notice. If state updates are not resumed, the state proposer whitelist gets dropped and anyone can propose state updates. If this happens, but the DAC doesn't serve the necessary data, funds can be compromised as there is no way to challenge invalid state roots.",
     description:
       'Re.al is an Arbitrum Orbit stack L2 with AnyTrust data availability, focusing on Real World Assets.',
     links: {
       websites: ['https://re.al'],
-      apps: ['https://re.al/bridge/', 'https://re.al/app/bridge/'],
+      bridges: ['https://re.al/bridge/', 'https://re.al/app/bridge/'],
       documentation: ['https://docs.re.al/'],
       explorers: ['https://explorer.re.al'],
       repositories: ['https://github.com/re-al-Foundation'],
@@ -54,24 +59,31 @@ export const real: ScalingProject = orbitStackL2({
     sinceTimestamp: UnixTime(1710580715),
     coingeckoPlatform: 're-al',
     apis: [
-      { type: 'rpc', url: 'https://real.drpc.org', callsPerMinute: 1500 },
+      {
+        type: 'rpc',
+        url: 'https://tangible-real.gateway.tenderly.co/',
+        callsPerMinute: 3000,
+      },
       { type: 'blockscout', url: 'https://explorer.re.al/api' },
     ],
   },
-  associatedTokens: ['RWA'], // native token reETH not on coingecko yet
   isNodeAvailable: 'UnderReview',
   bridge: discovery.getContract('Bridge'),
   rollupProxy: discovery.getContract('RollupProxy'),
   sequencerInbox: discovery.getContract('SequencerInbox'),
   nonTemplateEscrows: [
     discovery.getEscrowDetails({
-      address: EthereumAddress('0xfC89B875970122E24C6C5ADd4Dea139443943ea7'),
+      address: ChainSpecificAddress(
+        'eth:0xfC89B875970122E24C6C5ADd4Dea139443943ea7',
+      ),
       tokens: '*',
       description:
         "Default Gateway for non-native tokens. On depositing, a generic 'wrapped' version of the escrowed token is minted on the L2.",
     }),
     discovery.getEscrowDetails({
-      address: EthereumAddress('0x679D4C1cC6855C57726BEA1784F578315d6431f6'),
+      address: ChainSpecificAddress(
+        'eth:0x679D4C1cC6855C57726BEA1784F578315d6431f6',
+      ),
       tokens: ['stETH'],
       ...ESCROW.CANONICAL_EXTERNAL,
       description:
@@ -102,6 +114,14 @@ export const real: ScalingProject = orbitStackL2({
       description: 'Re.al launches the RWA token and its governance protocol.',
       type: 'general',
     },
+    {
+      title: 'Re.al Halts Block Production',
+      date: '2025-06-20T00:00:00Z',
+      description:
+        'Re.al halted block production and state updates without prior notice.',
+      type: 'incident',
+      url: 'https://x.com/donnoh_eth/status/1937136543195398578',
+    },
   ],
-  customDa: AnytrustDAC({ discovery }),
+  customDa: AnytrustDAC({ discovery, hostChain: 'ethereum' }),
 })

@@ -3,6 +3,8 @@ import { generateIntId } from '../../tools/generateId'
 import { ClientCore, type ClientCoreDependencies } from '../ClientCore'
 import type { BlockClient } from '../types'
 import {
+  type StarknetCallParameters,
+  StarknetCallResponse,
   StarknetErrorResponse,
   StarknetGetBlockResponse,
   StarknetGetBlockWithTxsResponse,
@@ -27,7 +29,7 @@ export class StarknetClient extends ClientCore implements BlockClient {
       StarknetGetBlockResponse.safeParse(response)
 
     if (!latestBlockNumberResponse.success) {
-      throw new Error(`Latest block number: Error during parsing`)
+      throw new Error('Latest block number: Error during parsing')
     }
 
     return Number(latestBlockNumberResponse.data.result.block_number)
@@ -57,6 +59,25 @@ export class StarknetClient extends ClientCore implements BlockClient {
     }
   }
 
+  async call(
+    callParams: StarknetCallParameters,
+    blockNumber: number | 'latest',
+  ): Promise<string[]> {
+    const params = [
+      callParams,
+      blockNumber === 'latest' ? 'latest' : { block_number: blockNumber },
+    ]
+
+    const response = await this.query('starknet_call', params)
+    const calllResponse = StarknetCallResponse.safeParse(response)
+
+    if (!calllResponse.success) {
+      throw new Error('Call: Error during parsing')
+    }
+
+    return calllResponse.data.result
+  }
+
   async query(method: string, params: unknown) {
     return await this.fetch(this.$.url, {
       method: 'POST',
@@ -80,7 +101,7 @@ export class StarknetClient extends ClientCore implements BlockClient {
     const parsedError = StarknetErrorResponse.safeParse(response)
 
     if (parsedError.success) {
-      this.$.logger.warn(`Response validation error`, {
+      this.$.logger.warn('Response validation error', {
         ...parsedError.data.error,
       })
       return { success: false }

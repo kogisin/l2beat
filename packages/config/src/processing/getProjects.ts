@@ -3,19 +3,18 @@ import {
   SHARP_SUBMISSION_SELECTOR,
   type TrackedTxConfigEntry,
 } from '@l2beat/shared'
-import { ProjectId, type Token, UnixTime } from '@l2beat/shared-pure'
+import { ProjectId } from '@l2beat/shared-pure'
+import { existsSync, readFileSync } from 'fs'
+import { join } from 'path'
 import { badgesCompareFn } from '../common/badges'
-import { PROJECT_COUNTDOWNS } from '../global/countdowns'
 import type { Bridge, Layer2TxConfig, ScalingProject } from '../internalTypes'
-import { getTokenList } from '../tokens/tokens'
-import type {
-  BaseProject,
-  ProjectCostsInfo,
-  ProjectDiscoveryInfo,
-  ProjectEscrow,
-  ProjectLivenessInfo,
-  ProjectTvlConfig,
-  ProjectTvlEscrow,
+import {
+  type BaseProject,
+  type ProjectCostsInfo,
+  type ProjectDiscoveryInfo,
+  type ProjectLivenessInfo,
+  ProjectTvsConfigSchema,
+  type TvsToken,
 } from '../types'
 import {
   areContractsDiscoveryDriven,
@@ -23,7 +22,8 @@ import {
 } from '../utils/discoveryDriven'
 import { runConfigAdjustments } from './adjustments'
 import { bridges } from './bridges'
-import { isVerified } from './isVerified'
+import { ecosystems } from './ecosystems'
+import { getProjectUnverifiedContracts } from './getUnverifiedContracts'
 import { layer2s } from './layer2s'
 import { layer3s } from './layer3s'
 import { refactored } from './refactored'
@@ -32,48 +32,36 @@ import { getInfrastructure } from './utils/getInfrastructure'
 import { getRaas } from './utils/getRaas'
 import { getStage } from './utils/getStage'
 import { getVM } from './utils/getVM'
-import { isUnderReview } from './utils/isUnderReview'
 
+const daBridges = refactored.filter((p) => p.daBridge)
 export function getProjects(): BaseProject[] {
   runConfigAdjustments()
 
-  const chains = [...refactored, ...layer2s, ...layer3s, ...bridges]
-    .map((p) => p.chainConfig)
-    .filter((c) => c !== undefined)
-  const tokenList = getTokenList(chains)
-
   return refactored
-    .concat(layer2s.map((p) => layer2Or3ToProject(p, [], tokenList)))
-    .concat(layer3s.map((p) => layer2Or3ToProject(p, layer2s, tokenList)))
-    .concat(bridges.map((p) => bridgeToProject(p, tokenList)))
+    .concat(layer2s.map(layer2Or3ToProject))
+    .concat(layer3s.map(layer2Or3ToProject))
+    .concat(bridges.map(bridgeToProject))
+    .concat(ecosystems)
 }
 
-function layer2Or3ToProject(
-  p: ScalingProject,
-  layer2s: ScalingProject[],
-  tokenList: Token[],
-): BaseProject {
+function layer2Or3ToProject(p: ScalingProject): BaseProject {
   return {
     id: p.id,
     name: p.display.name,
     shortName: p.display.shortName,
     slug: p.display.slug,
     addedAt: p.addedAt,
+
     // data
+    colors: p.colors,
+    ecosystemColors: ecosystems.find((e) => e.id === p.ecosystemInfo?.id)
+      ?.colors,
     statuses: {
       yellowWarning: p.display.headerWarning,
       redWarning: p.display.redWarning,
-      isUnderReview: isUnderReview(p),
-      isUnverified: !isVerified(p),
-      // countdowns
-      otherMigration:
-        p.reasonsForBeingOther && p.display.category !== 'Other'
-          ? {
-              expiresAt: PROJECT_COUNTDOWNS.otherMigration,
-              pretendingToBe: p.display.category,
-              reasons: p.reasonsForBeingOther,
-            }
-          : undefined,
+      emergencyWarning: p.display.emergencyWarning,
+      reviewStatus: p.reviewStatus,
+      unverifiedContracts: getProjectUnverifiedContracts(p, daBridges),
     },
     display: {
       description: p.display.description,
@@ -82,22 +70,18 @@ function layer2Or3ToProject(
     },
     contracts: p.contracts,
     permissions: p.permissions,
-    discoveryInfo: getDiscoveryInfo(p),
+    discoveryInfo: adjustDiscoveryInfo(p),
     scalingInfo: {
       layer: p.type,
       type: p.display.category,
       capability: p.capability,
-      isOther:
-        p.display.category === 'Other' ||
-        (PROJECT_COUNTDOWNS.otherMigration < UnixTime.now() &&
-          !!p.reasonsForBeingOther),
       hostChain: getHostChain(p.hostChain ?? ProjectId.ETHEREUM),
       reasonsForBeingOther: p.reasonsForBeingOther,
-      stack: p.display.stack,
+      stacks: p.display.stacks,
       raas: getRaas(p.badges),
       infrastructure: getInfrastructure(p.badges),
       vm: getVM(p.badges),
-      daLayer: p.dataAvailability?.layer.value ?? 'Unknown',
+      daLayer: p.dataAvailability?.layer.value ?? undefined,
       stage: getStage(p.stage),
       purposes: p.display.purposes,
       scopeOfAssessment: p.scopeOfAssessment,
@@ -126,16 +110,15 @@ function layer2Or3ToProject(
       upgradesAndGovernanceImage: p.display.upgradesAndGovernanceImage,
     },
     customDa: p.customDa,
-    tvlInfo: {
+    tvsInfo: {
       associatedTokens: p.config.associatedTokens ?? [],
-      warnings: [p.display.tvlWarning].filter((x) => x !== undefined),
+      warnings: [p.display.tvsWarning].filter((x) => x !== undefined),
     },
-    tvlConfig: getTvlConfig(p, tokenList),
+    tvsConfig: getTvsConfig(p),
     activityConfig: p.config.activityConfig,
     livenessInfo: getLivenessInfo(p),
     livenessConfig: p.type === 'layer2' ? p.config.liveness : undefined,
     costsInfo: getCostsInfo(p),
-    ...getFinality(p),
     trackedTxsConfig: toBackendTrackedTxsConfig(
       p.id,
       p.type === 'layer2' ? p.config.trackedTxs : undefined,
@@ -144,12 +127,14 @@ function layer2Or3ToProject(
     chainConfig: p.chainConfig,
     milestones: p.milestones,
     daTrackingConfig: p.config.daTracking,
+    ecosystemInfo: p.ecosystemInfo,
     // tags
     isScaling: true,
     isZkCatalog: p.stateValidation?.proofVerification ? true : undefined,
-    isArchived: p.isArchived ? true : undefined,
+    archivedAt: p.archivedAt,
     isUpcoming: p.isUpcoming ? true : undefined,
     hasActivity: p.config.activityConfig ? true : undefined,
+    escrows: p.config.escrows,
   }
 }
 
@@ -162,8 +147,7 @@ function getLivenessInfo(p: ScalingProject): ProjectLivenessInfo | undefined {
 function getCostsInfo(p: ScalingProject): ProjectCostsInfo | undefined {
   if (
     p.type === 'layer2' &&
-    (p.display.category === 'Optimistic Rollup' ||
-      p.display.category === 'ZK Rollup') &&
+    p.dataAvailability?.layer.projectId === 'ethereum' &&
     p.config.trackedTxs !== undefined
   ) {
     return {
@@ -172,25 +156,7 @@ function getCostsInfo(p: ScalingProject): ProjectCostsInfo | undefined {
   }
 }
 
-function getFinality(
-  p: ScalingProject,
-): Pick<BaseProject, 'finalityConfig' | 'finalityInfo'> {
-  if (
-    p.type === 'layer2' &&
-    (p.display.category === 'Optimistic Rollup' ||
-      p.display.category === 'ZK Rollup') &&
-    p.config.trackedTxs !== undefined &&
-    p.config.finality !== undefined
-  ) {
-    return {
-      finalityInfo: p.display.finality ?? {},
-      finalityConfig: p.config.finality,
-    }
-  }
-  return {}
-}
-
-function bridgeToProject(p: Bridge, tokenList: Token[]): BaseProject {
+function bridgeToProject(p: Bridge): BaseProject {
   return {
     id: p.id,
     name: p.display.name,
@@ -201,9 +167,11 @@ function bridgeToProject(p: Bridge, tokenList: Token[]): BaseProject {
     statuses: {
       yellowWarning: p.display.warning,
       redWarning: undefined,
-      isUnderReview: isUnderReview(p),
-      isUnverified: !isVerified(p),
+      emergencyWarning: undefined,
+      reviewStatus: p.reviewStatus,
+      unverifiedContracts: getProjectUnverifiedContracts(p),
     },
+    colors: p.colors,
     display: {
       description: p.display.description,
       links: p.display.links,
@@ -212,27 +180,29 @@ function bridgeToProject(p: Bridge, tokenList: Token[]): BaseProject {
     bridgeInfo: {
       category: p.display.category,
       destination: p.technology.destination,
-      validatedBy: p.riskView.validatedBy.value,
     },
     bridgeTechnology: {
       ...p.technology,
       detailedDescription: p.display.detailedDescription,
+      upgradesAndGovernance: p.upgradesAndGovernance,
+      upgradesAndGovernanceImage: p.display.upgradesAndGovernanceImage,
     },
     contracts: p.contracts,
     permissions: p.permissions,
-    discoveryInfo: getDiscoveryInfo(p),
+    discoveryInfo: adjustDiscoveryInfo(p),
     bridgeRisks: p.riskView,
-    tvlInfo: {
+    tvsInfo: {
       associatedTokens: p.config.associatedTokens ?? [],
       warnings: [],
     },
-    tvlConfig: getTvlConfig(p, tokenList),
+    tvsConfig: getTvsConfig(p),
     chainConfig: p.chainConfig,
     milestones: p.milestones,
     // tags
     isBridge: true,
-    isArchived: p.isArchived ? true : undefined,
+    archivedAt: p.archivedAt,
     isUpcoming: p.isUpcoming ? true : undefined,
+    escrows: p.config.escrows,
   }
 }
 
@@ -263,6 +233,7 @@ function toBackendTrackedTxsConfig(
               address: config.query.address,
               selector: config.query.selector,
               signature: config.query.functionSignature,
+              topics: config.query.topics,
             },
           }
         }
@@ -304,25 +275,7 @@ function toBackendTrackedTxsConfig(
   )
 }
 
-function getTvlConfig(
-  project: ScalingProject | Bridge,
-  tokenList: Token[],
-): ProjectTvlConfig {
-  const tokens = project.chainConfig
-    ? tokenList.filter(
-        (t) =>
-          t.supply !== 'zero' && t.chainId === project.chainConfig?.chainId,
-      )
-    : []
-
-  return {
-    escrows: project.config.escrows.map((e) => toProjectEscrow(e, tokenList)),
-    tokens,
-    associatedTokens: project.config.associatedTokens ?? [],
-  }
-}
-
-export function getDiscoveryInfo(
+export function adjustDiscoveryInfo(
   project: ScalingProject | Bridge,
 ): ProjectDiscoveryInfo {
   const contractsDiscoDriven = areContractsDiscoveryDriven(project.contracts)
@@ -334,33 +287,33 @@ export function getDiscoveryInfo(
     contractsDiscoDriven,
     permissionsDiscoDriven,
     isDiscoDriven: contractsDiscoDriven && permissionsDiscoDriven,
+    timestampPerChain: project.discoveryInfo.timestampPerChain,
+    // This is implicit assumption that if there are timestamps per chain, then
+    // the project has disco ui. It's cause if there are some keys it means
+    // that the project has discovered.json file.
+    hasDiscoUi: Object.keys(project.discoveryInfo.timestampPerChain).length > 0,
   }
 }
 
-function toProjectEscrow(
-  escrow: ProjectEscrow,
-  tokenList: Token[],
-): ProjectTvlEscrow {
-  return {
-    address: escrow.address,
-    sinceTimestamp: escrow.sinceTimestamp,
-    chain: escrow.chain,
-    includeInTotal: escrow.includeInTotal,
-    source: escrow.source,
-    bridgedUsing: escrow.bridgedUsing,
-    sharedEscrow: escrow.sharedEscrow,
-    tokens: tokenList
-      .filter(
-        (token) =>
-          token.chainId === escrow.chainId &&
-          (escrow.tokens === '*' || escrow.tokens.includes(token.symbol)) &&
-          !escrow.excludedTokens?.includes(token.symbol) &&
-          (!token.untilTimestamp ||
-            token.untilTimestamp > escrow.sinceTimestamp),
-      )
-      .map((token) => ({
-        ...token,
-        isPreminted: !!escrow.premintedTokens?.includes(token.symbol),
-      })),
+function getTvsConfig(
+  project: ScalingProject | Bridge,
+): TvsToken[] | undefined {
+  const fileName = `${project.id.replace('=', '').replace(';', '')}.json`
+  const filePath = join(__dirname, `../../src/tvs/json/${fileName}`)
+
+  if (!existsSync(filePath)) {
+    return undefined
   }
+
+  const result = ProjectTvsConfigSchema.safeParse(
+    JSON.parse(readFileSync(filePath, 'utf8')),
+  )
+
+  if (!result.success) {
+    throw new Error(
+      `Invalid TVS config for project ${project.id}: ${result.path} : ${result.message}`,
+    )
+  }
+
+  return result.data.tokens
 }

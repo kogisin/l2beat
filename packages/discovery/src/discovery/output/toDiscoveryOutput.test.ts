@@ -1,9 +1,10 @@
-import { EthereumAddress, UnixTime } from '@l2beat/shared-pure'
+import { ChainSpecificAddress, UnixTime } from '@l2beat/shared-pure'
 import { expect } from 'earl'
 
 import type { AnalyzedContract } from '../analysis/AddressAnalyzer'
 import { EMPTY_ANALYZED_CONTRACT, EMPTY_ANALYZED_EOA } from '../utils/testUtils'
-import { processAnalysis, sortByKeys } from './toDiscoveryOutput'
+import { processAnalysis } from './structureOutput'
+import { sortByKeys } from './toDiscoveryOutput'
 
 const emptyOutputMeta = {
   type: 'EOA',
@@ -15,7 +16,6 @@ describe(processAnalysis.name, () => {
   const baseContract = {
     ...EMPTY_ANALYZED_CONTRACT,
     type: 'Contract' as const,
-    derivedName: undefined,
     isVerified: true,
     deploymentTimestamp: UnixTime(1234),
     deploymentBlockNumber: 9876,
@@ -27,20 +27,20 @@ describe(processAnalysis.name, () => {
     ...EMPTY_ANALYZED_EOA,
   }
 
-  const ADDRESS_A = EthereumAddress(
-    '0xaAaAaAaaAaAaAaaAaAAAAAAAAaaaAaAaAaaAaaAa',
+  const ADDRESS_A = ChainSpecificAddress(
+    'eth:0xaAaAaAaaAaAaAaaAaAAAAAAAAaaaAaAaAaaAaaAa',
   )
-  const ADDRESS_B = EthereumAddress(
-    '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
+  const ADDRESS_B = ChainSpecificAddress(
+    'eth:0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
   )
-  const ADDRESS_C = EthereumAddress(
-    '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+  const ADDRESS_C = ChainSpecificAddress(
+    'eth:0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
   )
-  const ADDRESS_D = EthereumAddress(
-    '0xDDdDddDdDdddDDddDDddDDDDdDdDDdDDdDDDDDDd',
+  const ADDRESS_D = ChainSpecificAddress(
+    'eth:0xDDdDddDdDdddDDddDDddDDDDdDdDDdDDdDDDDDDd',
   )
-  const ADDRESS_E = EthereumAddress(
-    '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+  const ADDRESS_E = ChainSpecificAddress(
+    'eth:0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
   )
 
   const CONTRACT_A: AnalyzedContract = {
@@ -54,7 +54,6 @@ describe(processAnalysis.name, () => {
     ...baseContract,
     address: ADDRESS_B,
     name: 'B',
-    derivedName: 'Something not B',
     values: { a: 1, b: 2 },
     errors: { c: 'error' },
     abis: {
@@ -72,8 +71,8 @@ describe(processAnalysis.name, () => {
     name: 'C',
     proxyType: 'EIP1967 proxy',
     values: {
-      $admin: ADDRESS_D.toString(),
-      $implementation: ADDRESS_E.toString(),
+      $admin: ADDRESS_D,
+      $implementation: ADDRESS_E,
       foo: 'foo',
       bar: 'bar',
     },
@@ -110,8 +109,8 @@ describe(processAnalysis.name, () => {
       entries: [
         {
           type: 'Contract',
+          name: CONTRACT_A.name,
           address: ADDRESS_A,
-          name: 'A',
           unverified: true,
           proxyType: CONTRACT_A.proxyType,
           sinceBlock: baseContract.deploymentBlockNumber,
@@ -129,9 +128,8 @@ describe(processAnalysis.name, () => {
       entries: [
         {
           type: 'Contract',
+          name: CONTRACT_B.name,
           address: ADDRESS_B,
-          name: 'B',
-          derivedName: 'Something not B',
           proxyType: CONTRACT_B.proxyType,
           sinceBlock: baseContract.deploymentBlockNumber,
           sinceTimestamp: baseContract.deploymentTimestamp,
@@ -153,14 +151,17 @@ describe(processAnalysis.name, () => {
       entries: [
         {
           type: 'Contract',
+          name: CONTRACT_C.name,
           address: ADDRESS_C,
-          name: 'C',
           proxyType: CONTRACT_C.proxyType,
           sinceBlock: baseContract.deploymentBlockNumber,
           sinceTimestamp: baseContract.deploymentTimestamp,
           values: CONTRACT_C.values,
         },
-        { ...emptyOutputMeta, address: ADDRESS_D },
+        {
+          ...emptyOutputMeta,
+          address: ADDRESS_D,
+        },
       ],
       abis: CONTRACT_C.abis,
     })
@@ -183,7 +184,7 @@ describe(processAnalysis.name, () => {
         {
           type: 'Contract',
           address: ADDRESS_A,
-          name: 'A',
+          name: CONTRACT_A.name,
           unverified: true,
           proxyType: CONTRACT_A.proxyType,
           sinceBlock: baseContract.deploymentBlockNumber,
@@ -192,9 +193,8 @@ describe(processAnalysis.name, () => {
         {
           type: 'Contract',
           address: ADDRESS_B,
+          name: CONTRACT_B.name,
           proxyType: CONTRACT_B.proxyType,
-          name: 'B',
-          derivedName: 'Something not B',
           values: CONTRACT_B.values,
           errors: CONTRACT_B.errors,
           sinceBlock: baseContract.deploymentBlockNumber,
@@ -203,13 +203,16 @@ describe(processAnalysis.name, () => {
         {
           type: 'Contract',
           address: ADDRESS_C,
+          name: CONTRACT_C.name,
           proxyType: CONTRACT_C.proxyType,
-          name: 'C',
           values: CONTRACT_C.values,
           sinceBlock: baseContract.deploymentBlockNumber,
           sinceTimestamp: baseContract.deploymentTimestamp,
         },
-        { ...emptyOutputMeta, address: ADDRESS_D },
+        {
+          ...emptyOutputMeta,
+          address: ADDRESS_D,
+        },
       ],
       abis: {
         ...CONTRACT_A.abis,

@@ -9,10 +9,10 @@ const discovery = new ProjectDiscovery('lambda')
 
 export const lambda: ScalingProject = opStackL2({
   addedAt: UnixTime(1718703383), // 2024-06-18T09:36:23Z
+  archivedAt: UnixTime(1739145600), // 2025-02-10T00:00:00.000Z,
   discovery,
   additionalPurposes: ['Storage'],
   reasonsForBeingOther: [REASON_FOR_BEING_OTHER.NO_PROOFS],
-  isArchived: true,
   display: {
     name: 'Lambda Chain',
     slug: 'lambda',
@@ -22,7 +22,7 @@ export const lambda: ScalingProject = opStackL2({
       'Lambda Chain is an OP Stack Rollup on Ethereum, focusing on long-term data storage and -availability.',
     links: {
       websites: ['https://lambda.im/'],
-      apps: ['https://portal.lambda.im/bridge/'],
+      bridges: ['https://portal.lambda.im/bridge/'],
       documentation: ['https://docs.lambda.im/', 'https://docs.optimism.io/'],
       explorers: ['https://scan.lambda.im/'],
       repositories: ['https://github.com/LambdaIM'],

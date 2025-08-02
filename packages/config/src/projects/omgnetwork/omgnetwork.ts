@@ -5,11 +5,12 @@ import {
   FORCE_TRANSACTIONS,
   OPERATOR,
   RISK_VIEW,
-  STATE_CORRECTNESS,
+  STATE_VALIDATION,
   TECHNOLOGY_DATA_AVAILABILITY,
 } from '../../common'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('omgnetwork')
 
@@ -20,7 +21,7 @@ export const omgnetwork: ScalingProject = {
   id: ProjectId('omgnetwork'),
   capability: 'universal',
   addedAt: UnixTime(1623332638), // 2021-06-10T13:43:58Z
-  isArchived: true,
+  archivedAt: UnixTime(1677196800), // 2023-02-24T00:00:00.000Z,
   display: {
     name: 'OMG Network',
     slug: 'omgnetwork',
@@ -73,11 +74,15 @@ export const omgnetwork: ScalingProject = {
         ' The details are unknown.',
     },
   },
+  stateValidation: {
+    categories: [
+      {
+        ...STATE_VALIDATION.EXIT_FRAUD_PROOFS,
+        isIncomplete: true,
+      },
+    ],
+  },
   technology: {
-    stateCorrectness: {
-      ...STATE_CORRECTNESS.EXIT_FRAUD_PROOFS,
-      isIncomplete: true,
-    },
     dataAvailability: {
       ...TECHNOLOGY_DATA_AVAILABILITY.PLASMA_OFF_CHAIN,
       isIncomplete: true,
@@ -112,7 +117,7 @@ export const omgnetwork: ScalingProject = {
   },
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails('EthVault'),
         discovery.getContractDetails('Erc20Vault'),
         discovery.getContractDetails('ETHDepositVerifier'),
@@ -126,4 +131,5 @@ export const omgnetwork: ScalingProject = {
     },
     risks: [],
   },
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

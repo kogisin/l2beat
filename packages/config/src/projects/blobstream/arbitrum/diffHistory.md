@@ -1,3 +1,802 @@
+Generated with discovered.json: 0x23b3aa2b8e501b494eb8da48d809a05e6ec2b49d
+
+# Diff at Mon, 14 Jul 2025 13:11:48 GMT:
+
+- author: Mateusz Radomski (<radomski.main@protonmail.com>)
+- comparing to: main@9f4300dad2f3d080cd56fa311d4a848556c74e72 block: 355902087
+- current block number: 355902087
+
+## Description
+
+Discovery rerun on the same block number with only config-related changes.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 355902087 (main branch discovery), not current.
+
+```diff
+    EOA  (0x0449689f2ce80fE45B32092e0d878ad87F0156a9) {
+    +++ description: None
+      address:
+-        "0x0449689f2ce80fE45B32092e0d878ad87F0156a9"
++        "arb1:0x0449689f2ce80fE45B32092e0d878ad87F0156a9"
+    }
+```
+
+```diff
+    EOA  (0x1358eaCFE3a7F4FEB06c0Ae722072F134bcE7caf) {
+    +++ description: None
+      address:
+-        "0x1358eaCFE3a7F4FEB06c0Ae722072F134bcE7caf"
++        "arb1:0x1358eaCFE3a7F4FEB06c0Ae722072F134bcE7caf"
+    }
+```
+
+```diff
+    EOA  (0x3243552F3BcbcE720Db6f5ad0C1B7cd15458392D) {
+    +++ description: None
+      address:
+-        "0x3243552F3BcbcE720Db6f5ad0C1B7cd15458392D"
++        "arb1:0x3243552F3BcbcE720Db6f5ad0C1B7cd15458392D"
+    }
+```
+
+```diff
+    EOA  (0x45878fdF56B372D944c6Fc1865B7a65462f6D1b0) {
+    +++ description: None
+      address:
+-        "0x45878fdF56B372D944c6Fc1865B7a65462f6D1b0"
++        "arb1:0x45878fdF56B372D944c6Fc1865B7a65462f6D1b0"
+    }
+```
+
+```diff
+    EOA  (0x4983A5ebE79c0570aa368cE84f281A8aAc50cE4d) {
+    +++ description: None
+      address:
+-        "0x4983A5ebE79c0570aa368cE84f281A8aAc50cE4d"
++        "arb1:0x4983A5ebE79c0570aa368cE84f281A8aAc50cE4d"
+    }
+```
+
+```diff
+    contract BlobstreamMultisig (0x738a9b55304f9fcF776B3BA285e50c0f9eF77997) {
+    +++ description: None
+      address:
+-        "0x738a9b55304f9fcF776B3BA285e50c0f9eF77997"
++        "arb1:0x738a9b55304f9fcF776B3BA285e50c0f9eF77997"
+      values.$implementation:
+-        "0x3E5c63644E683549055b9Be8653de26E0B4CD36E"
++        "arb1:0x3E5c63644E683549055b9Be8653de26E0B4CD36E"
+      values.$members.0:
+-        "0x0449689f2ce80fE45B32092e0d878ad87F0156a9"
++        "arb1:0x0449689f2ce80fE45B32092e0d878ad87F0156a9"
+      values.$members.1:
+-        "0x91D456f83f4a117B07866fdEdC29306f7E974e15"
++        "arb1:0x91D456f83f4a117B07866fdEdC29306f7E974e15"
+      values.$members.2:
+-        "0x793979789Ec179183E396e76c1e241bE0c9eE899"
++        "arb1:0x793979789Ec179183E396e76c1e241bE0c9eE899"
+      values.$members.3:
+-        "0x4983A5ebE79c0570aa368cE84f281A8aAc50cE4d"
++        "arb1:0x4983A5ebE79c0570aa368cE84f281A8aAc50cE4d"
+      values.$members.4:
+-        "0x45878fdF56B372D944c6Fc1865B7a65462f6D1b0"
++        "arb1:0x45878fdF56B372D944c6Fc1865B7a65462f6D1b0"
+      values.$members.5:
+-        "0x1358eaCFE3a7F4FEB06c0Ae722072F134bcE7caf"
++        "arb1:0x1358eaCFE3a7F4FEB06c0Ae722072F134bcE7caf"
+      implementationNames.0x738a9b55304f9fcF776B3BA285e50c0f9eF77997:
+-        "GnosisSafeProxy"
+      implementationNames.0x3E5c63644E683549055b9Be8653de26E0B4CD36E:
+-        "GnosisSafeL2"
+      implementationNames.arb1:0x738a9b55304f9fcF776B3BA285e50c0f9eF77997:
++        "GnosisSafeProxy"
+      implementationNames.arb1:0x3E5c63644E683549055b9Be8653de26E0B4CD36E:
++        "GnosisSafeL2"
+    }
+```
+
+```diff
+    EOA  (0x793979789Ec179183E396e76c1e241bE0c9eE899) {
+    +++ description: None
+      address:
+-        "0x793979789Ec179183E396e76c1e241bE0c9eE899"
++        "arb1:0x793979789Ec179183E396e76c1e241bE0c9eE899"
+    }
+```
+
+```diff
+    EOA  (0x91D456f83f4a117B07866fdEdC29306f7E974e15) {
+    +++ description: None
+      address:
+-        "0x91D456f83f4a117B07866fdEdC29306f7E974e15"
++        "arb1:0x91D456f83f4a117B07866fdEdC29306f7E974e15"
+    }
+```
+
+```diff
+    EOA  (0x9c0B0dBBAe8a976CEeA8C2A96F6D00c53839afDC) {
+    +++ description: None
+      address:
+-        "0x9c0B0dBBAe8a976CEeA8C2A96F6D00c53839afDC"
++        "arb1:0x9c0B0dBBAe8a976CEeA8C2A96F6D00c53839afDC"
+    }
+```
+
+```diff
+    contract Blobstream (0xA83ca7775Bc2889825BcDeDfFa5b758cf69e8794) {
+    +++ description: The Blobstream DA bridge. This contract is used to bridge data commitments between Celestia and the destination chain. It specifies relayers that commit block ranges, but due to the lack of emitted events, there may be more relayers than are presented here.
+      address:
+-        "0xA83ca7775Bc2889825BcDeDfFa5b758cf69e8794"
++        "arb1:0xA83ca7775Bc2889825BcDeDfFa5b758cf69e8794"
+      values.$admin.0:
+-        "0x738a9b55304f9fcF776B3BA285e50c0f9eF77997"
++        "arb1:0x738a9b55304f9fcF776B3BA285e50c0f9eF77997"
+      values.$implementation:
+-        "0x46EbfC399d3913BB9b99E73675722417F9c5d416"
++        "arb1:0x46EbfC399d3913BB9b99E73675722417F9c5d416"
+      values.$pastUpgrades.0.2.0:
+-        "0x7C3A9b466FF5c02582fa32d4aD1b2Cb431fB7c9b"
++        "arb1:0x7C3A9b466FF5c02582fa32d4aD1b2Cb431fB7c9b"
+      values.$pastUpgrades.1.2.0:
+-        "0xfb19439fBa9f16aA720be6bE0e53465a9733C964"
++        "arb1:0xfb19439fBa9f16aA720be6bE0e53465a9733C964"
+      values.$pastUpgrades.2.2.0:
+-        "0x47fd660D5252Bd6F9D2c71507E46aa1d6e957c23"
++        "arb1:0x47fd660D5252Bd6F9D2c71507E46aa1d6e957c23"
+      values.$pastUpgrades.3.2.0:
+-        "0x46EbfC399d3913BB9b99E73675722417F9c5d416"
++        "arb1:0x46EbfC399d3913BB9b99E73675722417F9c5d416"
+      values.accessControl.DEFAULT_ADMIN_ROLE.members.0:
+-        "0x738a9b55304f9fcF776B3BA285e50c0f9eF77997"
++        "arb1:0x738a9b55304f9fcF776B3BA285e50c0f9eF77997"
+      values.accessControl.TIMELOCK_ROLE.members.0:
+-        "0x738a9b55304f9fcF776B3BA285e50c0f9eF77997"
++        "arb1:0x738a9b55304f9fcF776B3BA285e50c0f9eF77997"
+      values.accessControl.GUARDIAN_ROLE.members.0:
+-        "0x738a9b55304f9fcF776B3BA285e50c0f9eF77997"
++        "arb1:0x738a9b55304f9fcF776B3BA285e50c0f9eF77997"
+      values.guardians.0:
+-        "0x738a9b55304f9fcF776B3BA285e50c0f9eF77997"
++        "arb1:0x738a9b55304f9fcF776B3BA285e50c0f9eF77997"
+      values.relayers.0:
+-        "0x3243552f3bcbce720db6f5ad0c1b7cd15458392d"
++        "arb1:0x3243552F3BcbcE720Db6f5ad0C1B7cd15458392D"
+      values.relayers.1:
+-        "0x9c0b0dbbae8a976ceea8c2a96f6d00c53839afdc"
++        "arb1:0x9c0B0dBBAe8a976CEeA8C2A96F6D00c53839afDC"
+      values.verifier:
+-        "0x3B6041173B80E77f038f3F2C0f9744f04837185e"
++        "arb1:0x3B6041173B80E77f038f3F2C0f9744f04837185e"
+      implementationNames.0xA83ca7775Bc2889825BcDeDfFa5b758cf69e8794:
+-        "ERC1967Proxy"
+      implementationNames.0x46EbfC399d3913BB9b99E73675722417F9c5d416:
+-        "SP1Blobstream"
+      implementationNames.arb1:0xA83ca7775Bc2889825BcDeDfFa5b758cf69e8794:
++        "ERC1967Proxy"
+      implementationNames.arb1:0x46EbfC399d3913BB9b99E73675722417F9c5d416:
++        "SP1Blobstream"
+    }
+```
+
+```diff
++   Status: CREATED
+    contract BlobstreamMultisig (0x738a9b55304f9fcF776B3BA285e50c0f9eF77997)
+    +++ description: None
+```
+
+```diff
++   Status: CREATED
+    contract Blobstream (0xA83ca7775Bc2889825BcDeDfFa5b758cf69e8794)
+    +++ description: The Blobstream DA bridge. This contract is used to bridge data commitments between Celestia and the destination chain. It specifies relayers that commit block ranges, but due to the lack of emitted events, there may be more relayers than are presented here.
+```
+
+Generated with discovered.json: 0x0373f823e23888e4d7442a0deacdbab5dbd61cfd
+
+# Diff at Wed, 09 Jul 2025 15:10:14 GMT:
+
+- author: Sergey Shemyakov (<sergeyshemyakov@gmx.de>)
+- comparing to: main@b0f260a09a1907b9753f327752a82a61cb1f520e block: 350984309
+- current block number: 355902087
+
+## Description
+
+Moved SP1 verifier into shared module.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 350984309 (main branch discovery), not current.
+
+```diff
+-   Status: DELETED
+    contract SP1Verifier (0x0459d576A6223fEeA177Fb3DF53C9c77BF84C459)
+    +++ description: Verifier contract for SP1 proofs (v5.0.0).
+```
+
+```diff
+-   Status: DELETED
+    contract SP1VerifierGateway (0x3B6041173B80E77f038f3F2C0f9744f04837185e)
+    +++ description: This contract is the router for zk proof verification. It stores the mapping between identifiers and the address of onchain verifier contracts, routing each identifier to the corresponding verifier contract.
+```
+
+```diff
+-   Status: DELETED
+    contract SP1VerifierGatewayMultisig (0xCafEf00d348Adbd57c37d1B77e0619C6244C6878)
+    +++ description: None
+```
+
+Generated with discovered.json: 0xe1cd4082f74299474fee25d08a6085797aa6e0b5
+
+# Diff at Fri, 04 Jul 2025 12:18:54 GMT:
+
+- author: Mateusz Radomski (<radomski.main@protonmail.com>)
+- comparing to: main@1f56dc47fe915564d4555300304da4d3bcbc087f block: 350984309
+- current block number: 350984309
+
+## Description
+
+Discovery rerun on the same block number with only config-related changes.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 350984309 (main branch discovery), not current.
+
+```diff
+    EOA  (0x3243552F3BcbcE720Db6f5ad0C1B7cd15458392D) {
+    +++ description: None
+      receivedPermissions.0.from:
+-        "arbitrum:0xA83ca7775Bc2889825BcDeDfFa5b758cf69e8794"
++        "arb1:0xA83ca7775Bc2889825BcDeDfFa5b758cf69e8794"
+    }
+```
+
+```diff
+    contract BlobstreamMultisig (0x738a9b55304f9fcF776B3BA285e50c0f9eF77997) {
+    +++ description: None
+      receivedPermissions.0.from:
+-        "arbitrum:0xA83ca7775Bc2889825BcDeDfFa5b758cf69e8794"
++        "arb1:0xA83ca7775Bc2889825BcDeDfFa5b758cf69e8794"
+      receivedPermissions.1.from:
+-        "arbitrum:0xA83ca7775Bc2889825BcDeDfFa5b758cf69e8794"
++        "arb1:0xA83ca7775Bc2889825BcDeDfFa5b758cf69e8794"
+    }
+```
+
+```diff
+    EOA  (0x9c0B0dBBAe8a976CEeA8C2A96F6D00c53839afDC) {
+    +++ description: None
+      receivedPermissions.0.from:
+-        "arbitrum:0xA83ca7775Bc2889825BcDeDfFa5b758cf69e8794"
++        "arb1:0xA83ca7775Bc2889825BcDeDfFa5b758cf69e8794"
+    }
+```
+
+```diff
+    contract SP1VerifierGatewayMultisig (0xCafEf00d348Adbd57c37d1B77e0619C6244C6878) {
+    +++ description: None
+      receivedPermissions.0.from:
+-        "arbitrum:0x3B6041173B80E77f038f3F2C0f9744f04837185e"
++        "arb1:0x3B6041173B80E77f038f3F2C0f9744f04837185e"
+    }
+```
+
+Generated with discovered.json: 0x6e2d453d59ab1b3e859f5745dac4dc5da3942180
+
+# Diff at Wed, 25 Jun 2025 07:41:06 GMT:
+
+- author: sekuba (<29250140+sekuba@users.noreply.github.com>)
+- comparing to: main@4bade41aedf0f9269688f2c05f04d2992bb2ca38 block: 343837105
+- current block number: 350984309
+
+## Description
+
+selector 0x1b34fe11 and respective verifier frozen.
+
+## Watched changes
+
+```diff
+    contract SP1VerifierGateway (0x3B6041173B80E77f038f3F2C0f9744f04837185e) {
+    +++ description: This contract is the router for zk proof verification. It stores the mapping between identifiers and the address of onchain verifier contracts, routing each identifier to the corresponding verifier contract.
++++ description: Verifiers that are routed to by their selector and not frozen.
+      values.activeVerifiers.1:
+-        {"selector":"0x1b34fe11","verifier":"0xE00a3cBFC45241b33c0A44C78e26168CBc55EC63"}
+    }
+```
+
+```diff
+-   Status: DELETED
+    contract SP1Verifier (0xE00a3cBFC45241b33c0A44C78e26168CBc55EC63)
+    +++ description: Verifier contract for SP1 proofs (v4.0.0-rc.3).
+```
+
+## Source code changes
+
+```diff
+.../dev/null                                       | 1432 --------------------
+ .../SP1Verifier.sol}                               |    0
+ 2 files changed, 1432 deletions(-)
+```
+
+Generated with discovered.json: 0x6576e88c1677d495e1b17865a0b23472b63b5368
+
+# Diff at Fri, 06 Jun 2025 07:24:48 GMT:
+
+- author: sekuba (<29250140+sekuba@users.noreply.github.com>)
+- comparing to: main@1eba1823c240619119cd080ff8cbb757c1c3feda block: 343837105
+- current block number: 343837105
+
+## Description
+
+config: make sp1 gateway template more dynamic.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 343837105 (main branch discovery), not current.
+
+```diff
+    contract SP1Verifier (0x0459d576A6223fEeA177Fb3DF53C9c77BF84C459) {
+    +++ description: Verifier contract for SP1 proofs (v5.0.0).
+      description:
+-        "Verifier contract for SP1 proofs."
++        "Verifier contract for SP1 proofs (v5.0.0)."
+    }
+```
+
+```diff
+    contract SP1VerifierGateway (0x3B6041173B80E77f038f3F2C0f9744f04837185e) {
+    +++ description: This contract is the router for zk proof verification. It stores the mapping between identifiers and the address of onchain verifier contracts, routing each identifier to the corresponding verifier contract.
+      values.oldVerifier:
+-        {"verifier":"0xc350F063C13a3Ca21331610fe159E697a5c9c2FB","frozen":true}
+      values.oldVerifier2:
+-        {"verifier":"0x6B6A7Ded061567d8A56279801DEA5cFB79be5bFc","frozen":true}
+      values.oldVerifier3:
+-        {"prover":"0x6A87EFd4e6B2Db1ed73129A8b9c51aaA583d49e3","frozen":true}
+      values.oldVerifier4:
+-        {"verifier":"0x1764C29FBd94865198588f10FC75D4f6636d158d","frozen":true}
+      values.oldVerifier5:
+-        {"prover":"0xd2832Cf1fC8bA210FfABF62Db9A8781153131d16","frozen":true}
+      values.oldVerifier6:
+-        {"prover":"0xE00a3cBFC45241b33c0A44C78e26168CBc55EC63","frozen":false}
+      values.verifier:
+-        {"prover":"0x0459d576A6223fEeA177Fb3DF53C9c77BF84C459","frozen":false}
++++ description: Verifiers that are routed to by their selector and not frozen.
+      values.activeVerifiers:
++        [{"selector":"0x1b34fe11","verifier":"0xE00a3cBFC45241b33c0A44C78e26168CBc55EC63"},{"selector":"0xd4e8ecd2","verifier":"0x0459d576A6223fEeA177Fb3DF53C9c77BF84C459"}]
++++ description: All verifiers that were ever routed to by this gateway.
+      values.allVerifiers:
++        [{"selector":"0x8c5bc5e4","verifier":"0x331b350dDA287d0A65ce43103984CD44cb4Da9f0"},{"selector":"0x801c66ac","verifier":"0xfE2bb0Ad7F2c44Bd1289234Af08aD6FDEC0d54a2"},{"selector":"0xfedc1fcc","verifier":"0x36B353776AF6EF3A2bD707049e783F52c4209017"},{"selector":"0xc430ff7f","verifier":"0xc350F063C13a3Ca21331610fe159E697a5c9c2FB"},{"selector":"0xc865c1b6","verifier":"0x6B6A7Ded061567d8A56279801DEA5cFB79be5bFc"},{"selector":"0x4aca240a","verifier":"0x1764C29FBd94865198588f10FC75D4f6636d158d"},{"selector":"0x09069090","verifier":"0x6A87EFd4e6B2Db1ed73129A8b9c51aaA583d49e3"},{"selector":"0x54bdcae3","verifier":"0xd2832Cf1fC8bA210FfABF62Db9A8781153131d16"},{"selector":"0x1b34fe11","verifier":"0xE00a3cBFC45241b33c0A44C78e26168CBc55EC63"},{"selector":"0xd4e8ecd2","verifier":"0x0459d576A6223fEeA177Fb3DF53C9c77BF84C459"}]
+      fieldMeta.oldVerifier:
+-        {"description":"The verifier contract address for SP1, and whether it is frozen (true if frozen). This verifier route was frozen on 2024-09-04."}
+      fieldMeta.oldVerifier2:
+-        {"description":"The verifier contract address for SP1, and whether it is frozen (true if frozen). This prover route was frozen on 2024-09-21."}
+      fieldMeta.oldVerifier3:
+-        {"description":"The verifier contract address for SP1, and whether it is frozen (true if frozen). This prover route was frozen on 2024-11-01."}
+      fieldMeta.oldVerifier4:
+-        {"description":"The verifier contract address for SP1, and whether it is frozen (true if frozen). This prover route was frozen on 2024-11-08."}
+      fieldMeta.oldVerifier5:
+-        {"description":"The prover contract address for SP1, and whether it is frozen (true if frozen). This prover route was frozen on 2025-01-15."}
+      fieldMeta.oldVerifier6:
+-        {"description":"The prover contract address for SP1, and whether it is frozen (true if frozen)."}
+      fieldMeta.verifier:
+-        {"description":"The prover contract address for SP1, and whether it is frozen (true if frozen)."}
+      fieldMeta.activeVerifiers:
++        {"description":"Verifiers that are routed to by their selector and not frozen."}
+      fieldMeta.allVerifiers:
++        {"description":"All verifiers that were ever routed to by this gateway."}
+    }
+```
+
+```diff
+    contract SP1VerifierGatewayMultisig (0xCafEf00d348Adbd57c37d1B77e0619C6244C6878) {
+    +++ description: None
+      receivedPermissions.0.description:
+-        "holds the power to affect the liveness and safety of the gateway - can transfer ownership, add and freeze verifier routes."
++        "affect the liveness and safety of the gateway - can transfer ownership, add and freeze verifier routes."
+    }
+```
+
+```diff
++   Status: CREATED
+    contract SP1Verifier (0xE00a3cBFC45241b33c0A44C78e26168CBc55EC63)
+    +++ description: Verifier contract for SP1 proofs (v4.0.0-rc.3).
+```
+
+Generated with discovered.json: 0x8fb0280a6b328feb10d4ec051d6a8f6d22ab0747
+
+# Diff at Wed, 04 Jun 2025 13:45:01 GMT:
+
+- author: sekuba (<29250140+sekuba@users.noreply.github.com>)
+- comparing to: main@243ef5b7e32e78ae0ff8985c4f129996d0c48c80 block: 325165450
+- current block number: 343837105
+
+## Description
+
+programVKey changed. v5 verifier is now used (post plonky3 vulnerability).
+
+## Watched changes
+
+```diff
+    contract SP1VerifierGateway (0x3B6041173B80E77f038f3F2C0f9744f04837185e) {
+    +++ description: This contract is the router for zk proof verification. It stores the mapping between identifiers and the address of onchain verifier contracts, routing each identifier to the corresponding verifier contract.
+      values.verifier.prover:
+-        "0x0000000000000000000000000000000000000000"
++        "0x0459d576A6223fEeA177Fb3DF53C9c77BF84C459"
+    }
+```
+
+```diff
+    contract Blobstream (0xA83ca7775Bc2889825BcDeDfFa5b758cf69e8794) {
+    +++ description: The Blobstream DA bridge. This contract is used to bridge data commitments between Celestia and the destination chain. It specifies relayers that commit block ranges, but due to the lack of emitted events, there may be more relayers than are presented here.
+      values.blobstreamProgramVkey:
+-        "0x00eaf7d396acac046b54bc8d5ba17d3f1c7374d7158ac01c76dfeca6103163eb"
++        "0x00de39c136b88dfeacb832629e21a9667935bc0e74aaa21292e4f237d79d0bef"
+    }
+```
+
+```diff
++   Status: CREATED
+    contract SP1Verifier (0x0459d576A6223fEeA177Fb3DF53C9c77BF84C459)
+    +++ description: Verifier contract for SP1 proofs.
+```
+
+## Source code changes
+
+```diff
+.../blobstream/arbitrum/.flat/SP1Verifier.sol      | 1396 ++++++++++++++++++++
+ 1 file changed, 1396 insertions(+)
+```
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 325165450 (main branch discovery), not current.
+
+```diff
+    contract SP1VerifierGateway (0x3B6041173B80E77f038f3F2C0f9744f04837185e) {
+    +++ description: This contract is the router for zk proof verification. It stores the mapping between identifiers and the address of onchain verifier contracts, routing each identifier to the corresponding verifier contract.
+      values.verifier.prover:
+-        "0xE00a3cBFC45241b33c0A44C78e26168CBc55EC63"
++        "0x0000000000000000000000000000000000000000"
++++ description: The prover contract address for SP1, and whether it is frozen (true if frozen).
+      values.oldVerifier6:
++        {"prover":"0xE00a3cBFC45241b33c0A44C78e26168CBc55EC63","frozen":false}
+      fieldMeta.oldVerifier6:
++        {"description":"The prover contract address for SP1, and whether it is frozen (true if frozen)."}
+    }
+```
+
+```diff
+-   Status: DELETED
+    contract SP1Verifier (0xE00a3cBFC45241b33c0A44C78e26168CBc55EC63)
+    +++ description: Verifier contract for SP1 proofs.
+```
+
+Generated with discovered.json: 0x3040e5b02ef842a53e6f44614f98406be1c77bda
+
+# Diff at Wed, 28 May 2025 11:34:26 GMT:
+
+- author: Mateusz Radomski (<radomski.main@protonmail.com>)
+- comparing to: main@13b95854804f5ec749939a5230d24dfeedf19d1e block: 325165450
+- current block number: 325165450
+
+## Description
+
+Discovery rerun on the same block number with only config-related changes.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 325165450 (main branch discovery), not current.
+
+```diff
+    contract SP1Verifier (0xE00a3cBFC45241b33c0A44C78e26168CBc55EC63) {
+    +++ description: Verifier contract for SP1 proofs.
+      description:
+-        "SP1Verifier is a contract used to verify proofs given public values and verification key."
++        "Verifier contract for SP1 proofs."
+    }
+```
+
+Generated with discovered.json: 0x7b0bfb4b715bbfdaa55182df29f448ffd7123ac9
+
+# Diff at Fri, 23 May 2025 09:41:14 GMT:
+
+- author: Adrian Adamiak (<adrian@adamiak.net>)
+- comparing to: main@69cd181abbc3c830a6caf2f4429b37cae72ffdb8 block: 325165450
+- current block number: 325165450
+
+## Description
+
+Introduced .role field on each permission, defaulting to field name on which it was defined (with '.' prefix)
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 325165450 (main branch discovery), not current.
+
+```diff
+    EOA  (0x3243552F3BcbcE720Db6f5ad0C1B7cd15458392D) {
+    +++ description: None
+      receivedPermissions.0.role:
++        ".relayers"
+    }
+```
+
+```diff
+    contract BlobstreamMultisig (0x738a9b55304f9fcF776B3BA285e50c0f9eF77997) {
+    +++ description: None
+      receivedPermissions.1.role:
++        "admin"
+      receivedPermissions.0.role:
++        ".guardians"
+    }
+```
+
+```diff
+    EOA  (0x9c0B0dBBAe8a976CEeA8C2A96F6D00c53839afDC) {
+    +++ description: None
+      receivedPermissions.0.role:
++        ".relayers"
+    }
+```
+
+```diff
+    contract SP1VerifierGatewayMultisig (0xCafEf00d348Adbd57c37d1B77e0619C6244C6878) {
+    +++ description: None
+      receivedPermissions.0.role:
++        ".owner"
+    }
+```
+
+Generated with discovered.json: 0xaea9d63389eab81d2f2faa3634ce6c49375a407d
+
+# Diff at Tue, 29 Apr 2025 08:19:22 GMT:
+
+- author: Adrian Adamiak (<adrian@adamiak.net>)
+- comparing to: main@ef7477af00fe0b57a2f7cacf7e958c12494af662 block: 325165450
+- current block number: 325165450
+
+## Description
+
+Field .issuedPermissions is removed from the output as no longer needed. Added 'permissionsConfigHash' due to refactoring of the modelling process (into a separate command).
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 325165450 (main branch discovery), not current.
+
+```diff
+    contract SP1VerifierGateway (0x3B6041173B80E77f038f3F2C0f9744f04837185e) {
+    +++ description: This contract is the router for zk proof verification. It stores the mapping between identifiers and the address of onchain verifier contracts, routing each identifier to the corresponding verifier contract.
+      issuedPermissions:
+-        [{"permission":"interact","to":"0xCafEf00d348Adbd57c37d1B77e0619C6244C6878","description":"holds the power to affect the liveness and safety of the gateway - can transfer ownership, add and freeze verifier routes.","via":[]}]
+    }
+```
+
+```diff
+    contract Blobstream (0xA83ca7775Bc2889825BcDeDfFa5b758cf69e8794) {
+    +++ description: The Blobstream DA bridge. This contract is used to bridge data commitments between Celestia and the destination chain. It specifies relayers that commit block ranges, but due to the lack of emitted events, there may be more relayers than are presented here.
+      issuedPermissions:
+-        [{"permission":"interact","to":"0x3243552F3BcbcE720Db6f5ad0C1B7cd15458392D","description":"it is a 'Relayer' and can call commitHeaderRange() to commit block ranges. Since adding and removing Relayers emits no events, there can be more relayers than are presented here.","via":[]},{"permission":"interact","to":"0x738a9b55304f9fcF776B3BA285e50c0f9eF77997","description":"can freeze the bridge contract and update the list of authorized relayers.","via":[]},{"permission":"interact","to":"0x9c0B0dBBAe8a976CEeA8C2A96F6D00c53839afDC","description":"it is a 'Relayer' and can call commitHeaderRange() to commit block ranges. Since adding and removing Relayers emits no events, there can be more relayers than are presented here.","via":[]},{"permission":"upgrade","to":"0x738a9b55304f9fcF776B3BA285e50c0f9eF77997","via":[]}]
+    }
+```
+
+Generated with discovered.json: 0xe93f72ab077b2506409e8108b7aab9bc807ca636
+
+# Diff at Thu, 24 Apr 2025 10:31:40 GMT:
+
+- author: Mateusz Radomski (<radomski.main@protonmail.com>)
+- comparing to: main@564f772ef796772c9952d7432df8286347a08d9e block: 325165450
+- current block number: 325165450
+
+## Description
+
+Discovery rerun on the same block number with only config-related changes.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 325165450 (main branch discovery), not current.
+
+```diff
+    contract SP1VerifierGateway (0x3B6041173B80E77f038f3F2C0f9744f04837185e) {
+    +++ description: This contract is the router for zk proof verification. It stores the mapping between identifiers and the address of onchain verifier contracts, routing each identifier to the corresponding verifier contract.
++++ description: The verifier contract address for SP1, and whether it is frozen (true if frozen). This verifier route was frozen on 2024-09-04.
+      values.oldVerifier:
+-        ["0xc350F063C13a3Ca21331610fe159E697a5c9c2FB",true]
++        {"verifier":"0xc350F063C13a3Ca21331610fe159E697a5c9c2FB","frozen":true}
++++ description: The verifier contract address for SP1, and whether it is frozen (true if frozen). This prover route was frozen on 2024-09-21.
+      values.oldVerifier2:
+-        ["0x6B6A7Ded061567d8A56279801DEA5cFB79be5bFc",true]
++        {"verifier":"0x6B6A7Ded061567d8A56279801DEA5cFB79be5bFc","frozen":true}
++++ description: The verifier contract address for SP1, and whether it is frozen (true if frozen). This prover route was frozen on 2024-11-01.
+      values.oldVerifier3:
+-        ["0x6A87EFd4e6B2Db1ed73129A8b9c51aaA583d49e3",true]
++        {"prover":"0x6A87EFd4e6B2Db1ed73129A8b9c51aaA583d49e3","frozen":true}
++++ description: The verifier contract address for SP1, and whether it is frozen (true if frozen). This prover route was frozen on 2024-11-08.
+      values.oldVerifier4:
+-        ["0x1764C29FBd94865198588f10FC75D4f6636d158d",true]
++        {"verifier":"0x1764C29FBd94865198588f10FC75D4f6636d158d","frozen":true}
++++ description: The prover contract address for SP1, and whether it is frozen (true if frozen). This prover route was frozen on 2025-01-15.
+      values.oldVerifier5:
+-        ["0xd2832Cf1fC8bA210FfABF62Db9A8781153131d16",true]
++        {"prover":"0xd2832Cf1fC8bA210FfABF62Db9A8781153131d16","frozen":true}
++++ description: The prover contract address for SP1, and whether it is frozen (true if frozen).
+      values.verifier:
+-        ["0xE00a3cBFC45241b33c0A44C78e26168CBc55EC63",false]
++        {"prover":"0xE00a3cBFC45241b33c0A44C78e26168CBc55EC63","frozen":false}
+    }
+```
+
+Generated with discovered.json: 0x972c90107f90203545ac85a02599c4abef87a64a
+
+# Diff at Fri, 11 Apr 2025 06:41:35 GMT:
+
+- author: sekuba (<29250140+sekuba@users.noreply.github.com>)
+- comparing to: main@a946e9842245b891a11dfd66e5a103281bde27da block: 322514614
+- current block number: 325165450
+
+## Description
+
+change vkey.
+
+## Watched changes
+
+```diff
+    contract Blobstream (0xA83ca7775Bc2889825BcDeDfFa5b758cf69e8794) {
+    +++ description: The Blobstream DA bridge. This contract is used to bridge data commitments between Celestia and the destination chain. It specifies relayers that commit block ranges, but due to the lack of emitted events, there may be more relayers than are presented here.
+      values.blobstreamProgramVkey:
+-        "0x00b6c8c78a73630fae80e45b2888a00d9ab0cc05a77cd7c027446a6ae2289928"
++        "0x00eaf7d396acac046b54bc8d5ba17d3f1c7374d7158ac01c76dfeca6103163eb"
+    }
+```
+
+Generated with discovered.json: 0xe50b66669b7fd735e036eb3a243003a11677c469
+
+# Diff at Fri, 04 Apr 2025 09:34:37 GMT:
+
+- author: vincfurc (<10850139+vincfurc@users.noreply.github.com>)
+- comparing to: main@a21404a14e50e9f638ddf1e6cb431ede2d3cc07a block: 322514614
+- current block number: 322514614
+
+## Description
+
+Renamed SP1VerifierGatewayMultisig.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 322514614 (main branch discovery), not current.
+
+```diff
+    contract SP1VerifierGatewayMultisig (0xCafEf00d348Adbd57c37d1B77e0619C6244C6878) {
+    +++ description: None
+      name:
+-        "Succinct Multisig 1"
++        "SP1VerifierGatewayMultisig"
+    }
+```
+
+```diff
+    contract SP1Verifier (0xE00a3cBFC45241b33c0A44C78e26168CBc55EC63) {
+    +++ description: SP1Verifier is a contract used to verify proofs given public values and verification key.
+      unverified:
+-        true
+      values.VERIFIER_HASH:
++        "0x1b34fe11a637737f0c75c88241669dcf9ca3c03713659265b8241f398a2d286d"
+      values.VERSION:
++        "v4.0.0-rc.3"
+      template:
++        "succinct/SP1Verifier"
+      sourceHashes:
++        ["0xcc497e8b709d783cb24e3120d14c9fb3b015c3fe5ed7a57e0de6c38f9bfe937b"]
+      description:
++        "SP1Verifier is a contract used to verify proofs given public values and verification key."
+    }
+```
+
+Generated with discovered.json: 0x323c9fa17f2ae0e29e0318d475c6ced6c10996b5
+
+# Diff at Thu, 03 Apr 2025 14:59:46 GMT:
+
+- author: vincfurc (<10850139+vincfurc@users.noreply.github.com>)
+- comparing to: main@87156896058912c79002d4129b054942ff1352e9 block: 305996466
+- current block number: 322514614
+
+## Description
+
+Updated the blobstream template to ignore outdated gateway.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 305996466 (main branch discovery), not current.
+
+```diff
+-   Status: DELETED
+    contract SuccinctFeeVault (0x296666e937b270193B960a7cEC526B351F353166)
+    +++ description: None
+```
+
+```diff
+    contract SP1VerifierGateway (0x3B6041173B80E77f038f3F2C0f9744f04837185e) {
+    +++ description: This contract is the router for zk proof verification. It stores the mapping between identifiers and the address of onchain verifier contracts, routing each identifier to the corresponding verifier contract.
+      name:
+-        "SuccinctGatewaySP1"
++        "SP1VerifierGateway"
+      template:
+-        "succinct/SP1SuccinctGateway"
++        "succinct/SP1VerifierGateway"
+      issuedPermissions.1:
+-        {"permission":"interact","to":"0xE00a3cBFC45241b33c0A44C78e26168CBc55EC63","description":"can verify proofs for the header range [latestBlock, targetBlock] proof.","via":[]}
+    }
+```
+
+```diff
+-   Status: DELETED
+    contract HeaderRangeVerifier (0x4d0C32ddA9De7CD89e198cFe5E01470A49b8acD3)
+    +++ description: None
+```
+
+```diff
+-   Status: DELETED
+    contract SuccinctGateway (0x6c7a05e0AE641c6559fD76ac56641778B6eCd776)
+    +++ description: Users could interact with this contract to request proofs onchain, emitting a RequestCall event for off-chain provers to consume. Now deprecated, SP1 is used instead.
+```
+
+```diff
+    contract Blobstream (0xA83ca7775Bc2889825BcDeDfFa5b758cf69e8794) {
+    +++ description: The Blobstream DA bridge. This contract is used to bridge data commitments between Celestia and the destination chain. It specifies relayers that commit block ranges, but due to the lack of emitted events, there may be more relayers than are presented here.
+      values.gateway_deprecated:
+-        "0x6c7a05e0AE641c6559fD76ac56641778B6eCd776"
+    }
+```
+
+```diff
+-   Status: DELETED
+    contract SP1Verifier (0xd2832Cf1fC8bA210FfABF62Db9A8781153131d16)
+    +++ description: None
+```
+
+```diff
+-   Status: DELETED
+    contract SuccinctGatewayMultisig (0xdC00f2469023a7b0b1D5b6abE2F736F90955e7F3)
+    +++ description: None
+```
+
+```diff
+    contract SP1Verifier (0xE00a3cBFC45241b33c0A44C78e26168CBc55EC63) {
+    +++ description: None
+      name:
+-        ""
++        "SP1Verifier"
+      receivedPermissions:
+-        [{"permission":"interact","from":"0x3B6041173B80E77f038f3F2C0f9744f04837185e","description":"can verify proofs for the header range [latestBlock, targetBlock] proof."}]
+    }
+```
+
+```diff
+-   Status: DELETED
+    contract NextHeaderVerifier (0xfEA1EFaE3cDe8C524168726a7fc46BF2134bb72C)
+    +++ description: None
+```
+
 Generated with discovered.json: 0x9dd21c538fc08d5789ca3e0eb8bf3fbf17169c37
 
 # Diff at Tue, 18 Mar 2025 08:14:50 GMT:

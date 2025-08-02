@@ -9,17 +9,19 @@ import {
   OPERATOR,
   RISK_VIEW,
   SOA,
-  STATE_CORRECTNESS,
+  STATE_VALIDATION,
   TECHNOLOGY_DATA_AVAILABILITY,
 } from '../../common'
 import { BADGES } from '../../common/badges'
 import { getStage } from '../../common/stages/getStage'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('fuelv1')
 
 export const fuelv1: ScalingProject = {
+  archivedAt: UnixTime(1750414256), // Friday, June 20, 2025 10:10:52 AM
   type: 'layer2',
   id: ProjectId('fuelv1'),
   capability: 'appchain',
@@ -34,8 +36,10 @@ export const fuelv1: ScalingProject = {
     category: 'Optimistic Rollup',
 
     links: {
-      websites: ['https://fuel.sh/'],
-      documentation: ['https://docs.fuel.network/'],
+      websites: ['https://github.com/FuelLabs/fuel-v1-contracts/tree/master'],
+      documentation: [
+        'https://github.com/FuelLabs/docs/tree/c0266db9cfdbf420cccf46eccaa937bab96a2bd0/src/v1.0.0',
+      ],
       explorers: ['https://mainnet.fuel.sh/network/'],
       repositories: [
         'https://github.com/FuelLabs/fuel-core',
@@ -85,11 +89,11 @@ export const fuelv1: ScalingProject = {
         stateRootsPostedToL1: true,
         dataAvailabilityOnL1: true,
         rollupNodeSourceAvailable: true,
+        stateVerificationOnL1: true,
+        fraudProofSystemAtLeast5Outsiders: true,
       },
       stage1: {
         principle: true,
-        stateVerificationOnL1: true,
-        fraudProofSystemAtLeast5Outsiders: true,
         usersHave7DaysToExit: null,
         usersCanExitWithoutCooperation: true,
         securityCouncilProperlySetUp: null,
@@ -107,18 +111,27 @@ export const fuelv1: ScalingProject = {
     },
     {
       rollupNodeLink: 'https://github.com/cartesi/rollups/tree/v1.0.2/offchain',
+      additionalConsiderations: {
+        short:
+          'Fuel v1 provides the infrastructure to support token transfers and HTLC swaps. Arbitrary contracts are not supported.',
+        long: 'Fuel v1 provides the infrastructure to support token transfers and HTLC swaps. Arbitrary contracts are not supported.',
+      },
     },
   ),
+  stateValidation: {
+    categories: [
+      {
+        ...STATE_VALIDATION.FRAUD_PROOFS,
+        references: [
+          {
+            title: 'Background - Fuel documentation',
+            url: 'https://docs.fuel.sh/v1.1.0/Concepts/Fundamentals/Fuel%20Overview.html#background',
+          },
+        ],
+      },
+    ],
+  },
   technology: {
-    stateCorrectness: {
-      ...STATE_CORRECTNESS.FRAUD_PROOFS,
-      references: [
-        {
-          title: 'Background - Fuel documentation',
-          url: 'https://docs.fuel.sh/v1.1.0/Concepts/Fundamentals/Fuel%20Overview.html#background',
-        },
-      ],
-    },
     dataAvailability: {
       ...TECHNOLOGY_DATA_AVAILABILITY.ON_CHAIN_CALLDATA,
       references: [
@@ -165,13 +178,14 @@ export const fuelv1: ScalingProject = {
   stateDerivation: {
     nodeSoftware:
       'The node software source code can be found [here](https://github.com/FuelLabs/fuel-js).',
-    genesisState: `The bridge contracts deployments are the genesis state of the rollup chain. The bridge contracts of mainnet and testnet (rinkeby) deployment block number are available [here](https://github.com/FuelLabs/fuel-js/blob/master/packages/logic/src/genesis.js).`,
+    genesisState:
+      'The bridge contracts deployments are the genesis state of the rollup chain. The bridge contracts of mainnet and testnet (rinkeby) deployment block number are available [here](https://github.com/FuelLabs/fuel-js/blob/master/packages/logic/src/genesis.js).',
     dataFormat:
       'The data format details are documented in the Data Structure subsection [here](https://docs.fuel.sh/v1.1.0/Concepts/Fundamentals/System%20Description%20Primer.html).',
   },
   contracts: {
     addresses: {
-      [discovery.chain]: [discovery.getContractDetails('Fuel')],
+      ethereum: [discovery.getContractDetails('Fuel')],
     },
     risks: [],
   },
@@ -184,4 +198,5 @@ export const fuelv1: ScalingProject = {
       type: 'general',
     },
   ],
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

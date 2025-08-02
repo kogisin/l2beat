@@ -1,28 +1,29 @@
-import { UnixTime } from '@l2beat/shared-pure'
-import { DA_BRIDGES, DA_LAYERS, RISK_VIEW } from '../../common'
-import { REASON_FOR_BEING_OTHER } from '../../common'
+import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
+import {
+  DA_BRIDGES,
+  DA_LAYERS,
+  REASON_FOR_BEING_OTHER,
+  RISK_VIEW,
+} from '../../common'
 import { BADGES } from '../../common/badges'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
 import { zkStackL2 } from '../../templates/zkStack'
 
 const discovery = new ProjectDiscovery('grvt')
-const discovery_ZKstackGovL2 = new ProjectDiscovery(
-  'shared-zk-stack',
-  'zksync2',
-)
+const chainId = 325
+const trackedTxsSince = UnixTime(1742808587)
 
 export const grvt: ScalingProject = zkStackL2({
   discovery,
-  discovery_ZKstackGovL2,
   additionalBadges: [BADGES.DA.CustomDA],
-  addedAt: UnixTime(1719931843), // 2024-07-02T14:50:43Z
-  additionalPurposes: ['Gaming'],
+  addedAt: UnixTime(1734652800), // 2024-12-20T00:00:00Z
+  overridingPurposes: ['Exchange'],
   reasonsForBeingOther: [REASON_FOR_BEING_OTHER.NO_DA_ORACLE],
   display: {
     name: 'GRVT',
     slug: 'grvt',
-    tvlWarning: {
+    tvsWarning: {
       value:
         'L2BEAT is currently unable to track the TVL of the GRVT Validium due to the lack of a public rpc / explorer.',
       sentiment: 'neutral',
@@ -31,7 +32,7 @@ export const grvt: ScalingProject = zkStackL2({
       'Gravity (GRVT) is a hybrid crypto derivatives exchange, providing a centralized exchange-like experience while being based on the ZK stack Validium codebase with confidential data availability and transaction filtering enabled.',
     links: {
       websites: ['https://grvt.io'],
-      apps: ['https://grvt.io/exchange/perpetual/BTC-USDT'],
+      bridges: ['https://grvt.io/exchange/perpetual/BTC-USDT'],
       documentation: ['https://help.grvt.io/en'], // https://docs.grvt.io/ is private
       socialMedia: [
         'https://x.com/grvt_io',
@@ -39,6 +40,9 @@ export const grvt: ScalingProject = zkStackL2({
         'https://grvt.io/blog/',
       ],
     },
+  },
+  ecosystemInfo: {
+    id: ProjectId('the-elastic-network'),
   },
   diamondContract: discovery.getContract('GrvtZkEvm'),
   daProvider: {
@@ -59,7 +63,7 @@ export const grvt: ScalingProject = zkStackL2({
       references: [
         {
           title: 'ExecutorFacet - _commitOneBatch() function',
-          url: 'https://etherscan.io/address//0x53d0b421BB3e522632ABEB06BB2c4eB15eaD9800#code#F1#L46',
+          url: 'https://etherscan.io/address/0x2f116b9033d88Bb3Cf64C371AE5458fbA22BA39A#code#F1#L50',
         },
       ],
     },
@@ -74,10 +78,10 @@ export const grvt: ScalingProject = zkStackL2({
   },
   nonTemplateTechnology: {
     forceTransactions: {
-      name: "Users can't force any transaction",
+      name: "Users can't force all transactions",
       description:
-        'If a user is censored by the L2 Sequencer, they cannot by default force their transaction via the L1 queue. An an active TransactionFilterer contract which allows only whitelisted accounts to enqueue, prevents it. Even if a user was specifically whitelisted, there is no mechanism that forces L2 Sequencer to include\
-            transactions from the queue in an L2 block.',
+        'If a user is censored by the L2 Sequencer, they cannot by default force their transaction via the L1 queue. An active TransactionFilterer contract which allows only whitelisted accounts to enqueue, prevents it. Even if a user was specifically whitelisted, there is no mechanism that forces L2 Sequencer to include\
+            transactions from the queue in an L2 block, as they have the choice to process the queue in order or not at all.',
       risks: [
         {
           category: 'Users can be censored if',
@@ -95,7 +99,7 @@ export const grvt: ScalingProject = zkStackL2({
         },
         {
           title: 'Mailbox facet',
-          url: 'https://etherscan.io/address//0x36b026c39125964D99596CE302866B5A59E4dE27#code#F1#L441',
+          url: 'https://etherscan.io/address/0x365D0ae3ECA13004daf2A4ba1501c01AaEbb4fec#code#F1#L472',
         },
         {
           title: 'TransactionFilterer',
@@ -104,6 +108,50 @@ export const grvt: ScalingProject = zkStackL2({
       ],
     },
   },
+  nonTemplateTrackedTxs: [
+    {
+      uses: [{ type: 'l2costs', subtype: 'batchSubmissions' }],
+      query: {
+        formula: 'sharedBridge',
+        chainId,
+        address: EthereumAddress('0x8c0bfc04ada21fd496c55b8c50331f904306f564'),
+        selector: '0x98f81962',
+        functionSignature:
+          'function commitBatchesSharedBridge(uint256 _chainId, uint256 _processBatchFrom, uint256 _processBatchTo, bytes)',
+        sinceTimestamp: trackedTxsSince,
+      },
+    },
+    {
+      uses: [
+        { type: 'liveness', subtype: 'proofSubmissions' },
+        { type: 'l2costs', subtype: 'proofSubmissions' },
+      ],
+      query: {
+        formula: 'sharedBridge',
+        chainId,
+        address: EthereumAddress('0x8c0bfc04ada21fd496c55b8c50331f904306f564'),
+        selector: '0xe12a6137',
+        functionSignature:
+          'function proveBatchesSharedBridge(uint256 _chainId, uint256, uint256, bytes)',
+        sinceTimestamp: trackedTxsSince,
+      },
+    },
+    {
+      uses: [
+        { type: 'liveness', subtype: 'stateUpdates' },
+        { type: 'l2costs', subtype: 'stateUpdates' },
+      ],
+      query: {
+        formula: 'sharedBridge',
+        chainId,
+        address: EthereumAddress('0x8c0bfc04ada21fd496c55b8c50331f904306f564'),
+        selector: '0xcf02827d',
+        functionSignature:
+          'function executeBatchesSharedBridge(uint256 _chainId, uint256 _processBatchFrom, uint256 _processBatchTo, bytes)',
+        sinceTimestamp: trackedTxsSince,
+      },
+    },
+  ],
   milestones: [
     {
       title: 'Mainnet alpha launch',

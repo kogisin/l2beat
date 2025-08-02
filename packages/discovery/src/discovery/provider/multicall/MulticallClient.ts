@@ -1,5 +1,5 @@
 import { Bytes, type EthereumAddress } from '@l2beat/shared-pure'
-import { z } from 'zod'
+import { v } from '@l2beat/validate'
 import type {
   MulticallConfig,
   MulticallRequest,
@@ -54,13 +54,12 @@ export class MulticallClient {
 
     if (!config || config.sinceBlock > blockNumber) {
       return this.executeIndividual(requests, blockNumber)
-    } else {
-      const batches = toBatches(requests, config.batchSize)
-      const batchedResults = await Promise.all(
-        batches.map((batch) => this.executeBatch(batch, blockNumber, config)),
-      )
-      return batchedResults.flat()
     }
+    const batches = toBatches(requests, config.batchSize)
+    const batchedResults = await Promise.all(
+      batches.map((batch) => this.executeBatch(batch, blockNumber, config)),
+    )
+    return batchedResults.flat()
   }
 
   private async executeIndividual(
@@ -102,7 +101,7 @@ export class MulticallClient {
       )
       return config.decodeBatch(result)
     } catch (e) {
-      const parsed = ethersError.safeParse(e)
+      const parsed = ethersError.safeValidate(e)
       if (parsed.success) {
         // NOTE(radomski): If we batch a call that will execute an INVALID
         // opcode we have no way of knowing which call failed. Just execute
@@ -124,16 +123,16 @@ function toBatches<T>(items: T[], batchSize: number): T[][] {
   return batches
 }
 
-const ethersError = z.object({
-  error: z.object({
-    code: z.string().optional(),
-    reason: z.string().optional(),
-    requestMethod: z.string().optional(),
-    error: z.object({
-      code: z.number(),
-      message: z.string(),
+const ethersError = v.object({
+  error: v.object({
+    code: v.string().optional(),
+    reason: v.string().optional(),
+    requestMethod: v.string().optional(),
+    error: v.object({
+      code: v.number(),
+      message: v.string(),
     }),
-    timeout: z.number().optional(),
-    status: z.number().optional(),
+    timeout: v.number().optional(),
+    status: v.number().optional(),
   }),
 })

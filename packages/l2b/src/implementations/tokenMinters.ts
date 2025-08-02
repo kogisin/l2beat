@@ -1,6 +1,9 @@
-import type { ExplorerConfig } from '@l2beat/discovery/dist/utils/IEtherscanClient'
-import type { CliLogger } from '@l2beat/shared'
-import { type EthereumAddress, formatAsAsciiTable } from '@l2beat/shared-pure'
+import type { Logger } from '@l2beat/backend-tools'
+import {
+  ChainSpecificAddress,
+  type EthereumAddress,
+  formatAsAsciiTable,
+} from '@l2beat/shared-pure'
 import { utils } from 'ethers'
 import { getProvider } from './common/GetProvider'
 
@@ -12,30 +15,25 @@ const TOKEN_MINTER_ROLE =
   '0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6' // keccak256("MINTER_ROLE");
 
 export async function getTokenMinterEvents(
-  logger: CliLogger,
+  logger: Logger,
   address: EthereumAddress,
   rpcUrl: string,
-  explorerUrl?: string,
-  explorerApiKey?: string,
-  explorerType?: string,
 ) {
-  const explorer = {
-    type: (explorerType as ExplorerConfig['type']) ?? 'etherscan',
-    url: explorerUrl ?? 'ERROR',
-    apiKey: explorerApiKey ?? 'ERROR',
-  }
-  const provider = await getProvider(rpcUrl, explorer)
+  const provider = await getProvider(rpcUrl)
 
   const iface = new utils.Interface(ROLE_EVENTS)
   const roleGrantedTopic = iface.getEventTopic('RoleGranted')
   const roleRevokedTopic = iface.getEventTopic('RoleRevoked')
 
-  logger.logLine('Fetching role events...')
-  const logs = await provider.getLogs(address, [
-    [roleGrantedTopic, roleRevokedTopic], // Match either event
-    TOKEN_MINTER_ROLE, // Filter for TOKEN_MINTER_ROLE in the first indexed parameter
-  ])
-  logger.logLine('Done.')
+  logger.info('Fetching role events...')
+  const logs = await provider.getLogs(
+    ChainSpecificAddress.fromLong(provider.chain, address),
+    [
+      [roleGrantedTopic, roleRevokedTopic], // Match either event
+      TOKEN_MINTER_ROLE, // Filter for TOKEN_MINTER_ROLE in the first indexed parameter
+    ],
+  )
+  logger.info('Done.')
 
   const currentMinters = new Set<string>()
 
@@ -52,13 +50,13 @@ export async function getTokenMinterEvents(
   }
 
   if (currentMinters.size === 0) {
-    logger.logLine('No current TOKEN_MINTER_ROLE holders found.')
+    logger.info('No current TOKEN_MINTER_ROLE holders found.')
     return
   }
 
   const headers = ['Account']
   const values = Array.from(currentMinters).map((account) => [account])
 
-  logger.logLine('Current TOKEN_MINTER_ROLE holders:')
-  logger.logLine(formatAsAsciiTable(headers, values))
+  logger.info('Current TOKEN_MINTER_ROLE holders:')
+  logger.info(formatAsAsciiTable(headers, values))
 }

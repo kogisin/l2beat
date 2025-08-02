@@ -1,22 +1,27 @@
 {
   "name": "zklinknova",
   "chain": "blast",
-  "blockNumber": 16435499,
-  "configHash": "0x32b8cd12183cf5ec2fc3089f48ce2050bd1f46bee6c89aebffd50a42ca524fab",
+  "timestamp": 1753687799,
+  "configHash": "0xa29f4d0d9703719aaa5d3587197aed2da1d488d8878fe0a48fef523f0d1db3b3",
   "entries": [
     {
-      "address": "0x17887788E01A1192a26F636Cfcfc033c7Bb42348",
+      "address": "blastmainnet:0x0000000000000000000000000000000000000000",
       "type": "EOA",
       "proxyType": "EOA"
     },
     {
-      "address": "0x24a257B7D975E7ec6219C4cFCbcF6E504253c7A9",
+      "address": "blastmainnet:0x17887788E01A1192a26F636Cfcfc033c7Bb42348",
       "type": "EOA",
       "proxyType": "EOA"
     },
     {
-      "name": "zkLink",
-      "address": "0x29BA92Fe724beD5c5EBfd0099F2F64a6DC5078FD",
+      "address": "blastmainnet:0x24a257B7D975E7ec6219C4cFCbcF6E504253c7A9",
+      "type": "EOA",
+      "proxyType": "EOA"
+    },
+    {
+      "name": "BlastzkLink",
+      "address": "blastmainnet:0x29BA92Fe724beD5c5EBfd0099F2F64a6DC5078FD",
       "type": "Contract",
       "template": "zklinknova/secondaryZkLink",
       "sourceHashes": [
@@ -24,13 +29,6 @@
         "0x9d3b6cf7c8756dc6cce424dc754ed146f84d3201e5223d47b0a4fcd994a76a7f"
       ],
       "proxyType": "EIP1967 proxy",
-      "issuedPermissions": [
-        {
-          "permission": "upgrade",
-          "to": "0x730200f698cc8Ff16C00F4E8520Fd780B916D50E",
-          "via": []
-        }
-      ],
       "ignoreInWatchMode": [
         "getTotalBatchesExecuted",
         "getTotalPriorityTxs",
@@ -42,18 +40,18 @@
       "sinceTimestamp": 1710417729,
       "sinceBlock": 803957,
       "values": {
-        "$admin": "0x730200f698cc8Ff16C00F4E8520Fd780B916D50E",
-        "$implementation": "0xDe4Be50Bfe9503180231357Eab19d709F8F73C66",
+        "$admin": "blastmainnet:0x730200f698cc8Ff16C00F4E8520Fd780B916D50E",
+        "$implementation": "blastmainnet:0xDe4Be50Bfe9503180231357Eab19d709F8F73C66",
         "$pastUpgrades": [
           [
             "2024-03-14T12:02:09.000Z",
             "0xd2b32d00ff07d1bb06d1fb01f3aedb6163ee3bf6fbe547310c4674f592d4d7f5",
-            ["0x35E808DB3A37eec12ecF6A22Cc951C9F867f1D64"]
+            ["blastmainnet:0x35E808DB3A37eec12ecF6A22Cc951C9F867f1D64"]
           ],
           [
             "2024-04-22T02:30:45.000Z",
             "0xb0fd8cd86cd093af8f866f6fd599067fc5d202d36fd1f4967bda245c41ee16aa",
-            ["0xDe4Be50Bfe9503180231357Eab19d709F8F73C66"]
+            ["blastmainnet:0xDe4Be50Bfe9503180231357Eab19d709F8F73C66"]
           ]
         ],
         "$upgradeCount": 2,
@@ -66,28 +64,31 @@
           "minimalL2GasPrice": 250000000
         },
         "FORWARD_REQUEST_TYPE_HASH": "0xe0aaca1722ef50bb0c9b032e5b16ce2b79fa9f23638835456b27fd6894f8292c",
-        "forwardFeeAllocator": "0x0000000000000000000000000000000000000000",
-        "gateway": "0x3f64e2e09732969813904a8473074CFADeE66AF1",
-        "getGateway": "0x3f64e2e09732969813904a8473074CFADeE66AF1",
-        "getGovernor": "0x730200f698cc8Ff16C00F4E8520Fd780B916D50E",
+        "forwardFeeAllocator": "blastmainnet:0x0000000000000000000000000000000000000000",
+        "gateway": "blastmainnet:0x3f64e2e09732969813904a8473074CFADeE66AF1",
+        "getGateway": "blastmainnet:0x3f64e2e09732969813904a8473074CFADeE66AF1",
+        "getGovernor": "blastmainnet:0x730200f698cc8Ff16C00F4E8520Fd780B916D50E",
         "getPriorityTxMaxGasLimit": 72000000,
-        "getTotalBatchesExecuted": 50873,
+        "getTotalBatchesExecuted": 69385,
         "getTotalPriorityTxs": 4672,
         "IS_ETH_GAS_TOKEN": true,
-        "owner": "0x730200f698cc8Ff16C00F4E8520Fd780B916D50E",
+        "owner": "blastmainnet:0x730200f698cc8Ff16C00F4E8520Fd780B916D50E",
         "paused": true,
-        "totalBatchesExecuted": 50873,
+        "totalBatchesExecuted": 69385,
         "totalPriorityTxs": 4672,
         "totalSyncedPriorityTxs": 4672,
         "totalValidatorForwardFee": "2450626711079120430",
         "totalValidatorForwardFeeWithdrawn": 0,
         "txGasPrice": 40000000000
       },
-      "derivedName": "ZkLink"
+      "implementationNames": {
+        "blastmainnet:0x29BA92Fe724beD5c5EBfd0099F2F64a6DC5078FD": "ERC1967Proxy",
+        "blastmainnet:0xDe4Be50Bfe9503180231357Eab19d709F8F73C66": "ZkLink"
+      }
     },
     {
       "name": "BlastL2Gateway",
-      "address": "0x3f64e2e09732969813904a8473074CFADeE66AF1",
+      "address": "blastmainnet:0x3f64e2e09732969813904a8473074CFADeE66AF1",
       "type": "Contract",
       "template": "zklinknova/secondaryGateway",
       "sourceHashes": [
@@ -95,41 +96,37 @@
         "0x54984eed0ba905283811bcd69e63428602cc4c290c8eed30fc28011383549ff2"
       ],
       "proxyType": "EIP1967 proxy",
-      "issuedPermissions": [
-        {
-          "permission": "upgrade",
-          "to": "0x730200f698cc8Ff16C00F4E8520Fd780B916D50E",
-          "via": []
-        }
-      ],
       "sinceTimestamp": 1710418385,
       "sinceBlock": 804285,
       "values": {
-        "$admin": "0x730200f698cc8Ff16C00F4E8520Fd780B916D50E",
-        "$implementation": "0xd1dCd063A4e650DCECd8BD211fe6D18a934ecCaD",
+        "$admin": "blastmainnet:0x730200f698cc8Ff16C00F4E8520Fd780B916D50E",
+        "$implementation": "blastmainnet:0xd1dCd063A4e650DCECd8BD211fe6D18a934ecCaD",
         "$pastUpgrades": [
           [
             "2024-03-14T12:13:05.000Z",
             "0x05e9bceb1c88e60beabf453da2cfc31525989a529e5d600fbe170dfdb1325c88",
-            ["0xd1dCd063A4e650DCECd8BD211fe6D18a934ecCaD"]
+            ["blastmainnet:0xd1dCd063A4e650DCECd8BD211fe6D18a934ecCaD"]
           ]
         ],
         "$upgradeCount": 1,
-        "getRemoteGateway": "0x41FaF46Ca4Dfd912B65B66D29BdD432782BB1158",
-        "MESSAGE_SERVICE": "0x4200000000000000000000000000000000000007",
-        "owner": "0x730200f698cc8Ff16C00F4E8520Fd780B916D50E",
-        "ZKLINK": "0x29BA92Fe724beD5c5EBfd0099F2F64a6DC5078FD"
+        "getRemoteGateway": "blastmainnet:0x41FaF46Ca4Dfd912B65B66D29BdD432782BB1158",
+        "MESSAGE_SERVICE": "blastmainnet:0x4200000000000000000000000000000000000007",
+        "owner": "blastmainnet:0x730200f698cc8Ff16C00F4E8520Fd780B916D50E",
+        "ZKLINK": "blastmainnet:0x29BA92Fe724beD5c5EBfd0099F2F64a6DC5078FD"
       },
-      "derivedName": "OptimismL2Gateway"
+      "implementationNames": {
+        "blastmainnet:0x3f64e2e09732969813904a8473074CFADeE66AF1": "ERC1967Proxy",
+        "blastmainnet:0xd1dCd063A4e650DCECd8BD211fe6D18a934ecCaD": "OptimismL2Gateway"
+      }
     },
     {
-      "address": "0x4D9b22B92Ff9faFAc013f82faCA88BDa8E778cb5",
+      "address": "blastmainnet:0x4D9b22B92Ff9faFAc013f82faCA88BDa8E778cb5",
       "type": "EOA",
       "proxyType": "EOA"
     },
     {
       "name": "BlastOwner",
-      "address": "0x730200f698cc8Ff16C00F4E8520Fd780B916D50E",
+      "address": "blastmainnet:0x730200f698cc8Ff16C00F4E8520Fd780B916D50E",
       "type": "Contract",
       "template": "GnosisSafe",
       "sourceHashes": [
@@ -140,22 +137,30 @@
       "receivedPermissions": [
         {
           "permission": "upgrade",
-          "from": "0x29BA92Fe724beD5c5EBfd0099F2F64a6DC5078FD"
+          "from": "blastmainnet:0x29BA92Fe724beD5c5EBfd0099F2F64a6DC5078FD",
+          "role": "admin"
         },
         {
           "permission": "upgrade",
-          "from": "0x3f64e2e09732969813904a8473074CFADeE66AF1"
+          "from": "blastmainnet:0x3f64e2e09732969813904a8473074CFADeE66AF1",
+          "role": "admin"
         },
         {
           "permission": "upgrade",
-          "from": "0x8Df0c2bA3916bF4789c50dEc5A79b2fc719F500b",
-          "via": [{ "address": "0xB5111Bda1E59b220d0Cf8D519CEDac46cb3B4c19" }]
+          "from": "blastmainnet:0x8Df0c2bA3916bF4789c50dEc5A79b2fc719F500b",
+          "role": "admin",
+          "via": [
+            {
+              "address": "blastmainnet:0xB5111Bda1E59b220d0Cf8D519CEDac46cb3B4c19"
+            }
+          ]
         }
       ],
       "directlyReceivedPermissions": [
         {
           "permission": "act",
-          "from": "0xB5111Bda1E59b220d0Cf8D519CEDac46cb3B4c19"
+          "from": "blastmainnet:0xB5111Bda1E59b220d0Cf8D519CEDac46cb3B4c19",
+          "role": ".owner"
         }
       ],
       "ignoreInWatchMode": ["nonce"],
@@ -163,16 +168,16 @@
       "sinceBlock": 838126,
       "values": {
         "$immutable": false,
-        "$implementation": "0x3E5c63644E683549055b9Be8653de26E0B4CD36E",
+        "$implementation": "blastmainnet:0x3E5c63644E683549055b9Be8653de26E0B4CD36E",
         "$members": [
-          "0x7785bccF9110C188Dad39bE49D4Cdf6c6CC03F10",
-          "0x4D9b22B92Ff9faFAc013f82faCA88BDa8E778cb5",
-          "0xF801886AE2e127A269B0F11892edb54F692d02dF",
-          "0xcC1A2bd1a459be0C7fAd3B7F9Fa9a6CBBFE9BFa5",
-          "0xC75EFCffEE930706daec5CaCA012551f6a1845D7",
-          "0x24a257B7D975E7ec6219C4cFCbcF6E504253c7A9",
-          "0x824C9364A6CF8f5EB542ad2ca8F5705561C8b1db",
-          "0xd8F26118505417Ef6468Ac8A2AE1E5117245Db92"
+          "blastmainnet:0x7785bccF9110C188Dad39bE49D4Cdf6c6CC03F10",
+          "blastmainnet:0x4D9b22B92Ff9faFAc013f82faCA88BDa8E778cb5",
+          "blastmainnet:0xF801886AE2e127A269B0F11892edb54F692d02dF",
+          "blastmainnet:0xcC1A2bd1a459be0C7fAd3B7F9Fa9a6CBBFE9BFa5",
+          "blastmainnet:0xC75EFCffEE930706daec5CaCA012551f6a1845D7",
+          "blastmainnet:0x24a257B7D975E7ec6219C4cFCbcF6E504253c7A9",
+          "blastmainnet:0x824C9364A6CF8f5EB542ad2ca8F5705561C8b1db",
+          "blastmainnet:0xd8F26118505417Ef6468Ac8A2AE1E5117245Db92"
         ],
         "$threshold": 6,
         "domainSeparator": "0x4e7f165d8ac03eaff15a2973f2b3c8ae2a27dc70195b0993208556b5533fefdd",
@@ -182,111 +187,112 @@
         "nonce": 6,
         "VERSION": "1.3.0"
       },
-      "derivedName": "GnosisSafeL2"
+      "implementationNames": {
+        "blastmainnet:0x730200f698cc8Ff16C00F4E8520Fd780B916D50E": "GnosisSafeProxy",
+        "blastmainnet:0x3E5c63644E683549055b9Be8653de26E0B4CD36E": "GnosisSafeL2"
+      }
     },
     {
-      "address": "0x7785bccF9110C188Dad39bE49D4Cdf6c6CC03F10",
+      "address": "blastmainnet:0x7785bccF9110C188Dad39bE49D4Cdf6c6CC03F10",
       "type": "EOA",
       "proxyType": "EOA"
     },
     {
-      "address": "0x824C9364A6CF8f5EB542ad2ca8F5705561C8b1db",
+      "address": "blastmainnet:0x824C9364A6CF8f5EB542ad2ca8F5705561C8b1db",
       "type": "EOA",
       "proxyType": "EOA"
     },
     {
-      "name": "L1ERC20Bridge",
-      "address": "0x8Df0c2bA3916bF4789c50dEc5A79b2fc719F500b",
+      "name": "BlastL1ERC20Bridge",
+      "address": "blastmainnet:0x8Df0c2bA3916bF4789c50dEc5A79b2fc719F500b",
       "type": "Contract",
       "sourceHashes": [
         "0x8c407edc4ac1fa1cea2c45903e2cf0158906a2ff39fc2eb92aca3ca9f0d43ed8",
         "0xcabc91ee17e9a771bb999a95f4705966cf206325fc82ac15d440c8b6086f9679"
       ],
       "proxyType": "EIP1967 proxy",
-      "issuedPermissions": [
-        {
-          "permission": "upgrade",
-          "to": "0x730200f698cc8Ff16C00F4E8520Fd780B916D50E",
-          "via": [{ "address": "0xB5111Bda1E59b220d0Cf8D519CEDac46cb3B4c19" }]
-        }
-      ],
       "sinceTimestamp": 1710427013,
       "sinceBlock": 808599,
       "values": {
-        "$admin": "0xB5111Bda1E59b220d0Cf8D519CEDac46cb3B4c19",
-        "$implementation": "0xc24864769346073f5fEf0386A18734F0eF5503F5",
+        "$admin": "blastmainnet:0xB5111Bda1E59b220d0Cf8D519CEDac46cb3B4c19",
+        "$implementation": "blastmainnet:0xc24864769346073f5fEf0386A18734F0eF5503F5",
         "$pastUpgrades": [
           [
             "2024-03-14T14:36:53.000Z",
             "0x6c75a5c435f7e399d35fa65b31295cfa722742a9cd03208bcf726891f028d0b2",
-            ["0x4D7012d5C62c351804CCe49c2d7C09A401fD3deC"]
+            ["blastmainnet:0x4D7012d5C62c351804CCe49c2d7C09A401fD3deC"]
           ],
           [
             "2024-04-04T06:41:11.000Z",
             "0x319fa19f70ff861bf9b573f1cc6054d236dcb99dec620756e3f85d2c35c0040b",
-            ["0xc24864769346073f5fEf0386A18734F0eF5503F5"]
+            ["blastmainnet:0xc24864769346073f5fEf0386A18734F0eF5503F5"]
           ]
         ],
         "$upgradeCount": 2,
-        "l2Bridge": "0x17887788E01A1192a26F636Cfcfc033c7Bb42348",
-        "l2TokenBeacon": "0xf7866c804932c93BFcc6f6f8B965bF52a2377bd9",
+        "l2Bridge": "blastmainnet:0x17887788E01A1192a26F636Cfcfc033c7Bb42348",
+        "l2TokenBeacon": "blastmainnet:0xf7866c804932c93BFcc6f6f8B965bF52a2377bd9",
         "l2TokenProxyBytecodeHash": "0x010001211b0c33353cdf7a320f768e3dc40bce1326d639fcac099bba9ecd8e34"
       },
-      "derivedName": "L1ERC20Bridge"
+      "implementationNames": {
+        "blastmainnet:0x8Df0c2bA3916bF4789c50dEc5A79b2fc719F500b": "TransparentUpgradeableProxy",
+        "blastmainnet:0xc24864769346073f5fEf0386A18734F0eF5503F5": "L1ERC20Bridge"
+      }
     },
     {
       "name": "BlastProxyAdmin",
-      "address": "0xB5111Bda1E59b220d0Cf8D519CEDac46cb3B4c19",
+      "address": "blastmainnet:0xB5111Bda1E59b220d0Cf8D519CEDac46cb3B4c19",
       "type": "Contract",
       "template": "global/ProxyAdmin",
       "sourceHashes": [
         "0x8fd8f837bb320bd2a7463c103bea2ff207b0969b5795f320a6c868858aa92074"
       ],
       "proxyType": "immutable",
-      "displayName": "ProxyAdmin",
       "directlyReceivedPermissions": [
         {
           "permission": "upgrade",
-          "from": "0x8Df0c2bA3916bF4789c50dEc5A79b2fc719F500b"
+          "from": "blastmainnet:0x8Df0c2bA3916bF4789c50dEc5A79b2fc719F500b",
+          "role": "admin"
         }
       ],
       "sinceTimestamp": 1710427013,
       "sinceBlock": 808599,
       "values": {
         "$immutable": true,
-        "owner": "0x730200f698cc8Ff16C00F4E8520Fd780B916D50E",
+        "owner": "blastmainnet:0x730200f698cc8Ff16C00F4E8520Fd780B916D50E",
         "UPGRADE_INTERFACE_VERSION": "5.0.0"
       },
-      "derivedName": "ProxyAdmin"
+      "implementationNames": {
+        "blastmainnet:0xB5111Bda1E59b220d0Cf8D519CEDac46cb3B4c19": "ProxyAdmin"
+      }
     },
     {
-      "address": "0xC75EFCffEE930706daec5CaCA012551f6a1845D7",
+      "address": "blastmainnet:0xC75EFCffEE930706daec5CaCA012551f6a1845D7",
       "type": "EOA",
       "proxyType": "EOA"
     },
     {
-      "address": "0xcC1A2bd1a459be0C7fAd3B7F9Fa9a6CBBFE9BFa5",
+      "address": "blastmainnet:0xcC1A2bd1a459be0C7fAd3B7F9Fa9a6CBBFE9BFa5",
       "type": "EOA",
       "proxyType": "EOA"
     },
     {
-      "address": "0xd8F26118505417Ef6468Ac8A2AE1E5117245Db92",
+      "address": "blastmainnet:0xd8F26118505417Ef6468Ac8A2AE1E5117245Db92",
       "type": "EOA",
       "proxyType": "EOA"
     },
     {
-      "address": "0xf7866c804932c93BFcc6f6f8B965bF52a2377bd9",
+      "address": "blastmainnet:0xf7866c804932c93BFcc6f6f8B965bF52a2377bd9",
       "type": "EOA",
       "proxyType": "EOA"
     },
     {
-      "address": "0xF801886AE2e127A269B0F11892edb54F692d02dF",
+      "address": "blastmainnet:0xF801886AE2e127A269B0F11892edb54F692d02dF",
       "type": "EOA",
       "proxyType": "EOA"
     }
   ],
   "abis": {
-    "0x29BA92Fe724beD5c5EBfd0099F2F64a6DC5078FD": [
+    "blastmainnet:0x29BA92Fe724beD5c5EBfd0099F2F64a6DC5078FD": [
       "constructor(address implementation, bytes _data) payable",
       "error AddressEmptyCode(address target)",
       "error ERC1967InvalidImplementation(address implementation)",
@@ -294,7 +300,7 @@
       "error FailedInnerCall()",
       "event Upgraded(address indexed implementation)"
     ],
-    "0x3E5c63644E683549055b9Be8653de26E0B4CD36E": [
+    "blastmainnet:0x3E5c63644E683549055b9Be8653de26E0B4CD36E": [
       "event AddedOwner(address owner)",
       "event ApproveHash(bytes32 indexed approvedHash, address indexed owner)",
       "event ChangedFallbackHandler(address handler)",
@@ -344,7 +350,7 @@
       "function simulateAndRevert(address targetContract, bytes calldataPayload)",
       "function swapOwner(address prevOwner, address oldOwner, address newOwner)"
     ],
-    "0x3f64e2e09732969813904a8473074CFADeE66AF1": [
+    "blastmainnet:0x3f64e2e09732969813904a8473074CFADeE66AF1": [
       "constructor(address implementation, bytes _data) payable",
       "error AddressEmptyCode(address target)",
       "error ERC1967InvalidImplementation(address implementation)",
@@ -352,10 +358,10 @@
       "error FailedInnerCall()",
       "event Upgraded(address indexed implementation)"
     ],
-    "0x730200f698cc8Ff16C00F4E8520Fd780B916D50E": [
+    "blastmainnet:0x730200f698cc8Ff16C00F4E8520Fd780B916D50E": [
       "constructor(address _singleton)"
     ],
-    "0x8Df0c2bA3916bF4789c50dEc5A79b2fc719F500b": [
+    "blastmainnet:0x8Df0c2bA3916bF4789c50dEc5A79b2fc719F500b": [
       "constructor(address _logic, address initialOwner, bytes _data) payable",
       "error AddressEmptyCode(address target)",
       "error ERC1967InvalidAdmin(address admin)",
@@ -366,7 +372,7 @@
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event Upgraded(address indexed implementation)"
     ],
-    "0xB5111Bda1E59b220d0Cf8D519CEDac46cb3B4c19": [
+    "blastmainnet:0xB5111Bda1E59b220d0Cf8D519CEDac46cb3B4c19": [
       "constructor(address initialOwner)",
       "error OwnableInvalidOwner(address owner)",
       "error OwnableUnauthorizedAccount(address account)",
@@ -377,7 +383,7 @@
       "function transferOwnership(address newOwner)",
       "function upgradeAndCall(address proxy, address implementation, bytes data) payable"
     ],
-    "0xc24864769346073f5fEf0386A18734F0eF5503F5": [
+    "blastmainnet:0xc24864769346073f5fEf0386A18734F0eF5503F5": [
       "constructor(address _zkSync)",
       "event ClaimedFailedDeposit(address indexed to, address indexed l1Token, uint256 amount)",
       "event DepositInitiated(bytes32 indexed l2DepositTxHash, address indexed from, address indexed to, address l1Token, uint256 amount)",
@@ -395,7 +401,7 @@
       "function l2TokenBeacon() view returns (address)",
       "function l2TokenProxyBytecodeHash() view returns (bytes32)"
     ],
-    "0xd1dCd063A4e650DCECd8BD211fe6D18a934ecCaD": [
+    "blastmainnet:0xd1dCd063A4e650DCECd8BD211fe6D18a934ecCaD": [
       "constructor(address _zkLink)",
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -418,7 +424,7 @@
       "function upgradeTo(address newImplementation)",
       "function upgradeToAndCall(address newImplementation, bytes data) payable"
     ],
-    "0xDe4Be50Bfe9503180231357Eab19d709F8F73C66": [
+    "blastmainnet:0xDe4Be50Bfe9503180231357Eab19d709F8F73C66": [
       "constructor(bool _isEthGasToken)",
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -496,9 +502,11 @@
     ]
   },
   "usedTemplates": {
-    "global/ProxyAdmin": "0x2eb29f308508b9cc7f51b5984e0a5636340fc562271d0682bde062bc96f88a27",
-    "GnosisSafe": "0x9d7f7b8b6adea28c4538f12e31b0c59eac5339b4e5c80def637cccc0cfe82106",
-    "zklinknova/secondaryGateway": "0xc4aa2535ced2eb82ab28cbf54745564fcbecaa9ff264c2627092c103d005c78a",
-    "zklinknova/secondaryZkLink": "0xdd6ae208e600e8a58e2bfc5a099e81722045a5388ba31c4c5cf94bea5e027113"
-  }
+    "global/ProxyAdmin": "0x7d24ef68050bed263f4cfd0471631d16b2f33814fbbd4e9aadf666c81bbf0c2d",
+    "GnosisSafe": "0x12db59bec64fa8de67bbeb6a6e913f6c5ff1598c0a5fba90282afaf08e2a748c",
+    "zklinknova/secondaryGateway": "0xbb75b9684098944bd77bd85c15a8667bb65ea57059ee5b9d2a376b0beba09908",
+    "zklinknova/secondaryZkLink": "0xfae141812d13cd7dcbc2da491034c79c2ade14cd64e1792d222b8390730801ae"
+  },
+  "usedBlockNumbers": { "blast": 22438992 },
+  "permissionsConfigHash": "0xa52d924a2d1677aa8315bc14d2d2615ca2ff6a066d62370a3b3d9fd78a2dbb5e"
 }

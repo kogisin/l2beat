@@ -1,4 +1,5 @@
 import { UnixTime } from '@l2beat/shared-pure'
+import { DERIVATION, REASON_FOR_BEING_OTHER } from '../../common'
 import { BADGES } from '../../common/badges'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
@@ -9,18 +10,18 @@ const genesisTimestamp = UnixTime(1726179683)
 
 export const superseed: ScalingProject = opStackL2({
   capability: 'universal',
-  addedAt: UnixTime(1714316238), // 2024-04-28T14:57:18Z
+  addedAt: UnixTime(1743379200), // 2025-03-31T00:00:00Z
   additionalBadges: [BADGES.RaaS.Conduit],
+  reasonsForBeingOther: [REASON_FOR_BEING_OTHER.CLOSED_PROOFS],
   display: {
     name: 'Superseed',
     slug: 'superseed',
     description:
       'Superseed is an Optimistic Rollup utilizing the OP Stack, aiming to provide a CDP lending platform enshrined in the protocol and redistribution of Layer 2 fees to its users.',
-    category: 'Optimistic Rollup',
-    stack: 'OP Stack',
+    stacks: ['OP Stack'],
     links: {
       websites: ['https://superseed.xyz/'],
-      apps: ['https://bridge.superseed.xyz/'],
+      bridges: ['https://bridge.superseed.xyz/'],
       documentation: ['https://docs.superseed.xyz/'],
       explorers: ['https://explorer.superseed.xyz/'],
       repositories: ['https://github.com/superseed-xyz'],
@@ -32,11 +33,15 @@ export const superseed: ScalingProject = opStackL2({
       ],
     },
   },
-  isNodeAvailable: 'UnderReview',
+  associatedTokens: ['SUPR'],
+  isNodeAvailable: true,
+  nodeSourceLink:
+    'https://github.com/ethereum-optimism/optimism/tree/develop/op-node',
+  stateDerivation: DERIVATION.OPSTACK('SUPERSEED'),
   chainConfig: {
     name: 'superseed',
+    coingeckoPlatform: 'superseed',
     chainId: 5330,
-    // coingeckoPlatform: 'none',
     sinceTimestamp: genesisTimestamp,
     apis: [
       {
@@ -53,4 +58,13 @@ export const superseed: ScalingProject = opStackL2({
   },
   discovery,
   genesisTimestamp,
+  milestones: [
+    {
+      title: 'Mainnet Launch',
+      url: 'https://x.com/SuperseedXYZ/status/1906710602506195433',
+      date: '2025-03-31T00:00:00Z',
+      description: 'Superseed Mainnet is now live.',
+      type: 'general',
+    },
+  ],
 })

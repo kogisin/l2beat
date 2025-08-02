@@ -1,7 +1,6 @@
 import { type ChainId, UnixTime } from '@l2beat/shared-pure'
 import { BaseRepository } from '../../BaseRepository'
-import { type UpdateNotifierRecord, toRecord, toRow } from './entity'
-import { selectUpdateNotifier } from './select'
+import { toRecord, toRow, type UpdateNotifierRecord } from './entity'
 
 export class UpdateNotifierRepository extends BaseRepository {
   async findLatestId(): Promise<number | undefined> {
@@ -43,7 +42,7 @@ export class UpdateNotifierRepository extends BaseRepository {
   async getAll(): Promise<UpdateNotifierRecord[]> {
     const rows = await this.db
       .selectFrom('UpdateNotifier')
-      .select(selectUpdateNotifier)
+      .selectAll()
       .execute()
 
     return rows.map(toRecord)
@@ -51,14 +50,14 @@ export class UpdateNotifierRepository extends BaseRepository {
 
   async getNewerThan(
     from: UnixTime,
-    projectName: string,
+    projectId: string,
     chainId: ChainId,
   ): Promise<UpdateNotifierRecord[]> {
     const rows = await this.db
       .selectFrom('UpdateNotifier')
-      .select(selectUpdateNotifier)
+      .selectAll()
       .where('createdAt', '>=', UnixTime.toDate(from))
-      .where('projectName', '=', projectName)
+      .where('projectId', '=', projectId)
       .where('chainId', '=', +chainId)
       .execute()
     return rows.map(toRecord)

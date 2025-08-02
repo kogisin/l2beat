@@ -1,24 +1,24 @@
 import type { Logger } from '@l2beat/backend-tools'
+import { type ProjectScalingStack, ProjectService } from '@l2beat/config'
+import type { Database } from '@l2beat/database'
 import { type DiscoveryDiff, discoveryDiffToMarkdown } from '@l2beat/discovery'
 import {
   assert,
   type ChainConverter,
   type ChainId,
   type EthereumAddress,
-  UnixTime,
   formatAsAsciiTable,
+  ProjectId,
+  UnixTime,
 } from '@l2beat/shared-pure'
-import { isEmpty } from 'lodash'
-
-import { ProjectService } from '@l2beat/config'
-import type { Database } from '@l2beat/database'
+import isEmpty from 'lodash/isEmpty'
 import {
   type Channel,
   type DiscordClient,
   MAX_MESSAGE_LENGTH,
 } from '../../peripherals/discord/DiscordClient'
-import type { UpdateMessagesService } from './UpdateMessagesService'
 import { fieldThrottleDiff } from './fieldThrottleDiff'
+import type { UpdateMessagesService } from './UpdateMessagesService'
 import { diffToMessage } from './utils/diffToMessage'
 import { filterDiff } from './utils/filterDiff'
 import { isNineAM } from './utils/isNineAM'
@@ -27,7 +27,6 @@ export interface DailyReminderChainEntry {
   chainName: string
   severityCounts: {
     low: number
-    medium: number
     high: number
     unknown: number
   }
@@ -43,6 +42,8 @@ export class UpdateNotifier {
     private readonly chainConverter: ChainConverter,
     private readonly logger: Logger,
     private readonly updateMessagesService: UpdateMessagesService,
+    private readonly projectService: ProjectService,
+    private readonly disabledChains: string[],
   ) {
     this.logger = this.logger.for(this)
   }
@@ -50,7 +51,6 @@ export class UpdateNotifier {
   async handleUpdate(
     name: string,
     diff: DiscoveryDiff[],
-    blockNumber: number,
     chainId: ChainId,
     dependents: string[],
     unknownContracts: EthereumAddress[],
@@ -58,9 +58,9 @@ export class UpdateNotifier {
   ) {
     const nonce = await this.getInternalMessageNonce()
     await this.db.updateNotifier.insert({
-      projectName: name,
+      projectId: name,
       diff,
-      blockNumber: blockNumber,
+      timestamp: timestamp,
       chainId: chainId,
     })
 
@@ -82,13 +82,20 @@ export class UpdateNotifier {
       return
     }
 
+    const trackedTxsAffected = await canTrackedTxsBeAffected(
+      this.projectService,
+      name,
+      throttled,
+    )
+
     const message = diffToMessage(
       name,
       throttled,
-      blockNumber,
+      timestamp,
       this.chainConverter.toName(chainId),
       dependents,
       nonce,
+      trackedTxsAffected,
     )
     await this.notify(message, 'INTERNAL')
     this.logger.info('Updates detected, notification sent [INTERNAL]', {
@@ -104,18 +111,18 @@ export class UpdateNotifier {
     const filteredMessage = diffToMessage(
       name,
       filteredDiff,
-      blockNumber,
+      timestamp,
       this.chainConverter.toName(chainId),
       dependents,
+      undefined,
     )
     await this.notify(filteredMessage, 'PUBLIC')
 
     const filteredWebMessage = discoveryDiffToMarkdown(filteredDiff)
 
     await this.updateMessagesService.storeAndPrune({
-      projectName: name,
+      projectId: name,
       chain: this.chainConverter.toName(chainId),
-      blockNumber,
       message: filteredWebMessage,
       timestamp,
     })
@@ -165,11 +172,17 @@ export class UpdateNotifier {
     timestamp: UnixTime,
   ): Promise<void> {
     if (!isNineAM(timestamp, 'CET')) {
+      this.logger.info('Daily reminder not sent, not the right time', {
+        date: UnixTime.toDate(timestamp).toISOString(),
+      })
       return
     }
 
     let internals = ''
-    const header = `${await getDailyReminderHeader(timestamp)}\n${internals}\n`
+    const header = `${await getDailyReminderHeader(
+      timestamp,
+      this.disabledChains,
+    )}\n${internals}\n`
 
     if (!isEmpty(reminders)) {
       const monospaceBlockFence = '```'
@@ -185,7 +198,10 @@ export class UpdateNotifier {
       internals = ':white_check_mark: everything is up to date'
     }
 
-    const notifyMessage = `${await getDailyReminderHeader(timestamp)}\n${internals}\n`
+    const notifyMessage = `${await getDailyReminderHeader(
+      timestamp,
+      this.disabledChains,
+    )}\n${internals}\n`
 
     await this.notify(notifyMessage, 'INTERNAL')
     this.logger.info('Daily reminder sent', { reminders })
@@ -195,36 +211,33 @@ export class UpdateNotifier {
 function formatRemindersAsTable(
   reminders: Record<string, DailyReminderChainEntry[]>,
 ): string {
-  const headers = ['Project', 'Chain', 'High', 'Mid', 'Low', '???']
+  const headers = ['Project', 'Chain', 'High', 'Low', '???']
 
   const flat = flattenReminders(reminders)
   const sorted = flat.sort((a, b) => {
     const {
       low: aLow,
-      medium: aMedium,
       high: aHigh,
       unknown: aUnknown,
     } = a.chainEntry.severityCounts
     const {
       low: bLow,
-      medium: bMedium,
       high: bHigh,
       unknown: bUnknown,
     } = b.chainEntry.severityCounts
 
-    const aSum = aHigh * 1e9 + aMedium * 1e6 + aLow * 1e3 + aUnknown
-    const bSum = bHigh * 1e9 + bMedium * 1e6 + bLow * 1e3 + bUnknown
+    const aSum = aHigh * 1e6 + aLow * 1e3 + aUnknown
+    const bSum = bHigh * 1e6 + bLow * 1e3 + bUnknown
 
     return bSum - aSum
   })
 
-  const rows = sorted.map(({ projectName, chainEntry }) => {
+  const rows = sorted.map(({ projectId, chainEntry }) => {
     const { chainName, severityCounts: s } = chainEntry
     return [
-      projectName,
+      projectId,
       chainName,
       s.high === 0 ? '' : s.high.toString(),
-      s.medium === 0 ? '' : s.medium.toString(),
       s.low === 0 ? '' : s.low.toString(),
       s.unknown === 0 ? '' : s.unknown.toString(),
     ]
@@ -236,17 +249,17 @@ function formatRemindersAsTable(
 function flattenReminders(
   reminders: Record<string, DailyReminderChainEntry[]>,
 ): {
-  projectName: string
+  projectId: string
   chainEntry: DailyReminderChainEntry
 }[] {
   const entries: {
-    projectName: string
+    projectId: string
     chainEntry: DailyReminderChainEntry
   }[] = []
 
   Object.entries(reminders).forEach(([key, values]) => {
     values.forEach((chainEntry) => {
-      entries.push({ projectName: key, chainEntry })
+      entries.push({ projectId: key, chainEntry })
     })
   })
 
@@ -258,13 +271,13 @@ export async function generateTemplatizedStatus(): Promise<string> {
   const scaling = await ps.getProjects({
     select: ['scalingInfo', 'discoveryInfo'],
     where: ['isScaling'],
-    whereNot: ['isUpcoming', 'isArchived'],
+    whereNot: ['isUpcoming', 'archivedAt'],
   })
 
-  const stacks: string[] = [
+  const stacks: ProjectScalingStack[] = [
     ...new Set(
       scaling
-        .map((p) => p.scalingInfo.stack?.toString())
+        .flatMap((p) => p.scalingInfo.stacks)
         .filter((p) => p !== undefined),
     ),
   ]
@@ -277,7 +290,7 @@ export async function generateTemplatizedStatus(): Promise<string> {
 
   for (const stack of stacks) {
     const isFullyTemplatized = scaling
-      .filter((p) => p.scalingInfo.stack === stack)
+      .filter((p) => p.scalingInfo.stacks?.includes(stack))
       .map((p) => p.discoveryInfo.isDiscoDriven)
 
     const fullyTemplatizedCount = isFullyTemplatized.filter((t) => t).length
@@ -305,10 +318,18 @@ export async function generateTemplatizedStatus(): Promise<string> {
   return `\n### Templatized projects:\n\`\`\`${table}\`\`\`\n`
 }
 
-async function getDailyReminderHeader(timestamp: UnixTime): Promise<string> {
+async function getDailyReminderHeader(
+  timestamp: UnixTime,
+  disabledChains: string[],
+): Promise<string> {
   const templatizedProjectsString = await generateTemplatizedStatus()
 
-  return `# Daily bot report @ ${UnixTime.toYYYYMMDD(timestamp)}\n${templatizedProjectsString}\n:x: Detected changes with following severities :x:`
+  const disabledChainsMessage =
+    disabledChains.length > 0
+      ? `:warning: Disabled chains: ${disabledChains.map((c) => `\`${c}\``).join(', ')}\n`
+      : ''
+
+  return `# Daily bot report @ ${UnixTime.toYYYYMMDD(timestamp)}\n${disabledChainsMessage}${templatizedProjectsString}\n:x: Detected changes with following severities :x:`
 }
 
 function countDiff(diff: DiscoveryDiff[]): number {
@@ -343,4 +364,40 @@ function handleOverflow(
     0,
     maxLength - WARNING_MESSAGE.length - userSuffix.length,
   )}${WARNING_MESSAGE}${userSuffix}`
+}
+
+export async function canTrackedTxsBeAffected(
+  ps: ProjectService,
+  projectId: string,
+  diffs: DiscoveryDiff[],
+): Promise<boolean> {
+  if (diffs.length === 0) {
+    return false
+  }
+
+  const project = await ps.getProject({
+    id: ProjectId(projectId),
+    select: ['trackedTxsConfig'],
+  })
+
+  if (!project?.trackedTxsConfig || project.trackedTxsConfig.length === 0) {
+    return false
+  }
+
+  const contractAddresses = diffs.map((diff) => diff.address.toString())
+
+  return project.trackedTxsConfig.some((config) => {
+    switch (config.params.formula) {
+      case 'functionCall':
+      case 'sharedBridge':
+      case 'sharpSubmission':
+        return contractAddresses.includes(config.params.address.toString())
+      case 'transfer':
+        return (
+          (config.params.from
+            ? contractAddresses.includes(config.params.from.toString())
+            : false) || contractAddresses.includes(config.params.to.toString())
+        )
+    }
+  })
 }

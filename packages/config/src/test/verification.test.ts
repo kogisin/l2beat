@@ -2,10 +2,12 @@ import {
   ConfigReader,
   type DiscoveryOutput,
   type EntryParameters,
+  getChainShortName,
   getDiscoveryPaths,
 } from '@l2beat/discovery'
-import { assert, EthereumAddress } from '@l2beat/shared-pure'
-import { uniq, uniqBy } from 'lodash'
+import { assert, ChainSpecificAddress } from '@l2beat/shared-pure'
+import uniq from 'lodash/uniq'
+import uniqBy from 'lodash/uniqBy'
 import type { Bridge, ScalingProject } from '../internalTypes'
 import { bridges } from '../processing/bridges'
 import { layer2s } from '../processing/layer2s'
@@ -62,17 +64,25 @@ function getDiscoveries(
   const sharedModules = discovery.sharedModules ?? []
   if (sharedModules.length > 0) {
     for (const sharedModule of sharedModules) {
-      result.push(configReader.readDiscovery(sharedModule, chain))
+      try {
+        result.push(configReader.readDiscovery(sharedModule, chain))
+      } catch {}
     }
   }
 
+  const dependentDiscoveries = discovery.dependentDiscoveries ?? {}
+  for (const [projectName, chains] of Object.entries(dependentDiscoveries)) {
+    for (const chain of Object.keys(chains)) {
+      result.push(configReader.readDiscovery(projectName, chain))
+    }
+  }
   return result
 }
 
 function containsAllAddresses(
-  addresses: EthereumAddress[],
+  addresses: ChainSpecificAddress[],
   discoveries: DiscoveryOutput[],
-): EthereumAddress[] {
+): ChainSpecificAddress[] {
   const inDiscovery = uniq(discoveries.flatMap((d) => addressesInDiscovery(d)))
   const notFound = []
   for (const usedAddress of addresses) {
@@ -83,17 +93,19 @@ function containsAllAddresses(
   return notFound
 }
 
-function addressesInDiscovery(discovery: DiscoveryOutput): EthereumAddress[] {
+function addressesInDiscovery(
+  discovery: DiscoveryOutput,
+): ChainSpecificAddress[] {
   return discovery.entries.flatMap((c) => [c.address, ...getImplementations(c)])
 }
 
-function getImplementations(entry: EntryParameters): EthereumAddress[] {
+function getImplementations(entry: EntryParameters): ChainSpecificAddress[] {
   const implementations = entry.values?.['$implementation'] ?? []
 
   if (Array.isArray(implementations)) {
-    return implementations.map((i) => EthereumAddress(i.toString()))
+    return implementations.map((i) => ChainSpecificAddress(i.toString()))
   }
-  return [EthereumAddress(implementations.toString())]
+  return [ChainSpecificAddress(implementations.toString())]
 }
 
 type Project = ScalingProject | Bridge | BaseProject
@@ -102,19 +114,14 @@ function withoutDuplicates<T>(arr: T[]): T[] {
   return uniqBy(arr, JSON.stringify)
 }
 
-interface AddressOnChain {
-  chain: string
-  address: EthereumAddress
-}
-
 function getUniqueContractsForProject(
   project: Project,
   chain: string,
-): EthereumAddress[] {
+): ChainSpecificAddress[] {
   const projectContracts = getProjectContractsForChain(project, chain)
   const uniqueProjectContracts = getUniqueContractsFromList(
     projectContracts,
-  ).map((c) => c.address)
+  ).map((c) => c)
   const permissionedAddresses = getPermissionedAddressesForChain(project, chain)
 
   return withoutDuplicates([
@@ -125,19 +132,11 @@ function getUniqueContractsForProject(
 
 function getUniqueContractsFromList(
   contracts: ProjectContract[],
-): AddressOnChain[] {
-  const mainAddresses = contracts.flatMap((c) => ({
-    address: c.address,
-    chain: c.chain,
-  }))
+): ChainSpecificAddress[] {
+  const mainAddresses = contracts.flatMap((c) => c.address)
   const upgradeabilityAddresses = contracts
     .filter((c) => !!c.upgradeability) // remove undefined
-    .flatMap((c) =>
-      (c.upgradeability?.implementations ?? []).flatMap((a) => ({
-        address: a,
-        chain: c.chain,
-      })),
-    )
+    .flatMap((c) => (c.upgradeability?.implementations ?? []).flatMap((a) => a))
   return withoutDuplicates([...mainAddresses, ...upgradeabilityAddresses])
 }
 
@@ -155,7 +154,13 @@ function getProjectContractsForChain(
         if (!escrow.contract) {
           return []
         }
-        return { address: escrow.address, ...escrow.contract }
+        return {
+          address: ChainSpecificAddress.from(
+            getChainShortName(escrow.chain),
+            escrow.address,
+          ),
+          ...escrow.contract,
+        }
       })
       .filter((escrowContract) => escrowContract.chain === chain)
   }
@@ -163,7 +168,10 @@ function getProjectContractsForChain(
   return [...contracts, ...escrows]
 }
 
-function getPermissionedAddressesForChain(project: Project, chain: string) {
+function getPermissionedAddressesForChain(
+  project: Project,
+  chain: string,
+): ChainSpecificAddress[] {
   if (!project.permissions) {
     return []
   }

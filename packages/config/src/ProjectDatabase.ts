@@ -1,7 +1,7 @@
 import {
   type AssetId,
-  type Token,
   assertUnreachable,
+  type LegacyToken,
 } from '@l2beat/shared-pure'
 import sqlite3 from 'sqlite3'
 import type { BaseProject } from './types'
@@ -12,7 +12,7 @@ type SqliteType =
   | 'TEXT NOT NULL'
   | 'INTEGER'
   | 'INTEGER NOT NULL'
-
+  | 'BOOLEAN'
 type Schema<T> = {
   [K in keyof T]-?: SqliteType
 }
@@ -28,8 +28,11 @@ const schema = {
 
   statuses: 'TEXT',
   display: 'TEXT',
+  colors: 'TEXT',
+  ecosystemColors: 'TEXT',
   milestones: 'TEXT',
   chainConfig: 'TEXT',
+  escrows: 'TEXT',
 
   bridgeInfo: 'TEXT',
   bridgeRisks: 'TEXT',
@@ -46,29 +49,30 @@ const schema = {
   customDa: 'TEXT',
 
   proofVerification: 'TEXT',
+  zkCatalogInfo: 'TEXT',
 
-  tvlInfo: 'TEXT',
-  tvlConfig: 'TEXT',
+  tvsInfo: 'TEXT',
+  tvsConfig: 'TEXT',
   activityConfig: 'TEXT',
   livenessInfo: 'TEXT',
   livenessConfig: 'TEXT',
   costsInfo: 'TEXT',
   trackedTxsConfig: 'TEXT',
-  finalityInfo: 'TEXT',
-  finalityConfig: 'TEXT',
   daTrackingConfig: 'TEXT',
+  ecosystemInfo: 'TEXT',
+  ecosystemConfig: 'TEXT',
 
   permissions: 'TEXT',
   contracts: 'TEXT',
   discoveryInfo: 'TEXT',
 
-  isBridge: 'INTEGER',
-  isScaling: 'INTEGER',
-  isZkCatalog: 'INTEGER',
-  isDaLayer: 'INTEGER',
-  isUpcoming: 'INTEGER',
-  isArchived: 'INTEGER',
-  hasActivity: 'INTEGER',
+  isBridge: 'BOOLEAN',
+  isScaling: 'BOOLEAN',
+  isZkCatalog: 'BOOLEAN',
+  isDaLayer: 'BOOLEAN',
+  isUpcoming: 'BOOLEAN',
+  archivedAt: 'INTEGER',
+  hasActivity: 'BOOLEAN',
 } satisfies Schema<BaseProject>
 
 export class ProjectDatabase {
@@ -85,7 +89,7 @@ export class ProjectDatabase {
       CREATE TABLE IF NOT EXISTS projects (
         ${entries}
       )`)
-    await this.query(`CREATE INDEX projects_slug ON projects(slug)`)
+    await this.query('CREATE INDEX projects_slug ON projects(slug)')
     await this.query(`
       CREATE TABLE IF NOT EXISTS tokens (
         id TEXT PRIMARY KEY,
@@ -168,24 +172,26 @@ export class ProjectDatabase {
     )
   }
 
-  async saveToken(token: Token) {
-    await this.query(`INSERT INTO tokens(id, data) VALUES(?, ?)`, [
+  async saveToken(token: LegacyToken) {
+    await this.query('INSERT INTO tokens(id, data) VALUES(?, ?)', [
       token.id,
       JSON.stringify(token),
     ])
   }
 
-  async getToken(id: AssetId): Promise<Token | undefined> {
-    const rows = await this.query(`SELECT data FROM tokens WHERE id = ?`, [id])
+  async getToken(id: AssetId): Promise<LegacyToken | undefined> {
+    const rows = await this.query('SELECT data FROM tokens WHERE id = ?', [id])
     const row = rows[0]
     if (row) {
-      return JSON.parse((row as { data: string }).data) as Token
+      return JSON.parse((row as { data: string }).data) as LegacyToken
     }
   }
 
-  async getTokens(): Promise<Token[]> {
-    const rows = await this.query(`SELECT data FROM tokens`)
-    return rows.map((row): Token => JSON.parse((row as { data: string }).data))
+  async getTokens(): Promise<LegacyToken[]> {
+    const rows = await this.query('SELECT data FROM tokens')
+    return rows.map(
+      (row): LegacyToken => JSON.parse((row as { data: string }).data),
+    )
   }
 
   private query(query: string, values?: unknown[]): Promise<unknown[]> {
@@ -210,6 +216,7 @@ function toSqliteValue(key: keyof BaseProject, value: unknown) {
       return value !== undefined ? JSON.stringify(value) : null
     case 'INTEGER':
     case 'INTEGER NOT NULL':
+    case 'BOOLEAN':
       return value !== undefined ? Number(value) : null
     default:
       assertUnreachable(type)
@@ -224,8 +231,10 @@ function fromSqliteValue(key: keyof BaseProject, value: unknown): unknown {
   switch (type) {
     case 'TEXT':
       return value !== null ? JSON.parse(value as string) : undefined
-    case 'INTEGER':
+    case 'BOOLEAN':
       return value !== null ? Boolean(value) : undefined
+    case 'INTEGER':
+      return value !== null ? Number(value) : undefined
     case 'TEXT PRIMARY KEY':
     case 'TEXT NOT NULL':
     case 'INTEGER NOT NULL':

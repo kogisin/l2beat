@@ -8,6 +8,7 @@ import {
 } from '../../common'
 import { linkByDA } from '../../common/linkByDA'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 import type { BaseProject } from '../../types'
 
 const discovery = new ProjectDiscovery('espresso')
@@ -24,8 +25,9 @@ export const espresso: BaseProject = {
   statuses: {
     yellowWarning: undefined,
     redWarning: undefined,
-    isUnderReview: false,
-    isUnverified: false,
+    emergencyWarning: undefined,
+    reviewStatus: undefined,
+    unverifiedContracts: [],
   },
   display: {
     description:
@@ -280,9 +282,7 @@ Users can retrieve data by querying any of Espresso DA's layers, though the VID 
     },
   },
   contracts: {
-    addresses: {
-      ethereum: discovery.getDiscoveredContracts(),
-    },
+    addresses: discovery.getDiscoveredContracts(),
     risks: [
       {
         category: 'Funds can be lost if',
@@ -290,9 +290,7 @@ Users can retrieve data by querying any of Espresso DA's layers, though the VID 
       },
     ],
   },
-  permissions: {
-    ethereum: discovery.getDiscoveredPermissions(),
-  },
+  permissions: discovery.getDiscoveredPermissions(),
   milestones: [
     {
       title: 'EspressoDA launch on mainnet',
@@ -303,4 +301,5 @@ Users can retrieve data by querying any of Espresso DA's layers, though the VID 
       type: 'general',
     },
   ],
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

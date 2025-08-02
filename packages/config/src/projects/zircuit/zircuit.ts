@@ -1,9 +1,20 @@
-import { EthereumAddress, UnixTime, formatSeconds } from '@l2beat/shared-pure'
-import { ESCROW, REASON_FOR_BEING_OTHER } from '../../common'
+import {
+  ChainSpecificAddress,
+  EthereumAddress,
+  formatSeconds,
+  UnixTime,
+} from '@l2beat/shared-pure'
+import {
+  ESCROW,
+  OPERATOR,
+  REASON_FOR_BEING_OTHER,
+  RISK_VIEW,
+} from '../../common'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
 import { opStackL2 } from '../../templates/opStack'
-import type { ProjectTechnologyChoice } from '../../types'
+import { safeGetImplementation } from '../../templates/utils'
+import type { ProjectScalingStateValidationCategory } from '../../types'
 
 const discovery = new ProjectDiscovery('zircuit')
 
@@ -19,11 +30,13 @@ const withdrawalKeepalivePeriodSecondsFmt: number =
     'withdrawalKeepalivePeriodSecondsFmt',
   )
 
+const verifierV2 = discovery.getContract('VerifierV2')
+
 // the opstack template automatically applies the correct risk rosette slices, so we do not override them
 // as soon as this is not the case anymore (backdoor removed, permissionless proposing etc.),
 // we should update the opstack.ts or not use it anymore
-const ZIRCUIT_STATE_CORRECTNESS: ProjectTechnologyChoice = {
-  name: 'Validity proofs (when available) ensure state correctness, but not DA', // proof is the only input to the Verifier
+const ZIRCUIT_STATE_VALIDATION: ProjectScalingStateValidationCategory = {
+  title: 'Validity proofs', // proof is the only input to the Verifier
   description: `Each update to the system state must be accompanied by a ZK proof that ensures that the new state was derived by correctly applying a series of valid user transactions to the previous state. These proofs are then verified on Ethereum by a smart contract. Currently state updates do not require a proof if the last state update was made >= ${withdrawalKeepalivePeriodSecondsFmt} ago and is optimistically considered to be valid. Moreover, the system doesn't check that the transactions applied to the state are the ones published by the sequencer.`,
   risks: [
     {
@@ -41,15 +54,15 @@ const ZIRCUIT_STATE_CORRECTNESS: ProjectTechnologyChoice = {
     },
     {
       title: 'VerifierV2.sol - Etherscan source code',
-      url: 'https://etherscan.io/address/0xd5b424ac36928e2da7da9eca9807938a56988f5a#code',
+      url: safeGetImplementation(verifierV2),
     },
   ],
 }
 
-const sequencerAddress = EthereumAddress(
+const sequencerAddress = ChainSpecificAddress(
   discovery.getContractValue('SystemConfig', 'batcherHash'),
 )
-const sequencerInbox = discovery.getContractValue<EthereumAddress>(
+const sequencerInbox = discovery.getContractValue<ChainSpecificAddress>(
   'SystemConfig',
   'sequencerInbox',
 )
@@ -63,12 +76,11 @@ export const zircuit: ScalingProject = opStackL2({
   display: {
     name: 'Zircuit',
     slug: 'zircuit',
-    category: 'ZK Rollup',
     description:
       'Zircuit is a universal ZK Rollup. It is based on the Optimism Bedrock architecture, employing AI to identify and stop malicious transactions at the sequencer level.',
     links: {
       websites: ['https://zircuit.com/'],
-      apps: ['https://bridge.zircuit.com/', 'https://app.zircuit.com/'],
+      bridges: ['https://bridge.zircuit.com/', 'https://app.zircuit.com/'],
       documentation: ['https://docs.zircuit.com/'],
       explorers: ['https://explorer.zircuit.com/'],
       repositories: ['https://github.com/zircuit-labs'],
@@ -84,8 +96,8 @@ export const zircuit: ScalingProject = opStackL2({
   genesisTimestamp,
   // Chain ID: 48900
   isNodeAvailable: 'UnderReview',
-  nonTemplateTechnology: {
-    stateCorrectness: ZIRCUIT_STATE_CORRECTNESS,
+  stateValidation: {
+    categories: [ZIRCUIT_STATE_VALIDATION],
   },
   activityConfig: {
     // zircuit does not have a system transaction in every block but in every 5th/6th, so we do not subtract those and overcount
@@ -113,20 +125,35 @@ export const zircuit: ScalingProject = opStackL2({
         url: 'https://zircuit-mainnet.drpc.org/',
         callsPerMinute: 1500,
       },
+      {
+        type: 'sourcify',
+        chainId: 48900,
+      },
     ],
+    explorerUrl: 'https://explorer.zircuit.com',
   },
   nonTemplateExcludedTokens: ['rswETH', 'rsETH'],
   l1StandardBridgePremintedTokens: ['ZRC'],
   associatedTokens: ['ZRC'],
   nonTemplateEscrows: [
     discovery.getEscrowDetails({
-      address: EthereumAddress('0x912C7271a6A3622dfb8B218eb46a6122aB046C79'),
+      address: ChainSpecificAddress(
+        'eth:0x912C7271a6A3622dfb8B218eb46a6122aB046C79',
+      ),
       tokens: ['wstETH'],
       ...ESCROW.CANONICAL_EXTERNAL,
       description:
         'custom wstETH Vault controlled by Lido governance, using the canonical bridge for messaging.',
     }),
   ],
+  nonTemplateRiskView: {
+    sequencerFailure: {
+      ...RISK_VIEW.SEQUENCER_NO_MECHANISM(),
+      description:
+        RISK_VIEW.SEQUENCER_NO_MECHANISM().description +
+        ' The L2 code has been modified to allow the sequencer to explicitly censor selected L1->L2 transactions.',
+    },
+  },
   nonTemplateTrackedTxs: [
     {
       uses: [
@@ -150,8 +177,8 @@ export const zircuit: ScalingProject = opStackL2({
       ],
       query: {
         formula: 'transfer',
-        from: sequencerAddress,
-        to: sequencerInbox,
+        from: ChainSpecificAddress.address(sequencerAddress),
+        to: ChainSpecificAddress.address(sequencerInbox),
         sinceTimestamp: genesisTimestamp,
       },
     },
@@ -171,9 +198,23 @@ export const zircuit: ScalingProject = opStackL2({
       },
     },
   ],
+  nonTemplateTechnology: {
+    operator: {
+      ...OPERATOR.CENTRALIZED_OPERATOR,
+      description:
+        OPERATOR.CENTRALIZED_OPERATOR.description +
+        ' The L2 code has been modified to allow the sequencer to explicitly censor selected L1->L2 transactions.',
+      references: [
+        {
+          title: 'L1Block.sol - Sourcify explorer source code',
+          url: 'https://repo.sourcify.dev/48900/0xFf256497D61dcd71a9e9Ff43967C13fdE1F72D12',
+        },
+      ],
+    },
+  },
   milestones: [
     {
-      title: 'Zircuit Mainnet Launch',
+      title: 'Mainnet Launch',
       url: 'https://www.zircuit.com/blog/mainnet-phase-1-is-live',
       date: '2024-08-05T00:00:00.00Z',
       description: 'Zircuit is live on mainnet.',

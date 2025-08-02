@@ -1,9 +1,8 @@
-import type { EthereumAddress, Hash256 } from '@l2beat/shared-pure'
-import type {
-  ContractFieldSeverity,
-  ContractValueType,
-  Permission,
-} from '../config/RawDiscoveryConfig'
+import type { ChainSpecificAddress, Hash256 } from '@l2beat/shared-pure'
+import type { ContractValueType } from '../config/ColorConfig'
+import type { Permission } from '../config/PermissionConfig'
+import type { ContractFieldSeverity } from '../config/StructureConfig'
+import type { DiscoveryTimestamps } from '../modelling/modelPermissions'
 
 export type ContractValue =
   | string
@@ -12,15 +11,32 @@ export type ContractValue =
   | ContractValue[]
   | { [key: string]: ContractValue | undefined }
 
+export interface StructureOutput {
+  name: string
+  chain: string
+  blockNumber?: number
+  timestamp: number
+  entries: StructureEntry[]
+  abis: Record<string, string[]>
+  configHash: Hash256
+  sharedModules?: string[]
+  usedTemplates: Record<string, Hash256>
+  usedBlockNumbers: Record<string, number>
+}
+
 export interface DiscoveryOutput {
   name: string
   chain: string
-  blockNumber: number
+  blockNumber?: number
+  timestamp: number
   entries: EntryParameters[]
   abis: Record<string, string[]>
   configHash: Hash256
   sharedModules?: string[]
   usedTemplates: Record<string, Hash256>
+  usedBlockNumbers: Record<string, number>
+  permissionsConfigHash?: Hash256
+  dependentDiscoveries?: DiscoveryTimestamps
 }
 
 export interface DiscoveryCustomType {
@@ -35,7 +51,7 @@ export interface FieldMeta {
 }
 
 export interface ResolvedPermissionPath {
-  address: EthereumAddress
+  address: ChainSpecificAddress
   delay?: number
   condition?: string
 }
@@ -44,15 +60,13 @@ export interface ResolvedPermissionDetails {
   permission: Permission
   delay?: number
   description?: string
+  role?: string
   condition?: string
   via?: ResolvedPermissionPath[]
 }
 
-export type IssuedPermission = ResolvedPermissionDetails & {
-  to: EthereumAddress
-}
 export type ReceivedPermission = ResolvedPermissionDetails & {
-  from: EthereumAddress
+  from: ChainSpecificAddress
 }
 
 export type ExternalReference = {
@@ -60,29 +74,18 @@ export type ExternalReference = {
   href: string
 }
 
-export interface Meta {
-  issuedPermissions?: IssuedPermission[]
-  receivedPermissions?: ReceivedPermission[]
-  directlyReceivedPermissions?: ReceivedPermission[]
-  description?: string
-  references?: ExternalReference[]
-  category?: ContractCategory
-}
-
 export interface ContractCategory {
   name: string
   priority: number
 }
 
-export type EntryParameters = {
+export type StructureEntry = {
   type: 'Contract' | 'EOA'
+  address: ChainSpecificAddress
   name?: string
-  address: EthereumAddress
-  displayName?: string
-  description?: string
-  derivedName?: string
+  implementationNames?: Record<ChainSpecificAddress, string>
   template?: string
-  sourceHashes?: string[]
+  sourceHashes?: (string | undefined)[]
   unverified?: true
   sinceTimestamp?: number
   sinceBlock?: number
@@ -91,5 +94,45 @@ export type EntryParameters = {
   errors?: Record<string, string>
   ignoreInWatchMode?: string[]
   usedTypes?: DiscoveryCustomType[]
+}
+
+export type ColorEntry = {
+  name?: string
+  description?: string
   fieldMeta?: Record<string, FieldMeta>
-} & Meta
+  references?: ExternalReference[]
+  category?: ContractCategory
+}
+
+export type PermissionEntry = {
+  receivedPermissions?: ReceivedPermission[]
+  directlyReceivedPermissions?: ReceivedPermission[]
+  controlsMajorityOfUpgradePermissions?: boolean
+}
+
+export type EntryParameters = StructureEntry & ColorEntry & PermissionEntry
+
+export interface ColorOutput {
+  entries: ColorEntry[]
+}
+
+export type PermissionsOutput = {
+  eoasWithMajorityUpgradePermissions?: ChainSpecificAddress[]
+  permissionsConfigHash: Hash256
+  permissions: {
+    receiver: ChainSpecificAddress
+    permission: Permission
+    from: ChainSpecificAddress
+    delay?: number
+    description?: string
+    condition?: string
+    via?: {
+      address: ChainSpecificAddress
+      delay?: number
+      condition?: string
+    }[]
+    isFinal: boolean
+    role?: string
+  }[]
+  dependentTimestamps: DiscoveryTimestamps
+}

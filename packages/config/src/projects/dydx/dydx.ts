@@ -1,8 +1,9 @@
 import {
+  ChainSpecificAddress,
   EthereumAddress,
+  formatSeconds,
   ProjectId,
   UnixTime,
-  formatSeconds,
 } from '@l2beat/shared-pure'
 import {
   CONTRACTS,
@@ -11,10 +12,9 @@ import {
   DA_MODES,
   EXITS,
   FORCE_TRANSACTIONS,
-  NEW_CRYPTOGRAPHY,
   OPERATOR,
   RISK_VIEW,
-  STATE_CORRECTNESS,
+  STATE_VALIDATION,
   TECHNOLOGY_DATA_AVAILABILITY,
 } from '../../common'
 import { BADGES } from '../../common/badges'
@@ -22,6 +22,7 @@ import { formatDelay, formatExecutionDelay } from '../../common/formatDelays'
 import { getStage } from '../../common/stages/getStage'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 import { delayDescriptionFromSeconds } from '../../utils/delayDescription'
 
 const discovery = new ProjectDiscovery('dydx')
@@ -77,11 +78,11 @@ const longTimelockUpgradeability = {
 const finalizationPeriod = 0
 
 export const dydx: ScalingProject = {
-  isArchived: true,
   type: 'layer2',
   id: ProjectId('dydx'),
-  capability: 'universal',
   addedAt: UnixTime(1623153328), // 2021-06-08T11:55:28Z
+  archivedAt: UnixTime(1733356800), // 2024-12-05T00:00:00.000Z,
+  capability: 'universal',
   badges: [
     BADGES.VM.AppChain,
     BADGES.Stack.StarkEx,
@@ -98,11 +99,11 @@ export const dydx: ScalingProject = {
     description:
       'dYdX v3 aims to build a powerful and professional exchange for trading crypto assets where users can truly own their trades and, eventually, the exchange itself.',
     purposes: ['Exchange'],
-    stack: 'StarkEx',
+    stacks: ['StarkEx'],
     category: 'ZK Rollup',
     links: {
       websites: ['https://dydx.exchange/'],
-      apps: [
+      bridges: [
         'https://trade.dydx.exchange/',
         'https://margin.dydx.exchange/',
         'https://dydx.l2beat.com',
@@ -130,9 +131,6 @@ export const dydx: ScalingProject = {
       explanation:
         'dYdX is a ZK rollup that posts state diffs to the L1. For a transaction to be considered final, the state diffs have to be submitted and validity proof should be generated, submitted, and verified. The verification is done as part of the state update.',
     },
-    finality: {
-      finalizationPeriod,
-    },
   },
   chainConfig: {
     name: 'dydx',
@@ -143,7 +141,9 @@ export const dydx: ScalingProject = {
     associatedTokens: ['DYDX'],
     escrows: [
       discovery.getEscrowDetails({
-        address: EthereumAddress('0xD54f502e184B6B739d7D27a6410a67dc462D69c8'),
+        address: ChainSpecificAddress(
+          'eth:0xD54f502e184B6B739d7D27a6410a67dc462D69c8',
+        ),
         sinceTimestamp: UnixTime(1613033682),
         tokens: ['USDC'],
         ...priorityExecutorUpgradeability,
@@ -216,19 +216,22 @@ export const dydx: ScalingProject = {
     },
     proposerFailure: RISK_VIEW.PROPOSER_USE_ESCAPE_HATCH_MP_AVGPRICE,
   },
+  stateValidation: {
+    categories: [
+      {
+        ...STATE_VALIDATION.STARKEX_VALIDITY_PROOFS,
+        references: [
+          ...(STATE_VALIDATION.STARKEX_VALIDITY_PROOFS.references ?? []),
+          {
+            title:
+              'UpdatePerpetualState.sol#L125 - Etherscan source code, verifyFact function call',
+            url: 'https://etherscan.io/address/0xdf9c117cad37f2ed8c99e36a40317d8cc340d4a0#code#F35#L125',
+          },
+        ],
+      },
+    ],
+  },
   technology: {
-    stateCorrectness: {
-      ...STATE_CORRECTNESS.STARKEX_VALIDITY_PROOFS,
-      references: [
-        ...STATE_CORRECTNESS.STARKEX_VALIDITY_PROOFS.references,
-        {
-          title:
-            'UpdatePerpetualState.sol#L125 - Etherscan source code, verifyFact function call',
-          url: 'https://etherscan.io/address/0xdf9c117cad37f2ed8c99e36a40317d8cc340d4a0#code#F35#L125',
-        },
-      ],
-    },
-    newCryptography: NEW_CRYPTOGRAPHY.ZK_STARKS,
     dataAvailability: {
       ...TECHNOLOGY_DATA_AVAILABILITY.STARKEX_ON_CHAIN,
       references: [
@@ -277,11 +280,11 @@ export const dydx: ScalingProject = {
         stateRootsPostedToL1: true,
         dataAvailabilityOnL1: true,
         rollupNodeSourceAvailable: true,
+        stateVerificationOnL1: true,
+        fraudProofSystemAtLeast5Outsiders: null,
       },
       stage1: {
         principle: true,
-        stateVerificationOnL1: true,
-        fraudProofSystemAtLeast5Outsiders: null,
         usersHave7DaysToExit: true,
         usersCanExitWithoutCooperation: true,
         securityCouncilProperlySetUp: null,
@@ -298,7 +301,7 @@ export const dydx: ScalingProject = {
   ),
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails('StarkPerpetual', {
           description:
             'Main contract of dYdX exchange. Updates dYdX state and verifies its integrity using STARK Verifier. Allows users to deposit and withdraw tokens via normal and emergency modes.',
@@ -380,7 +383,7 @@ export const dydx: ScalingProject = {
     ],
   },
   permissions: {
-    [discovery.chain]: {
+    ethereum: {
       actors: [
         // TODO: detailed breakdown of permissions
         discovery.getPermissionDetails(
@@ -513,4 +516,5 @@ export const dydx: ScalingProject = {
       type: 'general',
     },
   ],
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

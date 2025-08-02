@@ -1,5 +1,4 @@
-import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
-
+import { ChainSpecificAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
 import {
   CONTRACTS,
   DA_BRIDGES,
@@ -7,13 +6,12 @@ import {
   DA_MODES,
   EXITS,
   FORCE_TRANSACTIONS,
-  NEW_CRYPTOGRAPHY,
   OPERATOR,
+  REASON_FOR_BEING_OTHER,
   RISK_VIEW,
-  STATE_CORRECTNESS,
+  STATE_VALIDATION,
   TECHNOLOGY_DATA_AVAILABILITY,
 } from '../../common'
-import { REASON_FOR_BEING_OTHER } from '../../common'
 import { BADGES } from '../../common/badges'
 import { formatDelay } from '../../common/formatDelays'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
@@ -26,6 +24,7 @@ import {
   generateDiscoveryDrivenContracts,
   generateDiscoveryDrivenPermissions,
 } from '../../templates/generateDiscoveryDrivenSections'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 import { StarkexDAC } from '../../templates/starkex-template'
 
 const discovery = new ProjectDiscovery('myria')
@@ -59,17 +58,19 @@ export const myria: ScalingProject = {
   ],
   reasonsForBeingOther: [REASON_FOR_BEING_OTHER.LOW_DAC_THRESHOLD],
   display: {
+    redWarning:
+      'Critical contract references can be changed by an EOA which could result in the loss of all funds.',
     architectureImage: 'starkex',
     name: 'Myria',
     slug: 'myria',
     description:
       'Myria is an expansive blockchain gaming ecosystem, comprised of a blockchain gaming hub and Myriaverse metaverse.',
     purposes: ['NFT', 'Exchange', 'Gaming'],
-    stack: 'StarkEx',
-    category: 'Validium',
+    stacks: ['StarkEx'],
+    category: 'Other',
     links: {
       websites: ['https://myria.com/'],
-      apps: ['https://hub.immutable.com/'],
+      bridges: ['https://hub.immutable.com/'],
       documentation: ['https://docs.starkware.co/starkex/index.html'],
       repositories: ['https://github.com/starkware-libs/starkex-contracts'],
       socialMedia: [
@@ -93,7 +94,9 @@ export const myria: ScalingProject = {
     associatedTokens: ['MYRIA'],
     escrows: [
       discovery.getEscrowDetails({
-        address: EthereumAddress('0x3071BE11F9e92A9eb28F305e1Fa033cD102714e7'),
+        address: ChainSpecificAddress(
+          'eth:0x3071BE11F9e92A9eb28F305e1Fa033cD102714e7',
+        ),
         sinceTimestamp: UnixTime(1659542607),
         tokens: ['ETH'],
       }),
@@ -128,9 +131,10 @@ export const myria: ScalingProject = {
     },
     proposerFailure: RISK_VIEW.PROPOSER_USE_ESCAPE_HATCH_MP_NFT,
   },
+  stateValidation: {
+    categories: [STATE_VALIDATION.STARKEX_VALIDITY_PROOFS],
+  },
   technology: {
-    stateCorrectness: STATE_CORRECTNESS.STARKEX_VALIDITY_PROOFS,
-    newCryptography: NEW_CRYPTOGRAPHY.ZK_STARKS,
     dataAvailability: TECHNOLOGY_DATA_AVAILABILITY.STARKEX_OFF_CHAIN,
     operator: OPERATOR.STARKEX_OPERATOR,
     forceTransactions: FORCE_TRANSACTIONS.STARKEX_SPOT_WITHDRAW(),
@@ -163,4 +167,5 @@ export const myria: ScalingProject = {
     },
   ],
   customDa: StarkexDAC({ discovery }),
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

@@ -19,6 +19,7 @@ import type {
 import { ConfigReader } from '../discovery/config/ConfigReader'
 import { getDiscoveryPaths } from '../discovery/config/getDiscoveryPaths'
 import { dryRunDiscovery, runDiscovery } from '../discovery/runDiscovery'
+import { configureLogger } from './logger'
 import { ChainValue } from './types'
 
 export const DiscoverCommandArgs = {
@@ -61,16 +62,6 @@ export const DiscoverCommandArgs = {
     short: 's',
     description: 'save raw sources downloaded from chain explorer',
   }),
-  buildModels: flag({
-    type: boolean,
-    long: 'build-models',
-    description: 'build models for every contract',
-  }),
-  buildProjectPageFacts: flag({
-    type: boolean,
-    long: 'build-project-page-facts',
-    description: 'build project page facts',
-  }),
   sourcesFolder: option({
     type: optional(string),
     long: 'sources-folder',
@@ -90,11 +81,11 @@ export const DiscoverCommandArgs = {
     description:
       'file name to use instead of the discovered.json, does not change the output path',
   }),
-  blockNumber: option({
+  timestamp: option({
     type: optional(number),
-    long: 'block-number',
-    short: 'b',
-    description: 'the block number on which the discovery will be performed',
+    long: 'timestamp',
+    short: 'd',
+    description: 'the timestamp on which the discovery will be performed',
   }),
   overwriteCache: flag({
     type: boolean,
@@ -128,11 +119,20 @@ export async function discover(
   const paths = getDiscoveryPaths()
   const configReader = new ConfigReader(paths.discovery)
 
+  logger = configureLogger(logger)
+
   if (config.dryRun) {
     logger = logger.for('DryRun')
     logger.info('Starting')
 
-    await dryRunDiscovery(paths, http, configReader, config, chainConfigs)
+    await dryRunDiscovery(
+      paths,
+      http,
+      configReader,
+      config,
+      chainConfigs,
+      logger,
+    )
     return
   }
 
@@ -142,5 +142,5 @@ export async function discover(
       config.chain.name,
     )}`,
   )
-  await runDiscovery(paths, http, configReader, config, chainConfigs)
+  await runDiscovery(paths, http, configReader, config, chainConfigs, logger)
 }

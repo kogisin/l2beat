@@ -20,8 +20,14 @@ export const payy: BaseProject = {
   statuses: {
     yellowWarning: undefined,
     redWarning: undefined,
-    isUnderReview: false,
-    isUnverified: false,
+    emergencyWarning: undefined,
+    reviewStatus: undefined,
+    unverifiedContracts: [],
+  },
+  display: {
+    description: 'A privacy-preserving payment system.',
+    links: {},
+    badges: [],
   },
   proofVerification: {
     shortDescription: 'A privacy-preserving payment system.',

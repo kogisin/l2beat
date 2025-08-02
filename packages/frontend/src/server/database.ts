@@ -1,6 +1,8 @@
 import type { Database } from '@l2beat/database'
-import { createDatabase } from '@l2beat/database'
+import { compiledToSqlQuery, createDatabase } from '@l2beat/database'
+import type { LogEvent } from 'kysely'
 import { env } from '~/env'
+import { getLogger } from './utils/logger'
 
 let db: Database | undefined
 
@@ -12,6 +14,7 @@ export function getDb() {
           connectionString: env.DATABASE_URL,
           ssl: ssl(),
           ...pool(),
+          log: env.DATABASE_LOG_ENABLED ? makeLogger() : undefined,
         })
       : createThrowingProxy()
   }
@@ -31,11 +34,16 @@ function createThrowingProxy() {
 
 // Tag is limited to 63 characters, so it will cut off the excess
 function createConnectionTag() {
-  const suffix = env.NODE_ENV === 'production' ? 'prod' : 'dev'
+  const suffix =
+    env.DEPLOYMENT_ENV === 'production'
+      ? 'prod'
+      : env.DEPLOYMENT_ENV === 'preview'
+        ? 'preview'
+        : 'dev'
   const base = `FE-${suffix}`
 
-  if (env.VERCEL_ENV === 'preview') {
-    return `${base}-${env.VERCEL_GIT_COMMIT_REF}-${env.VERCEL_GIT_COMMIT_SHA}`
+  if (env.HEROKU_APP_NAME) {
+    return `${base}-${env.HEROKU_APP_NAME}`
   }
 
   return base
@@ -49,15 +57,51 @@ function ssl() {
 }
 
 function pool() {
-  if (env.NODE_ENV === 'production') {
-    return {
-      min: 2,
-      max: 10,
-    }
+  switch (env.DEPLOYMENT_ENV) {
+    case 'production':
+      return {
+        min: 50,
+        max: 200,
+      }
+    case 'preview':
+      return {
+        min: 2,
+        max: 5,
+      }
+    default:
+      return {
+        min: 2,
+      }
   }
+}
 
-  return {
-    min: 2,
-    max: 5,
+function makeLogger() {
+  const logger = getLogger().for('Database')
+
+  return (event: LogEvent) => {
+    if (event.level === 'error') {
+      logger.error('Query failed', {
+        durationMs: event.queryDurationMillis,
+        error: event.error,
+        sql: compiledToSqlQuery(event.query),
+        ...(env.NODE_ENV === 'production'
+          ? {
+              sqlTemplate: event.query.sql,
+              parameters: event.query.parameters,
+            }
+          : {}),
+      })
+    } else {
+      logger.info('Query executed', {
+        durationMs: event.queryDurationMillis,
+        sql: compiledToSqlQuery(event.query),
+        ...(env.NODE_ENV === 'production'
+          ? {
+              sqlTemplate: event.query.sql,
+              parameters: event.query.parameters,
+            }
+          : {}),
+      })
+    }
   }
 }

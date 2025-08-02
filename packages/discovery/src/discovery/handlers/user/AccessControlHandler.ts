@@ -1,21 +1,24 @@
-import { assert, EthereumAddress } from '@l2beat/shared-pure'
+import { assert, ChainSpecificAddress } from '@l2beat/shared-pure'
+import { v } from '@l2beat/validate'
 import { type providers, utils } from 'ethers'
-import * as z from 'zod'
 
 import type { ContractValue } from '../../output/types'
 import type { IProvider } from '../../provider/IProvider'
 import type { Handler, HandlerResult } from '../Handler'
 
-export type AccessControlHandlerDefinition = z.infer<
+export type AccessControlHandlerDefinition = v.infer<
   typeof AccessControlHandlerDefinition
 >
-export const AccessControlHandlerDefinition = z.strictObject({
-  type: z.literal('accessControl'),
-  roleNames: z.optional(
-    z.record(z.string().regex(/^0x[a-f\d]{64}$/i), z.string()),
-  ),
-  pickRoleMembers: z.optional(z.string()),
-  ignoreRelative: z.optional(z.boolean()),
+export const AccessControlHandlerDefinition = v.strictObject({
+  type: v.literal('accessControl'),
+  roleNames: v
+    .record(
+      v.string().check((v) => /^0x[a-f\d]{64}$/i.test(v)),
+      v.string(),
+    )
+    .optional(),
+  pickRoleMembers: v.string().optional(),
+  ignoreRelative: v.boolean().optional(),
 })
 
 const abi = new utils.Interface([
@@ -55,7 +58,7 @@ export class AccessControlHandler implements Handler {
 
   async execute(
     provider: IProvider,
-    address: EthereumAddress,
+    address: ChainSpecificAddress,
   ): Promise<HandlerResult> {
     const unnamedRoles = await fetchAccessControl(provider, address)
 
@@ -93,7 +96,7 @@ export interface AccessControlType {
 
 export async function fetchAccessControl(
   provider: IProvider,
-  address: EthereumAddress,
+  address: ChainSpecificAddress,
 ): Promise<Record<string, AccessControlType>> {
   // TODO: (sz-piotr) Promise.all new provider
   const logs = await provider.getLogs(address, [
@@ -108,7 +111,7 @@ export async function fetchAccessControl(
     string,
     {
       adminRole: string
-      members: Set<EthereumAddress>
+      members: Set<ChainSpecificAddress>
     }
   > = {}
 
@@ -116,7 +119,7 @@ export async function fetchAccessControl(
 
   function getRole(role: string): {
     adminRole: string
-    members: Set<EthereumAddress>
+    members: Set<ChainSpecificAddress>
   } {
     const value = roles[role] ?? {
       adminRole: DEFAULT_ADMIN_ROLE_BYTES,
@@ -127,7 +130,7 @@ export async function fetchAccessControl(
   }
 
   for (const log of logs) {
-    const parsed = parseRoleLog(log)
+    const parsed = parseRoleLog(provider.chain, log)
     const role = getRole(parsed.role)
     if (parsed.type === 'RoleAdminChanged') {
       role.adminRole = parsed.adminRole
@@ -149,11 +152,14 @@ export async function fetchAccessControl(
   )
 }
 
-function parseRoleLog(log: providers.Log):
+function parseRoleLog(
+  longChain: string,
+  log: providers.Log,
+):
   | {
       readonly type: 'RoleGranted' | 'RoleRevoked'
       readonly role: string
-      readonly account: EthereumAddress
+      readonly account: ChainSpecificAddress
       readonly adminRole?: undefined
     }
   | {
@@ -167,7 +173,10 @@ function parseRoleLog(log: providers.Log):
     return {
       type: event.name,
       role: event.args.role as string,
-      account: EthereumAddress(event.args.account as string),
+      account: ChainSpecificAddress.fromLong(
+        longChain,
+        event.args.account as string,
+      ),
     } as const
   }
   return {

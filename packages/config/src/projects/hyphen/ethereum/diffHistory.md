@@ -1,4 +1,369 @@
-Generated with discovered.json: 0xeb4fb3364eed26dee52927b5bcdf2d0fff875ced
+Generated with discovered.json: 0xa60bb448262317ab94ac6a7ad632f1db48b8a377
+
+# Diff at Mon, 14 Jul 2025 12:45:11 GMT:
+
+- author: Mateusz Radomski (<radomski.main@protonmail.com>)
+- comparing to: main@9f4300dad2f3d080cd56fa311d4a848556c74e72 block: 20138492
+- current block number: 20138492
+
+## Description
+
+Discovery rerun on the same block number with only config-related changes.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 20138492 (main branch discovery), not current.
+
+```diff
+    EOA  (0x129443cA2a9Dec2020808a2868b38dDA457eaCC7) {
+    +++ description: None
+      address:
+-        "0x129443cA2a9Dec2020808a2868b38dDA457eaCC7"
++        "eth:0x129443cA2a9Dec2020808a2868b38dDA457eaCC7"
+    }
+```
+
+```diff
+    contract ProxyAdmin (0x13a4cC0750296bB72Eb0006febec306551A4f472) {
+    +++ description: None
+      address:
+-        "0x13a4cC0750296bB72Eb0006febec306551A4f472"
++        "eth:0x13a4cC0750296bB72Eb0006febec306551A4f472"
+      values.owner:
+-        "0x129443cA2a9Dec2020808a2868b38dDA457eaCC7"
++        "eth:0x129443cA2a9Dec2020808a2868b38dDA457eaCC7"
+      implementationNames.0x13a4cC0750296bB72Eb0006febec306551A4f472:
+-        "ProxyAdmin"
+      implementationNames.eth:0x13a4cC0750296bB72Eb0006febec306551A4f472:
++        "ProxyAdmin"
+    }
+```
+
+```diff
+    EOA  (0x1439eDA7f9A911b9120E9A0DAfb60eAE317F7685) {
+    +++ description: None
+      address:
+-        "0x1439eDA7f9A911b9120E9A0DAfb60eAE317F7685"
++        "eth:0x1439eDA7f9A911b9120E9A0DAfb60eAE317F7685"
+    }
+```
+
+```diff
+    contract LiquidityPool (0x2A5c2568b10A0E826BfA892Cf21BA7218310180b) {
+    +++ description: None
+      address:
+-        "0x2A5c2568b10A0E826BfA892Cf21BA7218310180b"
++        "eth:0x2A5c2568b10A0E826BfA892Cf21BA7218310180b"
+      values.$admin:
+-        "0x13a4cC0750296bB72Eb0006febec306551A4f472"
++        "eth:0x13a4cC0750296bB72Eb0006febec306551A4f472"
+      values.$implementation:
+-        "0x4906b8E690EB1E09Fec924422452d1105D59d042"
++        "eth:0x4906b8E690EB1E09Fec924422452d1105D59d042"
+      values.$pastUpgrades.0.2.0:
+-        "0x279ac60785A2FCb85550EB243B9A42A543171Cc7"
++        "eth:0x279ac60785A2FCb85550EB243B9A42A543171Cc7"
+      values.$pastUpgrades.1.2.0:
+-        "0xD0eE149a4Ceec165C456C1E2D4372318e4Df82bd"
++        "eth:0xD0eE149a4Ceec165C456C1E2D4372318e4Df82bd"
+      values.$pastUpgrades.2.2.0:
+-        "0x6C0CbaC5337Cf577452e99A18320fc5656Bd61E7"
++        "eth:0x6C0CbaC5337Cf577452e99A18320fc5656Bd61E7"
+      values.$pastUpgrades.3.2.0:
+-        "0x256415A1f9468E5405abdAfD9B76c4f24451d7E7"
++        "eth:0x256415A1f9468E5405abdAfD9B76c4f24451d7E7"
+      values.$pastUpgrades.4.2.0:
+-        "0x4906b8E690EB1E09Fec924422452d1105D59d042"
++        "eth:0x4906b8E690EB1E09Fec924422452d1105D59d042"
+      values.getExecutorManager:
+-        "0xbd761D917fB77381B4398Bda89C7F0d9A2BD1399"
++        "eth:0xbd761D917fB77381B4398Bda89C7F0d9A2BD1399"
+      values.liquidityProviders:
+-        "0xebaB24F13de55789eC1F3fFe99A285754e15F7b9"
++        "eth:0xebaB24F13de55789eC1F3fFe99A285754e15F7b9"
+      values.owner:
+-        "0xD76b82204BE75Ab9610B04CF27c4F4a34291D5E6"
++        "eth:0xD76b82204BE75Ab9610B04CF27c4F4a34291D5E6"
+      values.tokenManager:
+-        "0xe6dbf5861ed9828594Af4C6ea6356411c3A0B168"
++        "eth:0xe6dbf5861ed9828594Af4C6ea6356411c3A0B168"
+      implementationNames.0x2A5c2568b10A0E826BfA892Cf21BA7218310180b:
+-        "TransparentUpgradeableProxy"
+      implementationNames.0x4906b8E690EB1E09Fec924422452d1105D59d042:
+-        "LiquidityPool"
+      implementationNames.eth:0x2A5c2568b10A0E826BfA892Cf21BA7218310180b:
++        "TransparentUpgradeableProxy"
+      implementationNames.eth:0x4906b8E690EB1E09Fec924422452d1105D59d042:
++        "LiquidityPool"
+    }
+```
+
+```diff
+    EOA  (0x4Fb5dF81b644e3Bd5Ad0BA07DCE2B67559C764E0) {
+    +++ description: None
+      address:
+-        "0x4Fb5dF81b644e3Bd5Ad0BA07DCE2B67559C764E0"
++        "eth:0x4Fb5dF81b644e3Bd5Ad0BA07DCE2B67559C764E0"
+    }
+```
+
+```diff
+    EOA  (0x600Be30999eB256F2BEf451b69950f7dC84aC6b1) {
+    +++ description: None
+      address:
+-        "0x600Be30999eB256F2BEf451b69950f7dC84aC6b1"
++        "eth:0x600Be30999eB256F2BEf451b69950f7dC84aC6b1"
+    }
+```
+
+```diff
+    contract ExecutorManager (0xbd761D917fB77381B4398Bda89C7F0d9A2BD1399) {
+    +++ description: None
+      address:
+-        "0xbd761D917fB77381B4398Bda89C7F0d9A2BD1399"
++        "eth:0xbd761D917fB77381B4398Bda89C7F0d9A2BD1399"
+      values.getAllExecutors.0:
+-        "0xEEFD474e80B6CAEA43F212D964409c473684E3fe"
++        "eth:0xEEFD474e80B6CAEA43F212D964409c473684E3fe"
+      values.getAllExecutors.1:
+-        "0x1439eDA7f9A911b9120E9A0DAfb60eAE317F7685"
++        "eth:0x1439eDA7f9A911b9120E9A0DAfb60eAE317F7685"
+      values.getAllExecutors.2:
+-        "0x4Fb5dF81b644e3Bd5Ad0BA07DCE2B67559C764E0"
++        "eth:0x4Fb5dF81b644e3Bd5Ad0BA07DCE2B67559C764E0"
+      values.getAllExecutors.3:
+-        "0x600Be30999eB256F2BEf451b69950f7dC84aC6b1"
++        "eth:0x600Be30999eB256F2BEf451b69950f7dC84aC6b1"
+      values.owner:
+-        "0xD76b82204BE75Ab9610B04CF27c4F4a34291D5E6"
++        "eth:0xD76b82204BE75Ab9610B04CF27c4F4a34291D5E6"
+      implementationNames.0xbd761D917fB77381B4398Bda89C7F0d9A2BD1399:
+-        "ExecutorManager"
+      implementationNames.eth:0xbd761D917fB77381B4398Bda89C7F0d9A2BD1399:
++        "ExecutorManager"
+    }
+```
+
+```diff
+    EOA  (0xD76b82204BE75Ab9610B04CF27c4F4a34291D5E6) {
+    +++ description: None
+      address:
+-        "0xD76b82204BE75Ab9610B04CF27c4F4a34291D5E6"
++        "eth:0xD76b82204BE75Ab9610B04CF27c4F4a34291D5E6"
+    }
+```
+
+```diff
+    contract TokenManager (0xe6dbf5861ed9828594Af4C6ea6356411c3A0B168) {
+    +++ description: None
+      address:
+-        "0xe6dbf5861ed9828594Af4C6ea6356411c3A0B168"
++        "eth:0xe6dbf5861ed9828594Af4C6ea6356411c3A0B168"
+      values.$admin:
+-        "0x13a4cC0750296bB72Eb0006febec306551A4f472"
++        "eth:0x13a4cC0750296bB72Eb0006febec306551A4f472"
+      values.$implementation:
+-        "0x79E559AC5b499A5676e28f0074e29763F6c2A27e"
++        "eth:0x79E559AC5b499A5676e28f0074e29763F6c2A27e"
+      values.$pastUpgrades.0.2.0:
+-        "0x79E559AC5b499A5676e28f0074e29763F6c2A27e"
++        "eth:0x79E559AC5b499A5676e28f0074e29763F6c2A27e"
+      values.owner:
+-        "0xD76b82204BE75Ab9610B04CF27c4F4a34291D5E6"
++        "eth:0xD76b82204BE75Ab9610B04CF27c4F4a34291D5E6"
+      implementationNames.0xe6dbf5861ed9828594Af4C6ea6356411c3A0B168:
+-        "TransparentUpgradeableProxy"
+      implementationNames.0x79E559AC5b499A5676e28f0074e29763F6c2A27e:
+-        "TokenManager"
+      implementationNames.eth:0xe6dbf5861ed9828594Af4C6ea6356411c3A0B168:
++        "TransparentUpgradeableProxy"
+      implementationNames.eth:0x79E559AC5b499A5676e28f0074e29763F6c2A27e:
++        "TokenManager"
+    }
+```
+
+```diff
+    contract LiquidityProviders (0xebaB24F13de55789eC1F3fFe99A285754e15F7b9) {
+    +++ description: None
+      address:
+-        "0xebaB24F13de55789eC1F3fFe99A285754e15F7b9"
++        "eth:0xebaB24F13de55789eC1F3fFe99A285754e15F7b9"
+      values.$admin:
+-        "0x13a4cC0750296bB72Eb0006febec306551A4f472"
++        "eth:0x13a4cC0750296bB72Eb0006febec306551A4f472"
+      values.$implementation:
+-        "0x38391eA26F9EeE3ab81DE3C7eE9e168da5149103"
++        "eth:0x38391eA26F9EeE3ab81DE3C7eE9e168da5149103"
+      values.$pastUpgrades.0.2.0:
+-        "0x6cc7E949807c0945afcb2be0C92F42191b31dFD7"
++        "eth:0x6cc7E949807c0945afcb2be0C92F42191b31dFD7"
+      values.$pastUpgrades.1.2.0:
+-        "0x52a592fFE0377b351c8FD99189e5333ec362d66A"
++        "eth:0x52a592fFE0377b351c8FD99189e5333ec362d66A"
+      values.$pastUpgrades.2.2.0:
+-        "0x38391eA26F9EeE3ab81DE3C7eE9e168da5149103"
++        "eth:0x38391eA26F9EeE3ab81DE3C7eE9e168da5149103"
+      values.owner:
+-        "0xD76b82204BE75Ab9610B04CF27c4F4a34291D5E6"
++        "eth:0xD76b82204BE75Ab9610B04CF27c4F4a34291D5E6"
+      implementationNames.0xebaB24F13de55789eC1F3fFe99A285754e15F7b9:
+-        "TransparentUpgradeableProxy"
+      implementationNames.0x38391eA26F9EeE3ab81DE3C7eE9e168da5149103:
+-        "LiquidityProviders"
+      implementationNames.eth:0xebaB24F13de55789eC1F3fFe99A285754e15F7b9:
++        "TransparentUpgradeableProxy"
+      implementationNames.eth:0x38391eA26F9EeE3ab81DE3C7eE9e168da5149103:
++        "LiquidityProviders"
+    }
+```
+
+```diff
+    EOA  (0xEEFD474e80B6CAEA43F212D964409c473684E3fe) {
+    +++ description: None
+      address:
+-        "0xEEFD474e80B6CAEA43F212D964409c473684E3fe"
++        "eth:0xEEFD474e80B6CAEA43F212D964409c473684E3fe"
+    }
+```
+
+```diff
++   Status: CREATED
+    contract ProxyAdmin (0x13a4cC0750296bB72Eb0006febec306551A4f472)
+    +++ description: None
+```
+
+```diff
++   Status: CREATED
+    contract LiquidityPool (0x2A5c2568b10A0E826BfA892Cf21BA7218310180b)
+    +++ description: None
+```
+
+```diff
++   Status: CREATED
+    contract ExecutorManager (0xbd761D917fB77381B4398Bda89C7F0d9A2BD1399)
+    +++ description: None
+```
+
+```diff
++   Status: CREATED
+    contract TokenManager (0xe6dbf5861ed9828594Af4C6ea6356411c3A0B168)
+    +++ description: None
+```
+
+```diff
++   Status: CREATED
+    contract LiquidityProviders (0xebaB24F13de55789eC1F3fFe99A285754e15F7b9)
+    +++ description: None
+```
+
+Generated with discovered.json: 0xfbf1ff1770688455c940e59b9e9e5846c87d6415
+
+# Diff at Fri, 04 Jul 2025 12:19:04 GMT:
+
+- author: Mateusz Radomski (<radomski.main@protonmail.com>)
+- comparing to: main@1f56dc47fe915564d4555300304da4d3bcbc087f block: 20138492
+- current block number: 20138492
+
+## Description
+
+Discovery rerun on the same block number with only config-related changes.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 20138492 (main branch discovery), not current.
+
+```diff
+    contract ProxyAdmin (0x13a4cC0750296bB72Eb0006febec306551A4f472) {
+    +++ description: None
+      receivedPermissions.0.from:
+-        "ethereum:0x2A5c2568b10A0E826BfA892Cf21BA7218310180b"
++        "eth:0x2A5c2568b10A0E826BfA892Cf21BA7218310180b"
+      receivedPermissions.1.from:
+-        "ethereum:0xe6dbf5861ed9828594Af4C6ea6356411c3A0B168"
++        "eth:0xe6dbf5861ed9828594Af4C6ea6356411c3A0B168"
+      receivedPermissions.2.from:
+-        "ethereum:0xebaB24F13de55789eC1F3fFe99A285754e15F7b9"
++        "eth:0xebaB24F13de55789eC1F3fFe99A285754e15F7b9"
+    }
+```
+
+Generated with discovered.json: 0x69982da4e066ddcd2eb7cec7186deca284f0408a
+
+# Diff at Fri, 23 May 2025 09:40:57 GMT:
+
+- author: Adrian Adamiak (<adrian@adamiak.net>)
+- comparing to: main@69cd181abbc3c830a6caf2f4429b37cae72ffdb8 block: 20138492
+- current block number: 20138492
+
+## Description
+
+Introduced .role field on each permission, defaulting to field name on which it was defined (with '.' prefix)
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 20138492 (main branch discovery), not current.
+
+```diff
+    contract ProxyAdmin (0x13a4cC0750296bB72Eb0006febec306551A4f472) {
+    +++ description: None
+      receivedPermissions.2.role:
++        "admin"
+      receivedPermissions.1.role:
++        "admin"
+      receivedPermissions.0.role:
++        "admin"
+    }
+```
+
+Generated with discovered.json: 0xec3b7820736232ee77927eccb0c9c77c7d6226e5
+
+# Diff at Tue, 29 Apr 2025 08:19:04 GMT:
+
+- author: Adrian Adamiak (<adrian@adamiak.net>)
+- comparing to: main@ef7477af00fe0b57a2f7cacf7e958c12494af662 block: 20138492
+- current block number: 20138492
+
+## Description
+
+Field .issuedPermissions is removed from the output as no longer needed. Added 'permissionsConfigHash' due to refactoring of the modelling process (into a separate command).
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 20138492 (main branch discovery), not current.
+
+```diff
+    contract LiquidityPool (0x2A5c2568b10A0E826BfA892Cf21BA7218310180b) {
+    +++ description: None
+      issuedPermissions:
+-        [{"permission":"upgrade","to":"0x13a4cC0750296bB72Eb0006febec306551A4f472","via":[]}]
+    }
+```
+
+```diff
+    contract TokenManager (0xe6dbf5861ed9828594Af4C6ea6356411c3A0B168) {
+    +++ description: None
+      issuedPermissions:
+-        [{"permission":"upgrade","to":"0x13a4cC0750296bB72Eb0006febec306551A4f472","via":[]}]
+    }
+```
+
+```diff
+    contract LiquidityProviders (0xebaB24F13de55789eC1F3fFe99A285754e15F7b9) {
+    +++ description: None
+      issuedPermissions:
+-        [{"permission":"upgrade","to":"0x13a4cC0750296bB72Eb0006febec306551A4f472","via":[]}]
+    }
+```
+
+Generated with discovered.json: 0x65c507eb775722ef00f29846767eb4de57c04d9a
 
 # Diff at Tue, 04 Mar 2025 10:39:16 GMT:
 

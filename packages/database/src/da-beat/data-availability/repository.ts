@@ -7,7 +7,6 @@ import {
   toRecord,
   toRow,
 } from './entity'
-import { selectDataAvailability } from './select'
 
 export class DataAvailabilityRepository extends BaseRepository {
   async upsertMany(records: DataAvailabilityRecord[]): Promise<number> {
@@ -20,7 +19,7 @@ export class DataAvailabilityRepository extends BaseRepository {
         .values(batch)
         .onConflict((cb) =>
           cb
-            .columns(['timestamp', 'daLayer', 'projectId'])
+            .columns(['timestamp', 'daLayer', 'projectId', 'configurationId'])
             .doUpdateSet((eb) => ({
               totalSize: eb.ref('excluded.totalSize'),
             })),
@@ -37,11 +36,25 @@ export class DataAvailabilityRepository extends BaseRepository {
   ): Promise<DataAvailabilityRecord[]> {
     const rows = await this.db
       .selectFrom('DataAvailability')
-      .select(selectDataAvailability)
+      .selectAll()
       .where('daLayer', '=', daLayer)
       .where('timestamp', '>=', UnixTime.toDate(from))
-      .where('timestamp', '<=', UnixTime.toDate(to))
+      .where('timestamp', '<', UnixTime.toDate(to))
       .execute()
+    return rows.map(toRecord)
+  }
+
+  async getForDaLayerByTimestamp(
+    daLayer: string,
+    timestamp: UnixTime,
+  ): Promise<DataAvailabilityRecord[]> {
+    const rows = await this.db
+      .selectFrom('DataAvailability')
+      .selectAll()
+      .where('daLayer', '=', daLayer)
+      .where('timestamp', '=', UnixTime.toDate(timestamp))
+      .execute()
+
     return rows.map(toRecord)
   }
 
@@ -52,9 +65,9 @@ export class DataAvailabilityRepository extends BaseRepository {
     const [from, to] = timeRange
     let query = this.db
       .selectFrom('DataAvailability')
-      .select(selectDataAvailability)
+      .selectAll()
       .where('projectId', 'in', projectIds)
-      .where('timestamp', '<=', UnixTime.toDate(to))
+      .where('timestamp', '<', UnixTime.toDate(to))
       .orderBy('timestamp', 'asc')
 
     if (from !== null) {
@@ -69,6 +82,7 @@ export class DataAvailabilityRepository extends BaseRepository {
   async getSummedProjectsByDaLayersAndTimeRange(
     daLayers: string[],
     timeRange: [UnixTime | null, UnixTime],
+    excludedProjectIds?: string[],
   ): Promise<ProjectsSummedDataAvailabilityRecord[]> {
     const [from, to] = timeRange
     let query = this.db
@@ -82,11 +96,15 @@ export class DataAvailabilityRepository extends BaseRepository {
       // Exclude the daLayer itself because we only want to sum the projects
       .whereRef('projectId', '!=', 'daLayer')
       .groupBy(['timestamp', 'daLayer'])
-      .where('timestamp', '<=', UnixTime.toDate(to))
+      .where('timestamp', '<', UnixTime.toDate(to))
       .orderBy('timestamp', 'asc')
 
     if (from !== null) {
       query = query.where('timestamp', '>=', UnixTime.toDate(from))
+    }
+
+    if (excludedProjectIds && excludedProjectIds.length > 0) {
+      query = query.where('projectId', 'not in', excludedProjectIds)
     }
 
     const rows = await query.execute()
@@ -106,9 +124,9 @@ export class DataAvailabilityRepository extends BaseRepository {
     const [from, to] = timeRange
     let query = this.db
       .selectFrom('DataAvailability')
-      .select(selectDataAvailability)
+      .selectAll()
       .where('daLayer', 'in', daLayers)
-      .where('timestamp', '<=', UnixTime.toDate(to))
+      .where('timestamp', '<', UnixTime.toDate(to))
       .orderBy('timestamp', 'asc')
 
     if (from !== null) {
@@ -120,11 +138,10 @@ export class DataAvailabilityRepository extends BaseRepository {
     return rows.map(toRecord)
   }
 
-  async deleteByProject(projectId: string, daLayer: string): Promise<number> {
+  async deleteByConfigurationId(configurationId: string): Promise<number> {
     const result = await this.db
       .deleteFrom('DataAvailability')
-      .where('projectId', '=', projectId)
-      .where('daLayer', '=', daLayer)
+      .where('configurationId', '=', configurationId)
       .executeTakeFirst()
     return Number(result.numDeletedRows)
   }
@@ -133,7 +150,7 @@ export class DataAvailabilityRepository extends BaseRepository {
   async getAll(): Promise<DataAvailabilityRecord[]> {
     const rows = await this.db
       .selectFrom('DataAvailability')
-      .select(selectDataAvailability)
+      .selectAll()
       .execute()
     return rows.map(toRecord)
   }

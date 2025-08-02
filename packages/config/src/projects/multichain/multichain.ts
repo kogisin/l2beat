@@ -1,7 +1,13 @@
-import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
+import {
+  ChainSpecificAddress,
+  EthereumAddress,
+  ProjectId,
+  UnixTime,
+} from '@l2beat/shared-pure'
 import { BRIDGE_RISK_VIEW } from '../../common'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { Bridge } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 import config from './multichain-config.json'
 
 const discovery = new ProjectDiscovery('multichain')
@@ -94,12 +100,6 @@ export const multichain: Bridge = {
       description: '2/3rd of MPC.',
       sentiment: 'bad',
     },
-    sourceUpgradeability: {
-      value: 'No / EOA',
-      description:
-        'Depending on the router configuration escrow contracts are EOAs or Any tokens which cannot be upgraded.',
-      sentiment: 'bad',
-    },
     destinationToken: {
       ...BRIDGE_RISK_VIEW.CANONICAL_OR_WRAPPED,
       description:
@@ -109,7 +109,7 @@ export const multichain: Bridge = {
   },
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails(
           'AnyswapV4Router',
           'Multichain Liquidity Network Router V4.',
@@ -123,19 +123,23 @@ export const multichain: Bridge = {
     risks: [],
   },
   permissions: {
-    [discovery.chain]: {
+    ethereum: {
       actors: [
         discovery.getPermissionDetails(
           'Multichain "Liquidity Tool"',
           discovery.formatPermissionedAccounts([
-            EthereumAddress('0x5E583B6a1686f7Bc09A6bBa66E852A7C80d36F00'),
+            ChainSpecificAddress(
+              'eth:0x5E583B6a1686f7Bc09A6bBa66E852A7C80d36F00',
+            ),
           ]),
           'Privileged account that received funds from Ethereum source escrow without corresponding burn on the destination chain. These funds were bridged to different chains and used to supply liquidity for various anyTokens. Users have to trust this account that it never tries to redeem held anyTokens for the underlying canonical token.',
         ),
         discovery.getPermissionDetails(
           'Multichain MPC',
           discovery.formatPermissionedAccounts([
-            EthereumAddress('0x2A038e100F8B85DF21e4d44121bdBfE0c288A869'),
+            ChainSpecificAddress(
+              'eth:0x2A038e100F8B85DF21e4d44121bdBfE0c288A869',
+            ),
           ]),
           'Account controlled by the MPC nodes. Can set minters for anyTokens. Can access liquidity in anyTokens.',
         ),
@@ -180,4 +184,5 @@ export const multichain: Bridge = {
       type: 'incident',
     },
   ],
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

@@ -1,8 +1,9 @@
 import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
-import { unionBy } from 'lodash'
+import unionBy from 'lodash/unionBy'
 import { BRIDGE_RISK_VIEW } from '../../common'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { Bridge } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('cbridge')
 
@@ -21,7 +22,7 @@ export const cBridge: Bridge = {
     category: 'Hybrid',
     links: {
       websites: ['https://celer.network/'],
-      apps: ['https://cbridge.celer.network/'],
+      bridges: ['https://cbridge.celer.network/'],
       explorers: [
         'https://cbridge-analytics.celer.network/',
         'https://celerscan.com/',
@@ -52,12 +53,12 @@ export const cBridge: Bridge = {
           'USDC',
           'WETH',
           'USDT',
-          'FRAX',
+          'FRAX.legacy',
           'DAI',
           'RLY',
           'WBTC',
           'CELR',
-          'FXS',
+          'FRAX',
           'WXT',
         ],
         chain: 'ethereum',
@@ -151,7 +152,6 @@ export const cBridge: Bridge = {
     },
   },
   riskView: {
-    sourceUpgradeability: BRIDGE_RISK_VIEW.UPGRADABLE_NO,
     destinationToken: BRIDGE_RISK_VIEW.CANONICAL_OR_WRAPPED,
     validatedBy: {
       value: 'Third Party',
@@ -162,7 +162,7 @@ export const cBridge: Bridge = {
   },
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails(
           'MessageBus',
           'Contract providing cross-chain AMB facility. It connects with Liquidity Network and Token Bridges to processes certain types of messages.',
@@ -220,7 +220,7 @@ export const cBridge: Bridge = {
     risks: [],
   },
   permissions: {
-    [discovery.chain]: {
+    ethereum: {
       actors: [
         discovery.getPermissionDetails(
           'Bridge Governance',
@@ -263,4 +263,5 @@ export const cBridge: Bridge = {
       ],
     },
   },
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

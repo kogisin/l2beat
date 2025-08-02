@@ -1,16 +1,15 @@
 import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
-
-import { CONTRACTS } from '../../common'
-import { BRIDGE_RISK_VIEW } from '../../common'
+import { BRIDGE_RISK_VIEW, CONTRACTS } from '../../common'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { Bridge } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('portal')
 
-const guardians = discovery.getContractValue<[string[], number]>(
-  'WormholeCore',
-  'guardianSet',
-)[0]
+const guardians = discovery.getContractValue<{
+  keys: string[]
+  expirationTime: number
+}>('WormholeCore', 'guardianSet').keys
 
 export const portal: Bridge = {
   type: 'bridge',
@@ -26,7 +25,7 @@ export const portal: Bridge = {
         'https://docs.wormhole.com/wormhole',
       ],
       explorers: ['https://wormholescan.io/'],
-      apps: ['https://portalbridge.com'],
+      bridges: ['https://portalbridge.com'],
       repositories: ['https://github.com/wormhole-foundation/wormhole'],
       socialMedia: [
         'https://discord.gg/wormholecrypto',
@@ -56,12 +55,6 @@ export const portal: Bridge = {
       value: 'Third Party',
       description:
         'Transfers need to be signed offchain by a set of 2/3 of Guardians and then relayed to the destination chain.',
-      sentiment: 'bad',
-    },
-    sourceUpgradeability: {
-      value: 'Yes',
-      description:
-        'The code that secures the system can be changed arbitrarily and without notice.',
       sentiment: 'bad',
     },
     destinationToken: BRIDGE_RISK_VIEW.CANONICAL_OR_WRAPPED,
@@ -142,7 +135,7 @@ export const portal: Bridge = {
 
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails(
           'WormholeCore',
           'Governance contract storing the current Guardian set and providing a facility to verify cross-chain messages by verifying Guardians signatures. \
@@ -170,7 +163,7 @@ export const portal: Bridge = {
   },
 
   permissions: {
-    [discovery.chain]: {
+    ethereum: {
       actors: [
         discovery.getPermissionDetails(
           'Guardian Network',
@@ -196,4 +189,5 @@ export const portal: Bridge = {
       type: 'incident',
     },
   ],
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

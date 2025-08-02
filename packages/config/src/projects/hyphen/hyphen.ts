@@ -1,9 +1,8 @@
 import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
-
-import { CONTRACTS } from '../../common'
-import { BRIDGE_RISK_VIEW } from '../../common'
+import { BRIDGE_RISK_VIEW, CONTRACTS } from '../../common'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { Bridge } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('hyphen')
 
@@ -11,9 +10,12 @@ export const hyphen: Bridge = {
   type: 'bridge',
   id: ProjectId('hyphen'),
   addedAt: UnixTime(1662628329), // 2022-09-08T09:12:09Z
+  archivedAt: UnixTime(1753083581),
   display: {
     name: 'Hyphen',
     slug: 'hyphen',
+    warning:
+      'Hyphen has been decommissioned as of December 31, 2024. See the announcement [here](https://hyphen.biconomy.io).',
     category: 'Liquidity Network',
     links: {
       websites: ['https://hyphen.biconomy.io/'],
@@ -95,16 +97,11 @@ export const hyphen: Bridge = {
       description: 'Withdrawals are validated by an EOA.',
       sentiment: 'bad',
     },
-    sourceUpgradeability: {
-      value: 'Yes',
-      description: 'Contracts can be upgraded.',
-      sentiment: 'bad',
-    },
     destinationToken: BRIDGE_RISK_VIEW.CANONICAL,
   },
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails('LiquidityPool'),
         discovery.getContractDetails(
           'TokenManager',
@@ -123,7 +120,7 @@ export const hyphen: Bridge = {
     risks: [CONTRACTS.UPGRADE_NO_DELAY_RISK],
   },
   permissions: {
-    [discovery.chain]: {
+    ethereum: {
       actors: [
         discovery.getPermissionDetails(
           'ProxyAdmin owner',
@@ -146,4 +143,5 @@ export const hyphen: Bridge = {
       ],
     },
   },
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

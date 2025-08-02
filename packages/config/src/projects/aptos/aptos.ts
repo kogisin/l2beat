@@ -1,9 +1,13 @@
-import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
-
-import { CONTRACTS } from '../../common'
-import { BRIDGE_RISK_VIEW } from '../../common'
+import {
+  ChainSpecificAddress,
+  EthereumAddress,
+  ProjectId,
+  UnixTime,
+} from '@l2beat/shared-pure'
+import { BRIDGE_RISK_VIEW, CONTRACTS } from '../../common'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { Bridge } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('aptos')
 
@@ -32,20 +36,34 @@ export const aptos: Bridge = {
     },
     description:
       'Aptos Bridge is built on top of LayerZero protocol and is a token bridge for transferring assets from Ethereum to Aptos. It leverages an oracle and relayer for cross-chain security for the protocol.',
-    category: 'Token Bridge',
+    category: 'Single-chain',
   },
   riskView: {
     validatedBy: {
-      value: 'Third Party',
+      value: 'EOA',
       description:
-        'Transfers need to be independently confirmed by oracle attesting to source chain checkpoints and Relayer providing merkle proof of the transfer event.',
+        'Transfers need to be independently confirmed by an oracle attesting to source chain checkpoints and a relayer providing a merkle proof of the transfer event.',
       sentiment: 'bad',
     },
-    sourceUpgradeability: {
-      value: 'Yes',
+    livenessFailure: {
+      value: 'No mechanism',
       description:
-        'Token Bridge contracts are not upgradable but the owner (EOA) can remove all the funds after 1 week delay. LayerZero contracts are upgradable without delay.',
+        'If the operators do not service the bridge, deposited funds do not arrive at the destination chain and are stuck.',
       sentiment: 'bad',
+    },
+    governance: {
+      upgrade: {
+        value: 'EOA',
+        description:
+          'Token Bridge contracts are not upgradable but the owner (EOA) can remove all the funds after 1 week delay. LayerZero contracts are upgradable without delay.',
+        sentiment: 'bad',
+      },
+      pause: {
+        value: 'EOA',
+        sentiment: 'bad',
+        description:
+          'Although the globalPause function is restricted to a Multisig, parts of the message bridge are upgradeable by an EOA which can be used to freeze the bridge.',
+      },
     },
     destinationToken: BRIDGE_RISK_VIEW.CANONICAL,
   },
@@ -103,7 +121,7 @@ export const aptos: Bridge = {
   },
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails('TokenBridge', 'Aptos Token Bridge.'),
         discovery.getContractDetails('LayerZero Relayer'),
         discovery.getContractDetails('LayerZero Oracle'),
@@ -122,7 +140,7 @@ export const aptos: Bridge = {
     risks: [CONTRACTS.UPGRADE_NO_DELAY_RISK],
   },
   permissions: {
-    [discovery.chain]: {
+    ethereum: {
       actors: [
         discovery.getMultisigPermission(
           'Aptos Multisig',
@@ -131,21 +149,27 @@ export const aptos: Bridge = {
         discovery.getPermissionDetails(
           'LayerZero Relayer',
           discovery.formatPermissionedAccounts([
-            EthereumAddress('0x902F09715B6303d4173037652FA7377e5b98089E'),
+            ChainSpecificAddress(
+              'eth:0x902F09715B6303d4173037652FA7377e5b98089E',
+            ),
           ]),
           'Contract authorized to relay messages and - as a result - withdraw funds from the bridge.',
         ),
         discovery.getPermissionDetails(
           'LayerZero Relayer Admin owner',
           discovery.formatPermissionedAccounts([
-            EthereumAddress('0x76F6d257CEB5736CbcAAb5c48E4225a45F74d6e5'),
+            ChainSpecificAddress(
+              'eth:0x76F6d257CEB5736CbcAAb5c48E4225a45F74d6e5',
+            ),
           ]),
           'Can upgrade LayerZero relayer contract with no delay.',
         ),
         discovery.getPermissionDetails(
           'LayerZero Oracle Admin owner',
           discovery.formatPermissionedAccounts([
-            EthereumAddress('0x7B80f2924E3Ad59a55f4bcC38AB63480599Be6c8'),
+            ChainSpecificAddress(
+              'eth:0x7B80f2924E3Ad59a55f4bcC38AB63480599Be6c8',
+            ),
           ]),
           'Can upgrade LayerZero oracle contract with no delay.',
         ),
@@ -156,4 +180,5 @@ export const aptos: Bridge = {
       ],
     },
   },
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

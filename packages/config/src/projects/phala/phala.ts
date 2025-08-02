@@ -1,17 +1,16 @@
 import {
-  EthereumAddress,
+  ChainSpecificAddress,
+  formatSeconds,
   ProjectId,
   UnixTime,
-  formatSeconds,
 } from '@l2beat/shared-pure'
 import {
-  DATA_ON_CHAIN,
   DA_BRIDGES,
   DA_LAYERS,
   DA_MODES,
+  DATA_ON_CHAIN,
   EXITS,
   FRONTRUNNING_RISK,
-  NEW_CRYPTOGRAPHY,
   OPERATOR,
   RISK_VIEW,
   TECHNOLOGY_DATA_AVAILABILITY,
@@ -25,6 +24,7 @@ import {
   generateDiscoveryDrivenContracts,
   generateDiscoveryDrivenPermissions,
 } from '../../templates/generateDiscoveryDrivenSections'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 import { safeGetImplementation } from '../../templates/utils'
 
 const discovery = new ProjectDiscovery('phala')
@@ -34,11 +34,11 @@ const finalizationPeriod = discovery.getContractValue<number>(
   'finalizationPeriodSeconds',
 )
 
-const sequencerAddress = EthereumAddress(
+const sequencerAddress = ChainSpecificAddress(
   discovery.getContractValue('SystemConfig', 'batcherHash'),
 )
 
-const sequencerInbox = EthereumAddress(
+const sequencerInbox = ChainSpecificAddress(
   discovery.getContractValue('SystemConfig', 'sequencerInbox'),
 )
 
@@ -82,7 +82,6 @@ export const phala: ScalingProject = {
         finalizationPeriod,
       )} after it has been posted.`,
     },
-    finality: { finalizationPeriod: finalizationPeriod },
   },
   chainConfig: {
     name: 'phala',
@@ -103,6 +102,7 @@ export const phala: ScalingProject = {
     ],
   },
   config: {
+    associatedTokens: ['PHA'],
     activityConfig: {
       type: 'block',
       startBlock: 1,
@@ -110,12 +110,16 @@ export const phala: ScalingProject = {
     },
     escrows: [
       discovery.getEscrowDetails({
-        address: EthereumAddress('0x6A3444d11cA2697fe4A19AC8995ABDd8Dd301521'),
+        address: ChainSpecificAddress(
+          'eth:0x6A3444d11cA2697fe4A19AC8995ABDd8Dd301521',
+        ),
         sinceTimestamp: UnixTime(1734388655),
         tokens: '*',
       }),
       discovery.getEscrowDetails({
-        address: EthereumAddress('0x96B124841Eff4Ab1b3C1F654D60402a1405fF51A'),
+        address: ChainSpecificAddress(
+          'eth:0x96B124841Eff4Ab1b3C1F654D60402a1405fF51A',
+        ),
         sinceTimestamp: UnixTime(1734388655),
         tokens: ['ETH'],
       }),
@@ -128,8 +132,8 @@ export const phala: ScalingProject = {
         ],
         query: {
           formula: 'transfer',
-          from: sequencerAddress,
-          to: sequencerInbox,
+          from: ChainSpecificAddress.address(sequencerAddress),
+          to: ChainSpecificAddress.address(sequencerInbox),
           sinceTimestamp: UnixTime(1734388655),
         },
       },
@@ -140,11 +144,40 @@ export const phala: ScalingProject = {
         ],
         query: {
           formula: 'functionCall',
-          address: l2OutputOracle.address,
+          address: ChainSpecificAddress.address(l2OutputOracle.address),
           selector: '0x9ad84880',
           functionSignature:
             'function proposeL2Output(bytes32 _outputRoot, uint256 _l2BlockNumber, uint256 _l1BlockNumber, bytes _proof)',
           sinceTimestamp: UnixTime(1734388655),
+          untilTimestamp: UnixTime(1746606971),
+        },
+      },
+      {
+        uses: [
+          { type: 'liveness', subtype: 'stateUpdates' },
+          { type: 'l2costs', subtype: 'stateUpdates' },
+        ],
+        query: {
+          formula: 'functionCall',
+          address: ChainSpecificAddress.address(l2OutputOracle.address),
+          selector: '0x59c3e00a', // non-optimistic mode
+          functionSignature:
+            'function proposeL2Output(bytes32 _outputRoot, uint256 _l2BlockNumber, uint256 _l1BlockNumber, bytes _proof, address _proverAddress)',
+          sinceTimestamp: UnixTime(1746606971),
+        },
+      },
+      {
+        uses: [
+          { type: 'liveness', subtype: 'stateUpdates' },
+          { type: 'l2costs', subtype: 'stateUpdates' },
+        ],
+        query: {
+          formula: 'functionCall',
+          address: ChainSpecificAddress.address(l2OutputOracle.address),
+          selector: '0x9aaab648', // optimistic mode
+          functionSignature:
+            'function proposeL2Output(bytes32 _outputRoot, uint256 _l2BlockNumber, bytes32 _l1BlockHash, uint256 _l1BlockNumber)',
+          sinceTimestamp: UnixTime(1746606971),
         },
       },
     ],
@@ -178,11 +211,11 @@ export const phala: ScalingProject = {
         stateRootsPostedToL1: true,
         dataAvailabilityOnL1: true,
         rollupNodeSourceAvailable: true,
+        stateVerificationOnL1: true,
+        fraudProofSystemAtLeast5Outsiders: null,
       },
       stage1: {
         principle: false,
-        stateVerificationOnL1: true,
-        fraudProofSystemAtLeast5Outsiders: false,
         usersHave7DaysToExit: false,
         usersCanExitWithoutCooperation: false,
         securityCouncilProperlySetUp: false,
@@ -197,50 +230,44 @@ export const phala: ScalingProject = {
       rollupNodeLink: 'https://github.com/succinctlabs/op-succinct/',
     },
   ),
-  technology: {
-    stateCorrectness: {
-      name: 'Validity proofs ensure state correctness',
-      description: `Each update to the system state must be accompanied by a ZK proof that ensures that the new state was derived by correctly applying a series of valid user transactions to the previous state. These proofs are then verified on Ethereum by a smart contract.
+  stateValidation: {
+    categories: [
+      {
+        title: 'Validity proofs',
+        description: `Each update to the system state must be accompanied by a ZK proof that ensures that the new state was derived by correctly applying a series of valid user transactions to the previous state. These proofs are then verified on Ethereum by a smart contract.
         Through the SuccinctL2OutputOracle, the system also allows to switch to an optimistic mode, in which no proofs are required and a challenger can challenge the proposed output state root within the finalization period.`,
-      references: [
-        {
-          url: 'https://succinctlabs.github.io/op-succinct/architecture.html',
-          title: 'Op-Succinct architecture',
-        },
-      ],
-      risks: [
-        {
-          category: 'Funds can be stolen if',
-          text: 'in non-optimistic mode, the validity proof cryptography is broken or implemented incorrectly.',
-        },
-        {
-          category: 'Funds can be stolen if',
-          text: 'optimistic mode is enabled and no challenger checks the published state.',
-        },
-        {
-          category: 'Funds can be stolen if',
-          text: 'the proposer routes proof verification through a malicious or faulty verifier by specifying an unsafe route id.',
-        },
-        {
-          category: 'Funds can be frozen if',
-          text: 'the permissioned proposer fails to publish state roots to the L1.',
-        },
-        {
-          category: 'Funds can be frozen if',
-          text: 'in non-optimistic mode, the SuccinctGateway is unable to route proof verification to a valid verifier.',
-        },
-      ],
-    },
-    newCryptography: {
-      ...NEW_CRYPTOGRAPHY.ZK_SNARKS,
-      references: [
-        {
-          url: 'https://succinctlabs.github.io/op-succinct/architecture.html',
-          title: 'Op-Succinct architecture',
-        },
-      ],
-      risks: [],
-    },
+        references: [
+          {
+            url: 'https://succinctlabs.github.io/op-succinct/architecture.html',
+            title: 'Op-Succinct architecture',
+          },
+        ],
+        risks: [
+          {
+            category: 'Funds can be stolen if',
+            text: 'in non-optimistic mode, the validity proof cryptography is broken or implemented incorrectly.',
+          },
+          {
+            category: 'Funds can be stolen if',
+            text: 'optimistic mode is enabled and no challenger checks the published state.',
+          },
+          {
+            category: 'Funds can be stolen if',
+            text: 'the proposer routes proof verification through a malicious or faulty verifier by specifying an unsafe route id.',
+          },
+          {
+            category: 'Funds can be frozen if',
+            text: 'the permissioned proposer fails to publish state roots to the L1.',
+          },
+          {
+            category: 'Funds can be frozen if',
+            text: 'in non-optimistic mode, the SuccinctGateway is unable to route proof verification to a valid verifier.',
+          },
+        ],
+      },
+    ],
+  },
+  technology: {
     dataAvailability: {
       ...TECHNOLOGY_DATA_AVAILABILITY.ON_CHAIN_BLOB_OR_CALLDATA,
       references: [
@@ -306,12 +333,20 @@ export const phala: ScalingProject = {
     risks: [
       {
         category: 'Funds can be stolen if',
-        text: `the contracts or their dependencies (e.g. SuccinctGateway) receive a malicious code upgrade. There is no delay on upgrades.`,
+        text: 'the contracts or their dependencies (e.g. SuccinctGateway) receive a malicious code upgrade. There is no delay on upgrades.',
       },
     ],
   },
   permissions: generateDiscoveryDrivenPermissions([discovery]),
   milestones: [
+    {
+      title: 'Plonky3 vulnerability patch',
+      url: 'https://x.com/SuccinctLabs/status/1929773028034204121',
+      date: '2025-06-04T00:00:00.00Z',
+      description:
+        'SP1 verifier is patched to fix critical vulnerability in Plonky3 proof system (SP1 dependency).',
+      type: 'incident',
+    },
     {
       title: 'Phala Network Launch',
       url: 'https://x.com/PhalaNetwork/status/1877052813383184606',
@@ -320,4 +355,5 @@ export const phala: ScalingProject = {
       type: 'general',
     },
   ],
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

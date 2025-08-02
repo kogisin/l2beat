@@ -1,13 +1,12 @@
 import { type ProjectId, UnixTime } from '@l2beat/shared-pure'
 import { BaseRepository } from '../../BaseRepository'
 import { type AggregatedL2CostRecord, toRecord, toRow } from './entity'
-import { selectAggregatedL2Costs } from './select'
 
 export class AggregatedL2CostRepository extends BaseRepository {
   async getAll(): Promise<AggregatedL2CostRecord[]> {
     const rows = await this.db
       .selectFrom('AggregatedL2Cost')
-      .select(selectAggregatedL2Costs)
+      .selectAll()
       .execute()
     return rows.map(toRecord)
   }
@@ -61,17 +60,23 @@ export class AggregatedL2CostRepository extends BaseRepository {
 
   async getByProjectAndTimeRange(
     projectId: ProjectId,
-    timeRange: [UnixTime, UnixTime],
+    timeRange: [UnixTime | null, UnixTime],
   ): Promise<AggregatedL2CostRecord[]> {
     const [from, to] = timeRange
-    const rows = await this.db
+    let query = this.db
       .selectFrom('AggregatedL2Cost')
-      .select(selectAggregatedL2Costs)
+      .selectAll()
       .where('projectId', '=', projectId.toString())
-      .where('timestamp', '>=', UnixTime.toDate(from))
+
+    if (from !== null) {
+      query = query.where('timestamp', '>=', UnixTime.toDate(from))
+    }
+
+    query = query
       .where('timestamp', '<', UnixTime.toDate(to))
       .orderBy('timestamp', 'asc')
-      .execute()
+
+    const rows = await query.execute()
     return rows.map(toRecord)
   }
 
@@ -83,7 +88,7 @@ export class AggregatedL2CostRepository extends BaseRepository {
     const [from, to] = timeRange
     let query = this.db
       .selectFrom('AggregatedL2Cost')
-      .select(selectAggregatedL2Costs)
+      .selectAll()
       .where(
         'projectId',
         'in',

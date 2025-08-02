@@ -1,7 +1,20 @@
-import { mkdirSync, writeFileSync } from 'fs'
+import { getDiscoveryPaths, readJsonc } from '@l2beat/discovery'
+import {
+  ChainSpecificAddress,
+  type EthereumAddress,
+  formatJson,
+  unique,
+  withoutUndefinedKeys,
+} from '@l2beat/shared-pure'
+import { existsSync, mkdirSync, writeFileSync } from 'fs'
+import mergeWith from 'lodash/mergeWith'
 import path from 'path'
-import { type RawDiscoveryConfig, getDiscoveryPaths } from '@l2beat/discovery'
-import type { EthereumAddress } from '@l2beat/shared-pure'
+
+interface ConfigSkeleton {
+  chains?: Record<string, object>
+  import?: string[]
+  archived?: boolean
+}
 
 export function initDiscovery(
   project: string,
@@ -9,30 +22,46 @@ export function initDiscovery(
   initalAddresses: EthereumAddress[],
 ) {
   const paths = getDiscoveryPaths()
-  const projectPath = path.join(paths.discovery, project, chain)
+  const projectPath = path.join(paths.discovery, project)
   mkdirSync(projectPath, { recursive: true })
 
+  let existingConfig: ConfigSkeleton = {}
   const configPath = path.join(projectPath, 'config.jsonc')
-  createEmptyConfig(configPath, project, chain, initalAddresses)
+  if (existsSync(configPath)) {
+    existingConfig = readJsonc(configPath) as ConfigSkeleton
+  }
+
+  const config = createEmptyConfig(
+    existingConfig,
+    project,
+    initalAddresses.map((a) => ChainSpecificAddress.fromLong(chain, a)),
+  )
+
+  const content = formatJson(config)
+  writeFileSync(configPath, content)
 }
 
 function createEmptyConfig(
-  path: string,
+  existingConfig: ConfigSkeleton,
   project: string,
-  chain: string,
-  initialAddresses: EthereumAddress[],
+  initialAddresses: ChainSpecificAddress[],
 ) {
-  const config: RawDiscoveryConfig = {
+  const newConfig = {
+    $schema: '../../../../discovery/schemas/config.v2.schema.json',
     name: project,
-    chain,
+    import:
+      existingConfig.import === undefined
+        ? ['../globalConfig.jsonc']
+        : undefined,
+    archived: existingConfig.archived ?? undefined,
     initialAddresses,
   }
 
-  const withSchema = {
-    $schema: '../../../../discovery/schemas/config.v2.schema.json',
-    ...config,
-  }
-
-  const content = JSON.stringify(withSchema, null, 2)
-  writeFileSync(path, `${content}\n`)
+  return withoutUndefinedKeys(
+    mergeWith({}, existingConfig, newConfig, (a, b) => {
+      if (Array.isArray(a) && Array.isArray(b)) {
+        return unique(a.concat(b), (a) => JSON.stringify(a))
+      }
+    }),
+  )
 }

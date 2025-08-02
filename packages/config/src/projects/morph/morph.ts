@@ -1,23 +1,22 @@
 import {
   EthereumAddress,
+  formatSeconds,
   ProjectId,
   UnixTime,
-  formatSeconds,
 } from '@l2beat/shared-pure'
 import {
   CONTRACTS,
   DA_BRIDGES,
   DA_LAYERS,
   DA_MODES,
+  ESCROW,
   EXITS,
   FORCE_TRANSACTIONS,
   FRONTRUNNING_RISK,
-  NEW_CRYPTOGRAPHY,
+  REASON_FOR_BEING_OTHER,
   RISK_VIEW,
   TECHNOLOGY_DATA_AVAILABILITY,
 } from '../../common'
-import { REASON_FOR_BEING_OTHER } from '../../common'
-import { ESCROW } from '../../common'
 import { BADGES } from '../../common/badges'
 import { formatChallengePeriod } from '../../common/formatDelays'
 import { getStage } from '../../common/stages/getStage'
@@ -27,6 +26,7 @@ import {
   generateDiscoveryDrivenContracts,
   generateDiscoveryDrivenPermissions,
 } from '../../templates/generateDiscoveryDrivenSections'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('morph')
 
@@ -63,10 +63,10 @@ export const morph: ScalingProject = {
     description:
       'Morph is an EVM compatible rollup. It operates as an optimistic rollup with ZK fault proofs and has plans for decentralizing the Sequencer. Their mission is to build the first blockchain for consumers, where user-friendly applications integrate seamlessly into everyday life, becoming indispensable utilities.',
     purposes: ['Universal'],
-    category: 'Optimistic Rollup',
+    category: 'Other',
     links: {
       websites: ['https://morphl2.io'],
-      apps: ['https://bridge.morphl2.io/'],
+      bridges: ['https://bridge.morphl2.io/'],
       documentation: ['https://docs.morphl2.io'],
       explorers: ['https://explorer.morphl2.io'],
       repositories: ['https://github.com/morph-l2'],
@@ -86,11 +86,11 @@ export const morph: ScalingProject = {
       stateRootsPostedToL1: true,
       dataAvailabilityOnL1: true,
       rollupNodeSourceAvailable: 'UnderReview',
+      stateVerificationOnL1: true,
+      fraudProofSystemAtLeast5Outsiders: false,
     },
     stage1: {
       principle: false,
-      stateVerificationOnL1: true,
-      fraudProofSystemAtLeast5Outsiders: false,
       usersHave7DaysToExit: false,
       usersCanExitWithoutCooperation: false,
       securityCouncilProperlySetUp: false,
@@ -146,15 +146,15 @@ export const morph: ScalingProject = {
         type: 'ethereum',
         daLayer: ProjectId('ethereum'),
         sinceBlock: 0, // Edge Case: config added @ DA Module start
-        inbox: '0x759894Ced0e6af42c26668076Ffa84d02E3CeF60',
+        inbox: EthereumAddress('0x759894Ced0e6af42c26668076Ffa84d02E3CeF60'),
         sequencers: [
-          '0x34E387B37d3ADEAa6D5B92cE30dE3af3DCa39796',
-          '0x61F2945d4bc9E40B66a6376d1094a50438f613e2',
-          '0x6aB0E960911b50f6d14f249782ac12EC3E7584A0',
-          '0xa59B26DB10C5Ca26a97AA2Fd2E74CB8DA9D1EB65',
-          '0xb6cF39ee72e0127E6Ea6059e38B8C197227a6ac7',
-          '0xBBA36CdF020788f0D08D5688c0Bee3fb30ce1C80',
-          '0xC412B4e6399F694CfF21D038d225373Fd6596811',
+          EthereumAddress('0x34E387B37d3ADEAa6D5B92cE30dE3af3DCa39796'),
+          EthereumAddress('0x61F2945d4bc9E40B66a6376d1094a50438f613e2'),
+          EthereumAddress('0x6aB0E960911b50f6d14f249782ac12EC3E7584A0'),
+          EthereumAddress('0xa59B26DB10C5Ca26a97AA2Fd2E74CB8DA9D1EB65'),
+          EthereumAddress('0xb6cF39ee72e0127E6Ea6059e38B8C197227a6ac7'),
+          EthereumAddress('0xBBA36CdF020788f0D08D5688c0Bee3fb30ce1C80'),
+          EthereumAddress('0xC412B4e6399F694CfF21D038d225373Fd6596811'),
         ],
       },
     ],
@@ -201,34 +201,35 @@ export const morph: ScalingProject = {
       },
     ],
   },
-  technology: {
-    newCryptography: {
-      ...NEW_CRYPTOGRAPHY.ZK_SNARKS,
-    },
-    stateCorrectness: {
-      name: 'Single round fault proof system',
-      description: `Morph uses an one round fault proof system where whitelisted Challengers, if they find a faulty state root within the ${formatSeconds(challengeWindow)} challenge window, \
+  stateValidation: {
+    categories: [
+      {
+        title: 'Fraud proofs',
+        description: `Morph uses an one round fault proof system where whitelisted Challengers, if they find a faulty state root within the ${formatSeconds(challengeWindow)} challenge window, \
           can post a ${challengeBond} WEI bond and request a ZK proof of the state transition. After the challenge, during a ${formatSeconds(proofWindow)} proving window, a ZK proof must be \
           delivered, otherwise the state root is considered invalid and the root proposer bond, which is set currently to ${stakingValue} ETH, is slashed. The zkEVM used is SP1 from Succinct.\
           If the valid proof is delivered, the Challenger loses the challenge bond. The MorphAdminMSig can override any batch (both unfinalized and finalized), potentially preventing the ability to provide valid ZK proofs.`,
-      references: [
-        {
-          title:
-            'Rollup.sol - Etherscan source code, commitBatch(), challengeState(), proveState() functions',
-          url: 'https://etherscan.io/address/0x43190DfD1F572Cb56B1942B44482d1774151D77A',
-        },
-      ],
-      risks: [
-        {
-          category: 'Funds can be stolen if',
-          text: 'whitelisted challenger does not post a challenge of an incorrect state root.',
-        },
-        {
-          category: 'Funds can be lost if',
-          text: 'the owner overrides finalized batches.',
-        },
-      ],
-    },
+        references: [
+          {
+            title:
+              'Rollup.sol - Etherscan source code, commitBatch(), challengeState(), proveState() functions',
+            url: 'https://etherscan.io/address/0x9C79e8F5d0fE910d84a6a0d4A03E8136d036eBec',
+          },
+        ],
+        risks: [
+          {
+            category: 'Funds can be stolen if',
+            text: 'whitelisted challenger does not post a challenge of an incorrect state root.',
+          },
+          {
+            category: 'Funds can be lost if',
+            text: 'the owner overrides finalized batches.',
+          },
+        ],
+      },
+    ],
+  },
+  technology: {
     dataAvailability: {
       ...TECHNOLOGY_DATA_AVAILABILITY.ON_CHAIN_BLOB_OR_CALLDATA,
       references: [
@@ -267,7 +268,7 @@ export const morph: ScalingProject = {
         {
           title:
             'Rollup.sol - Sequencer decides if / how many transactions to dequeue',
-          url: 'https://etherscan.io/address/0x43190DfD1F572Cb56B1942B44482d1774151D77A#code#F1#L534',
+          url: 'https://etherscan.io/address/0x9C79e8F5d0fE910d84a6a0d4A03E8136d036eBec#code#F1#L534',
         },
       ],
     },
@@ -290,4 +291,5 @@ export const morph: ScalingProject = {
     risks: [CONTRACTS.UPGRADE_NO_DELAY_RISK],
   },
   permissions: generateDiscoveryDrivenPermissions([discovery]),
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

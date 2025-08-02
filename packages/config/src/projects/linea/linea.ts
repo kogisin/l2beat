@@ -1,10 +1,11 @@
 import {
   assert,
   ChainId,
+  ChainSpecificAddress,
   EthereumAddress,
+  formatSeconds,
   ProjectId,
   UnixTime,
-  formatSeconds,
 } from '@l2beat/shared-pure'
 import { utils } from 'ethers'
 import {
@@ -15,10 +16,8 @@ import {
   EXITS,
   FORCE_TRANSACTIONS,
   FRONTRUNNING_RISK,
-  NEW_CRYPTOGRAPHY,
-  REASON_FOR_BEING_OTHER,
   RISK_VIEW,
-  STATE_CORRECTNESS,
+  STATE_VALIDATION,
   TECHNOLOGY_DATA_AVAILABILITY,
 } from '../../common'
 import { BADGES } from '../../common/badges'
@@ -27,28 +26,20 @@ import { PERFORMED_BY } from '../../common/performedBy'
 import { getStage } from '../../common/stages/getStage'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
+import {
+  generateDiscoveryDrivenContracts,
+  generateDiscoveryDrivenPermissions,
+} from '../../templates/generateDiscoveryDrivenSections'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 import type { ProjectPermissionedAccount } from '../../types'
 
 const discovery = new ProjectDiscovery('linea')
 
 const timelockDelay = discovery.getContractValue<number>(
-  'Timelock',
+  'L1Timelock',
   'getMinDelay',
 )
 const timelockDelayString = formatSeconds(timelockDelay)
-
-const upgradesTimelock = {
-  upgradableBy: [
-    {
-      name: 'Linea Multisig',
-      delay: timelockDelay === 0 ? 'no' : timelockDelayString,
-    },
-  ],
-}
-
-const upgrades = {
-  upgradableBy: [{ name: 'Linea Multisig', delay: 'no' }],
-}
 
 const zodiacRoles = discovery.getContractValue<{
   roles: Record<string, Record<string, boolean>>
@@ -58,28 +49,16 @@ const zodiacPausers: ProjectPermissionedAccount[] =
   discovery.formatPermissionedAccounts(
     Object.keys(zodiacRoles.roles[zodiacPauserRole].members),
   )
+const zodiacPausersHardcoded = discovery.getPermissionedAccounts(
+  'Roles',
+  'pausers',
+)
 
-const isPaused: boolean =
-  discovery.getContractValue<boolean>('LineaRollup', 'isPaused_GENERAL') ||
-  discovery.getContractValue<boolean>('LineaRollup', 'isPaused_FINALIZATION') ||
-  discovery.getContractValue<boolean>(
-    'LineaRollup',
-    'isPaused_BLOB_SUBMISSION',
-  ) ||
-  discovery.getContractValue<boolean>(
-    'LineaRollup',
-    'isPaused_CALLDATA_SUBMISSION',
-  ) ||
-  discovery.getContractValue<boolean>(
-    'LineaRollup',
-    'isPaused_COMPLETE_TOKEN_BRIDGING',
-  ) ||
-  discovery.getContractValue<boolean>(
-    'LineaRollup',
-    'isPaused_INITIATE_TOKEN_BRIDGING',
-  ) ||
-  discovery.getContractValue<boolean>('LineaRollup', 'isPaused_L1_L2') ||
-  discovery.getContractValue<boolean>('LineaRollup', 'isPaused_L2_L1')
+assert(
+  zodiacPausers.length === zodiacPausersHardcoded.length &&
+    zodiacPausers[0].address === zodiacPausersHardcoded[0].address,
+  'disco config is wrong for the pausers, check hardcoded pausers in the Roles module',
+)
 
 const periodInSeconds = discovery.getContractValue<number>(
   'LineaRollup',
@@ -99,28 +78,28 @@ const withdrawalLimitString = `Currently, there is a general limit of ${utils.fo
   periodInSeconds,
 )} time window.`
 
+const chainId = 59144
+
 export const linea: ScalingProject = {
   type: 'layer2',
   id: ProjectId('linea'),
   capability: 'universal',
   addedAt: UnixTime(1679651674), // 2023-03-24T09:54:34Z
-  reasonsForBeingOther: [REASON_FOR_BEING_OTHER.NO_PROOFS],
   display: {
     name: 'Linea',
     slug: 'linea',
-    warning: 'The circuit of the program being proven is not public.',
     description:
       'Linea is a ZK Rollup powered by a zkEVM developed at Consensys, designed to scale the Ethereum network.',
     purposes: ['Universal'],
     category: 'ZK Rollup',
     links: {
       websites: ['https://linea.build/'],
-      apps: ['https://bridge.linea.build/'],
+      bridges: ['https://bridge.linea.build/'],
       documentation: ['https://docs.linea.build/'],
       explorers: [
         'https://lineascan.build/',
+        'https://lineaplorer.build/',
         'https://explorer.linea.build/',
-        'https://linea.l2scan.co/',
       ],
       repositories: [
         'https://github.com/Consensys?q=linea&type=all&language=&sort=stargazers',
@@ -137,19 +116,20 @@ export const linea: ScalingProject = {
       explanation:
         'Linea is a ZK rollup that posts transaction data to the L1. For a transaction to be considered final, it has to be posted on L1. Proofs and state roots are currently posted in the same transaction.',
     },
-    finality: {
-      finalizationPeriod,
-    },
   },
   config: {
     escrows: [
       discovery.getEscrowDetails({
-        address: EthereumAddress('0xd19d4B5d358258f05D7B411E21A1460D11B0876F'),
+        address: ChainSpecificAddress(
+          'eth:0xd19d4B5d358258f05D7B411E21A1460D11B0876F',
+        ),
         sinceTimestamp: UnixTime(1689159923),
         tokens: ['ETH'],
       }),
       discovery.getEscrowDetails({
-        address: EthereumAddress('0x051F1D88f0aF5763fB888eC4378b4D8B29ea3319'),
+        address: ChainSpecificAddress(
+          'eth:0x051F1D88f0aF5763fB888eC4378b4D8B29ea3319',
+        ),
         sinceTimestamp: UnixTime(1691060675),
         excludedTokens: ['rsETH'],
         tokens: '*',
@@ -164,10 +144,10 @@ export const linea: ScalingProject = {
         type: 'ethereum',
         daLayer: ProjectId('ethereum'),
         sinceBlock: 0, // Edge Case: config added @ DA Module start
-        inbox: '0xd19d4b5d358258f05d7b411e21a1460d11b0876f',
+        inbox: EthereumAddress('0xd19d4b5d358258f05d7b411e21a1460d11b0876f'),
         sequencers: [
-          '0x46d2F319fd42165D4318F099E143dEA8124E9E3e',
-          '0x52FF08F313A00A54e3Beffb5C4a7F7446eFb6754',
+          EthereumAddress('0x46d2F319fd42165D4318F099E143dEA8124E9E3e'),
+          EthereumAddress('0x52FF08F313A00A54e3Beffb5C4a7F7446eFb6754'),
         ],
       },
     ],
@@ -359,16 +339,10 @@ export const linea: ScalingProject = {
         to: 'proofSubmissions',
       },
     },
-    finality: {
-      type: 'Linea',
-      lag: 0,
-      minTimestamp: UnixTime(1717588271),
-      stateUpdate: 'disabled',
-    },
   },
   chainConfig: {
     name: 'linea',
-    chainId: 59144,
+    chainId,
     explorerUrl: 'https://lineascan.build',
     sinceTimestamp: UnixTime.fromDate(new Date('2023-07-19T14:00:00Z')),
     gasTokens: ['ETH'],
@@ -383,7 +357,7 @@ export const linea: ScalingProject = {
     coingeckoPlatform: 'linea',
     apis: [
       { type: 'rpc', url: 'https://linea-mainnet.infura.io/v3' },
-      { type: 'etherscan', url: 'https://api.lineascan.build/api' },
+      { type: 'etherscan', chainId },
       { type: 'blockscoutV2', url: 'https://api-explorer.linea.build/api/v2' },
     ],
   },
@@ -394,6 +368,7 @@ export const linea: ScalingProject = {
   },
   riskView: {
     stateValidation: {
+      // TODO: linea proof system is now complete
       ...RISK_VIEW.STATE_ZKP_SN,
       secondLine: formatExecutionDelay(finalizationPeriod),
     },
@@ -417,38 +392,37 @@ export const linea: ScalingProject = {
         ' Eventually (after 6 months of no finalized blocks) the Operator role becomes public, theoretically allowing anyone to propose state with valid proofs.',
     },
   },
-  stage: getStage({
-    stage0: {
-      callsItselfRollup: true,
-      stateRootsPostedToL1: true,
-      dataAvailabilityOnL1: true,
-      rollupNodeSourceAvailable: false,
-    },
-    stage1: {
-      principle: false,
-      stateVerificationOnL1: true,
-      fraudProofSystemAtLeast5Outsiders: null,
-      usersHave7DaysToExit: false,
-      usersCanExitWithoutCooperation: false,
-      securityCouncilProperlySetUp: {
-        satisfied: false,
-        message: 'Security Council members are not publicly known.',
-        mode: 'replace',
+  stage: getStage(
+    {
+      stage0: {
+        callsItselfRollup: true,
+        stateRootsPostedToL1: true,
+        dataAvailabilityOnL1: true,
+        rollupNodeSourceAvailable: true,
+        stateVerificationOnL1: true,
+        fraudProofSystemAtLeast5Outsiders: null,
+      },
+      stage1: {
+        principle: false,
+        usersHave7DaysToExit: false,
+        usersCanExitWithoutCooperation: false,
+        securityCouncilProperlySetUp: {
+          satisfied: false,
+          message: 'Security Council members are not publicly known.',
+          mode: 'replace',
+        },
+      },
+      stage2: {
+        proofSystemOverriddenOnlyInCaseOfABug: false,
+        fraudProofSystemIsPermissionless: null,
+        delayWith30DExitWindow: false,
       },
     },
-    stage2: {
-      proofSystemOverriddenOnlyInCaseOfABug: false,
-      fraudProofSystemIsPermissionless: null,
-      delayWith30DExitWindow: false,
+    {
+      rollupNodeLink: 'https://github.com/Consensys/linea-besu',
     },
-  }),
+  ),
   technology: {
-    newCryptography: {
-      ...NEW_CRYPTOGRAPHY.ZK_SNARKS,
-    },
-    stateCorrectness: {
-      ...STATE_CORRECTNESS.VALIDITY_PROOFS,
-    },
     dataAvailability: {
       ...TECHNOLOGY_DATA_AVAILABILITY.ON_CHAIN_BLOB_OR_CALLDATA,
       references: [
@@ -504,84 +478,20 @@ export const linea: ScalingProject = {
       },
     ],
   },
-  permissions: {
-    [discovery.chain]: {
-      actors: [
-        discovery.getMultisigPermission(
-          'Linea Multisig',
-          'Admin of the Linea rollup. Can upgrade all core contracts, bridges and update permissioned actors.',
-        ),
-        discovery.getPermissionDetails(
-          'Pauser',
-          zodiacPausers,
-          'Address allowed to pause the TokenBridge, the USDCBridge and the core functionalities of the project (via LineaRollup contract).',
-        ),
-        discovery.getPermissionDetails(
-          'Operators',
-          discovery.getAccessControlRolePermission(
-            'LineaRollup',
-            'OPERATOR_ROLE',
-          ),
-          'The operators are allowed to prove blocks and post the corresponding transaction data.',
-        ),
-      ],
-    },
-  },
+  permissions: generateDiscoveryDrivenPermissions([discovery]),
   contracts: {
-    addresses: {
-      [discovery.chain]: [
-        discovery.getContractDetails('LineaRollup', {
-          description:
-            'The main contract of the Linea zkEVM rollup. Contains state roots, the verifier addresses and manages messages between L1 and the L2.',
-          ...upgradesTimelock,
-          pausable: (() => {
-            const addresses = discovery.getAccessControlField(
-              'LineaRollup',
-              'PAUSE_MANAGER',
-            ).members
-            assert(addresses.length === 1)
-            assert(
-              addresses[0] === discovery.getContract('Linea Multisig').address,
-            )
-            return { pausableBy: ['Linea Multisig'], paused: isPaused }
-          })(),
-          references: [
-            {
-              title:
-                'LineaRollup.sol - Etherscan source code, state injections: stateRoot and l2MerkleRoot are part of the validity proof input.',
-              url: 'https://etherscan.io/address/0x07ddce60658A61dc1732Cacf2220FcE4A01C49B0#code',
-            },
-          ],
-          ...upgradesTimelock,
-        }),
-        discovery.getContractDetails(
-          'Timelock',
-          `Owner of the ProxyAdmin and Verifier Setter. The current delay is ${timelockDelayString}.`,
-        ),
-        discovery.getContractDetails('VerifierProofType3', {
-          description:
-            'Currently used smart contract verifying the proofs for the Linea zkEVM.',
-        }),
-        discovery.getContractDetails('TokenBridge', {
-          description: 'Contract used to bridge ERC20 tokens.',
-          ...upgrades,
-        }),
-        discovery.getContractDetails('USDCBridge', {
-          description:
-            'Contract used to bridge USDC tokens. Migrating to native USDC on L2 between march 16th and 26th 2025.',
-          ...upgrades,
-          pausable: {
-            paused: discovery.getContractValue<boolean>('USDCBridge', 'paused'),
-            pausableBy: ['Pauser'],
-          },
-        }),
-        discovery.getContractDetails('CallForwardingProxy', {
-          description:
-            'A proxy contract forwarding calls to a predefined (immutable) target contract. In this case the it is targeting the LineaRollup where it is registered as a fallback operator, allowing anyone to access operator functions when 6 months have passed since the latest finalized block.',
-        }),
-      ],
-    },
+    addresses: generateDiscoveryDrivenContracts([discovery]),
     risks: [CONTRACTS.UPGRADE_WITH_DELAY_RISK(timelockDelayString)],
+  },
+  stateDerivation: {
+    nodeSoftware:
+      'The node software ([Linea Besu](https://github.com/Consensys/linea-besu-package)) and a guide to reconstruct the state from L1 is available [here](https://docs.linea.build/get-started/how-to/state-recovery). Other node implementations like Nethermind, Geth or Erigon can sync too, but state derivation from L1 and Linea-specific features [are unsupported](https://docs.linea.build/get-started/how-to/run-a-node).',
+    compressionScheme:
+      'Linea uses a [bespoke lossless compression scheme](https://github.com/Consensys/linea-monorepo/blob/main/docs/architecture-description.md#blob-compressor) based on LZSS (deflate-like). It is available as a [dedicated library](https://github.com/Consensys/compress) and a [zk-decompression circuit](https://github.com/Consensys/gnark/tree/master/std/compress) in Gnark.',
+    genesisState:
+      'Is available via the official Linea docs for Linea Besu (preloaded), [Besu](https://docs.linea.build/get-started/how-to/run-a-node/besu#step-2-download-the-genesis-file-and-besu-configuration-file), [Erigon](https://docs.linea.build/get-started/how-to/run-a-node/erigon#step-2-download-the-genesis-file), [Nethermind](https://docs.linea.build/get-started/how-to/run-a-node/nethermind), [Geth](https://docs.linea.build/get-started/how-to/run-a-node/geth#step-2-download-the-genesis-file).',
+    dataFormat:
+      'Linea groups L2 blocks [into batches](https://lineascan.build/batches) which are then posted to L1 for proving. Each batch (whether sent as a blob or compressed calldata) contains L2 blocks. Blocks in turn include the [transactions with unnecessary data stripped](https://community.linea.build/t/proposal-state-reconstruction-from-l1-blobs/8038#p-22077-block-data-sent-to-l1-in-the-compressed-blob-2). More info on [the compression, packing and blob structure](https://github.com/Consensys/linea-monorepo/blob/main/docs/architecture-description.md#blob-compressor).',
   },
   stateValidation: {
     description:
@@ -589,22 +499,36 @@ export const linea: ScalingProject = {
     categories: [
       {
         title: 'Prover Architecture',
-        description: 'The source code of the prover is currently not public.',
+        description:
+          'The Linea prover code is [available on Github](https://github.com/Consensys/linea-monorepo/tree/main/prover). Linea splits proving into: **Corset** (Go + Lisp DSL) expands EVM execution traces and generates a bespoke constraint system for the zk-EVM. **gnark** (Go) ingests the expanded traces and constraint system, instantiates the circuits and produces the SNARK proof.',
       },
       {
         title: 'ZK Circuits',
-        description: 'The source code of the circuits is currently not public.',
-        risks: [
-          {
-            category: 'Funds can be stolen if',
-            text: 'the prover is able to generate false proofs.',
-          },
-        ],
+        description:
+          'The constraint system lives in the public [linea-constraints](https://github.com/Consensys/linea-constraints) repo and is authored in a Lisp-style DSL before being compiled to Go. Gnark then turns those constraints into PLONK-compatible circuits over **BN254**. Internally, Linea’s flow uses a recursive proof stack called [Vortex → Arcane → PLONK compression](https://docs.linea.build/technology/transaction-lifecycle#step-5-generating-a-zk-proof-using-transaction-data): Vortex/Arcane supply small inner proofs that are finally aggregated into a single PLONK proof that the L1 contract can verify.',
       },
       {
         title: 'Verification Keys Generation',
         description:
-          'Given that the circuit is not public, the generation of the verification keys is not public either.',
+          'Linea uses a Plonk-based proof system which requires a trusted setup. The verification keys are hardcoded in the verifier contract on-chain.',
+      },
+      {
+        ...STATE_VALIDATION.VALIDITY_PROOFS,
+        references: [
+          {
+            title:
+              'LineaRollup.sol - Etherscan source code, finalizeBlocks() and _verifyProof() calls',
+            url: 'https://etherscan.io/address/0x07ddce60658a61dc1732cacf2220fce4a01c49b0#code#F37#L41',
+          },
+          {
+            title: 'PlonkVerifierMainnetFull.sol 1 (100% complete)',
+            url: 'https://etherscan.io/address/0xED39C0C41A7651006953AB58Ecb3039363620995#code',
+          },
+          {
+            title: 'PlonkVerifierMainnetFull.sol 2 (99% complete)',
+            url: 'https://etherscan.io/address/0x41A4d93d09f4718fe899D12A4aD2C8a09104bdc7#code',
+          },
+        ],
       },
     ],
     proofVerification: {
@@ -613,13 +537,13 @@ export const linea: ScalingProject = {
       requiredTools: [],
       verifiers: [
         {
-          name: 'LineaVerifier (ProofType 1)',
+          name: 'LineaVerifier (ProofType 4)',
           description:
             'The smart contract verifying the computational integrity of the Linea zkEVM. Since the circuit behind it is not public, we are not able to verify any claim about the proof system.',
           verified: 'failed',
           performedBy: PERFORMED_BY.l2beat,
           contractAddress: EthereumAddress(
-            '0x8AB455030E1Ea718e445f423Bb8D993dcAd24Cc4',
+            '0x41A4d93d09f4718fe899D12A4aD2C8a09104bdc7',
           ),
           chainId: ChainId.ETHEREUM,
           subVerifiers: [
@@ -632,12 +556,12 @@ export const linea: ScalingProject = {
           ],
         },
         {
-          name: 'LineaVerifier (ProofType 3)',
+          name: 'LineaVerifier (ProofType 0)',
           description:
             'The smart contract verifying the computational integrity of the Linea zkEVM. Since the circuit behind it is not public, we are not able to verify any claim about the proof system.',
           verified: 'no',
           contractAddress: EthereumAddress(
-            '0xBfF4a03A355eEF7dA720bBC7878F9BdBBE81fe6F',
+            '0xED39C0C41A7651006953AB58Ecb3039363620995',
           ),
           chainId: ChainId.ETHEREUM,
           subVerifiers: [
@@ -653,6 +577,14 @@ export const linea: ScalingProject = {
     },
   },
   milestones: [
+    {
+      title: 'Proof system is complete',
+      url: 'https://x.com/LineaBuild/status/1932172959587913816',
+      date: '2024-06-09T00:00:00Z',
+      description:
+        'The Linea proof system and verifier on ethereum covers 100% of the zkEVM.',
+      type: 'general',
+    },
     {
       title: 'Linea starts using blobs',
       url: 'https://twitter.com/LineaBuild/status/1772711269159567483',
@@ -684,4 +616,5 @@ export const linea: ScalingProject = {
     },
   ],
   badges: [BADGES.VM.EVM, BADGES.DA.EthereumBlobs],
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

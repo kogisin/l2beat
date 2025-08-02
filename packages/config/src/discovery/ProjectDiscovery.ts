@@ -6,18 +6,21 @@ import type {
 } from '@l2beat/discovery'
 import {
   ConfigReader,
-  RolePermissionEntries,
   getDiscoveryPaths,
+  RolePermissionEntries,
 } from '@l2beat/discovery'
 import {
   assert,
-  EthereumAddress,
-  type TokenBridgedUsing,
-  UnixTime,
+  ChainSpecificAddress,
+  type LegacyTokenBridgedUsing,
   notUndefined,
+  UnixTime,
+  unique,
 } from '@l2beat/shared-pure'
 import { utils } from 'ethers'
-import { isString, uniq } from 'lodash'
+import groupBy from 'lodash/groupBy'
+import isString from 'lodash/isString'
+import uniq from 'lodash/uniq'
 import { EXPLORER_URLS } from '../common/explorerUrls'
 import type {
   ProjectContract,
@@ -30,11 +33,10 @@ import type {
   ReferenceLink,
   SharedEscrow,
 } from '../types'
-import type { PermissionRegistry } from './PermissionRegistry'
-import { PermissionsFromDiscovery } from './PermissionsFromDiscovery'
-import { PermissionsFromModel } from './PermissionsFromModel'
 import { RoleDescriptions } from './descriptions'
 import { get$Admins, get$Implementations, toAddressArray } from './extractors'
+import type { PermissionRegistry } from './PermissionRegistry'
+import { PermissionsFromDiscovery } from './PermissionsFromDiscovery'
 import {
   formatPermissionCondition,
   formatPermissionDelay,
@@ -46,28 +48,71 @@ const paths = getDiscoveryPaths()
 
 export class ProjectDiscovery {
   private readonly discoveries: DiscoveryOutput[]
+  private readonly projectAndDependentDiscoveries: DiscoveryOutput[]
   private eoaIDMap: Record<string, string> = {}
   private permissionRegistry: PermissionRegistry
 
   constructor(
     public readonly projectName: string,
-    public readonly chain: string = 'ethereum',
     public readonly configReader = new ConfigReader(paths.discovery),
   ) {
-    const discovery = configReader.readDiscovery(projectName, chain)
-    this.discoveries = [
-      discovery,
-      ...(discovery.sharedModules ?? []).map((module) =>
-        configReader.readDiscovery(module, chain),
-      ),
-    ]
-    this.permissionRegistry =
-      configReader.getDisplayMode(projectName) === 'fromModel'
-        ? new PermissionsFromModel(this)
-        : new PermissionsFromDiscovery(this)
+    const chains = configReader.readAllDiscoveredChainsForProject(projectName)
+    const projectDiscoveries = chains.map((chain) =>
+      configReader.readDiscovery(projectName, chain),
+    )
+
+    this.discoveries = [...projectDiscoveries]
+    const alreadyAdded = new Set<string>(
+      projectDiscoveries.map((d) => `${d.chain}:${d.name}`),
+    )
+    for (const discovery of this.discoveries) {
+      for (const sharedModule of discovery.sharedModules ?? []) {
+        const key = `${discovery.chain}:${sharedModule}`
+        if (alreadyAdded.has(key)) continue
+
+        try {
+          this.discoveries.push(
+            configReader.readDiscovery(sharedModule, discovery.chain),
+          )
+        } catch {}
+        alreadyAdded.add(key)
+      }
+    }
+
+    this.projectAndDependentDiscoveries = [...this.discoveries]
+    for (const discovery of projectDiscoveries) {
+      this.projectAndDependentDiscoveries.push(
+        ...Object.entries(discovery.dependentDiscoveries ?? {}).flatMap(
+          ([dependentProjectName, chains]) => {
+            if (dependentProjectName === projectName) return []
+            return Object.keys(chains).map((chain) =>
+              configReader.readDiscovery(dependentProjectName, chain),
+            )
+          },
+        ),
+      )
+    }
+    this.permissionRegistry = new PermissionsFromDiscovery(this)
   }
 
-  getEOAName(address: EthereumAddress): string {
+  get timestampPerChain(): Record<string, number> {
+    const grouped = groupBy(this.discoveries, (d) => d.chain)
+    return Object.fromEntries(
+      Object.entries(grouped).map(([chain, discovery]) => [
+        chain,
+        Math.max(...discovery.map((d) => d.timestamp)),
+      ]),
+    )
+  }
+
+  getName(address: ChainSpecificAddress): string {
+    return (
+      this.getEntryByAddress(address)?.name ??
+      (this.isEOA(address) ? this.getEOAName(address) : address.toString())
+    )
+  }
+
+  getEOAName(address: ChainSpecificAddress): string {
     if (!(address in this.eoaIDMap)) {
       this.eoaIDMap[address] = `EOA ${Object.keys(this.eoaIDMap).length + 1}`
     }
@@ -100,7 +145,7 @@ export class ProjectDiscovery {
       isVerified: isEntryVerified(contract),
       address: contract.address,
       upgradeability: getUpgradeability(contract),
-      chain: this.chain,
+      chain: ChainSpecificAddress.longChain(contract.address),
       references: contract.references?.map((x) => ({
         title: x.text,
         url: x.href,
@@ -126,7 +171,7 @@ export class ProjectDiscovery {
     untilTimestamp,
     sharedEscrow,
   }: {
-    address: EthereumAddress
+    address: ChainSpecificAddress
     name?: string
     description?: string
     sinceTimestamp?: UnixTime
@@ -140,7 +185,7 @@ export class ProjectDiscovery {
     isUpcoming?: boolean
     includeInTotal?: boolean
     source?: ProjectEscrow['source']
-    bridgedUsing?: TokenBridgedUsing
+    bridgedUsing?: LegacyTokenBridgedUsing
     isHistorical?: boolean
     untilTimestamp?: UnixTime
     sharedEscrow?: SharedEscrow
@@ -158,19 +203,20 @@ export class ProjectDiscovery {
       upgradableBy,
     }
 
-    const contract = this.getContractDetails(address.toString(), options)
+    const contract = this.getContractDetails(address, options)
 
+    const chain = ChainSpecificAddress.longChain(address)
     return {
-      address,
+      address: ChainSpecificAddress.address(address),
       sinceTimestamp: UnixTime(timestamp),
       tokens,
       excludedTokens,
       premintedTokens,
       contract,
       isUpcoming,
-      chain: this.chain,
+      chain,
       includeInTotal:
-        (includeInTotal ?? this.chain === 'ethereum') ? true : includeInTotal,
+        (includeInTotal ?? chain === 'ethereum') ? true : includeInTotal,
       source,
       bridgedUsing,
       isHistorical,
@@ -179,7 +225,7 @@ export class ProjectDiscovery {
     }
   }
 
-  isEOA(address: EthereumAddress): boolean {
+  isEOA(address: ChainSpecificAddress): boolean {
     const eoas = this.discoveries.flatMap((discovery) => discovery.entries)
     const entry = eoas.find((x) => x.address.toString() === address.toString())
     return entry?.type === 'EOA'
@@ -220,7 +266,6 @@ export class ProjectDiscovery {
     identifier: string,
     description: string | string[],
     userReferences?: ReferenceLink[],
-    useBulletPoints: boolean = false,
   ): ProjectPermission {
     const contract = this.getContract(identifier)
 
@@ -230,14 +275,9 @@ export class ProjectDiscovery {
 
     const multisigDesc = this.getMultisigDescription(identifier)
 
-    const combinedDescriptions = [...multisigDesc, ...passedDescription]
-
-    const formattedDesc = useBulletPoints
-      ? formatAsBulletPoints(combinedDescriptions)
-      : combinedDescriptions.join(' ')
-
-    const descriptionWithContractNames =
-      this.replaceAddressesWithNames(formattedDesc)
+    const combinedDescriptions = [...multisigDesc, ...passedDescription].filter(
+      (s) => s !== undefined && s !== '',
+    )
 
     const references = [
       ...(userReferences ?? []),
@@ -249,9 +289,9 @@ export class ProjectDiscovery {
 
     return {
       name: contract.name ?? contract.address,
-      description: descriptionWithContractNames,
+      description: combinedDescriptions.join('\n'),
       accounts: this.formatPermissionedAccounts([contract.address]),
-      chain: this.chain,
+      chain: ChainSpecificAddress.longChain(contract.address),
       references,
       participants: this.getPermissionedAccounts(identifier, '$members'),
     }
@@ -267,7 +307,9 @@ export class ProjectDiscovery {
 
   getContract(identifier: string): EntryParameters {
     try {
-      identifier = utils.getAddress(identifier)
+      identifier = identifier.includes(':')
+        ? identifier
+        : utils.getAddress(identifier)
     } catch {
       const contracts = this.getContractByName(identifier)
 
@@ -277,13 +319,13 @@ export class ProjectDiscovery {
       )
       assert(
         contracts.length === 1,
-        `Found no contract of ${identifier} name (${this.projectName}) on ${this.chain}`,
+        `Found no contract of ${identifier} name (${this.projectName})`,
       )
 
       return contracts[0]
     }
 
-    const contract = this.getContractByAddress(identifier)
+    const contract = this.getContractByAddress(ChainSpecificAddress(identifier))
     assert(
       contract,
       `No contract of ${identifier} address found (${this.projectName})`,
@@ -300,7 +342,7 @@ export class ProjectDiscovery {
       return contracts.length === 1
     }
 
-    const contract = this.getContractByAddress(identifier)
+    const contract = this.getContractByAddress(ChainSpecificAddress(identifier))
     return contract !== undefined
   }
 
@@ -364,43 +406,45 @@ export class ProjectDiscovery {
   getAddressFromValue(
     contractIdentifier: string,
     key: string,
-  ): EthereumAddress {
+  ): ChainSpecificAddress {
     const address = this.getContractValue(contractIdentifier, key)
 
     assert(
-      isString(address) && EthereumAddress.check(address),
+      isString(address) && ChainSpecificAddress.check(address),
       `Value of ${key} must be an Ethereum address`,
     )
 
-    return EthereumAddress(address)
+    return ChainSpecificAddress(address)
   }
 
   formatPermissionedAccounts(
-    accounts: (ContractValue | EthereumAddress)[],
+    accounts: (ContractValue | ChainSpecificAddress)[],
   ): ProjectPermissionedAccount[] {
     const result: ProjectPermissionedAccount[] = []
 
     for (const account of accounts) {
       assert(
-        isString(account) && EthereumAddress.check(account),
-        `Values must be Ethereum addresses`,
+        isString(account) && ChainSpecificAddress.check(account),
+        'Values must be Ethereum addresses',
       )
-      const address = EthereumAddress(account)
+      const address = ChainSpecificAddress(account)
       const isEOA = this.isEOA(address)
       const type = isEOA ? 'EOA' : 'Contract'
       const entry = this.getEntryByAddress(address)
       assert(isNonNullable(entry), `Could not find ${address} in discovery`)
       const isVerified = isEntryVerified(entry)
 
-      const name = `${address.slice(0, 6)}…${address.slice(38, 42)}`
-      const explorerUrl = EXPLORER_URLS[this.chain]
+      const raw = ChainSpecificAddress.address(address)
+      const chain = ChainSpecificAddress.longChain(address)
+      const name = `${raw.slice(0, 6)}…${raw.slice(38, 42)}`
+      const explorerUrl = EXPLORER_URLS[chain]
       assert(
         isNonNullable(explorerUrl),
-        `Failed to find explorer url for chain [${this.chain}]`,
+        `Failed to find explorer url for chain [${chain}]`,
       )
-      const url = `${explorerUrl}/address/${address}`
+      const url = `${explorerUrl}/address/${raw}`
 
-      result.push({ address: address, type, isVerified, name, url })
+      result.push({ address, type, isVerified, name, url })
     }
 
     return result
@@ -429,11 +473,26 @@ export class ProjectDiscovery {
       references?: ReferenceLink[]
     },
   ): ProjectPermission {
+    let chain = 'ethereum'
+    if (accounts.length > 0) {
+      const chains = accounts.map((a) =>
+        ChainSpecificAddress.longChain(a.address),
+      )
+      const uniqueChains = unique(chains)
+      assert(
+        uniqueChains.length === 1,
+        `All accounts must be on the same chain. Found ${uniqueChains.join(
+          ', ',
+        )}`,
+      )
+      chain = uniqueChains[0]
+    }
+
     return {
       name,
       accounts,
       description,
-      chain: this.chain,
+      chain,
       ...(opts ?? {}),
     }
   }
@@ -445,7 +504,7 @@ export class ProjectDiscovery {
   ): ProjectContract {
     const address = this.getContractValue(contractIdentifier, key)
     assert(
-      isString(address) && EthereumAddress.check(address),
+      isString(address) && ChainSpecificAddress.check(address),
       `Value of ${key} must be an Ethereum address`,
     )
     const contract = this.getContract(address)
@@ -457,7 +516,7 @@ export class ProjectDiscovery {
       isVerified: isEntryVerified(contract),
       name: contract.name ?? contract.address,
       upgradeability: getUpgradeability(contract),
-      chain: this.chain,
+      chain: ChainSpecificAddress.longChain(contract.address),
       ...descriptionOrOptions,
     }
   }
@@ -469,7 +528,7 @@ export class ProjectDiscovery {
     return {
       name: contract.name ?? contract.address,
       accounts: this.formatPermissionedAccounts([contract.address]),
-      chain: this.chain,
+      chain: ChainSpecificAddress.longChain(contract.address),
       references: contract.references?.map((x) => ({
         title: x.text,
         url: x.href,
@@ -485,7 +544,7 @@ export class ProjectDiscovery {
     return {
       name: eoa.name ?? eoa.address,
       accounts: this.formatPermissionedAccounts([eoa.address]),
-      chain: this.chain,
+      chain: ChainSpecificAddress.longChain(eoa.address),
       references: eoa.references?.map((x) => ({
         title: x.text,
         url: x.href,
@@ -510,7 +569,7 @@ export class ProjectDiscovery {
     contractIdentifier: string,
     index: number,
   ): T {
-    return this.getContractValue<T[]>(contractIdentifier, `constructorArgs`)[
+    return this.getContractValue<T[]>(contractIdentifier, 'constructorArgs')[
       index
     ]
   }
@@ -525,12 +584,18 @@ export class ProjectDiscovery {
     return get$Implementations(contract.values)
   }
 
+  get$TokenData() {
+    return this.getContracts()
+      .flatMap((contract) => contract.values?.$tokenData)
+      .filter(notUndefined)
+  }
+
   getAccessControlField(
     contractIdentifier: string,
     roleName: string,
   ): {
-    adminRole: EthereumAddress[]
-    members: EthereumAddress[]
+    adminRole: ChainSpecificAddress[]
+    members: ChainSpecificAddress[]
   } {
     const accessControl = this.getContractValue<
       Partial<Record<string, { adminRole: string; members: string[] }>>
@@ -542,84 +607,121 @@ export class ProjectDiscovery {
 
     assert(
       [...adminRole.members, ...role.members].every((address) =>
-        EthereumAddress.check(address),
+        ChainSpecificAddress.check(address),
       ),
       `Role ${roleName}/${role.adminRole} has invalid addresses`,
     )
 
     return {
-      adminRole: adminRole.members.map((m) => EthereumAddress(m)),
-      members: role.members.map(EthereumAddress),
+      adminRole: adminRole.members.map((m) => ChainSpecificAddress(m)),
+      members: role.members.map(ChainSpecificAddress),
     }
   }
 
-  getAllContractAddresses(): EthereumAddress[] {
-    const contracts = this.getContracts()
-    const addressesWithinUpgradeability = contracts.flatMap((contract) =>
-      get$Implementations(contract.values),
-    )
-
-    return addressesWithinUpgradeability.filter((addr) => !this.isEOA(addr))
-  }
-
   getContractByAddress(
-    address: string | EthereumAddress,
+    address: ChainSpecificAddress,
   ): EntryParameters | undefined {
-    const contracts = this.getContracts()
-    return contracts.find(
-      (contract) => contract.address === EthereumAddress(address.toString()),
-    )
+    const contracts = this.getContracts({ includeDependentDiscoveries: true })
+    return contracts.find((contract) => contract.address === address)
   }
 
   getEOAByAddress(
-    address: string | EthereumAddress,
+    address: string | ChainSpecificAddress,
   ): EntryParameters | undefined {
-    const eoas = this.discoveries
+    const eoas = this.projectAndDependentDiscoveries
       .flatMap((discovery) => discovery.entries)
       .filter((e) => e.type === 'EOA')
     return eoas.find(
-      (contract) => contract.address === EthereumAddress(address.toString()),
+      (contract) =>
+        contract.address === ChainSpecificAddress(address.toString()),
     )
   }
 
   getEntryByAddress(
-    address: string | EthereumAddress,
+    address: ChainSpecificAddress,
   ): EntryParameters | undefined {
-    const entries = this.discoveries.flatMap((discovery) => discovery.entries)
-    return entries.find(
-      (entry) => entry.address === EthereumAddress(address.toString()),
-    )
+    return this.projectAndDependentDiscoveries
+      .flatMap((discovery) => discovery.entries)
+      .find((entry) => entry.address === address)
   }
 
   private getContractByName(name: string): EntryParameters[] {
-    const contracts = this.discoveries.flatMap((discovery) =>
+    const contracts = this.projectAndDependentDiscoveries.flatMap((discovery) =>
       discovery.entries.filter((e) => e.type === 'Contract'),
     )
     return contracts.filter((contract) => contract.name === name)
   }
 
   private getEOAByName(name: string): EntryParameters[] {
-    const eoas = this.discoveries
+    const eoas = this.projectAndDependentDiscoveries
       .flatMap((discovery) => discovery.entries)
       .filter((e) => e.type === 'EOA')
 
     return eoas.filter((eoa) => eoa.name === name)
   }
 
-  getContracts(): EntryParameters[] {
-    return this.discoveries
+  getEntries(): EntryParameters[] {
+    return this.discoveries.flatMap((discovery) => discovery.entries)
+  }
+
+  getPrefixedContracts(options?: { includeDependentDiscoveries?: boolean }): {
+    [chainSpecificAddress: string]: EntryParameters
+  } {
+    const result: { [chainSpecificAddress: string]: EntryParameters } = {}
+    const discoveries = options?.includeDependentDiscoveries
+      ? this.projectAndDependentDiscoveries
+      : this.discoveries
+    discoveries.forEach((discovery) => {
+      discovery.entries.forEach((e) => {
+        if (e.type === 'Contract') {
+          const chainSpecificAddress = e.address
+          if (result[chainSpecificAddress] !== undefined) {
+            throw new Error(
+              `Duplicate contract address entry: ${chainSpecificAddress}`,
+            )
+          }
+          result[chainSpecificAddress] = e
+        }
+      })
+    })
+    return result
+  }
+
+  getContracts(options?: {
+    includeDependentDiscoveries?: boolean
+  }): EntryParameters[] {
+    const discoveries = options?.includeDependentDiscoveries
+      ? this.projectAndDependentDiscoveries
+      : this.discoveries
+    return discoveries
       .flatMap((discovery) => discovery.entries)
       .filter((e) => e.type === 'Contract')
   }
 
-  getEoas(): EntryParameters[] {
-    return this.discoveries
+  getEoas(options?: {
+    includeDependentDiscoveries?: boolean
+  }): EntryParameters[] {
+    const discoveries = options?.includeDependentDiscoveries
+      ? this.projectAndDependentDiscoveries
+      : this.discoveries
+    return discoveries
       .flatMap((discovery) => discovery.entries)
       .filter((e) => e.type === 'EOA')
   }
 
   getContractsAndEoas(): EntryParameters[] {
     return [...this.getContracts(), ...this.getEoas()]
+  }
+
+  getTopLevelAddresses(): ChainSpecificAddress[] {
+    const contracts = this.getContracts()
+    const implementations = contracts.flatMap((contract) =>
+      get$Implementations(contract.values),
+    )
+
+    const contractsAddresses = contracts.map((e) => e.address)
+    const eoasAddresses = this.getEoas().map((e) => e.address)
+    return [...contractsAddresses, ...implementations, ...eoasAddresses]
   }
 
   getPermissionsByRole(
@@ -634,7 +736,9 @@ export class ProjectDiscovery {
     return this.formatPermissionedAccounts(addresses)
   }
 
-  describeGnosisSafeMembership(contractOrEoa: EntryParameters): string[] {
+  describeGnosisSafeMembership(
+    contractOrEoa: EntryParameters,
+  ): string | undefined {
     const safesWithThisMember = this.discoveries
       .flatMap((discovery) => discovery.entries)
       .filter((contract) => isMultisigLike(contract))
@@ -645,8 +749,8 @@ export class ProjectDiscovery {
       )
       .map((contract) => contract.name)
     return safesWithThisMember.length === 0
-      ? []
-      : ['Member of ' + safesWithThisMember.join(', ') + '.']
+      ? undefined
+      : `Member of ${safesWithThisMember.join(', ')}.`
   }
 
   describeRolePermissions(
@@ -712,20 +816,26 @@ export class ProjectDiscovery {
         }
       }
 
-      result.push({
-        ...RoleDescriptions[role],
-        description: finalDescription.join('\n'),
-        accounts: this.formatPermissionedAccounts(addresses),
-        chain: this.chain,
-      })
+      const allAccounts = this.formatPermissionedAccounts(addresses)
+      const uniqueChains = unique(
+        allAccounts.map((a) => ChainSpecificAddress.longChain(a.address)),
+      )
+      for (const uniqueChain of uniqueChains) {
+        const accounts = allAccounts.filter(
+          (a) => ChainSpecificAddress.longChain(a.address) === uniqueChain,
+        )
+        result.push({
+          ...RoleDescriptions[role],
+          description: finalDescription.join('\n'),
+          accounts,
+          chain: uniqueChain,
+        })
+      }
     }
     return result
   }
 
-  formatViaPath(
-    path: ResolvedPermissionPath,
-    skipName: boolean = false,
-  ): string {
+  formatViaPath(path: ResolvedPermissionPath, skipName = false): string {
     const name =
       this.getContractByAddress(path.address)?.name ?? path.address.toString()
 
@@ -742,26 +852,28 @@ export class ProjectDiscovery {
 
   describeContractOrEoa(
     contractOrEoa: EntryParameters,
-    includeDirectPermissions: boolean = true,
-  ): string[] {
+    describeRoles = true,
+  ): string {
     return [
       contractOrEoa.description,
-      ...this.describeGnosisSafeMembership(contractOrEoa),
-      ...this.permissionRegistry.describePermissions(
-        contractOrEoa,
-        includeDirectPermissions,
-      ),
-    ].filter(notUndefined)
+      this.describeGnosisSafeMembership(contractOrEoa),
+      this.permissionRegistry.describePermissions(contractOrEoa, describeRoles),
+    ]
+      .filter(notUndefined)
+      .join('\n')
   }
 
   replaceAddressesWithNames(s: string): string {
-    const ethereumAddressRegex = /\b0x[a-fA-F0-9]{40}\b/g
-    const addresses = s.match(ethereumAddressRegex) ?? []
+    const ethereumAddressRegex = /\b(?:[a-zA-Z0-9]+:)?0x[a-fA-F0-9]{40}\b/g
+    const addressStrings = s.match(ethereumAddressRegex) ?? []
+    const addresses = addressStrings.map((a) => ChainSpecificAddress(a))
 
     for (const address of addresses) {
       const contract = this.getContractByAddress(address)
       if (contract !== undefined && contract.name !== undefined) {
         s = s.replace(address, contract.name)
+      } else {
+        s = s.replace(address, ChainSpecificAddress.address(address))
       }
     }
     return s
@@ -780,7 +892,9 @@ export class ProjectDiscovery {
     return priority
   }
 
-  getDiscoveredPermissions(): ProjectPermissions {
+  getDiscoveredPermissions(
+    chainsToIgnore: string[] = [],
+  ): Record<string, ProjectPermissions> {
     const permissionedContracts = this.permissionRegistry
       .getPermissionedContracts()
       .map((address) => this.getContractByAddress(address))
@@ -800,34 +914,26 @@ export class ProjectDiscovery {
 
     const allActors: ProjectPermission[] = []
     for (const contract of permissionedContracts) {
-      const descriptions = this.describeContractOrEoa(contract, true)
+      const descriptions = this.describeContractOrEoa(contract, false)
       if (isMultisigLike(contract)) {
         allActors.push(
           this.getMultisigPermission(
             contract.address.toString(),
             descriptions,
             [],
-            true,
           ),
         )
       } else {
-        allActors.push(
-          this.contractAsPermissioned(
-            contract,
-            formatAsBulletPoints(descriptions),
-          ),
-        )
+        allActors.push(this.contractAsPermissioned(contract, descriptions))
       }
     }
 
     for (const eoa of permissionedEoas) {
-      const description = formatAsBulletPoints(
-        this.describeContractOrEoa(eoa, false),
-      )
+      const description = this.describeContractOrEoa(eoa, false)
       allActors.push({
         name: eoa.name ?? this.getEOAName(eoa.address),
         accounts: this.formatPermissionedAccounts([eoa.address]),
-        chain: this.chain,
+        chain: ChainSpecificAddress.longChain(eoa.address),
         description,
       })
     }
@@ -835,7 +941,7 @@ export class ProjectDiscovery {
     // NOTE(radomski): Checking for assumptions made about discovery driven actors
     assert(allActors.every((actor) => actor.accounts.length === 1))
     assert(allUnique(allActors.map((actor) => actor.accounts[0].address)))
-    assert(allUnique(allActors.map((actor) => actor.accounts[0].name)))
+    // assert(allUnique(allActors.map((actor) => actor.accounts[0].name))) // TODO(radomski): Between chains
 
     const roles = this.describeRolePermissions([
       ...permissionedContracts,
@@ -904,10 +1010,33 @@ export class ProjectDiscovery {
       )
     })
 
-    return {
-      roles: roles.map((p) => ({ ...p, discoveryDrivenData: true })),
-      actors: actors.map((p) => ({ ...p, discoveryDrivenData: true })),
+    const rolesGrouped = groupBy(
+      roles.map((p) => ({ ...p, discoveryDrivenData: true })),
+      (p) => p.chain,
+    )
+    const actorsGrouped = groupBy(
+      actors.map((p) => ({ ...p, discoveryDrivenData: true })),
+      (p) => p.chain,
+    )
+
+    const allChains = new Set([
+      ...Object.keys(rolesGrouped),
+      ...Object.keys(actorsGrouped),
+    ])
+
+    const result = Object.fromEntries(
+      Array.from(allChains).map((chain) => [
+        chain,
+        {
+          roles: rolesGrouped[chain] || [],
+          actors: actorsGrouped[chain] || [],
+        },
+      ]),
+    )
+    for (const chainToRemove of chainsToIgnore) {
+      delete result[chainToRemove]
     }
+    return result
   }
 
   linkupActorsIntoAccounts(
@@ -940,7 +1069,9 @@ export class ProjectDiscovery {
     return result
   }
 
-  getDiscoveredContracts(): ProjectContract[] {
+  getDiscoveredContracts(
+    chainsToIgnore: string[] = [],
+  ): Record<string, ProjectContract[]> {
     const contracts = this.discoveries
       .flatMap((discovery) =>
         discovery.entries.filter((e) => e.type === 'Contract'),
@@ -950,26 +1081,20 @@ export class ProjectDiscovery {
         return (b.category?.priority ?? 0) - (a.category?.priority ?? 0)
       })
 
-    const gnosisModules = contracts.flatMap((contract) =>
-      toAddressArray(contract.values?.GnosisSafe_modules),
-    )
-    const result = contracts
-      .filter((contract) => !gnosisModules.includes(contract.address))
+    const all = contracts
       .filter((contract) => contract.receivedPermissions === undefined)
       .filter((contract) => !isMultisigLike(contract))
       .map((contract) => {
         const upgradableBy = this.permissionRegistry.getUpgradableBy(contract)
 
         return this.getContractDetails(contract.address.toString(), {
-          description: formatAsBulletPoints(
-            this.describeContractOrEoa(contract, true),
-          ),
+          description: this.describeContractOrEoa(contract, true),
           ...(upgradableBy.length > 0 ? { upgradableBy } : {}),
           discoveryDrivenData: true,
         })
       })
 
-    result.forEach((contract) => {
+    all.forEach((contract) => {
       if (contract.description !== undefined) {
         contract.description = this.replaceAddressesWithNames(
           contract.description,
@@ -977,6 +1102,10 @@ export class ProjectDiscovery {
       }
     })
 
+    const result = groupBy(all, (contract) => contract.chain)
+    for (const chainToRemove of chainsToIgnore) {
+      delete result[chainToRemove]
+    }
     return result
   }
 }
@@ -1002,12 +1131,6 @@ function isNonNullable<T>(
   value: T | undefined | null,
 ): value is NonNullable<T> {
   return value !== null && value !== undefined
-}
-
-export function formatAsBulletPoints(description: string[]): string {
-  return description.length > 1
-    ? description.map((s) => `* ${s}\n`).join('')
-    : description.join(' ')
 }
 
 function isEntryVerified(entry: EntryParameters): boolean {

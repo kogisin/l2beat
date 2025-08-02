@@ -1,10 +1,10 @@
-import { createHash } from 'crypto'
 import { Hash256 } from '@l2beat/shared-pure'
-import type { ContractSources } from '../discovery/source/SourceCodeService'
+import { createHash } from 'crypto'
+import type { PerContractSource } from '../discovery/source/SourceCodeService'
 import type { ContractSource } from '../utils/IEtherscanClient'
-import type { FileContent } from './ParsedFilesManager'
 import { flattenStartingFrom } from './flatten'
 import { format } from './format'
+import type { FileContent } from './ParsedFilesManager'
 
 export interface HashedChunks {
   content: string
@@ -25,19 +25,32 @@ const cache: Map<string, Hash256> = new Map()
 // even when there are multiple sources.
 // In the future it may be reimplemented to support
 // all sources for comparison with templates.
-export function hashFirstSource(sources: ContractSources): Hash256 | undefined {
-  if (!sources.isVerified || sources.sources.length < 1) {
+export function getHashForMatchingFromSources(
+  perContractSources: PerContractSource[],
+): Hash256 | undefined {
+  const hashes = recalculateSourceHashes(perContractSources)
+
+  if (hashes === undefined) {
     return undefined
   }
 
-  const source =
-    sources.sources.length === 1 ? sources.sources[0] : sources.sources[1]
+  return getHashToBeMatched(hashes)
+}
 
-  if (source === undefined) {
+export function getHashToBeMatched(
+  hashes: (string | undefined)[],
+): Hash256 | undefined {
+  if (hashes.length < 1) {
+    return undefined
+  }
+
+  const hashToBeMatched = hashes.length === 1 ? hashes[0] : hashes[1]
+
+  if (hashToBeMatched === undefined) {
     throw Error('No sources found')
   }
 
-  return source.hash !== undefined ? Hash256(source.hash) : undefined
+  return Hash256(hashToBeMatched)
 }
 
 export function contractFlatteningHash(
@@ -90,8 +103,16 @@ function formatIntoHashable(source: string) {
   return formatted.trim()
 }
 
-export function sha2_256bit(str: string): Hash256 {
-  return Hash256(`0x${createHash('sha256').update(str).digest('hex')}`)
+export function sha2_256bit(input: string | string[]): Hash256 {
+  const baseHash = createHash('sha256')
+  const inputs = Array.isArray(input) ? input : [input]
+
+  inputs.reduce((hash, input) => {
+    hash.update(input)
+    return hash
+  }, baseHash)
+
+  return Hash256(`0x${baseHash.digest('hex')}`)
 }
 
 export function buildSimilarityHashmap(input: string): HashedChunks[] {
@@ -208,4 +229,42 @@ function checkIfLineCountIsCorrect(input: string, lines: string[]): void {
       `Line count mismatch: ${inputLineCount} vs ${linesLineCount}`,
     )
   }
+}
+
+// Source hashes logic
+export function recalculateSourceHashes(
+  sources: PerContractSource[],
+): (string | undefined)[] | undefined {
+  const hashes = sources.map((source) => source.hash)
+
+  if (hashes.length === 0) {
+    return undefined
+  }
+
+  // if it's just one source, it must have hash defined
+  if (hashes.length === 1 && hashes[0] === undefined) {
+    return undefined
+  }
+
+  // If any source (except proxy) has undefined hash, return undefined
+  if (hashes.slice(1).some((hash) => hash === undefined)) {
+    return undefined
+  }
+
+  // Single source or proxy + impl
+  if (hashes.length === 1 || hashes.length === 2) {
+    return hashes
+  }
+
+  // >2 - Diamonds and similar with multiple 'sub-implementations'
+  const [proxy, ...implementations] = hashes
+
+  const masterHash = combineImplementationHashes(implementations as string[])
+
+  // biome-ignore lint/style/noNonNullAssertion: checked above
+  return [proxy!, masterHash]
+}
+
+export function combineImplementationHashes(hashes: string[]): Hash256 {
+  return sha2_256bit(hashes.sort())
 }

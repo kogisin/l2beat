@@ -41,6 +41,14 @@ const BLOBSTREAM: DaProjectTableValue = {
   projectId: ProjectId('blobstream'),
 }
 
+const VECTOR: DaProjectTableValue = {
+  value: 'Vector',
+  sentiment: 'warning',
+  description:
+    'The Vector DA bridge is used to attest to the data availability on Avail.',
+  projectId: ProjectId('vector'),
+}
+
 function DAC_MEMBERS({
   requiredSignatures,
   membersCount,
@@ -58,7 +66,7 @@ function DAC_MEMBERS({
     }),
     description: requiredSignatures
       ? `There is a threshold of ${requiredSignatures}/${membersCount} members that must sign and attest that the data is correct and available.`
-      : `There is a threshold of DAC members that must sign and attest that the data is correct and available.`,
+      : 'There is a threshold of DAC members that must sign and attest that the data is correct and available.',
     orderHint: -probabilityOfCompromise(requiredSignatures, membersCount),
   }
 }
@@ -84,6 +92,7 @@ export const DA_BRIDGES = {
   ENSHRINED,
   OPTIMISTIC,
   BLOBSTREAM,
+  VECTOR,
   DAC_MEMBERS,
   STAKED_OPERATORS,
 }

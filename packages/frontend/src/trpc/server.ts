@@ -1,30 +1,20 @@
-import 'server-only'
+import { createServerSideHelpers } from '@trpc/react-query/server'
+import { appRouter } from '~/server/trpc/root'
+import { createQueryClient } from './queryClient'
 
-import { createHydrationHelpers } from '@trpc/react-query/rsc'
-import { cache } from 'react'
-
-import type { AppRouter } from '~/server/api/root'
-import { createCaller } from '~/server/api/root'
-import { createTRPCContext } from '~/server/api/trpc'
-import { createQueryClient } from './query-client'
-
-/**
- * This wraps the `createTRPCContext` helper and provides the required context for the tRPC API when
- * handling a tRPC call from a React Server Component.
- */
-const createContext = cache(async () => {
-  const heads = new Headers()
-  heads.set('x-trpc-source', 'rsc')
-
-  return createTRPCContext({
-    headers: heads,
+export type SsrHelpers = ReturnType<typeof getSsrHelpers>
+export const getSsrHelpers = () =>
+  createServerSideHelpers({
+    router: appRouter,
+    queryClient: createQueryClient(),
+    ctx: { headers: new Headers() },
+    // Do not serialize data to JSON, because it will be serialized again by the render function
+    //     .replace(
+    //       `<!--ssr-data-->`,
+    //       `window.__SSR_DATA__=${JSON.stringify(data.ssr)}`,
+    //     )
+    transformer: {
+      serialize: (data) => data,
+      deserialize: (data) => data,
+    },
   })
-})
-
-const getQueryClient = cache(createQueryClient)
-const caller = createCaller(createContext)
-
-export const { trpc: api, HydrateClient } = createHydrationHelpers<AppRouter>(
-  caller,
-  getQueryClient,
-)

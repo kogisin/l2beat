@@ -1,9 +1,10 @@
+import { ChainSpecificAddress } from '@l2beat/shared-pure'
+import type { ClingoFact } from './clingoparser'
 import type { KnowledgeBase } from './KnowledgeBase'
-import type { ClingoFact } from './factTypes'
 
 interface AddressData {
   modelId: string
-  chain: string
+  shortChain: string
   address: string
   name?: string
   description?: string
@@ -21,15 +22,15 @@ export class ModelIdRegistry {
     const addressFacts = this.knowledgeBase.getFacts('address', [])
     addressFacts.forEach((fact) => {
       const modelId = String(fact.params[0])
-      const chain = String(fact.params[1])
+      const shortChain = String(fact.params[1])
       const address = String(fact.params[2])
       const data: AddressData = {
         modelId,
         address,
-        chain,
+        shortChain,
         type: 'unknown',
       }
-      this.dataByAddress[`${chain}:${address}`] = data
+      this.dataByAddress[`${shortChain}:${address}`] = data
       this.dataById[modelId] = data
     })
     const updateData = (fact: ClingoFact, field: keyof AddressData) => {
@@ -74,6 +75,11 @@ export class ModelIdRegistry {
       throw new Error(`No address data found for modelId ${modelId}`)
     }
     return data
+  }
+
+  idToChainSpecificAddress(modelId: string): ChainSpecificAddress {
+    const data = this.getAddressData(modelId)
+    return ChainSpecificAddress(data.address)
   }
 
   replaceIdsWithNames(s: string): string {

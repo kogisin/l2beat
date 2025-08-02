@@ -1,12 +1,17 @@
-import { UnixTime, formatSeconds } from '@l2beat/shared-pure'
-import { DA_LAYERS } from '../../common'
-import { REASON_FOR_BEING_OTHER } from '../../common'
 import {
+  ChainSpecificAddress,
+  EthereumAddress,
+  formatSeconds,
+  UnixTime,
+} from '@l2beat/shared-pure'
+import {
+  DA_LAYERS,
   DaCommitteeSecurityRisk,
   DaEconomicSecurityRisk,
   DaFraudDetectionRisk,
   DaRelayerFailureRisk,
   DaUpgradeabilityRisk,
+  REASON_FOR_BEING_OTHER,
 } from '../../common'
 import { BADGES } from '../../common/badges'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
@@ -14,6 +19,16 @@ import type { ScalingProject } from '../../internalTypes'
 import { DACHALLENGES_DA_PROVIDER, opStackL2 } from '../../templates/opStack'
 
 const discovery = new ProjectDiscovery('xterio')
+const genesisTimestamp = UnixTime(1716537433)
+const l2OutputOracle = discovery.getContract('L2OutputOracle')
+const sequencerInbox = discovery.getContractValue<ChainSpecificAddress>(
+  'SystemConfig',
+  'sequencerInbox',
+)
+const sequencerAddress = discovery.getContractValue<ChainSpecificAddress>(
+  'SystemConfig',
+  'batcherHash',
+)
 
 const daChallengeWindow = formatSeconds(
   discovery.getContractValue<number>(
@@ -38,15 +53,18 @@ export const xterio: ScalingProject = opStackL2({
     REASON_FOR_BEING_OTHER.NO_PROOFS,
     REASON_FOR_BEING_OTHER.NO_DA_ORACLE,
   ],
+  archivedAt: UnixTime(1745001006),
   display: {
     architectureImage: 'opstack-dachallenge',
     name: 'Xterio Chain',
     slug: 'xterio',
+    warning:
+      'Deposited/Forced transactions are disabled, a permissioned admin can withdraw all ETH. Xterio chain on ethereum is sunset and funds [are being transferred to Xterio Chain (BNB)](https://info.xter.io/xterio-chain-migration).',
     description:
       'Xterio Chain is an OP stack Optimium on Ethereum. The chain focuses on gaming, high performance and low fees .',
     links: {
       websites: ['https://xter.io/'],
-      apps: ['https://xter.io/', 'https://eth-bridge.xter.io/'],
+      bridges: ['https://xter.io/', 'https://eth-bridge.xter.io/'],
       documentation: ['https://stack.optimism.io/'],
       explorers: ['https://eth.xterscan.io/'],
       repositories: ['https://github.com/XterioTech'],
@@ -64,7 +82,7 @@ export const xterio: ScalingProject = opStackL2({
     'https://github.com/ethereum-optimism/optimism/releases/tag/op-node%2Fv1.7.5',
     DA_LAYERS.OP_ALT_DA,
   ), // source: altlayer on telegram
-  genesisTimestamp: UnixTime(1716537433),
+  genesisTimestamp,
   chainConfig: {
     name: 'xterio',
     chainId: 2702128,
@@ -76,6 +94,47 @@ export const xterio: ScalingProject = opStackL2({
       },
     ],
   },
+  nonTemplateTrackedTxs: [
+    {
+      uses: [
+        { type: 'liveness', subtype: 'batchSubmissions' },
+        { type: 'l2costs', subtype: 'batchSubmissions' },
+      ],
+      query: {
+        formula: 'transfer',
+        from: EthereumAddress('0x7d6251D49A102a330CfB46d132982781620700Cb'), // old sequencer
+        to: ChainSpecificAddress.address(sequencerInbox),
+        sinceTimestamp: genesisTimestamp,
+        untilTimestamp: UnixTime(1743862115),
+      },
+    },
+    {
+      uses: [
+        { type: 'liveness', subtype: 'batchSubmissions' },
+        { type: 'l2costs', subtype: 'batchSubmissions' },
+      ],
+      query: {
+        formula: 'transfer',
+        from: ChainSpecificAddress.address(sequencerAddress),
+        to: ChainSpecificAddress.address(sequencerInbox),
+        sinceTimestamp: UnixTime(1743862115),
+      },
+    },
+    {
+      uses: [
+        { type: 'liveness', subtype: 'stateUpdates' },
+        { type: 'l2costs', subtype: 'stateUpdates' },
+      ],
+      query: {
+        formula: 'functionCall',
+        address: ChainSpecificAddress.address(l2OutputOracle.address),
+        selector: '0x9aaab648',
+        functionSignature:
+          'function proposeL2Output(bytes32 _outputRoot, uint256 _l2BlockNumber, bytes32 _l1Blockhash, uint256 _l1BlockNumber)',
+        sinceTimestamp: genesisTimestamp,
+      },
+    },
+  ],
   customDa: {
     type: 'DA Challenges',
     name: 'XterioDA',
@@ -113,11 +172,11 @@ Only hashes of data batches are posted as DA commitments to an EOA on Ethereum. 
       risks: [
         {
           category: 'Funds can be lost if',
-          text: `the sequencer posts an invalid data availability certificate and there are no challengers.`,
+          text: 'the sequencer posts an invalid data availability certificate and there are no challengers.',
         },
         {
           category: 'Funds can be lost if',
-          text: `the sequencer posts an invalid data availability certificate, and he is able to outspend the challengers.`,
+          text: 'the sequencer posts an invalid data availability certificate, and he is able to outspend the challengers.',
         },
       ],
     },

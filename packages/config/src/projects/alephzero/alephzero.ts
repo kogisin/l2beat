@@ -1,4 +1,4 @@
-import { EthereumAddress, UnixTime } from '@l2beat/shared-pure'
+import { ChainSpecificAddress, UnixTime } from '@l2beat/shared-pure'
 import { REASON_FOR_BEING_OTHER } from '../../common'
 import { BADGES } from '../../common/badges'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
@@ -9,7 +9,7 @@ import { orbitStackL2 } from '../../templates/orbitStack'
 const discovery = new ProjectDiscovery('alephzero')
 
 export const alephzero: ScalingProject = orbitStackL2({
-  addedAt: UnixTime(1720191862), // 2024-07-05T15:04:22Z
+  addedAt: UnixTime(1723420800), // 2024-08-12T00:00:00Z
   discovery,
   additionalBadges: [BADGES.RaaS.Gelato],
   additionalPurposes: ['Privacy'],
@@ -24,7 +24,7 @@ export const alephzero: ScalingProject = orbitStackL2({
       'Aleph Zero is an Optimium on Ethereum, built on the Orbit stack. It aims to offer seamless interoperability with the Aleph Zero Layer 1 and a suite of developer tools for building privacy-enhancing dapps.',
     links: {
       websites: ['https://alephzero.org/'],
-      apps: ['https://bridge.gelato.network/bridge/aleph-zero-evm'],
+      bridges: ['https://bridge.gelato.network/bridge/aleph-zero-evm'],
       documentation: ['https://docs.alephzero.org/'],
       explorers: ['https://evm-explorer.alephzero.org/'],
       repositories: ['https://github.com/Cardinal-Cryptography'],
@@ -49,7 +49,9 @@ export const alephzero: ScalingProject = orbitStackL2({
   sequencerInbox: discovery.getContract('SequencerInbox'),
   nonTemplateEscrows: [
     discovery.getEscrowDetails({
-      address: EthereumAddress('0xccaF21F002EAF230c9Fa810B34837a3739B70F7B'),
+      address: ChainSpecificAddress(
+        'eth:0xccaF21F002EAF230c9Fa810B34837a3739B70F7B',
+      ),
       name: 'ERC20Gateway',
       description:
         'Escrows deposited ERC-20 assets for the canonical Bridge. Upon depositing, a generic token representation will be minted at the destination. Withdrawals are initiated by the Outbox contract.',
@@ -58,12 +60,12 @@ export const alephzero: ScalingProject = orbitStackL2({
   ],
   milestones: [
     {
-      title: 'Mainnet launch',
+      title: 'Mainnet Launch',
       url: 'https://alephzero.org/blog/aleph-zero-evm-mainnet/',
       date: '2024-08-12T00:00:00Z',
       description: 'Aleph Zero EVM L2 is open for all users.',
       type: 'general',
     },
   ],
-  customDa: AnytrustDAC({ discovery }),
+  customDa: AnytrustDAC({ discovery, hostChain: 'ethereum' }),
 })

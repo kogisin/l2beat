@@ -1,12 +1,10 @@
+import { sortBySeverity } from '@l2beat/discovery'
 import React, { type ReactNode } from 'react'
-
 import type { DashboardProject } from '../props/getDashboardProjects'
 import { TableData } from './components/Components'
 import { Diff } from './components/Diff'
 import { Page } from './components/Page'
 import { reactToHtml } from './components/reactToHtml'
-
-import { sortBySeverity } from '@l2beat/discovery'
 
 interface DashboardPageProps {
   projects: Record<string, DashboardProject[]>
@@ -15,7 +13,7 @@ interface DashboardPageProps {
 function DashboardPage(props: DashboardPageProps) {
   return (
     <Page title="Discovery">
-      <table style={{ width: '100%' }}>
+      <table style={{ width: '100%', wordBreak: 'break-word' }}>
         <tbody>
           {Object.entries(props.projects).map(([chainName, projects]) => (
             <>
@@ -44,9 +42,13 @@ function DashboardPage(props: DashboardPageProps) {
                   >
                     <TableData
                       value={
-                        project.diff && project.diff.length > 0 ? (
+                        project.changes.diff &&
+                        project.changes.diff.length > 0 ? (
                           <ChangedDetectedDropdown
                             project={project}
+                            trackedTxsAffected={
+                              project.changes.trackedTxsAffected
+                            }
                             summary={
                               <div
                                 style={{ color: '#cecbc4' }}
@@ -72,10 +74,15 @@ function DashboardPage(props: DashboardPageProps) {
 function ChangedDetectedDropdown({
   project,
   summary,
-}: { project: DashboardProject; summary: ReactNode }) {
+  trackedTxsAffected,
+}: {
+  project: DashboardProject
+  summary: ReactNode
+  trackedTxsAffected?: boolean
+}) {
   return (
-    project.diff &&
-    project.diff.length > 0 && (
+    project.changes.diff &&
+    project.changes.diff.length > 0 && (
       <details
         key={project.name}
         style={{ marginTop: '0px', marginBottom: '0px', textWrap: 'wrap' }}
@@ -86,7 +93,12 @@ function ChangedDetectedDropdown({
           {summary}
         </summary>
         <p>
-          {project.diff.map((d, index) => {
+          {trackedTxsAffected && (
+            <span style={{ color: 'yellow' }}>
+              Tracked transactions might be affected
+            </span>
+          )}
+          {project.changes.diff.map((d, index) => {
             return (
               <p style={{ marginTop: '8px' }} key={index}>
                 <span style={{ fontWeight: 'bold' }}>

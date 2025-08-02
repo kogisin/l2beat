@@ -1,7 +1,6 @@
 import { EthereumAddress, UnixTime } from '@l2beat/shared-pure'
 
-import { DERIVATION } from '../../common'
-import { REASON_FOR_BEING_OTHER } from '../../common'
+import { DERIVATION, REASON_FOR_BEING_OTHER } from '../../common'
 import { BADGES } from '../../common/badges'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
@@ -14,7 +13,7 @@ export const zora: ScalingProject = opStackL2({
   discovery,
   additionalBadges: [BADGES.RaaS.Conduit],
   additionalPurposes: ['NFT'],
-  reasonsForBeingOther: [REASON_FOR_BEING_OTHER.NO_PROOFS],
+  reasonsForBeingOther: [REASON_FOR_BEING_OTHER.CLOSED_PROOFS],
   display: {
     name: 'Zora',
     slug: 'zora',
@@ -35,14 +34,7 @@ export const zora: ScalingProject = opStackL2({
       ],
     },
   },
-  finality: {
-    type: 'OPStack',
-    genesisTimestamp: UnixTime(1686693839),
-    minTimestamp: UnixTime(1710386579),
-    l2BlockTimeSeconds: 2,
-    lag: 0,
-    stateUpdate: 'analyze',
-  },
+  hasSuperchainScUpgrades: true,
   chainConfig: {
     name: 'zora',
     chainId: 7777777,

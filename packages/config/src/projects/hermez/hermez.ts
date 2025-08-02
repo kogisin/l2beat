@@ -4,14 +4,14 @@ import {
   CONTRACTS,
   EXITS,
   FORCE_TRANSACTIONS,
-  NEW_CRYPTOGRAPHY,
   OPERATOR,
   RISK_VIEW,
-  STATE_CORRECTNESS,
+  STATE_VALIDATION,
   TECHNOLOGY_DATA_AVAILABILITY,
 } from '../../common'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const upgradeDelay = 604800
 const discovery = new ProjectDiscovery('hermez')
@@ -21,7 +21,7 @@ export const hermez: ScalingProject = {
   id: ProjectId('hermez'),
   capability: 'universal',
   addedAt: UnixTime(1623153328), // 2021-06-08T11:55:28Z
-  isArchived: true,
+  archivedAt: UnixTime(1680048000), // 2023-03-29T00:00:00.000Z,
   display: {
     name: 'Polygon Hermez',
     slug: 'hermez',
@@ -33,10 +33,10 @@ export const hermez: ScalingProject = {
     category: 'ZK Rollup',
     // TODO: This is not correct. Research it.
 
-    stack: 'Polygon',
+    stacks: ['Agglayer CDK'],
     links: {
       websites: ['https://hermez.io/'],
-      apps: ['https://wallet.hermez.io/'],
+      bridges: ['https://wallet.hermez.io/'],
       documentation: [
         'https://docs.hermez.io/',
         'https://hermez.io/polygon-hermez-whitepaper.pdf',
@@ -71,30 +71,20 @@ export const hermez: ScalingProject = {
     sequencerFailure: RISK_VIEW.SEQUENCER_FORCE_VIA_L1(),
     proposerFailure: RISK_VIEW.PROPOSER_SELF_PROPOSE_ZK,
   },
+  stateValidation: {
+    categories: [
+      {
+        ...STATE_VALIDATION.VALIDITY_PROOFS,
+        references: [
+          {
+            title: 'ZK proofs - Hermez documentation',
+            url: 'https://docs.hermez.io/#/about/security?id=zk-proofs',
+          },
+        ],
+      },
+    ],
+  },
   technology: {
-    stateCorrectness: {
-      ...STATE_CORRECTNESS.VALIDITY_PROOFS,
-      references: [
-        {
-          title: 'ZK proofs - Hermez documentation',
-          url: 'https://docs.hermez.io/#/about/security?id=zk-proofs',
-        },
-      ],
-    },
-    newCryptography: {
-      ...NEW_CRYPTOGRAPHY.ZK_SNARKS,
-      references: [
-        {
-          title: 'ZK proofs - Hermez documentation',
-          url: 'https://docs.hermez.io/#/about/security?id=zk-proofs',
-        },
-        {
-          title:
-            'Multi-party Computation for the Trusted Setup - Hermez documentation',
-          url: 'https://docs.hermez.io/#/about/security?id=multi-party-computation-for-the-trusted-setup',
-        },
-      ],
-    },
     dataAvailability: {
       ...TECHNOLOGY_DATA_AVAILABILITY.ON_CHAIN_CALLDATA,
       references: [
@@ -188,7 +178,7 @@ export const hermez: ScalingProject = {
   },
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails('HermezAuctionProtocol'),
         discovery.getContractDetails('Hermez'),
         discovery.getContractDetails(
@@ -204,4 +194,5 @@ export const hermez: ScalingProject = {
     },
     risks: [CONTRACTS.UPGRADE_WITH_DELAY_RISK('7 days')],
   },
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

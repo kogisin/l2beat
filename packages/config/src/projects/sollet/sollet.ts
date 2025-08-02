@@ -3,6 +3,7 @@ import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
 import { BRIDGE_RISK_VIEW } from '../../common'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { Bridge } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('sollet')
 
@@ -10,7 +11,7 @@ export const sollet: Bridge = {
   type: 'bridge',
   id: ProjectId('sollet'),
   addedAt: UnixTime(1662628329), // 2022-09-08T09:12:09Z
-  isArchived: true,
+  archivedAt: UnixTime(1677196800), // 2023-02-24T00:00:00.000Z,
   display: {
     name: 'Sollet',
     slug: 'sollet',
@@ -18,7 +19,7 @@ export const sollet: Bridge = {
       'Sollet Bridge becomes deprecated on Oct 31, 2022. Users are encouraged to use Wormhole instead.',
     description:
       'Externally Validated bridge to Solana that is now being phased out - users are encouraged to use Wormhole instead.',
-    category: 'Token Bridge',
+    category: 'Single-chain',
     links: {
       websites: ['https://sollet.io/'],
       socialMedia: ['https://projectserum.medium.com/'],
@@ -72,7 +73,6 @@ export const sollet: Bridge = {
       description: 'Withdrawals need to be signed by an EOA account.',
       sentiment: 'bad',
     },
-    sourceUpgradeability: BRIDGE_RISK_VIEW.UPGRADABLE_NO,
     destinationToken: {
       ...BRIDGE_RISK_VIEW.WRAPPED,
       description:
@@ -82,14 +82,14 @@ export const sollet: Bridge = {
   },
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails('SplTokenSwap', 'Sollet Bridge Contract.'),
       ],
     },
     risks: [],
   },
   permissions: {
-    [discovery.chain]: {
+    ethereum: {
       actors: [
         discovery.getPermissionDetails(
           'Sollet Bridge Owner (EOA)',
@@ -99,4 +99,5 @@ export const sollet: Bridge = {
       ],
     },
   },
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

@@ -19,8 +19,15 @@ export const soulwallet: BaseProject = {
   statuses: {
     yellowWarning: undefined,
     redWarning: undefined,
-    isUnderReview: false,
-    isUnverified: false,
+    emergencyWarning: undefined,
+    reviewStatus: undefined,
+    unverifiedContracts: [],
+  },
+  display: {
+    description:
+      'Smart contract wallet supporting guardians and email recovery with ZK.',
+    links: {},
+    badges: [],
   },
   proofVerification: {
     shortDescription:

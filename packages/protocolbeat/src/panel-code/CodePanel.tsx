@@ -1,106 +1,145 @@
 import { useQuery } from '@tanstack/react-query'
-import clsx from 'clsx'
-import { useEffect, useRef, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { getCode, getProject } from '../api/api'
+import { useMemo } from 'react'
+import { getCode } from '../api/api'
+import type { ApiCodeResponse } from '../api/types'
 import { toShortenedAddress } from '../common/toShortenedAddress'
-import { IconCodeFile } from '../icons/IconCodeFile'
-import { useMultiViewStore } from '../multi-view/store'
-import { usePanelStore } from '../store/store'
-import { Editor } from './editor'
+import { ActionNeededState } from '../components/ActionNeededState'
+import { ErrorState } from '../components/ErrorState'
+import { EditorView } from '../components/editor/EditorView'
+import { type EditorFile, useCodeStore } from '../components/editor/store'
+import { LoadingState } from '../components/LoadingState'
+import { isReadOnly } from '../config'
+import { useProjectData } from '../hooks/useProjectData'
+import { RediscoverPrompt } from './RediscoverPrompt'
 
 export function CodePanel() {
-  const { project } = useParams()
-  if (!project) {
-    throw new Error('Cannot use component outside of project page!')
-  }
-  const projectResponse = useQuery({
-    queryKey: ['projects', project],
-    queryFn: () => getProject(project),
-  })
-  const selectedAddress = usePanelStore((state) => state.selected)
+  const { project, selectedAddress, projectResponse, selected } =
+    useProjectData()
+
+  const hasCode = useMemo(
+    () =>
+      selected !== undefined &&
+      'implementationNames' in selected &&
+      selected.implementationNames !== undefined,
+    [selected],
+  )
+
   const codeResponse = useQuery({
     queryKey: ['projects', project, 'code', selectedAddress],
-    enabled: selectedAddress !== undefined,
-    queryFn: () => getCode(project, selectedAddress),
+    enabled: selectedAddress !== undefined && hasCode,
+    queryFn: () => {
+      if (!selectedAddress) {
+        throw new Error('Selected address is required')
+      }
+      return getCode(project, selectedAddress)
+    },
+    retry: 1,
   })
-  const [current, setCurrent] = useState(0)
-  useEffect(() => {
-    const hasProxy =
-      codeResponse.isSuccess && codeResponse.data.sources.length > 1
-    setCurrent(hasProxy ? 1 : 0)
-  }, [codeResponse.data])
 
-  if (projectResponse.isError || codeResponse.isError) {
-    return <div>Error</div>
+  const { getRange, getSourceIndex } = useCodeStore()
+
+  const hasProxy = useMemo(() => {
+    const sources = codeResponse.data?.sources
+
+    if (!sources) {
+      return false
+    }
+
+    return sources.length > 1
+  }, [codeResponse.isPending, selectedAddress])
+
+  const files = useMemo(
+    () => getCodeFiles(codeResponse, selectedAddress, hasCode),
+    [codeResponse, selectedAddress, hasCode],
+  )
+
+  const showRediscoverInfo = codeResponse.isError && !isReadOnly
+
+  const range = selectedAddress ? getRange(selectedAddress) : undefined
+
+  if (projectResponse.isError) {
+    return <ErrorState />
   }
 
-  const response = codeResponse.data?.sources ?? []
-  const sources =
-    response.length === 0
-      ? [
-          {
-            name: selectedAddress
-              ? toShortenedAddress(selectedAddress)
-              : 'Loading',
-            code: codeResponse.isPending ? '// Loading' : '// No code',
-          },
-        ]
-      : response
+  if (projectResponse.isPending) {
+    return <LoadingState />
+  }
+
+  if (selected === undefined) {
+    return <ActionNeededState message="Select a contract" />
+  }
+
+  const rangeInfo =
+    codeResponse.isPending || !selectedAddress
+      ? undefined
+      : {
+          index: getSourceIndex(selectedAddress),
+          data: range,
+        }
 
   return (
     <div className="flex h-full w-full select-none flex-col">
-      <div className="flex gap-1 overflow-x-auto border-b border-b-coffee-600 px-1 pt-1">
-        {sources.map((x, i) => (
-          <button
-            key={i}
-            onClick={() => setCurrent(i)}
-            className={clsx(
-              'flex h-6 items-center gap-1 px-2 text-sm',
-              current === i && 'bg-autumn-300 text-black',
-            )}
-          >
-            <IconCodeFile />
-            {x.name}
-          </button>
-        ))}
-      </div>
-      <CodeView code={sources[current]?.code ?? '// No code'} />
+      {showRediscoverInfo && <RediscoverPrompt chain={selected.chain} />}
+      <EditorView
+        editorId="code-panel"
+        files={files}
+        range={rangeInfo}
+        initialFileIndex={hasProxy ? 1 : 0}
+      />
     </div>
   )
 }
 
-function CodeView({ code }: { code: string }) {
-  const monacoEl = useRef(null)
-  const [editor, setEditor] = useState<Editor | undefined>(undefined)
-  const panels = useMultiViewStore((state) => state.panels)
-  const pickedUp = useMultiViewStore((state) => state.pickedUp)
+function getCodeFiles(
+  codeResponse: ReturnType<typeof useQuery<ApiCodeResponse>>,
+  selectedAddress: string | undefined,
+  hasCode: boolean,
+): EditorFile[] {
+  const addressName = selectedAddress
+    ? toShortenedAddress(selectedAddress)
+    : 'Loading'
 
-  useEffect(() => {
-    if (!monacoEl.current) {
-      return
-    }
+  if (!hasCode) {
+    return [
+      {
+        id: addressName,
+        name: addressName,
+        content: '// Entry has no code associated with it',
+        readOnly: true,
+        language: 'solidity',
+      },
+    ]
+  }
 
-    const editor = new Editor(monacoEl.current)
-    setEditor(editor)
+  if (codeResponse.isPending) {
+    return [
+      {
+        id: addressName,
+        name: addressName,
+        content: '// Loading',
+        readOnly: true,
+        language: 'solidity',
+      },
+    ]
+  }
 
-    function onResize() {
-      editor.resize()
-    }
-    window.addEventListener('resize', onResize)
-    return () => {
-      window.removeEventListener('resize', onResize)
-      editor.destruct()
-    }
-  }, [setEditor])
+  if (codeResponse.isError) {
+    return [
+      {
+        id: addressName,
+        name: addressName,
+        content: '// ERROR: Failed to find the code for this contract',
+        readOnly: true,
+        language: 'solidity',
+      },
+    ]
+  }
 
-  useEffect(() => {
-    editor?.setCode(code)
-  }, [editor, code])
-
-  useEffect(() => {
-    editor?.resize()
-  }, [editor, panels, pickedUp])
-
-  return <div className="h-full w-full" ref={monacoEl} />
+  return codeResponse.data.sources.map((source) => ({
+    id: source.name,
+    name: source.name,
+    content: source.code,
+    readOnly: true,
+    language: 'solidity' as const,
+  }))
 }

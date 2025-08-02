@@ -1,15 +1,14 @@
-import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
-
-import { CONTRACTS } from '../../common'
-import { BRIDGE_RISK_VIEW } from '../../common'
+import { ChainSpecificAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
+import { BRIDGE_RISK_VIEW, CONTRACTS } from '../../common'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { Bridge } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('pulseChain')
 
 const reqNumberOfSigs = discovery.getContractValue<number>(
   'BridgeValidators',
-  'requiredSignatures',
+  '$threshold',
 )
 
 const numOfValidators = discovery.getContractValue<number>(
@@ -27,7 +26,7 @@ export const pulseChain: Bridge = {
     description:
       'Bridge used to transfer assets from Ethereum to PulseChain. Transfers are validated by set of trusted Validators.',
     // not sure about this
-    category: 'Token Bridge',
+    category: 'Single-chain',
     links: {
       websites: [
         'https://pulsechain.com/',
@@ -42,7 +41,9 @@ export const pulseChain: Bridge = {
   config: {
     escrows: [
       discovery.getEscrowDetails({
-        address: EthereumAddress('0x1715a3E4A142d8b698131108995174F37aEBA10D'),
+        address: ChainSpecificAddress(
+          'eth:0x1715a3E4A142d8b698131108995174F37aEBA10D',
+        ),
         sinceTimestamp: UnixTime(1684137600),
         tokens: '*',
       }),
@@ -79,22 +80,34 @@ export const pulseChain: Bridge = {
   },
   riskView: {
     validatedBy: {
-      value: 'Third Party',
-      description:
-        'Transfers need to be signed offchain by a designed list of Validators.',
+      value: `Multisig (${discovery.getMultisigStats('BridgeValidators')})`,
+      description: `${discovery.getMultisigStats('BridgeValidators')} BridgeValidators Multisig. Identities of the signers are not publicly disclosed.`,
       sentiment: 'bad',
     },
-    sourceUpgradeability: {
-      value: 'Yes',
+    governance: {
+      upgrade: {
+        value: 'EOA',
+        description: 'Critical contracts can be upgraded by an EOA.',
+        sentiment: 'bad',
+      },
+      pause: {
+        value: 'EOA',
+        sentiment: 'bad',
+        description:
+          'Although there is no formal pause function, the liveness of the bridge depends on the Multisig and operators.',
+      },
+    },
+    livenessFailure: {
+      value: 'No mechanism',
       description:
-        'The code that secures the system can be changed arbitrarily and without notice.',
+        'If the operators do not service the bridge, deposited funds do not arrive at the destination chain and are stuck.',
       sentiment: 'bad',
     },
     destinationToken: BRIDGE_RISK_VIEW.WRAPPED,
   },
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails(
           'ForeignOmnibridge',
           'The main Bridge contract and the escrow for the PulseChain bridge. It is used to deposit tokens to the bridge.',
@@ -116,14 +129,11 @@ export const pulseChain: Bridge = {
     risks: [CONTRACTS.UPGRADE_NO_DELAY_RISK],
   },
   permissions: {
-    [discovery.chain]: {
+    ethereum: {
       actors: [
         discovery.getPermissionDetails(
-          'Validators',
-          discovery.getPermissionedAccounts(
-            'BridgeValidators',
-            'validatorList',
-          ),
+          'BridgeValidators',
+          discovery.getPermissionedAccounts('BridgeValidators', '$members'),
           `Permissioned set of validators that can sign off any arbitrary message from PulseChain including withdrawal request. ${reqNumberOfSigs} / ${numOfValidators} signatures are required.`,
         ),
         discovery.getPermissionDetails(
@@ -142,4 +152,5 @@ export const pulseChain: Bridge = {
       ],
     },
   },
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

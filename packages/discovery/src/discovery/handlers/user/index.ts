@@ -1,4 +1,4 @@
-import * as z from 'zod'
+import { v } from '@l2beat/validate'
 
 import type { Handler } from '../Handler'
 import {
@@ -35,6 +35,10 @@ import {
   EIP2535FacetHandler,
   EIP2535FacetHandlerDefinition,
 } from './EIP2535FacetHandler'
+import {
+  ERC20DataDefinition,
+  ERC20DataHandler,
+} from './ERC20DataHandler/ERC20DataHandler'
 import {
   EventCountHandler,
   EventCountHandlerDefinition,
@@ -83,6 +87,10 @@ import {
 } from './StarkWareNamedStorageHandler'
 import { StorageHandler, StorageHandlerDefinition } from './StorageHandler'
 import {
+  TradableDefinition,
+  TradableHandler,
+} from './TradableHandler/TradableHandler'
+import {
   ZKsyncEraScheduledTransactionHandler,
   ZKsyncEraScheduledTransactionsHandlerDefinition,
 } from './ZKsyncEraScheduledTransactionHandler'
@@ -91,10 +99,9 @@ import {
   ZKsyncEraValidatorsHandlerDefinition,
 } from './ZKsyncEraValidatorsHandler'
 
-export type UserHandlerDefinition = z.infer<typeof UserHandlerDefinition>
-export const UserHandlerDefinition = z.union([
+export type UserHandlerDefinition = v.infer<typeof UserHandlerDefinition>
+export const UserHandlerDefinition = v.union([
   StorageHandlerDefinition,
-  DynamicArrayHandlerDefinition,
   DynamicArrayHandlerDefinition,
   ArrayHandlerDefinition,
   CallHandlerDefinition,
@@ -120,6 +127,8 @@ export const UserHandlerDefinition = z.union([
   ZKsyncEraValidatorsHandlerDefinition,
   OrbitPostsBlobsDefinition,
   PolygonCDKScheduledTransactionsHandlerDefinition,
+  ERC20DataDefinition,
+  TradableDefinition,
 ])
 
 export function getUserHandler(
@@ -180,5 +189,9 @@ export function getUserHandler(
       return new OrbitPostsBlobsHandler(field, definition)
     case 'polygoncdkScheduledTransactions':
       return new PolygonCDKScheduledTransactionHandler(field, abi)
+    case 'ERC20Data':
+      return new ERC20DataHandler(field, definition)
+    case 'tradable':
+      return new TradableHandler(field)
   }
 }

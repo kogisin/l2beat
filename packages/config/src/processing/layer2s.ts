@@ -2,7 +2,6 @@ import { HOMEPAGE_MILESTONES } from '../global/milestones'
 import type { ScalingProject } from '../internalTypes'
 import { abstract } from '../projects/abstract/abstract'
 import { aevo } from '../projects/aevo/aevo'
-import { aiechain } from '../projects/aiechain/aiechain'
 import { airas } from '../projects/airas/airas'
 import { alephzero } from '../projects/alephzero/alephzero'
 import { alienx } from '../projects/alienx/alienx'
@@ -10,16 +9,16 @@ import { align } from '../projects/align/align'
 import { allo } from '../projects/allo/allo'
 import { ancient } from '../projects/ancient/ancient'
 import { apex } from '../projects/apex/apex'
+import { appchain } from '../projects/appchain/appchain'
 import { arbitrum } from '../projects/arbitrum/arbitrum'
 import { arcology } from '../projects/arcology/arcology'
 import { arenaz } from '../projects/arenaz/arenaz'
 import { arithmic } from '../projects/arithmic/arithmic'
 import { astarzkevm } from '../projects/astarzkevm/astarzkevm'
 import { automata } from '../projects/automata/automata'
-import { axonum } from '../projects/axonum/axonum'
 import { azchain } from '../projects/azchain/azchain'
-import { aztecV2 } from '../projects/aztec-v2/aztec-v2'
 import { aztec } from '../projects/aztec/aztec'
+import { aztecV2 } from '../projects/aztec-v2/aztec-v2'
 import { aztecconnect } from '../projects/aztecconnect/aztecconnect'
 import { base } from '../projects/base/base'
 import { blast } from '../projects/blast/blast'
@@ -29,6 +28,7 @@ import { brine } from '../projects/brine/brine'
 import { camp } from '../projects/camp/camp'
 import { canvasconnect } from '../projects/canvasconnect/canvasconnect'
 import { capx } from '../projects/capx/capx'
+import { cartesiprthoneypot } from '../projects/cartesi-prt-honeypot/cartesi-prt-honeypot'
 import { celo } from '../projects/celo/celo'
 import { corn } from '../projects/corn/corn'
 import { coti } from '../projects/coti/coti'
@@ -41,7 +41,6 @@ import { dcamonster } from '../projects/dcamonster/dcamonster'
 import { degate } from '../projects/degate/degate'
 import { degate2 } from '../projects/degate2/degate2'
 import { degate3 } from '../projects/degate3/degate3'
-import { degenlayer } from '../projects/degenlayer/degenlayer'
 import { destra } from '../projects/destra/destra'
 import { deversifi } from '../projects/deversifi/deversifi'
 import { dydx } from '../projects/dydx/dydx'
@@ -55,7 +54,6 @@ import { fhenix } from '../projects/fhenix/fhenix'
 import { fluence } from '../projects/fluence/fluence'
 import { fluent } from '../projects/fluent/fluent'
 import { form } from '../projects/form/form'
-import { frame } from '../projects/frame/frame'
 import { fraxtal } from '../projects/fraxtal/fraxtal'
 import { fuel } from '../projects/fuel/fuel'
 import { fuelv1 } from '../projects/fuelv1/fuelv1'
@@ -63,6 +61,7 @@ import { funki } from '../projects/funki/funki'
 import { fuse } from '../projects/fuse/fuse'
 import { galxegravity } from '../projects/galxegravity/galxegravity'
 import { gameswift } from '../projects/gameswift/gameswift'
+import { gasp } from '../projects/gasp/gasp'
 import { genlayer } from '../projects/genlayer/genlayer'
 import { gluon } from '../projects/gluon/gluon'
 import { gmnetwork } from '../projects/gmnetwork/gmnetwork'
@@ -75,6 +74,7 @@ import { haust } from '../projects/haust/haust'
 import { hemi } from '../projects/hemi/hemi'
 import { hermez } from '../projects/hermez/hermez'
 import { honeypot } from '../projects/honeypot/honeypot'
+import { hpp } from '../projects/hpp/hpp'
 import { hybrid } from '../projects/hybrid/hybrid'
 import { hychain } from '../projects/hychain/hychain'
 import { hypr } from '../projects/hypr/hypr'
@@ -82,14 +82,15 @@ import { immutablex } from '../projects/immutablex/immutablex'
 import { immutablezkevm } from '../projects/immutablezkevm/immutablezkevm'
 import { ink } from '../projects/ink/ink'
 import { intmax } from '../projects/intmax/intmax'
-import { kakarotzkevm } from '../projects/kakarotzkevm/kakarotzkevm'
 import { karak } from '../projects/karak/karak'
+import { katana } from '../projects/katana/katana'
 import { kinto } from '../projects/kinto/kinto'
 import { koi } from '../projects/koi/koi'
 import { kontos } from '../projects/kontos/kontos'
 import { kroma } from '../projects/kroma/kroma'
 import { lachain } from '../projects/lachain/lachain'
 import { lambda } from '../projects/lambda/lambda'
+import { lasernet } from '../projects/lasernet/lasernet'
 import { layer2finance } from '../projects/layer2finance/layer2finance'
 import { layer2financezk } from '../projects/layer2financezk/layer2financezk'
 import { layerai } from '../projects/layerai/layerai'
@@ -105,6 +106,7 @@ import { lumia } from '../projects/lumia/lumia'
 import { lyra } from '../projects/lyra/lyra'
 import { mantapacific } from '../projects/mantapacific/mantapacific'
 import { mantle } from '../projects/mantle/mantle'
+import { mawari } from '../projects/mawari/mawari'
 import { memento } from '../projects/memento/memento'
 import { metal } from '../projects/metal/metal'
 import { metis } from '../projects/metis/metis'
@@ -117,6 +119,7 @@ import { move } from '../projects/move/move'
 import { myria } from '../projects/myria/myria'
 import { myshell } from '../projects/myshell/myshell'
 import { nal } from '../projects/nal/nal'
+import { namechain } from '../projects/namechain/namechain'
 import { network3 } from '../projects/network3/network3'
 import { neva } from '../projects/neva/neva'
 import { nil } from '../projects/nil/nil'
@@ -130,7 +133,6 @@ import { optimism } from '../projects/optimism/optimism'
 import { optopia } from '../projects/optopia/optopia'
 import { orderly } from '../projects/orderly/orderly'
 import { ozean } from '../projects/ozean/ozean'
-import { palm } from '../projects/palm/palm'
 import { pandasea } from '../projects/pandasea/pandasea'
 import { paradex } from '../projects/paradex/paradex'
 import { parallel } from '../projects/parallel/parallel'
@@ -139,6 +141,7 @@ import { pay } from '../projects/pay/pay'
 import { payy } from '../projects/payy/payy'
 import { penchain } from '../projects/penchain/penchain'
 import { pepeunchained } from '../projects/pepeunchained/pepeunchained'
+import { pepeunchained2 } from '../projects/pepeunchained2/pepeunchained2'
 import { phala } from '../projects/phala/phala'
 import { plumenetwork } from '../projects/plumenetwork/plumenetwork'
 import { polygonpos } from '../projects/polygon-pos/polygon-pos'
@@ -146,12 +149,14 @@ import { polygonmiden } from '../projects/polygonmiden/polygonmiden'
 import { polygonpos2 } from '../projects/polygonpos2/polygonpos2'
 import { polygonzkevm } from '../projects/polygonzkevm/polygonzkevm'
 import { polynomial } from '../projects/polynomial/polynomial'
+import { powerloom } from '../projects/powerloom/powerloom'
 import { prom } from '../projects/prom/prom'
 import { publicgoodsnetwork } from '../projects/publicgoodsnetwork/publicgoodsnetwork'
 import { puffer } from '../projects/puffer/puffer'
 import { quarkchain } from '../projects/quarkchain/quarkchain'
 import { r0ar } from '../projects/r0ar/r0ar'
 import { race } from '../projects/race/race'
+import { rarimo } from '../projects/rarimo/rarimo'
 import { real } from '../projects/real/real'
 import { reddioex } from '../projects/reddioex/reddioex'
 import { reddiozkvm } from '../projects/reddiozkvm/reddiozkvm'
@@ -162,10 +167,13 @@ import { river } from '../projects/river/river'
 import { rss3 } from '../projects/rss3/rss3'
 import { rufus } from '../projects/rufus/rufus'
 import { scroll } from '../projects/scroll/scroll'
+import { settlus } from '../projects/settlus/settlus'
 import { shape } from '../projects/shape/shape'
 import { shibarium } from '../projects/shibarium/shibarium'
+import { silentData } from '../projects/silentdata/silentdata'
 import { silicon } from '../projects/silicon/silicon'
 import { singularityfinance } from '../projects/singularityfinance/singularityfinance'
+import { sischain } from '../projects/sischain/sischain'
 import { skatechain } from '../projects/skatechain/skatechain'
 import { snaxchain } from '../projects/snaxchain/snaxchain'
 import { solo } from '../projects/solo/solo'
@@ -173,11 +181,14 @@ import { soneium } from '../projects/soneium/soneium'
 import { soon } from '../projects/soon/soon'
 import { sophon } from '../projects/sophon/sophon'
 import { sorare } from '../projects/sorare/sorare'
-import { specular } from '../projects/specular/specular'
+import { sovrun } from '../projects/sovrun/sovrun'
+import { spire } from '../projects/spire/spire'
 import { starknet } from '../projects/starknet/starknet'
 import { status } from '../projects/status/status'
+import { studiochain } from '../projects/studiochain/studiochain'
 import { superlumio } from '../projects/superlumio/superlumio'
 import { superseed } from '../projects/superseed/superseed'
+import { surge } from '../projects/surge/surge'
 import { swan } from '../projects/swan/swan'
 import { swell } from '../projects/swell/swell'
 import { sxnetwork } from '../projects/sxnetwork/sxnetwork'
@@ -192,13 +203,12 @@ import { ternoa } from '../projects/ternoa/ternoa'
 import { thanos } from '../projects/thanos/thanos'
 import { thebinaryholdings } from '../projects/thebinaryholdings/thebinaryholdings'
 import { treasure } from '../projects/treasure/treasure'
-import { turboprotocol } from '../projects/turboprotocol/turboprotocol'
 import { tusima } from '../projects/tusima/tusima'
 import { unichain } from '../projects/unichain/unichain'
 import { union } from '../projects/union/union'
 import { wirex } from '../projects/wirex/wirex'
 import { witness } from '../projects/witness/witness'
-import { wonderfi } from '../projects/wonderfi/wonderfi'
+import { wonder } from '../projects/wonder/wonder'
 import { worldchain } from '../projects/worldchain/worldchain'
 import { xchain } from '../projects/xchain/xchain'
 import { xlayer } from '../projects/xlayer/xlayer'
@@ -221,7 +231,6 @@ import { zora } from '../projects/zora/zora'
 export const layer2s: ScalingProject[] = [
   abstract,
   aevo,
-  aiechain,
   airas,
   alephzero,
   alienx,
@@ -229,13 +238,13 @@ export const layer2s: ScalingProject[] = [
   allo,
   ancient,
   apex,
+  appchain,
   arbitrum,
   arcology,
   arenaz,
   arithmic,
   astarzkevm,
   automata,
-  axonum,
   azchain,
   aztecconnect,
   aztec,
@@ -247,6 +256,7 @@ export const layer2s: ScalingProject[] = [
   camp,
   canvasconnect,
   capx,
+  cartesiprthoneypot,
   celo,
   corn,
   coti,
@@ -259,7 +269,6 @@ export const layer2s: ScalingProject[] = [
   degate,
   degate2,
   degate3,
-  degenlayer,
   destra,
   dydx,
   ebichain,
@@ -272,7 +281,6 @@ export const layer2s: ScalingProject[] = [
   fluence,
   fluent,
   form,
-  frame,
   fraxtal,
   fuel,
   fuelv1,
@@ -280,6 +288,7 @@ export const layer2s: ScalingProject[] = [
   fuse,
   galxegravity,
   gameswift,
+  gasp,
   genlayer,
   gluon,
   gmnetwork,
@@ -292,6 +301,7 @@ export const layer2s: ScalingProject[] = [
   hemi,
   hermez,
   honeypot,
+  hpp,
   hybrid,
   hychain,
   hypr,
@@ -299,14 +309,15 @@ export const layer2s: ScalingProject[] = [
   immutablezkevm,
   ink,
   intmax,
-  kakarotzkevm,
   karak,
+  katana,
   kinto,
   koi,
   kontos,
   kroma,
   lachain,
   lambda,
+  lasernet,
   layer2finance,
   layer2financezk,
   layerai,
@@ -322,6 +333,7 @@ export const layer2s: ScalingProject[] = [
   lyra,
   mantapacific,
   mantle,
+  mawari,
   memento,
   metal,
   metis,
@@ -334,6 +346,7 @@ export const layer2s: ScalingProject[] = [
   myria,
   myshell,
   nal,
+  namechain,
   network3,
   neva,
   nil,
@@ -347,7 +360,6 @@ export const layer2s: ScalingProject[] = [
   optopia,
   orderly,
   ozean,
-  palm,
   pandasea,
   paradex,
   parallel,
@@ -356,6 +368,7 @@ export const layer2s: ScalingProject[] = [
   payy,
   penchain,
   pepeunchained,
+  pepeunchained2,
   phala,
   plumenetwork,
   polygonmiden,
@@ -363,12 +376,14 @@ export const layer2s: ScalingProject[] = [
   polygonpos2,
   polygonzkevm,
   polynomial,
+  powerloom,
   prom,
   publicgoodsnetwork,
   puffer,
   quarkchain,
   r0ar,
   race,
+  rarimo,
   real,
   reddioex,
   reddiozkvm,
@@ -380,10 +395,13 @@ export const layer2s: ScalingProject[] = [
   rss3,
   rufus,
   scroll,
+  settlus,
   shape,
   shibarium,
+  silentData,
   silicon,
   singularityfinance,
+  sischain,
   skatechain,
   snaxchain,
   solo,
@@ -391,11 +409,14 @@ export const layer2s: ScalingProject[] = [
   soon,
   sophon,
   sorare,
-  specular,
+  sovrun,
+  spire,
   starknet,
   status,
+  studiochain,
   superlumio,
   superseed,
+  surge,
   swan,
   swell,
   sxnetwork,
@@ -411,13 +432,12 @@ export const layer2s: ScalingProject[] = [
   thanos,
   thebinaryholdings,
   treasure,
-  turboprotocol,
   tusima,
   unichain,
   union,
   wirex,
   witness,
-  wonderfi,
+  wonder,
   worldchain,
   xchain,
   xlayer,

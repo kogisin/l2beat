@@ -1,11 +1,14 @@
+import { Logger } from '@l2beat/backend-tools'
 import { EthereumAddress } from '@l2beat/shared-pure'
 import { expect, mockFn, mockObject } from 'earl'
 import { BatchingAndCachingProvider } from './BatchingAndCachingProvider'
 import type { LowLevelProvider } from './LowLevelProvider'
-import type { ReorgAwareCache } from './ReorgAwareCache'
 import type { MulticallClient } from './multicall/MulticallClient'
+import type { ReorgAwareCache } from './ReorgAwareCache'
 
 describe(BatchingAndCachingProvider.name, () => {
+  const logger = Logger.SILENT
+
   describe(BatchingAndCachingProvider.prototype.getLogs.name, () => {
     it('divides on two calls', async () => {
       const cache = mockObject<ReorgAwareCache>({
@@ -26,6 +29,7 @@ describe(BatchingAndCachingProvider.name, () => {
         cache,
         provider,
         multicallClient,
+        logger,
       )
 
       const address = EthereumAddress.random()
@@ -74,6 +78,7 @@ describe(BatchingAndCachingProvider.name, () => {
         cache,
         provider,
         multicallClient,
+        logger,
       )
 
       const address = EthereumAddress.random()
@@ -122,6 +127,7 @@ describe(BatchingAndCachingProvider.name, () => {
         cache,
         provider,
         multicallClient,
+        logger,
       )
 
       const address = EthereumAddress.random()

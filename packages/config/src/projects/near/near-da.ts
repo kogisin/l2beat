@@ -15,8 +15,9 @@ export const near: BaseProject = {
   statuses: {
     yellowWarning: undefined,
     redWarning: undefined,
-    isUnderReview: false,
-    isUnverified: false,
+    emergencyWarning: undefined,
+    reviewStatus: undefined,
+    unverifiedContracts: [],
   },
   display: {
     description: `NEAR's Data Availability Layer (NEAR DA) leverages the sharded architecture of the NEAR Protocol to provide a modular data availability layer for layer 2 solutions.`,
@@ -48,8 +49,8 @@ export const near: BaseProject = {
     are randomly generated. For each block on the main chain, and for every shard, one of the assigned chunk producers is responsible to produce the part of the main chain block
     related to the shard, and share the chunk header with the network. Finality is determined by the NFG (Nightshade finality gadget), and after 2 consecutive blocks are built on the same fork the t-2 block is considered final.
     Reverting a finalized block will require at least 1/3 of the total stake to be slashed.`, // this is not shown anywhere in the UI, and maybe we don't need it
-      blockTime: 1.2, // seconds average
-      consensusFinality: 2.4, // NFG (Nightshade finality gadget, after 2 consecutive blocks are built on the same fork we consider the t-2 block final, thus transactions belonging to t-2 are final )
+      blockTime: 0.6, // seconds average
+      consensusFinality: 1.2, // NFG (Nightshade finality gadget, after 2 consecutive blocks are built on the same fork we consider the t-2 block final, thus transactions belonging to t-2 are final )
       unbondingPeriod: 86400 * 2, // up to 48 hours
     },
     technology: {
@@ -63,7 +64,7 @@ export const near: BaseProject = {
 ### Consensus
 NEAR's Nightshade consensus operates a Proof-of-Stake (PoS) system that enables parallel processing of transactions through a sharded architecture. As with any PoS system, validators are required to lock a stake to be eligible for block production and attestations.
 The main differentiator of the NEAR blockchain is that its blocks do not contain actual transactions but rather block headers of separate blockchains, known as shards.
-The ***main chain*** can contain many shards, and the current NEAR implementation supports 6 shards.
+The ***main chain*** can contain many shards, and the current NEAR implementation supports 8 shards.
 
 
 ![Near Shards](/images/da-layer-technology/near/nearShards.png#center)\n
@@ -136,7 +137,7 @@ Regarding data retrieval, full nodes prune Receipts after 3 epochs (approximatel
       risks: [
         {
           category: 'Funds can be lost if',
-          text: `a dishonest majority of Near validators finalizes an unavailable block.`,
+          text: 'a dishonest majority of Near validators finalizes an unavailable block.',
         },
       ],
     },
@@ -145,13 +146,24 @@ Regarding data retrieval, full nodes prune Receipts after 3 epochs (approximatel
       bridge: undefined,
     }),
     pruningWindow: 43200 * 3, // minimum 3 epochs (12 hours each), claimed in practice around 5 epochs (due to nodes garbage collection)
-    throughput: [
-      {
-        size: 16777216, // 16 MiB , 4MiB per 4 shard
-        frequency: 1, // 16 MiB/s
-        sinceTimestamp: 1587513600, // 2020-04-22
-      },
-    ],
+    // Need to remove this due to new coming soon logic
+    // throughput: [
+    //   {
+    //     size: 16777216, // 16 MiB , 4MiB per 4 shards
+    //     frequency: 1, // 16 MiB/s
+    //     sinceTimestamp: 1587513600, // 2020-04-22
+    //   },
+    //   {
+    //     size: 33554432, // 32 MiB , 4MiB per 8 shards
+    //     frequency: 1, // 32 MiB/s
+    //     sinceTimestamp: 1742342400, // 2025-03-19
+    //   },
+    //   {
+    //     size: 33554432, // 32 MiB , 4MiB per 8 shards
+    //     frequency: 0.6, // 600ms block time
+    //     sinceTimestamp: 1747141200, // 2025-05-13
+    //   },
+    // ],
     risks: {
       economicSecurity: DaEconomicSecurityRisk.OnChainQuantifiable,
       fraudDetection: DaFraudDetectionRisk.NoFraudDetection,
@@ -167,7 +179,22 @@ Regarding data retrieval, full nodes prune Receipts after 3 epochs (approximatel
   },
   milestones: [
     {
-      title: 'Near mainnet launch',
+      title: 'NEAR reduces block time to 600ms',
+      url: 'https://pages.near.org/blog/blink-and-its-final-near-launches-600ms-blocks-and-1-2s-finality/',
+      date: '2025-05-13T00:00:00Z',
+      description:
+        'NEAR reduces block time to 600ms, achieving finality in 1.2 seconds.',
+      type: 'general',
+    },
+    {
+      title: 'NEAR upgrades to 8 shards',
+      url: 'https://x.com/NEARProtocol/status/1903780872760988037',
+      date: '2025-03-19T00:00:00Z',
+      description: 'NEAR upgrades from 6 to 8 shards.',
+      type: 'general',
+    },
+    {
+      title: 'Mainnet Launch',
       url: 'https://near.org/blog/near-mainnet-genesis',
       date: '2020-04-22T00:00:00Z',
       description: 'Near mainnet launches.',

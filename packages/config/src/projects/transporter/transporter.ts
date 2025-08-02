@@ -1,12 +1,13 @@
 import {
-  EthereumAddress,
+  type ChainSpecificAddress,
+  formatSeconds,
   ProjectId,
   UnixTime,
-  formatSeconds,
 } from '@l2beat/shared-pure'
 import { BRIDGE_RISK_VIEW } from '../../common'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { Bridge } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('transporter')
 const upgradeDelay = discovery.getContractValue<number>(
@@ -19,7 +20,7 @@ const onRamps = Object.values(
   discovery.getContractValue<Record<string, string>>('Router', 'onRamps'),
 )
 const allTokenPools = onRamps.flatMap((onRamp) =>
-  discovery.getContractValue<string[]>(onRamp, 'tokenPools'),
+  discovery.getContractValue<ChainSpecificAddress[]>(onRamp, 'tokenPools'),
 )
 const tokenPools = [...new Set(allTokenPools)]
 
@@ -50,11 +51,6 @@ export const transporter: Bridge = {
         'Chainlink Oracle network is responsible for validating cross-chain messages. For additional security it uses off-chain secondary validation network called Risk Management Network.\
         These validators are tasked with monitoring anomalous behavior and can halt the network if necessary.',
       sentiment: 'bad',
-    },
-    sourceUpgradeability: {
-      value: 'Yes',
-      description: `Configuration changes and upgrades to CCIP are executed through the RBACTimelock smart contract. Upgrades to the source contracts can be proposed by Timelock Proposers and executed with a ${upgradeDelayString} delay. Pending timelock operations can be canceled by Timelock Cancellers.`,
-      sentiment: 'warning',
     },
     destinationToken: {
       ...BRIDGE_RISK_VIEW.CANONICAL_OR_WRAPPED,
@@ -108,7 +104,7 @@ export const transporter: Bridge = {
   config: {
     escrows: tokenPools.map((tokenPool) =>
       discovery.getEscrowDetails({
-        address: EthereumAddress(tokenPool),
+        address: tokenPool,
         tokens: '*',
       }),
     ),
@@ -116,7 +112,7 @@ export const transporter: Bridge = {
   contracts: {
     // this is not a full list of contracts - there would be too many.
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails(
           'Router',
           `Central contract in CCIP responsible for the configuration of OnRamp, OffRamp and Commit Stores for different chains.
@@ -157,7 +153,7 @@ export const transporter: Bridge = {
     ],
   },
   permissions: {
-    [discovery.chain]: {
+    ethereum: {
       actors: [
         discovery.getPermissionDetails(
           'RBACTimelock',
@@ -199,4 +195,5 @@ export const transporter: Bridge = {
       ],
     },
   },
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

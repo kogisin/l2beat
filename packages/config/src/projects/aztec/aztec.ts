@@ -1,31 +1,31 @@
 import {
   EthereumAddress,
+  formatSeconds,
   ProjectId,
   UnixTime,
-  formatSeconds,
 } from '@l2beat/shared-pure'
 import {
   DA_BRIDGES,
   DA_LAYERS,
   DA_MODES,
   FORCE_TRANSACTIONS,
-  NEW_CRYPTOGRAPHY,
   RISK_VIEW,
   SOA,
-  STATE_CORRECTNESS,
+  STATE_VALIDATION,
   TECHNOLOGY_DATA_AVAILABILITY,
 } from '../../common'
 import { getStage } from '../../common/stages/getStage'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
 import { generateDiscoveryDrivenContracts } from '../../templates/generateDiscoveryDrivenSections'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('aztec')
 
 function getRollupProviders() {
   // not getting this from the discovery, because it's the deployer
   // https://etherscan.io/address/0x737901bea3eeb88459df9ef1BE8fF3Ae1B42A2ba#code#F1#L88
-  const deployer = '0xFcF75295f242C4E87203Abb5d7C9BbEda90a8895'
+  const deployer = 'eth:0xFcF75295f242C4E87203Abb5d7C9BbEda90a8895'
   const removedProviders = discovery.getContractValue<string[]>(
     'RollupProcessor',
     'removedRollupProviders',
@@ -64,7 +64,7 @@ export const aztec: ScalingProject = {
     category: 'ZK Rollup',
     links: {
       websites: ['https://aztec.network/'],
-      apps: ['https://old.zk.money'],
+      bridges: ['https://old.zk.money'],
       repositories: ['https://github.com/AztecProtocol/aztec-2-bug-bounty'],
       socialMedia: [
         'https://twitter.com/aztecnetwork',
@@ -173,11 +173,11 @@ export const aztec: ScalingProject = {
         stateRootsPostedToL1: true,
         dataAvailabilityOnL1: true,
         rollupNodeSourceAvailable: true,
+        stateVerificationOnL1: true,
+        fraudProofSystemAtLeast5Outsiders: null,
       },
       stage1: {
         principle: true,
-        stateVerificationOnL1: true,
-        fraudProofSystemAtLeast5Outsiders: null,
         usersHave7DaysToExit: true,
         usersCanExitWithoutCooperation: true,
         securityCouncilProperlySetUp: null,
@@ -196,27 +196,27 @@ export const aztec: ScalingProject = {
     {
       rollupNodeLink:
         'https://developers.aztec.network/#/A%20Private%20Layer%202/zkAssets/emergencyWithdraw',
+      additionalConsiderations: {
+        short:
+          'Aztec v2 is a private rollup that allows users to transfer assets privately. Arbitrary smart contracts are not supported.',
+        long: 'Aztec v2 is a private rollup that allows users to transfer assets privately. Arbitrary smart contracts are not supported.',
+      },
     },
   ),
+  stateValidation: {
+    categories: [
+      {
+        ...STATE_VALIDATION.VALIDITY_PROOFS,
+        references: [
+          {
+            title: 'RollupProcessor.sol#L395 - Etherscan source code',
+            url: 'https://etherscan.io/address/0x737901bea3eeb88459df9ef1BE8fF3Ae1B42A2ba#code#F1#L395',
+          },
+        ],
+      },
+    ],
+  },
   technology: {
-    stateCorrectness: {
-      ...STATE_CORRECTNESS.VALIDITY_PROOFS,
-      references: [
-        {
-          title: 'RollupProcessor.sol#L395 - Etherscan source code',
-          url: 'https://etherscan.io/address/0x737901bea3eeb88459df9ef1BE8fF3Ae1B42A2ba#code#F1#L395',
-        },
-      ],
-    },
-    newCryptography: {
-      ...NEW_CRYPTOGRAPHY.ZK_SNARKS,
-      references: [
-        {
-          title: 'TurboVerifier.sol#L37 - Etherscan source code',
-          url: 'https://etherscan.io/address/0x48Cb7BA00D087541dC8E2B3738f80fDd1FEe8Ce8#code#F1#L37',
-        },
-      ],
-    },
     dataAvailability: {
       ...TECHNOLOGY_DATA_AVAILABILITY.ON_CHAIN_CALLDATA,
       references: [
@@ -229,7 +229,8 @@ export const aztec: ScalingProject = {
     operator: {
       name: 'No regular operators',
       risks: [],
-      description: `Only specific addresses appointed by the owner are permitted to propose new blocks during regular rollup operations. Since EOL, these operators are not regularly processing the rollup anymore.`,
+      description:
+        'Only specific addresses appointed by the owner are permitted to propose new blocks during regular rollup operations. Since EOL, these operators are not regularly processing the rollup anymore.',
       references: [
         {
           title: 'RollupProcessor.sol#L97 - Etherscan source code',
@@ -276,7 +277,8 @@ export const aztec: ScalingProject = {
       },
       {
         name: 'EOL: Manual withdrawal using Aztec v2 Ejector',
-        description: `EOL: Ownership of the rollup contract is irrevocably renounced and operators are not processing the rollup. Assets in the escrow can be manually withdrawn with the [Aztec v2 Ejector](https://github.com/AztecProtocol/aztec-v2-ejector/).`,
+        description:
+          'EOL: Ownership of the rollup contract is irrevocably renounced and operators are not processing the rollup. Assets in the escrow can be manually withdrawn with the [Aztec v2 Ejector](https://github.com/AztecProtocol/aztec-v2-ejector/).',
         risks: [],
         references: [
           {
@@ -307,7 +309,7 @@ export const aztec: ScalingProject = {
     risks: [],
   },
   permissions: {
-    [discovery.chain]: {
+    ethereum: {
       actors: [
         discovery.getPermissionDetails(
           'Rollup Providers',
@@ -315,7 +317,7 @@ export const aztec: ScalingProject = {
           `Addresses that can propose new blocks during regular rollup operation. Since the private key of one of them is public (first Anvil address), anyone can in principle resume regular operations. Every ${formatSeconds(escapeBlockUpperBound * assumedBlockTime)} a special ${formatSeconds((escapeBlockUpperBound - escapeBlockLowerBound) * assumedBlockTime)} window (escape hatch) is open during which anyone can propose new blocks.`,
         ),
         discovery.getMultisigPermission(
-          'AztecMultisig',
+          'Aztec Multisig',
           "Can update parameters related to the reimbursement of gas to permissioned rollup providers. It doesn't affect the escape hatch mechanism, but it can halt regular operations by setting a reimbursement constant that is too high.",
         ),
       ],
@@ -339,4 +341,5 @@ export const aztec: ScalingProject = {
       type: 'general',
     },
   ],
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

@@ -1,8 +1,9 @@
 import {
+  ChainSpecificAddress,
   EthereumAddress,
+  formatSeconds,
   ProjectId,
   UnixTime,
-  formatSeconds,
 } from '@l2beat/shared-pure'
 import {
   CONTRACTS,
@@ -12,15 +13,16 @@ import {
   EXITS,
   FORCE_TRANSACTIONS,
   FRONTRUNNING_RISK,
+  REASON_FOR_BEING_OTHER,
   RISK_VIEW,
   SEQUENCER_NO_MECHANISM,
-  STATE_CORRECTNESS,
+  STATE_VALIDATION,
   TECHNOLOGY_DATA_AVAILABILITY,
 } from '../../common'
-import { REASON_FOR_BEING_OTHER } from '../../common'
 import { BADGES } from '../../common/badges'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 import { PolygoncdkDAC } from '../../templates/polygoncdk-template'
 
 const discovery = new ProjectDiscovery('zkfair')
@@ -101,15 +103,20 @@ const requiredSignatures = discovery.getContractValue<number>(
 
 // format: [ [ip, address], ... ]
 const dacMembers = discovery
-  .getContractValue<string[][]>('ZKFairValidiumDAC', 'members')
-  .map((e) => e[1])
+  .getContractValue<
+    {
+      url: string
+      addr: string
+    }[]
+  >('ZKFairValidiumDAC', 'members')
+  .map((e) => e.addr)
 
 export const zkfair: ScalingProject = {
   type: 'layer2',
   id: ProjectId('zkfair'),
   capability: 'universal',
   addedAt: UnixTime(1690815262), // 2023-07-31T14:54:22Z
-  badges: [BADGES.VM.EVM, BADGES.DA.DAC, BADGES.Stack.PolygonCDK],
+  badges: [BADGES.VM.EVM, BADGES.DA.DAC, BADGES.Stack.CDKErigon],
   reasonsForBeingOther: [
     REASON_FOR_BEING_OTHER.NO_PROOFS,
     REASON_FOR_BEING_OTHER.NO_DA_ORACLE,
@@ -118,14 +125,16 @@ export const zkfair: ScalingProject = {
     name: 'ZKFair',
     slug: 'zkfair',
     purposes: ['Universal'],
+    redWarning:
+      'The canonical bridge escrow was upgraded to an unverified implementation and user funds were moved to [an EOA, then deposited to AAVE](https://etherscan.io/tx/0x0f1ca15e92757dc08e1ac62ef5cfc45a37735c589c655f521f0fd99fb0d5a5d2). They were subsequently withdrawn and [moved to a new contract](https://etherscan.io/tx/0x59304b6420a556c303b4fbcc0608c14d57d06b7aa13366f3851b3be3d6e167ed). Related [tweet by the ZKFair team](https://x.com/ZKFCommunity/status/1910329561105252694).',
     warning:
       'The forced transaction mechanism is currently disabled. The project claims to use CelestiaDA but smart contracts on L1 use DAC. Arbitrary messaging passing is removed from the bridge.',
     description: 'ZKFair is a Validium based on Polygon CDK and Celestia DA.',
-    category: 'Validium',
-    stack: 'Polygon',
+    category: 'Other',
+    stacks: ['Agglayer CDK'],
     links: {
       websites: ['https://zkfair.io/'],
-      apps: ['https://wallet.zkfair.io/'],
+      bridges: ['https://wallet.zkfair.io/'],
       documentation: ['https://docs.zkfair.io/'],
       explorers: ['https://scan.zkfair.io/'],
       repositories: ['https://github.com/ZKFair'],
@@ -135,8 +144,18 @@ export const zkfair: ScalingProject = {
   config: {
     escrows: [
       discovery.getEscrowDetails({
-        address: EthereumAddress('0x9cb4706e20A18E59a48ffa7616d700A3891e1861'),
+        address: ChainSpecificAddress(
+          'eth:0xb10f60B4Ea978CA02aFBAC57fa84907e8439766e',
+        ),
+        sinceTimestamp: UnixTime(1744292087),
+        tokens: '*',
+      }),
+      discovery.getEscrowDetails({
+        address: ChainSpecificAddress(
+          'eth:0x9cb4706e20A18E59a48ffa7616d700A3891e1861',
+        ),
         sinceTimestamp: UnixTime(1702879283),
+        untilTimestamp: UnixTime(1744292087), // funds sweeped to EOA, then [resupplied to an unverified bridge escrow](https://etherscan.io/tx/0x59304b6420a556c303b4fbcc0608c14d57d06b7aa13366f3851b3be3d6e167ed)
         tokens: '*',
       }),
     ],
@@ -163,7 +182,12 @@ export const zkfair: ScalingProject = {
     ],
     coingeckoPlatform: 'zkfair',
     apis: [
-      { type: 'rpc', url: 'https://rpc.zkfair.io', callsPerMinute: 1500 },
+      {
+        type: 'rpc',
+        url: 'https://rpc.zkfair.io',
+        callsPerMinute: 1500,
+        retryStrategy: 'UNRELIABLE',
+      },
       { type: 'blockscout', url: 'https://scan.zkfair.io/api/' },
     ],
   },
@@ -194,17 +218,21 @@ export const zkfair: ScalingProject = {
   stage: {
     stage: 'NotApplicable',
   },
+  stateValidation: {
+    categories: [
+      {
+        ...STATE_VALIDATION.VALIDITY_PROOFS,
+        references: [
+          {
+            title:
+              'ZKFairValidium.sol#L758 - Etherscan source code, _verifyAndRewardBatches function',
+            url: 'https://etherscan.io/address/0x668965757127549f8755D2eEd10494B06420213b#code#F8#L758',
+          },
+        ],
+      },
+    ],
+  },
   technology: {
-    stateCorrectness: {
-      ...STATE_CORRECTNESS.VALIDITY_PROOFS,
-      references: [
-        {
-          title:
-            'ZKFairValidium.sol#L758 - Etherscan source code, _verifyAndRewardBatches function',
-          url: 'https://etherscan.io/address/0x668965757127549f8755D2eEd10494B06420213b#code#F8#L758',
-        },
-      ],
-    },
     dataAvailability: {
       ...TECHNOLOGY_DATA_AVAILABILITY.GENERIC_OFF_CHAIN,
       references: [
@@ -251,17 +279,18 @@ export const zkfair: ScalingProject = {
       {
         ...EXITS.REGULAR_MESSAGING('zk'),
         references: [
-          {
-            title:
-              'PolygonZkEvmBridge.sol#L311 - Etherscan source code, claimAsset function',
-            url: 'https://etherscan.io/address/0xEb80283EBc508CF6AaC5E054118954a2BD7fA006#code#F19#L315',
-          },
+          // unverified
+          // {
+          //   title:
+          //     'PolygonZkEvmBridge.sol#L311 - Etherscan source code, claimAsset function',
+          //   url: 'https://etherscan.io/address/0xEb80283EBc508CF6AaC5E054118954a2BD7fA006#code#F19#L315',
+          // },
         ],
       },
     ],
   },
   permissions: {
-    [discovery.chain]: {
+    ethereum: {
       actors: [
         discovery.getPermissionDetails(
           'Sequencer',
@@ -287,10 +316,6 @@ export const zkfair: ScalingProject = {
           'ZKFairOwner',
           'The ZkFair Owner is a multisig that can be used to trigger the emergency state which pauses bridge functionality, restricts advancing system state and removes the upgradeability delay.',
         ),
-        discovery.getMultisigPermission(
-          'BridgeAdminMultiSig',
-          'The Bridge Admin is a multisig that can be used to set bridge fees and an address into which fees are transferred.',
-        ),
         discovery.getPermissionDetails(
           'DAC members',
           discovery.formatPermissionedAccounts(dacMembers),
@@ -311,7 +336,7 @@ export const zkfair: ScalingProject = {
   },
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails('ZKFairValidium', {
           description: `The main contract of the Polygon CDK Validium. It defines the rules of the system including core system parameters, permissioned actors as well as emergency procedures. The emergency state can be activated either by the ZkFair Owner, by proving a soundness error or by presenting a sequenced batch that has not been aggregated before a ${_HALT_AGGREGATION_TIMEOUT} timeout. This contract receives transaction roots, L2 state roots as well as ZK proofs. It also holds the address of ZKFairValidiumDAC.`,
           ...timelockUpgrades,
@@ -324,8 +349,11 @@ export const zkfair: ScalingProject = {
           ],
         }),
         discovery.getContractDetails('Bridge', {
+          description: 'The current escrow contract for user funds.',
+        }),
+        discovery.getContractDetails('OldBridge', {
           description:
-            'The escrow contract for user funds. It is mirrored on the L2 side and can be used to transfer ERC20 assets. To transfer funds a user initiated transaction on both sides is required.',
+            'Deprecated! Was the escrow contract for user funds. It is mirrored on the L2 side and can be used to transfer ERC20 assets. To transfer funds a user initiated transaction on both sides is required.',
           ...timelockUpgrades,
         }),
         discovery.getContractDetails('GlobalExitRoot', {
@@ -364,4 +392,5 @@ export const zkfair: ScalingProject = {
       membersCount: membersCountDAC,
     },
   }),
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

@@ -7,12 +7,15 @@ export interface State {
   readonly hidden: readonly string[]
   readonly userPreferences: {
     readonly hideUnknownOnLoad: boolean
+    readonly enableDimming: boolean
+    readonly hideLargeArrays: boolean
   }
   readonly transform: {
     readonly offsetX: number
     readonly offsetY: number
     readonly scale: number
   }
+  readonly viewportContainer?: HTMLElement
   readonly input: {
     readonly shiftPressed: boolean
     readonly spacePressed: boolean
@@ -41,9 +44,12 @@ export interface State {
 export interface Node {
   readonly id: string
   readonly address: string
+  readonly isInitial: boolean
+  readonly hasTemplate: boolean
   readonly addressType: ApiAddressType
   readonly name: string
   readonly fields: Field[]
+  readonly hiddenFields: string[]
   readonly box: Box
   readonly color: number
   readonly hueShift: number

@@ -1,36 +1,17 @@
 {
   "name": "playblock",
   "chain": "nova",
-  "blockNumber": 82973305,
-  "configHash": "0xf94aded8e29f42a6b2bbfa56d48b354ee3edf597c43c1abbef1308561b7c9a16",
+  "timestamp": 1742892328,
+  "configHash": "0x764ba1449e05b06a176d593a1eb528f94904866eb50e0c29deb49ce3697ce94b",
   "entries": [
     {
       "name": "RollupProxy",
-      "address": "0x04ea347cC6A258A7F65D67aFb60B1d487062A1d0",
+      "address": "arb-nova:0x04ea347cC6A258A7F65D67aFb60B1d487062A1d0",
       "type": "Contract",
       "unverified": true,
       "template": "orbitstack/RollupProxy",
       "proxyType": "Arbitrum proxy",
       "description": "Central contract for the project's configuration like its execution logic hash (`wasmModuleRoot`) and addresses of the other system contracts. Entry point for Proposers creating new Rollup Nodes (state commitments) and Challengers submitting fraud proofs (In the Orbit stack, these two roles are both held by the Validators).",
-      "issuedPermissions": [
-        {
-          "permission": "interact",
-          "to": "0x10Fe3cb853F7ef551E1598d91436e95d41Aea45a",
-          "description": "Pause and unpause and set important roles and parameters in the system contracts: Can delegate Sequencer management to a BatchPosterManager address, manage data availability and DACs, set the Sequencer-only window, introduce an allowList to the bridge and whitelist Inboxes/Outboxes.",
-          "via": [{ "address": "0x0611b78A42903a537BE7a2f9a8783BE39AC63cD9" }]
-        },
-        {
-          "permission": "upgrade",
-          "to": "0x10Fe3cb853F7ef551E1598d91436e95d41Aea45a",
-          "via": [{ "address": "0x0611b78A42903a537BE7a2f9a8783BE39AC63cD9" }]
-        },
-        {
-          "permission": "validate",
-          "to": "0xB246421622FB931BdAc20B4a26816F881771Db1e",
-          "description": "Can propose new state roots (called nodes) and challenge state roots on the host chain.",
-          "via": []
-        }
-      ],
       "ignoreInWatchMode": [
         "firstUnresolvedNode",
         "latestConfirmed",
@@ -40,63 +21,63 @@
       "sinceTimestamp": 1709904018,
       "sinceBlock": 55663578,
       "values": {
-        "$admin": "0x0611b78A42903a537BE7a2f9a8783BE39AC63cD9",
+        "$admin": "arb-nova:0x0611b78A42903a537BE7a2f9a8783BE39AC63cD9",
         "$implementation": [
-          "0xF7C1c37406626B305f5136364016425f487516a3",
-          "0x5CAF2e861bB26aA0576583677488694FCf30e514"
+          "arb-nova:0xF7C1c37406626B305f5136364016425f487516a3",
+          "arb-nova:0x5CAF2e861bB26aA0576583677488694FCf30e514"
         ],
         "$pastUpgrades": [
           [
             "2024-03-08T13:20:18.000Z",
             "0x37be7a29db10d18501dcf4d0243fa6aefeeba21cbc17832ef16ccf288ce58ef2",
             [
-              "0xEe9E5546A11Cb5b4A86e92DA05f2ef75C26E4754",
-              "0x0aE4dD666748bF0F6dB5c149Eab1D8aD27820A6A"
+              "arb-nova:0xEe9E5546A11Cb5b4A86e92DA05f2ef75C26E4754",
+              "arb-nova:0x0aE4dD666748bF0F6dB5c149Eab1D8aD27820A6A"
             ]
           ],
           [
             "2024-11-25T17:02:54.000Z",
             "0x1eb946f2394c7e8be67336259aa449fbc92fe2b4cf2850c41d2c8dcf54e0193a",
             [
-              "0xF7C1c37406626B305f5136364016425f487516a3",
-              "0x5CAF2e861bB26aA0576583677488694FCf30e514"
+              "arb-nova:0xF7C1c37406626B305f5136364016425f487516a3",
+              "arb-nova:0x5CAF2e861bB26aA0576583677488694FCf30e514"
             ]
           ]
         ],
         "$upgradeCount": 2,
-        "anyTrustFastConfirmer": "0x0000000000000000000000000000000000000000",
+        "anyTrustFastConfirmer": "arb-nova:0x0000000000000000000000000000000000000000",
         "arbOsFromWmRoot": "ArbOS v32 wasmModuleRoot",
         "baseStake": "100000000000000000",
-        "bridge": "0xD4FE46D2533E7d03382ac6cACF0547F336e59DC0",
+        "bridge": "arb-nova:0xD4FE46D2533E7d03382ac6cACF0547F336e59DC0",
         "chainId": 1829,
-        "challengeManager": "0x383eFE8D410285c5CbE1B4F296022640759aA834",
+        "challengeManager": "arb-nova:0x383eFE8D410285c5CbE1B4F296022640759aA834",
         "challenges": [],
         "confirmPeriodBlocks": 150,
         "currentRequiredStake": "100000000000000000",
         "extraChallengeTimeBlocks": 0,
         "firstUnresolvedNode": 8561,
-        "inbox": "0xFF55fB76F5671dD9eB6c62EffF8D693Bb161a3ad",
+        "inbox": "arb-nova:0xFF55fB76F5671dD9eB6c62EffF8D693Bb161a3ad",
         "isERC20Enabled": false,
         "isPostBoLD": false,
         "lastStakeBlock": 21894395,
         "latestConfirmed": 8560,
         "latestNodeCreated": 8561,
-        "loserStakeEscrow": "0x0000000000000000000000000000000000000000",
+        "loserStakeEscrow": "arb-nova:0x0000000000000000000000000000000000000000",
         "minimumAssertionPeriod": 75,
-        "outbox": "0xA597e0212971e65f53f288Ff1fFd26A6C8201f83",
-        "owner": "0x0611b78A42903a537BE7a2f9a8783BE39AC63cD9",
+        "outbox": "arb-nova:0xA597e0212971e65f53f288Ff1fFd26A6C8201f83",
+        "owner": "arb-nova:0x0611b78A42903a537BE7a2f9a8783BE39AC63cD9",
         "paused": false,
         "rollupDeploymentBlock": 19390708,
-        "rollupEventInbox": "0x0fF7A97caAb356c5507e5355b6819CB8b93d5591",
-        "sequencerInbox": "0xe347C1223381b9Dcd6c0F61cf81c90175A7Bae77",
+        "rollupEventInbox": "arb-nova:0x0fF7A97caAb356c5507e5355b6819CB8b93d5591",
+        "sequencerInbox": "arb-nova:0xe347C1223381b9Dcd6c0F61cf81c90175A7Bae77",
         "setValidatorCount": 3,
         "stakerCount": 2,
-        "stakeToken": "0x0000000000000000000000000000000000000000",
+        "stakeToken": "arb-nova:0x0000000000000000000000000000000000000000",
         "totalWithdrawableFunds": 0,
         "VALIDATOR_AFK_BLOCKS": 45818,
-        "validators": ["0xB246421622FB931BdAc20B4a26816F881771Db1e"],
-        "validatorUtils": "0x6c21303F5986180B1394d2C89f3e883890E2867b",
-        "validatorWalletCreator": "0x2b0E04Dc90e3fA58165CB41E2834B44A56E766aF",
+        "validators": ["arb-nova:0xB246421622FB931BdAc20B4a26816F881771Db1e"],
+        "validatorUtils": "arb-nova:0x6c21303F5986180B1394d2C89f3e883890E2867b",
+        "validatorWalletCreator": "arb-nova:0x2b0E04Dc90e3fA58165CB41E2834B44A56E766aF",
         "validatorWhitelistDisabled": false,
         "wasmModuleRoot": "0x184884e1eb9fefdc158f6c8ac912bb183bf3cf83f0090317e0bc4ac5860baa39",
         "zombieAddress": [],
@@ -123,7 +104,11 @@
           "description": "Emitted on createChallenge() in RollupUserLogic."
         }
       },
-      "derivedName": "",
+      "implementationNames": {
+        "arb-nova:0x04ea347cC6A258A7F65D67aFb60B1d487062A1d0": "",
+        "arb-nova:0xF7C1c37406626B305f5136364016425f487516a3": "RollupAdminLogic",
+        "arb-nova:0x5CAF2e861bB26aA0576583677488694FCf30e514": "RollupUserLogic"
+      },
       "usedTypes": [
         {
           "typeCaster": "Mapping",
@@ -149,7 +134,9 @@
             "0xb0de9cb89e4d944ae6023a3b62276e54804c242fd8c4c2d8e6cc4450f5fa8b1b": "ArbOS v30 wasmModuleRoot",
             "0x260f5fa5c3176a856893642e149cf128b5a8de9f828afec8d11184415dd8dc69": "ArbOS v31 wasmModuleRoot",
             "0x184884e1eb9fefdc158f6c8ac912bb183bf3cf83f0090317e0bc4ac5860baa39": "ArbOS v32 wasmModuleRoot",
-            "0xe81f986823a85105c5fd91bb53b4493d38c0c26652d23f76a7405ac889908287": "Celestia Nitro 3.2.1 wasmModuleRoot"
+            "0xdb698a2576298f25448bc092e52cf13b1e24141c997135d70f217d674bbeb69a": "ArbOS v40 wasmModuleRoot",
+            "0xe81f986823a85105c5fd91bb53b4493d38c0c26652d23f76a7405ac889908287": "Celestia Nitro 3.2.1 wasmModuleRoot",
+            "0xaf1dbdfceb871c00bfbb1675983133df04f0ed04e89647812513c091e3a982b3": "Celestia Nitro 3.3.2 wasmModuleRoot"
           }
         }
       ],
@@ -157,7 +144,7 @@
     },
     {
       "name": "UpgradeExecutor",
-      "address": "0x0611b78A42903a537BE7a2f9a8783BE39AC63cD9",
+      "address": "arb-nova:0x0611b78A42903a537BE7a2f9a8783BE39AC63cD9",
       "type": "Contract",
       "template": "orbitstack/UpgradeExecutor",
       "sourceHashes": [
@@ -166,34 +153,29 @@
       ],
       "proxyType": "EIP1967 proxy",
       "description": "Central contract defining the access control permissions for upgrading the system contract implementations.",
-      "issuedPermissions": [
-        {
-          "permission": "upgrade",
-          "to": "0x27C7Bfd2cC11429e9b80c443b42FDBe4754F6c91",
-          "via": []
-        }
-      ],
       "directlyReceivedPermissions": [
         {
           "permission": "interact",
-          "from": "0x04ea347cC6A258A7F65D67aFb60B1d487062A1d0",
-          "description": "Pause and unpause and set important roles and parameters in the system contracts: Can delegate Sequencer management to a BatchPosterManager address, manage data availability and DACs, set the Sequencer-only window, introduce an allowList to the bridge and whitelist Inboxes/Outboxes."
+          "from": "arb-nova:0x04ea347cC6A258A7F65D67aFb60B1d487062A1d0",
+          "description": "Pause and unpause and set important roles and parameters in the system contracts: Can delegate Sequencer management to a BatchPosterManager address, manage data availability and DACs, set the Sequencer-only window, introduce an allowList to the bridge and whitelist Inboxes/Outboxes.",
+          "role": ".owner"
         },
         {
           "permission": "upgrade",
-          "from": "0x04ea347cC6A258A7F65D67aFb60B1d487062A1d0"
+          "from": "arb-nova:0x04ea347cC6A258A7F65D67aFb60B1d487062A1d0",
+          "role": "admin"
         }
       ],
       "sinceTimestamp": 1709904018,
       "sinceBlock": 55663578,
       "values": {
-        "$admin": "0x27C7Bfd2cC11429e9b80c443b42FDBe4754F6c91",
-        "$implementation": "0x660ea1675F7323dC3Ba0c8dDFB593225Eb01E3C1",
+        "$admin": "arb-nova:0x27C7Bfd2cC11429e9b80c443b42FDBe4754F6c91",
+        "$implementation": "arb-nova:0x660ea1675F7323dC3Ba0c8dDFB593225Eb01E3C1",
         "$pastUpgrades": [
           [
             "2024-03-08T13:20:18.000Z",
             "0x37be7a29db10d18501dcf4d0243fa6aefeeba21cbc17832ef16ccf288ce58ef2",
-            ["0x660ea1675F7323dC3Ba0c8dDFB593225Eb01E3C1"]
+            ["arb-nova:0x660ea1675F7323dC3Ba0c8dDFB593225Eb01E3C1"]
           ]
         ],
         "$upgradeCount": 1,
@@ -204,24 +186,27 @@
           },
           "ADMIN_ROLE": {
             "adminRole": "ADMIN_ROLE",
-            "members": ["0x0611b78A42903a537BE7a2f9a8783BE39AC63cD9"]
+            "members": ["arb-nova:0x0611b78A42903a537BE7a2f9a8783BE39AC63cD9"]
           },
           "EXECUTOR_ROLE": {
             "adminRole": "ADMIN_ROLE",
-            "members": ["0x10Fe3cb853F7ef551E1598d91436e95d41Aea45a"]
+            "members": ["arb-nova:0x10Fe3cb853F7ef551E1598d91436e95d41Aea45a"]
           }
         },
         "ADMIN_ROLE": "0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775",
         "DEFAULT_ADMIN_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000",
         "EXECUTOR_ROLE": "0xd8aa0f3194971a2a116679f7c2090f6939c8d4e01a2a8d7e41d55e5351469e63",
-        "executors": ["0x10Fe3cb853F7ef551E1598d91436e95d41Aea45a"]
+        "executors": ["arb-nova:0x10Fe3cb853F7ef551E1598d91436e95d41Aea45a"]
       },
-      "derivedName": "UpgradeExecutor",
+      "implementationNames": {
+        "arb-nova:0x0611b78A42903a537BE7a2f9a8783BE39AC63cD9": "TransparentUpgradeableProxy",
+        "arb-nova:0x660ea1675F7323dC3Ba0c8dDFB593225Eb01E3C1": "UpgradeExecutor"
+      },
       "category": { "name": "Governance", "priority": 3 }
     },
     {
       "name": "RollupEventInbox",
-      "address": "0x0fF7A97caAb356c5507e5355b6819CB8b93d5591",
+      "address": "arb-nova:0x0fF7A97caAb356c5507e5355b6819CB8b93d5591",
       "type": "Contract",
       "template": "orbitstack/RollupEventInbox",
       "sourceHashes": [
@@ -230,58 +215,61 @@
       ],
       "proxyType": "EIP1967 proxy",
       "description": "Helper contract sending configuration data over the bridge during the systems initialization.",
-      "issuedPermissions": [
-        {
-          "permission": "upgrade",
-          "to": "0x27C7Bfd2cC11429e9b80c443b42FDBe4754F6c91",
-          "via": []
-        }
-      ],
       "sinceTimestamp": 1709904018,
       "sinceBlock": 55663578,
       "values": {
-        "$admin": "0x27C7Bfd2cC11429e9b80c443b42FDBe4754F6c91",
-        "$implementation": "0x18FD37A4FB9E1F06d9383958aFd236771F15A8cb",
+        "$admin": "arb-nova:0x27C7Bfd2cC11429e9b80c443b42FDBe4754F6c91",
+        "$implementation": "arb-nova:0x18FD37A4FB9E1F06d9383958aFd236771F15A8cb",
         "$pastUpgrades": [
           [
             "2024-03-08T13:20:18.000Z",
             "0x37be7a29db10d18501dcf4d0243fa6aefeeba21cbc17832ef16ccf288ce58ef2",
-            ["0x18FD37A4FB9E1F06d9383958aFd236771F15A8cb"]
+            ["arb-nova:0x18FD37A4FB9E1F06d9383958aFd236771F15A8cb"]
           ]
         ],
         "$upgradeCount": 1,
-        "bridge": "0xD4FE46D2533E7d03382ac6cACF0547F336e59DC0",
-        "rollup": "0x04ea347cC6A258A7F65D67aFb60B1d487062A1d0"
+        "bridge": "arb-nova:0xD4FE46D2533E7d03382ac6cACF0547F336e59DC0",
+        "rollup": "arb-nova:0x04ea347cC6A258A7F65D67aFb60B1d487062A1d0"
       },
-      "derivedName": "ERC20RollupEventInbox"
+      "implementationNames": {
+        "arb-nova:0x0fF7A97caAb356c5507e5355b6819CB8b93d5591": "TransparentUpgradeableProxy",
+        "arb-nova:0x18FD37A4FB9E1F06d9383958aFd236771F15A8cb": "ERC20RollupEventInbox"
+      }
     },
     {
-      "address": "0x10Fe3cb853F7ef551E1598d91436e95d41Aea45a",
+      "address": "arb-nova:0x10Fe3cb853F7ef551E1598d91436e95d41Aea45a",
       "type": "EOA",
       "proxyType": "EOA",
       "receivedPermissions": [
         {
           "permission": "interact",
-          "from": "0x04ea347cC6A258A7F65D67aFb60B1d487062A1d0",
+          "from": "arb-nova:0x04ea347cC6A258A7F65D67aFb60B1d487062A1d0",
           "description": "Pause and unpause and set important roles and parameters in the system contracts: Can delegate Sequencer management to a BatchPosterManager address, manage data availability and DACs, set the Sequencer-only window, introduce an allowList to the bridge and whitelist Inboxes/Outboxes.",
-          "via": [{ "address": "0x0611b78A42903a537BE7a2f9a8783BE39AC63cD9" }]
+          "role": ".owner",
+          "via": [
+            { "address": "arb-nova:0x0611b78A42903a537BE7a2f9a8783BE39AC63cD9" }
+          ]
         },
         {
           "permission": "upgrade",
-          "from": "0x04ea347cC6A258A7F65D67aFb60B1d487062A1d0",
-          "via": [{ "address": "0x0611b78A42903a537BE7a2f9a8783BE39AC63cD9" }]
+          "from": "arb-nova:0x04ea347cC6A258A7F65D67aFb60B1d487062A1d0",
+          "role": "admin",
+          "via": [
+            { "address": "arb-nova:0x0611b78A42903a537BE7a2f9a8783BE39AC63cD9" }
+          ]
         }
       ],
       "directlyReceivedPermissions": [
         {
           "permission": "act",
-          "from": "0x0611b78A42903a537BE7a2f9a8783BE39AC63cD9"
+          "from": "arb-nova:0x0611b78A42903a537BE7a2f9a8783BE39AC63cD9",
+          "role": ".executors"
         }
       ]
     },
     {
       "name": "OneStepProver0",
-      "address": "0x19bD7120cD19D6BE6D21f987544e404e47608c16",
+      "address": "arb-nova:0x19bD7120cD19D6BE6D21f987544e404e47608c16",
       "type": "Contract",
       "template": "orbitstack/OneStepProver0",
       "sourceHashes": [
@@ -292,52 +280,63 @@
       "sinceTimestamp": 1724148392,
       "sinceBlock": 75267048,
       "values": { "$immutable": true },
-      "derivedName": "OneStepProver0"
+      "implementationNames": {
+        "arb-nova:0x19bD7120cD19D6BE6D21f987544e404e47608c16": "OneStepProver0"
+      }
     },
     {
       "name": "ProxyAdmin",
-      "address": "0x27C7Bfd2cC11429e9b80c443b42FDBe4754F6c91",
+      "address": "arb-nova:0x27C7Bfd2cC11429e9b80c443b42FDBe4754F6c91",
       "type": "Contract",
       "unverified": true,
       "proxyType": "immutable",
       "receivedPermissions": [
         {
           "permission": "upgrade",
-          "from": "0x0611b78A42903a537BE7a2f9a8783BE39AC63cD9"
+          "from": "arb-nova:0x0611b78A42903a537BE7a2f9a8783BE39AC63cD9",
+          "role": "admin"
         },
         {
           "permission": "upgrade",
-          "from": "0x0fF7A97caAb356c5507e5355b6819CB8b93d5591"
+          "from": "arb-nova:0x0fF7A97caAb356c5507e5355b6819CB8b93d5591",
+          "role": "admin"
         },
         {
           "permission": "upgrade",
-          "from": "0x383eFE8D410285c5CbE1B4F296022640759aA834"
+          "from": "arb-nova:0x383eFE8D410285c5CbE1B4F296022640759aA834",
+          "role": "admin"
         },
         {
           "permission": "upgrade",
-          "from": "0xA597e0212971e65f53f288Ff1fFd26A6C8201f83"
+          "from": "arb-nova:0xA597e0212971e65f53f288Ff1fFd26A6C8201f83",
+          "role": "admin"
         },
         {
           "permission": "upgrade",
-          "from": "0xD4FE46D2533E7d03382ac6cACF0547F336e59DC0"
+          "from": "arb-nova:0xD4FE46D2533E7d03382ac6cACF0547F336e59DC0",
+          "role": "admin"
         },
         {
           "permission": "upgrade",
-          "from": "0xe347C1223381b9Dcd6c0F61cf81c90175A7Bae77"
+          "from": "arb-nova:0xe347C1223381b9Dcd6c0F61cf81c90175A7Bae77",
+          "role": "admin"
         },
         {
           "permission": "upgrade",
-          "from": "0xFF55fB76F5671dD9eB6c62EffF8D693Bb161a3ad"
+          "from": "arb-nova:0xFF55fB76F5671dD9eB6c62EffF8D693Bb161a3ad",
+          "role": "admin"
         }
       ],
       "sinceTimestamp": 1709904018,
       "sinceBlock": 55663578,
       "values": { "$immutable": true },
-      "derivedName": ""
+      "implementationNames": {
+        "arb-nova:0x27C7Bfd2cC11429e9b80c443b42FDBe4754F6c91": ""
+      }
     },
     {
       "name": "OneStepProverMath",
-      "address": "0x2964CBfC551A76527D42F57131E7f77f9Dce8921",
+      "address": "arb-nova:0x2964CBfC551A76527D42F57131E7f77f9Dce8921",
       "type": "Contract",
       "template": "orbitstack/OneStepProverMath",
       "sourceHashes": [
@@ -348,11 +347,13 @@
       "sinceTimestamp": 1724148409,
       "sinceBlock": 75267056,
       "values": { "$immutable": true },
-      "derivedName": "OneStepProverMath"
+      "implementationNames": {
+        "arb-nova:0x2964CBfC551A76527D42F57131E7f77f9Dce8921": "OneStepProverMath"
+      }
     },
     {
       "name": "ChallengeManager",
-      "address": "0x383eFE8D410285c5CbE1B4F296022640759aA834",
+      "address": "arb-nova:0x383eFE8D410285c5CbE1B4F296022640759aA834",
       "type": "Contract",
       "template": "orbitstack/ChallengeManager",
       "sourceHashes": [
@@ -361,60 +362,57 @@
       ],
       "proxyType": "EIP1967 proxy",
       "description": "Contract that allows challenging state roots. Can be called through the RollupProxy by Validators or the UpgradeExecutor.",
-      "issuedPermissions": [
-        {
-          "permission": "upgrade",
-          "to": "0x27C7Bfd2cC11429e9b80c443b42FDBe4754F6c91",
-          "via": []
-        }
-      ],
       "sinceTimestamp": 1709904018,
       "sinceBlock": 55663578,
       "values": {
-        "$admin": "0x27C7Bfd2cC11429e9b80c443b42FDBe4754F6c91",
-        "$implementation": "0x8F77B0d1e891C87F2987Afb476d74e2a71341b0d",
+        "$admin": "arb-nova:0x27C7Bfd2cC11429e9b80c443b42FDBe4754F6c91",
+        "$implementation": "arb-nova:0x8F77B0d1e891C87F2987Afb476d74e2a71341b0d",
         "$pastUpgrades": [
           [
             "2024-03-08T13:20:18.000Z",
             "0x37be7a29db10d18501dcf4d0243fa6aefeeba21cbc17832ef16ccf288ce58ef2",
-            ["0x09824fe72BFF474d16D9c2774432E381BBD60662"]
+            ["arb-nova:0x09824fe72BFF474d16D9c2774432E381BBD60662"]
           ],
           [
             "2024-11-25T16:47:09.000Z",
             "0x35689ea16b8ccd3c7074f1eebde2f4fcfa94bdfb314450e736632eba04ebbb18",
-            ["0xDCa690cB409FF3FBDC85F12179c4718Fa080Fb38"]
+            ["arb-nova:0xDCa690cB409FF3FBDC85F12179c4718Fa080Fb38"]
           ],
           [
             "2024-11-25T17:02:54.000Z",
             "0x1eb946f2394c7e8be67336259aa449fbc92fe2b4cf2850c41d2c8dcf54e0193a",
-            ["0x8F77B0d1e891C87F2987Afb476d74e2a71341b0d"]
+            ["arb-nova:0x8F77B0d1e891C87F2987Afb476d74e2a71341b0d"]
           ]
         ],
         "$upgradeCount": 3,
-        "bridge": "0xD4FE46D2533E7d03382ac6cACF0547F336e59DC0",
-        "osp": "0x944dB3fA4828B5F41ca0E77b97867529F1A899cB",
-        "resultReceiver": "0x04ea347cC6A258A7F65D67aFb60B1d487062A1d0",
-        "sequencerInbox": "0xe347C1223381b9Dcd6c0F61cf81c90175A7Bae77",
+        "bridge": "arb-nova:0xD4FE46D2533E7d03382ac6cACF0547F336e59DC0",
+        "osp": "arb-nova:0x944dB3fA4828B5F41ca0E77b97867529F1A899cB",
+        "resultReceiver": "arb-nova:0x04ea347cC6A258A7F65D67aFb60B1d487062A1d0",
+        "sequencerInbox": "arb-nova:0xe347C1223381b9Dcd6c0F61cf81c90175A7Bae77",
         "totalChallengesCreated": 0
       },
-      "derivedName": "ChallengeManager",
+      "implementationNames": {
+        "arb-nova:0x383eFE8D410285c5CbE1B4F296022640759aA834": "TransparentUpgradeableProxy",
+        "arb-nova:0x8F77B0d1e891C87F2987Afb476d74e2a71341b0d": "ChallengeManager"
+      },
       "category": { "name": "Local Infrastructure", "priority": 5 }
     },
     {
-      "address": "0x3A8F935c5722535A8F34BD176d57D130Cb37d3A0",
+      "address": "arb-nova:0x3A8F935c5722535A8F34BD176d57D130Cb37d3A0",
       "type": "EOA",
       "proxyType": "EOA",
       "receivedPermissions": [
         {
           "permission": "sequence",
-          "from": "0xe347C1223381b9Dcd6c0F61cf81c90175A7Bae77",
-          "description": "Can submit transaction batches or commitments to the SequencerInbox contract on the host chain."
+          "from": "arb-nova:0xe347C1223381b9Dcd6c0F61cf81c90175A7Bae77",
+          "description": "Can submit transaction batches or commitments to the SequencerInbox contract on the host chain.",
+          "role": ".batchPosters"
         }
       ]
     },
     {
       "name": "ValidatorUtils",
-      "address": "0x6c21303F5986180B1394d2C89f3e883890E2867b",
+      "address": "arb-nova:0x6c21303F5986180B1394d2C89f3e883890E2867b",
       "type": "Contract",
       "template": "orbitstack/ValidatorUtils",
       "sourceHashes": [
@@ -425,11 +423,13 @@
       "sinceTimestamp": 1707828599,
       "sinceBlock": 47798413,
       "values": { "$immutable": true },
-      "derivedName": "ValidatorUtils"
+      "implementationNames": {
+        "arb-nova:0x6c21303F5986180B1394d2C89f3e883890E2867b": "ValidatorUtils"
+      }
     },
     {
       "name": "OneStepProverHostIo",
-      "address": "0x77E1b4F2e1bf192975c59bdF44EcB5a2D42AF017",
+      "address": "arb-nova:0x77E1b4F2e1bf192975c59bdF44EcB5a2D42AF017",
       "type": "Contract",
       "template": "orbitstack/OneStepProverHostIo",
       "sourceHashes": [
@@ -440,11 +440,13 @@
       "sinceTimestamp": 1724148416,
       "sinceBlock": 75267060,
       "values": { "$immutable": true },
-      "derivedName": "OneStepProverHostIo"
+      "implementationNames": {
+        "arb-nova:0x77E1b4F2e1bf192975c59bdF44EcB5a2D42AF017": "OneStepProverHostIo"
+      }
     },
     {
       "name": "OneStepProofEntry",
-      "address": "0x944dB3fA4828B5F41ca0E77b97867529F1A899cB",
+      "address": "arb-nova:0x944dB3fA4828B5F41ca0E77b97867529F1A899cB",
       "type": "Contract",
       "template": "orbitstack/OneStepProofEntry",
       "sourceHashes": [
@@ -456,16 +458,18 @@
       "sinceBlock": 75267067,
       "values": {
         "$immutable": true,
-        "prover0": "0x19bD7120cD19D6BE6D21f987544e404e47608c16",
-        "proverHostIo": "0x77E1b4F2e1bf192975c59bdF44EcB5a2D42AF017",
-        "proverMath": "0x2964CBfC551A76527D42F57131E7f77f9Dce8921",
-        "proverMem": "0xfaD0d420ffF503a40E9CDcb90ff0328E46f06c08"
+        "prover0": "arb-nova:0x19bD7120cD19D6BE6D21f987544e404e47608c16",
+        "proverHostIo": "arb-nova:0x77E1b4F2e1bf192975c59bdF44EcB5a2D42AF017",
+        "proverMath": "arb-nova:0x2964CBfC551A76527D42F57131E7f77f9Dce8921",
+        "proverMem": "arb-nova:0xfaD0d420ffF503a40E9CDcb90ff0328E46f06c08"
       },
-      "derivedName": "OneStepProofEntry"
+      "implementationNames": {
+        "arb-nova:0x944dB3fA4828B5F41ca0E77b97867529F1A899cB": "OneStepProofEntry"
+      }
     },
     {
       "name": "Outbox",
-      "address": "0xA597e0212971e65f53f288Ff1fFd26A6C8201f83",
+      "address": "arb-nova:0xA597e0212971e65f53f288Ff1fFd26A6C8201f83",
       "type": "Contract",
       "template": "orbitstack/Outbox",
       "sourceHashes": [
@@ -474,55 +478,52 @@
       ],
       "proxyType": "EIP1967 proxy",
       "description": "Facilitates L2 to L1 contract calls: Messages initiated from L2 (for example withdrawal messages) eventually resolve in execution on L1.",
-      "issuedPermissions": [
-        {
-          "permission": "upgrade",
-          "to": "0x27C7Bfd2cC11429e9b80c443b42FDBe4754F6c91",
-          "via": []
-        }
-      ],
       "sinceTimestamp": 1709904018,
       "sinceBlock": 55663578,
       "values": {
-        "$admin": "0x27C7Bfd2cC11429e9b80c443b42FDBe4754F6c91",
-        "$implementation": "0x302275067251F5FcdB9359Bda735fD8f7A4A54c0",
+        "$admin": "arb-nova:0x27C7Bfd2cC11429e9b80c443b42FDBe4754F6c91",
+        "$implementation": "arb-nova:0x302275067251F5FcdB9359Bda735fD8f7A4A54c0",
         "$pastUpgrades": [
           [
             "2024-03-08T13:20:18.000Z",
             "0x37be7a29db10d18501dcf4d0243fa6aefeeba21cbc17832ef16ccf288ce58ef2",
-            ["0x302275067251F5FcdB9359Bda735fD8f7A4A54c0"]
+            ["arb-nova:0x302275067251F5FcdB9359Bda735fD8f7A4A54c0"]
           ]
         ],
         "$upgradeCount": 1,
-        "bridge": "0xD4FE46D2533E7d03382ac6cACF0547F336e59DC0",
+        "bridge": "arb-nova:0xD4FE46D2533E7d03382ac6cACF0547F336e59DC0",
         "l2ToL1BatchNum": 0,
         "l2ToL1Block": 0,
         "l2ToL1EthBlock": 0,
         "l2ToL1OutputId": "0x0000000000000000000000000000000000000000000000000000000000000000",
-        "l2ToL1Sender": "0x0000000000000000000000000000000000000000",
+        "l2ToL1Sender": "arb-nova:0x0000000000000000000000000000000000000000",
         "l2ToL1Timestamp": 0,
         "l2ToL1WithdrawalAmount": 0,
         "OUTBOX_VERSION": 2,
-        "rollup": "0x04ea347cC6A258A7F65D67aFb60B1d487062A1d0"
+        "rollup": "arb-nova:0x04ea347cC6A258A7F65D67aFb60B1d487062A1d0"
       },
-      "derivedName": "ERC20Outbox",
+      "implementationNames": {
+        "arb-nova:0xA597e0212971e65f53f288Ff1fFd26A6C8201f83": "TransparentUpgradeableProxy",
+        "arb-nova:0x302275067251F5FcdB9359Bda735fD8f7A4A54c0": "ERC20Outbox"
+      },
       "category": { "name": "Canonical Bridges", "priority": 2 }
     },
     {
-      "address": "0xB246421622FB931BdAc20B4a26816F881771Db1e",
+      "address": "arb-nova:0xB246421622FB931BdAc20B4a26816F881771Db1e",
       "type": "EOA",
       "proxyType": "EOA",
       "receivedPermissions": [
         {
           "permission": "validate",
-          "from": "0x04ea347cC6A258A7F65D67aFb60B1d487062A1d0",
-          "description": "Can propose new state roots (called nodes) and challenge state roots on the host chain."
+          "from": "arb-nova:0x04ea347cC6A258A7F65D67aFb60B1d487062A1d0",
+          "description": "Can propose new state roots (called nodes) and challenge state roots on the host chain.",
+          "role": ".validators"
         }
       ]
     },
     {
       "name": "Bridge",
-      "address": "0xD4FE46D2533E7d03382ac6cACF0547F336e59DC0",
+      "address": "arb-nova:0xD4FE46D2533E7d03382ac6cACF0547F336e59DC0",
       "type": "Contract",
       "template": "orbitstack/Bridge",
       "sourceHashes": [
@@ -531,13 +532,6 @@
       ],
       "proxyType": "EIP1967 proxy",
       "description": "Escrow contract for the project's gas token (can be different from ETH). Keeps a list of allowed Inboxes and Outboxes for canonical bridge messaging.",
-      "issuedPermissions": [
-        {
-          "permission": "upgrade",
-          "to": "0x27C7Bfd2cC11429e9b80c443b42FDBe4754F6c91",
-          "via": []
-        }
-      ],
       "ignoreInWatchMode": [
         "delayedMessageCount",
         "sequencerMessageCount",
@@ -546,37 +540,41 @@
       "sinceTimestamp": 1709904018,
       "sinceBlock": 55663578,
       "values": {
-        "$admin": "0x27C7Bfd2cC11429e9b80c443b42FDBe4754F6c91",
-        "$implementation": "0xe0978394BEe15a49583fF833a80Bd426c17B68e4",
+        "$admin": "arb-nova:0x27C7Bfd2cC11429e9b80c443b42FDBe4754F6c91",
+        "$implementation": "arb-nova:0xe0978394BEe15a49583fF833a80Bd426c17B68e4",
         "$pastUpgrades": [
           [
             "2024-03-08T13:20:18.000Z",
             "0x37be7a29db10d18501dcf4d0243fa6aefeeba21cbc17832ef16ccf288ce58ef2",
-            ["0x2a6DD4433ffa96dc1755814FC0d9cc83A5F68DeC"]
+            ["arb-nova:0x2a6DD4433ffa96dc1755814FC0d9cc83A5F68DeC"]
           ],
           [
             "2025-03-24T10:00:41.000Z",
             "0x88e38ce4a7e0b667fed77dbc25c187204e98015ee24429093541867beb30cadc",
-            ["0xe0978394BEe15a49583fF833a80Bd426c17B68e4"]
+            ["arb-nova:0xe0978394BEe15a49583fF833a80Bd426c17B68e4"]
           ]
         ],
         "$upgradeCount": 2,
-        "activeOutbox": "0x0000000000000000000000000000000000000000",
+        "activeOutbox": "arb-nova:0x0000000000000000000000000000000000000000",
         "allowedDelayedInboxList": [
-          "0xFF55fB76F5671dD9eB6c62EffF8D693Bb161a3ad",
-          "0x0fF7A97caAb356c5507e5355b6819CB8b93d5591"
+          "arb-nova:0xFF55fB76F5671dD9eB6c62EffF8D693Bb161a3ad",
+          "arb-nova:0x0fF7A97caAb356c5507e5355b6819CB8b93d5591"
         ],
-        "allowedOutboxList": ["0xA597e0212971e65f53f288Ff1fFd26A6C8201f83"],
+        "allowedOutboxList": [
+          "arb-nova:0xA597e0212971e65f53f288Ff1fFd26A6C8201f83"
+        ],
         "delayedMessageCount": 145701,
         "inboxHistory": [
-          "0xFF55fB76F5671dD9eB6c62EffF8D693Bb161a3ad",
-          "0x0fF7A97caAb356c5507e5355b6819CB8b93d5591"
+          "arb-nova:0xFF55fB76F5671dD9eB6c62EffF8D693Bb161a3ad",
+          "arb-nova:0x0fF7A97caAb356c5507e5355b6819CB8b93d5591"
         ],
-        "nativeToken": "0x73C3cDd1418c3F17D54A81148387d93122802E72",
+        "nativeToken": "arb-nova:0x73C3cDd1418c3F17D54A81148387d93122802E72",
         "nativeTokenDecimals": 18,
-        "outboxHistory": ["0xA597e0212971e65f53f288Ff1fFd26A6C8201f83"],
-        "rollup": "0x04ea347cC6A258A7F65D67aFb60B1d487062A1d0",
-        "sequencerInbox": "0xe347C1223381b9Dcd6c0F61cf81c90175A7Bae77",
+        "outboxHistory": [
+          "arb-nova:0xA597e0212971e65f53f288Ff1fFd26A6C8201f83"
+        ],
+        "rollup": "arb-nova:0x04ea347cC6A258A7F65D67aFb60B1d487062A1d0",
+        "sequencerInbox": "arb-nova:0xe347C1223381b9Dcd6c0F61cf81c90175A7Bae77",
         "sequencerMessageCount": 157959,
         "sequencerReportedSubMessageCount": 112882795
       },
@@ -598,12 +596,15 @@
           "description": "All Inboxes that were ever set as allowed in the bridge."
         }
       },
-      "derivedName": "ERC20Bridge",
+      "implementationNames": {
+        "arb-nova:0xD4FE46D2533E7d03382ac6cACF0547F336e59DC0": "TransparentUpgradeableProxy",
+        "arb-nova:0xe0978394BEe15a49583fF833a80Bd426c17B68e4": "ERC20Bridge"
+      },
       "category": { "name": "Local Infrastructure", "priority": 5 }
     },
     {
       "name": "SequencerInbox",
-      "address": "0xe347C1223381b9Dcd6c0F61cf81c90175A7Bae77",
+      "address": "arb-nova:0xe347C1223381b9Dcd6c0F61cf81c90175A7Bae77",
       "type": "Contract",
       "template": "orbitstack/SequencerInbox",
       "sourceHashes": [
@@ -612,19 +613,6 @@
       ],
       "proxyType": "EIP1967 proxy",
       "description": "A sequencer (registered in this contract) can submit transaction batches or commitments here.",
-      "issuedPermissions": [
-        {
-          "permission": "sequence",
-          "to": "0x3A8F935c5722535A8F34BD176d57D130Cb37d3A0",
-          "description": "Can submit transaction batches or commitments to the SequencerInbox contract on the host chain.",
-          "via": []
-        },
-        {
-          "permission": "upgrade",
-          "to": "0x27C7Bfd2cC11429e9b80c443b42FDBe4754F6c91",
-          "via": []
-        }
-      ],
       "ignoreInWatchMode": [
         "batchCount",
         "totalDelayedMessagesRead",
@@ -634,30 +622,30 @@
       "sinceTimestamp": 1709904018,
       "sinceBlock": 55663578,
       "values": {
-        "$admin": "0x27C7Bfd2cC11429e9b80c443b42FDBe4754F6c91",
-        "$implementation": "0x1Cc23D484454468C208e4d737288937862b8ecC9",
+        "$admin": "arb-nova:0x27C7Bfd2cC11429e9b80c443b42FDBe4754F6c91",
+        "$implementation": "arb-nova:0x1Cc23D484454468C208e4d737288937862b8ecC9",
         "$pastUpgrades": [
           [
             "2024-03-08T13:20:18.000Z",
             "0x37be7a29db10d18501dcf4d0243fa6aefeeba21cbc17832ef16ccf288ce58ef2",
-            ["0x1c6ACCd9d66f3B993928E7439c9A2d67b94a445F"]
+            ["arb-nova:0x1c6ACCd9d66f3B993928E7439c9A2d67b94a445F"]
           ],
           [
             "2024-11-25T16:47:09.000Z",
             "0x35689ea16b8ccd3c7074f1eebde2f4fcfa94bdfb314450e736632eba04ebbb18",
-            ["0xFc9474Db7E2Be79429d456F52741cA18FB7b05c5"]
+            ["arb-nova:0xFc9474Db7E2Be79429d456F52741cA18FB7b05c5"]
           ],
           [
             "2025-03-24T12:08:30.000Z",
             "0xf21b441cc66ff6ce0cb9f43f17a82009561559f61736e6efbecc38ef7c9bdcc7",
-            ["0x1Cc23D484454468C208e4d737288937862b8ecC9"]
+            ["arb-nova:0x1Cc23D484454468C208e4d737288937862b8ecC9"]
           ]
         ],
         "$upgradeCount": 3,
         "batchCount": 157959,
-        "batchPosterManager": "0x0000000000000000000000000000000000000000",
-        "batchPosters": ["0x3A8F935c5722535A8F34BD176d57D130Cb37d3A0"],
-        "bridge": "0xD4FE46D2533E7d03382ac6cACF0547F336e59DC0",
+        "batchPosterManager": "arb-nova:0x0000000000000000000000000000000000000000",
+        "batchPosters": ["arb-nova:0x3A8F935c5722535A8F34BD176d57D130Cb37d3A0"],
+        "bridge": "arb-nova:0xD4FE46D2533E7d03382ac6cACF0547F336e59DC0",
         "BROTLI_MESSAGE_HEADER_FLAG": "0x00",
         "dacKeyset": {
           "requiredSignatures": 1,
@@ -681,8 +669,8 @@
           "futureSeconds": 3600
         },
         "postsBlobs": false,
-        "reader4844": "0x0000000000000000000000000000000000000000",
-        "rollup": "0x04ea347cC6A258A7F65D67aFb60B1d487062A1d0",
+        "reader4844": "arb-nova:0x0000000000000000000000000000000000000000",
+        "rollup": "arb-nova:0x04ea347cC6A258A7F65D67aFb60B1d487062A1d0",
         "sequencerVersion": "0x88",
         "setIsBatchPosterCount": 3,
         "totalDelayedMessagesRead": 145701,
@@ -694,12 +682,15 @@
           "description": "Settable by the Rollup Owner. Transactions can only be force-included after the `delayBlocks` window (Sequencer-only) has passed."
         }
       },
-      "derivedName": "SequencerInbox",
+      "implementationNames": {
+        "arb-nova:0xe347C1223381b9Dcd6c0F61cf81c90175A7Bae77": "TransparentUpgradeableProxy",
+        "arb-nova:0x1Cc23D484454468C208e4d737288937862b8ecC9": "SequencerInbox"
+      },
       "category": { "name": "Local Infrastructure", "priority": 5 }
     },
     {
       "name": "OneStepProverMemory",
-      "address": "0xfaD0d420ffF503a40E9CDcb90ff0328E46f06c08",
+      "address": "arb-nova:0xfaD0d420ffF503a40E9CDcb90ff0328E46f06c08",
       "type": "Contract",
       "template": "orbitstack/OneStepProverMemory",
       "sourceHashes": [
@@ -710,11 +701,13 @@
       "sinceTimestamp": 1724148400,
       "sinceBlock": 75267052,
       "values": { "$immutable": true },
-      "derivedName": "OneStepProverMemory"
+      "implementationNames": {
+        "arb-nova:0xfaD0d420ffF503a40E9CDcb90ff0328E46f06c08": "OneStepProverMemory"
+      }
     },
     {
       "name": "Inbox",
-      "address": "0xFF55fB76F5671dD9eB6c62EffF8D693Bb161a3ad",
+      "address": "arb-nova:0xFF55fB76F5671dD9eB6c62EffF8D693Bb161a3ad",
       "type": "Contract",
       "template": "orbitstack/Inbox",
       "sourceHashes": [
@@ -723,44 +716,40 @@
       ],
       "proxyType": "EIP1967 proxy",
       "description": "Facilitates sending L1 to L2 messages like depositing ETH, but does not escrow funds.",
-      "issuedPermissions": [
-        {
-          "permission": "upgrade",
-          "to": "0x27C7Bfd2cC11429e9b80c443b42FDBe4754F6c91",
-          "via": []
-        }
-      ],
       "sinceTimestamp": 1709904018,
       "sinceBlock": 55663578,
       "values": {
-        "$admin": "0x27C7Bfd2cC11429e9b80c443b42FDBe4754F6c91",
-        "$implementation": "0x001B9eDD86D3674fc8aACc98Bf85f08851281Bc4",
+        "$admin": "arb-nova:0x27C7Bfd2cC11429e9b80c443b42FDBe4754F6c91",
+        "$implementation": "arb-nova:0x001B9eDD86D3674fc8aACc98Bf85f08851281Bc4",
         "$pastUpgrades": [
           [
             "2024-03-08T13:20:18.000Z",
             "0x37be7a29db10d18501dcf4d0243fa6aefeeba21cbc17832ef16ccf288ce58ef2",
-            ["0x7EfcB76D0e2E776A298aAa603d433336e5F8b6ab"]
+            ["arb-nova:0x7EfcB76D0e2E776A298aAa603d433336e5F8b6ab"]
           ],
           [
             "2025-03-24T12:08:30.000Z",
             "0xf21b441cc66ff6ce0cb9f43f17a82009561559f61736e6efbecc38ef7c9bdcc7",
-            ["0x001B9eDD86D3674fc8aACc98Bf85f08851281Bc4"]
+            ["arb-nova:0x001B9eDD86D3674fc8aACc98Bf85f08851281Bc4"]
           ]
         ],
         "$upgradeCount": 2,
         "allowListEnabled": false,
-        "bridge": "0xD4FE46D2533E7d03382ac6cACF0547F336e59DC0",
-        "getProxyAdmin": "0x27C7Bfd2cC11429e9b80c443b42FDBe4754F6c91",
+        "bridge": "arb-nova:0xD4FE46D2533E7d03382ac6cACF0547F336e59DC0",
+        "getProxyAdmin": "arb-nova:0x27C7Bfd2cC11429e9b80c443b42FDBe4754F6c91",
         "maxDataSize": 104857,
         "paused": false,
-        "sequencerInbox": "0xe347C1223381b9Dcd6c0F61cf81c90175A7Bae77"
+        "sequencerInbox": "arb-nova:0xe347C1223381b9Dcd6c0F61cf81c90175A7Bae77"
       },
-      "derivedName": "ERC20Inbox",
+      "implementationNames": {
+        "arb-nova:0xFF55fB76F5671dD9eB6c62EffF8D693Bb161a3ad": "TransparentUpgradeableProxy",
+        "arb-nova:0x001B9eDD86D3674fc8aACc98Bf85f08851281Bc4": "ERC20Inbox"
+      },
       "category": { "name": "Canonical Bridges", "priority": 2 }
     }
   ],
   "abis": {
-    "0x001B9eDD86D3674fc8aACc98Bf85f08851281Bc4": [
+    "arb-nova:0x001B9eDD86D3674fc8aACc98Bf85f08851281Bc4": [
       "constructor(uint256 _maxDataSize)",
       "error AmountTooLarge(uint256 amount)",
       "error DataTooLarge(uint256 dataLength, uint256 maxDataLength)",
@@ -799,7 +788,7 @@
       "function unpause()",
       "function unsafeCreateRetryableTicket(address to, uint256 l2CallValue, uint256 maxSubmissionCost, address excessFeeRefundAddress, address callValueRefundAddress, uint256 gasLimit, uint256 maxFeePerGas, uint256 tokenTotalFeeAmount, bytes data) returns (uint256)"
     ],
-    "0x0611b78A42903a537BE7a2f9a8783BE39AC63cD9": [
+    "arb-nova:0x0611b78A42903a537BE7a2f9a8783BE39AC63cD9": [
       "constructor(address _logic, address admin_, bytes _data) payable",
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -810,7 +799,7 @@
       "function upgradeTo(address newImplementation)",
       "function upgradeToAndCall(address newImplementation, bytes data) payable"
     ],
-    "0x0fF7A97caAb356c5507e5355b6819CB8b93d5591": [
+    "arb-nova:0x0fF7A97caAb356c5507e5355b6819CB8b93d5591": [
       "constructor(address _logic, address admin_, bytes _data) payable",
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -821,7 +810,7 @@
       "function upgradeTo(address newImplementation)",
       "function upgradeToAndCall(address newImplementation, bytes data) payable"
     ],
-    "0x18FD37A4FB9E1F06d9383958aFd236771F15A8cb": [
+    "arb-nova:0x18FD37A4FB9E1F06d9383958aFd236771F15A8cb": [
       "constructor()",
       "error AlreadyInit()",
       "error HadZeroInit()",
@@ -835,10 +824,10 @@
       "function rollupInitialized(uint256 chainId, string chainConfig)",
       "function updateRollupAddress()"
     ],
-    "0x19bD7120cD19D6BE6D21f987544e404e47608c16": [
+    "arb-nova:0x19bD7120cD19D6BE6D21f987544e404e47608c16": [
       "function executeOneStep(tuple(uint256 maxInboxMessagesRead, address bridge), tuple(uint8 status, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) valueStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) valueMultiStack, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) internalStack, tuple(tuple(tuple(uint8 valueType, uint256 contents) returnPc, bytes32 localsMerkleRoot, uint32 callerModule, uint32 callerModuleInternals)[] proved, bytes32 remainingHash) frameStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) frameMultiStack, bytes32 globalStateHash, uint32 moduleIdx, uint32 functionIdx, uint32 functionPc, bytes32 recoveryPc, bytes32 modulesRoot) startMach, tuple(bytes32 globalsMerkleRoot, tuple(uint64 size, uint64 maxSize, bytes32 merkleRoot) moduleMemory, bytes32 tablesMerkleRoot, bytes32 functionsMerkleRoot, bytes32 extraHash, uint32 internalsOffset) startMod, tuple(uint16 opcode, uint256 argumentData) inst, bytes proof) pure returns (tuple(uint8 status, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) valueStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) valueMultiStack, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) internalStack, tuple(tuple(tuple(uint8 valueType, uint256 contents) returnPc, bytes32 localsMerkleRoot, uint32 callerModule, uint32 callerModuleInternals)[] proved, bytes32 remainingHash) frameStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) frameMultiStack, bytes32 globalStateHash, uint32 moduleIdx, uint32 functionIdx, uint32 functionPc, bytes32 recoveryPc, bytes32 modulesRoot) mach, tuple(bytes32 globalsMerkleRoot, tuple(uint64 size, uint64 maxSize, bytes32 merkleRoot) moduleMemory, bytes32 tablesMerkleRoot, bytes32 functionsMerkleRoot, bytes32 extraHash, uint32 internalsOffset) mod)"
     ],
-    "0x1Cc23D484454468C208e4d737288937862b8ecC9": [
+    "arb-nova:0x1Cc23D484454468C208e4d737288937862b8ecC9": [
       "constructor(uint256 _maxDataSize, address reader4844_, bool _isUsingFeeToken)",
       "error AlreadyInit()",
       "error AlreadyValidDASKeyset(bytes32)",
@@ -910,10 +899,10 @@
       "function totalDelayedMessagesRead() view returns (uint256)",
       "function updateRollupAddress()"
     ],
-    "0x2964CBfC551A76527D42F57131E7f77f9Dce8921": [
+    "arb-nova:0x2964CBfC551A76527D42F57131E7f77f9Dce8921": [
       "function executeOneStep(tuple(uint256 maxInboxMessagesRead, address bridge), tuple(uint8 status, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) valueStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) valueMultiStack, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) internalStack, tuple(tuple(tuple(uint8 valueType, uint256 contents) returnPc, bytes32 localsMerkleRoot, uint32 callerModule, uint32 callerModuleInternals)[] proved, bytes32 remainingHash) frameStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) frameMultiStack, bytes32 globalStateHash, uint32 moduleIdx, uint32 functionIdx, uint32 functionPc, bytes32 recoveryPc, bytes32 modulesRoot) startMach, tuple(bytes32 globalsMerkleRoot, tuple(uint64 size, uint64 maxSize, bytes32 merkleRoot) moduleMemory, bytes32 tablesMerkleRoot, bytes32 functionsMerkleRoot, bytes32 extraHash, uint32 internalsOffset) startMod, tuple(uint16 opcode, uint256 argumentData) inst, bytes proof) pure returns (tuple(uint8 status, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) valueStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) valueMultiStack, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) internalStack, tuple(tuple(tuple(uint8 valueType, uint256 contents) returnPc, bytes32 localsMerkleRoot, uint32 callerModule, uint32 callerModuleInternals)[] proved, bytes32 remainingHash) frameStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) frameMultiStack, bytes32 globalStateHash, uint32 moduleIdx, uint32 functionIdx, uint32 functionPc, bytes32 recoveryPc, bytes32 modulesRoot) mach, tuple(bytes32 globalsMerkleRoot, tuple(uint64 size, uint64 maxSize, bytes32 merkleRoot) moduleMemory, bytes32 tablesMerkleRoot, bytes32 functionsMerkleRoot, bytes32 extraHash, uint32 internalsOffset) mod)"
     ],
-    "0x302275067251F5FcdB9359Bda735fD8f7A4A54c0": [
+    "arb-nova:0x302275067251F5FcdB9359Bda735fD8f7A4A54c0": [
       "error AlreadyInit()",
       "error AlreadySpent(uint256 index)",
       "error BadPostUpgradeInit()",
@@ -951,7 +940,7 @@
       "function updateRollupAddress()",
       "function updateSendRoot(bytes32 root, bytes32 l2BlockHash)"
     ],
-    "0x383eFE8D410285c5CbE1B4F296022640759aA834": [
+    "arb-nova:0x383eFE8D410285c5CbE1B4F296022640759aA834": [
       "constructor(address _logic, address admin_, bytes _data) payable",
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -962,7 +951,7 @@
       "function upgradeTo(address newImplementation)",
       "function upgradeToAndCall(address newImplementation, bytes data) payable"
     ],
-    "0x5CAF2e861bB26aA0576583677488694FCf30e514": [
+    "arb-nova:0x5CAF2e861bB26aA0576583677488694FCf30e514": [
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
       "event NodeConfirmed(uint64 indexed nodeNum, bytes32 blockHash, bytes32 sendRoot)",
@@ -1048,7 +1037,7 @@
       "function zombieCount() view returns (uint256)",
       "function zombieLatestStakedNode(uint256 zombieNum) view returns (uint64)"
     ],
-    "0x660ea1675F7323dC3Ba0c8dDFB593225Eb01E3C1": [
+    "arb-nova:0x660ea1675F7323dC3Ba0c8dDFB593225Eb01E3C1": [
       "constructor()",
       "event Initialized(uint8 version)",
       "event RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)",
@@ -1069,7 +1058,7 @@
       "function revokeRole(bytes32 role, address account)",
       "function supportsInterface(bytes4 interfaceId) view returns (bool)"
     ],
-    "0x6c21303F5986180B1394d2C89f3e883890E2867b": [
+    "arb-nova:0x6c21303F5986180B1394d2C89f3e883890E2867b": [
       "function areUnresolvedNodesLinear(address rollup) view returns (bool)",
       "function checkDecidableNextNode(address rollup) view returns (uint8)",
       "function findNodeConflict(address rollup, uint64 node1, uint64 node2, uint256 maxDepth) view returns (tuple(uint8 ty, uint64 node1, uint64 node2))",
@@ -1082,10 +1071,10 @@
       "function stakedNodes(address rollup, address staker) view returns (uint64[])",
       "function timedOutChallenges(address rollup, uint64 startIndex, uint64 max) view returns (uint64[], bool hasMore)"
     ],
-    "0x77E1b4F2e1bf192975c59bdF44EcB5a2D42AF017": [
+    "arb-nova:0x77E1b4F2e1bf192975c59bdF44EcB5a2D42AF017": [
       "function executeOneStep(tuple(uint256 maxInboxMessagesRead, address bridge) execCtx, tuple(uint8 status, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) valueStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) valueMultiStack, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) internalStack, tuple(tuple(tuple(uint8 valueType, uint256 contents) returnPc, bytes32 localsMerkleRoot, uint32 callerModule, uint32 callerModuleInternals)[] proved, bytes32 remainingHash) frameStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) frameMultiStack, bytes32 globalStateHash, uint32 moduleIdx, uint32 functionIdx, uint32 functionPc, bytes32 recoveryPc, bytes32 modulesRoot) startMach, tuple(bytes32 globalsMerkleRoot, tuple(uint64 size, uint64 maxSize, bytes32 merkleRoot) moduleMemory, bytes32 tablesMerkleRoot, bytes32 functionsMerkleRoot, bytes32 extraHash, uint32 internalsOffset) startMod, tuple(uint16 opcode, uint256 argumentData) inst, bytes proof) view returns (tuple(uint8 status, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) valueStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) valueMultiStack, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) internalStack, tuple(tuple(tuple(uint8 valueType, uint256 contents) returnPc, bytes32 localsMerkleRoot, uint32 callerModule, uint32 callerModuleInternals)[] proved, bytes32 remainingHash) frameStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) frameMultiStack, bytes32 globalStateHash, uint32 moduleIdx, uint32 functionIdx, uint32 functionPc, bytes32 recoveryPc, bytes32 modulesRoot) mach, tuple(bytes32 globalsMerkleRoot, tuple(uint64 size, uint64 maxSize, bytes32 merkleRoot) moduleMemory, bytes32 tablesMerkleRoot, bytes32 functionsMerkleRoot, bytes32 extraHash, uint32 internalsOffset) mod)"
     ],
-    "0x8F77B0d1e891C87F2987Afb476d74e2a71341b0d": [
+    "arb-nova:0x8F77B0d1e891C87F2987Afb476d74e2a71341b0d": [
       "error NotOwner(address sender, address owner)",
       "event Bisected(uint64 indexed challengeIndex, bytes32 indexed challengeRoot, uint256 challengedSegmentStart, uint256 challengedSegmentLength, bytes32[] chainHashes)",
       "event ChallengeEnded(uint64 indexed challengeIndex, uint8 kind)",
@@ -1112,7 +1101,7 @@
       "function timeout(uint64 challengeIndex)",
       "function totalChallengesCreated() view returns (uint64)"
     ],
-    "0x944dB3fA4828B5F41ca0E77b97867529F1A899cB": [
+    "arb-nova:0x944dB3fA4828B5F41ca0E77b97867529F1A899cB": [
       "constructor(address prover0_, address proverMem_, address proverMath_, address proverHostIo_)",
       "function getEndMachineHash(uint8 status, bytes32 globalStateHash) pure returns (bytes32)",
       "function getStartMachineHash(bytes32 globalStateHash, bytes32 wasmModuleRoot) pure returns (bytes32)",
@@ -1122,7 +1111,7 @@
       "function proverMath() view returns (address)",
       "function proverMem() view returns (address)"
     ],
-    "0xA597e0212971e65f53f288Ff1fFd26A6C8201f83": [
+    "arb-nova:0xA597e0212971e65f53f288Ff1fFd26A6C8201f83": [
       "constructor(address _logic, address admin_, bytes _data) payable",
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -1133,7 +1122,7 @@
       "function upgradeTo(address newImplementation)",
       "function upgradeToAndCall(address newImplementation, bytes data) payable"
     ],
-    "0xD4FE46D2533E7d03382ac6cACF0547F336e59DC0": [
+    "arb-nova:0xD4FE46D2533E7d03382ac6cACF0547F336e59DC0": [
       "constructor(address _logic, address admin_, bytes _data) payable",
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -1144,7 +1133,7 @@
       "function upgradeTo(address newImplementation)",
       "function upgradeToAndCall(address newImplementation, bytes data) payable"
     ],
-    "0xe0978394BEe15a49583fF833a80Bd426c17B68e4": [
+    "arb-nova:0xe0978394BEe15a49583fF833a80Bd426c17B68e4": [
       "error BadSequencerMessageNumber(uint256 stored, uint256 received)",
       "error CallNotAllowed()",
       "error CallTargetNotAllowed(address target)",
@@ -1190,7 +1179,7 @@
       "function submitBatchSpendingReport(address sender, bytes32 messageDataHash) returns (uint256)",
       "function updateRollupAddress(address _rollup)"
     ],
-    "0xe347C1223381b9Dcd6c0F61cf81c90175A7Bae77": [
+    "arb-nova:0xe347C1223381b9Dcd6c0F61cf81c90175A7Bae77": [
       "constructor(address _logic, address admin_, bytes _data) payable",
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -1201,7 +1190,7 @@
       "function upgradeTo(address newImplementation)",
       "function upgradeToAndCall(address newImplementation, bytes data) payable"
     ],
-    "0xF7C1c37406626B305f5136364016425f487516a3": [
+    "arb-nova:0xF7C1c37406626B305f5136364016425f487516a3": [
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
       "event NodeConfirmed(uint64 indexed nodeNum, bytes32 blockHash, bytes32 sendRoot)",
@@ -1290,10 +1279,10 @@
       "function zombieCount() view returns (uint256)",
       "function zombieLatestStakedNode(uint256 zombieNum) view returns (uint64)"
     ],
-    "0xfaD0d420ffF503a40E9CDcb90ff0328E46f06c08": [
+    "arb-nova:0xfaD0d420ffF503a40E9CDcb90ff0328E46f06c08": [
       "function executeOneStep(tuple(uint256 maxInboxMessagesRead, address bridge), tuple(uint8 status, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) valueStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) valueMultiStack, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) internalStack, tuple(tuple(tuple(uint8 valueType, uint256 contents) returnPc, bytes32 localsMerkleRoot, uint32 callerModule, uint32 callerModuleInternals)[] proved, bytes32 remainingHash) frameStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) frameMultiStack, bytes32 globalStateHash, uint32 moduleIdx, uint32 functionIdx, uint32 functionPc, bytes32 recoveryPc, bytes32 modulesRoot) startMach, tuple(bytes32 globalsMerkleRoot, tuple(uint64 size, uint64 maxSize, bytes32 merkleRoot) moduleMemory, bytes32 tablesMerkleRoot, bytes32 functionsMerkleRoot, bytes32 extraHash, uint32 internalsOffset) startMod, tuple(uint16 opcode, uint256 argumentData) inst, bytes proof) pure returns (tuple(uint8 status, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) valueStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) valueMultiStack, tuple(tuple(tuple(uint8 valueType, uint256 contents)[] inner) proved, bytes32 remainingHash) internalStack, tuple(tuple(tuple(uint8 valueType, uint256 contents) returnPc, bytes32 localsMerkleRoot, uint32 callerModule, uint32 callerModuleInternals)[] proved, bytes32 remainingHash) frameStack, tuple(bytes32 inactiveStackHash, bytes32 remainingHash) frameMultiStack, bytes32 globalStateHash, uint32 moduleIdx, uint32 functionIdx, uint32 functionPc, bytes32 recoveryPc, bytes32 modulesRoot) mach, tuple(bytes32 globalsMerkleRoot, tuple(uint64 size, uint64 maxSize, bytes32 merkleRoot) moduleMemory, bytes32 tablesMerkleRoot, bytes32 functionsMerkleRoot, bytes32 extraHash, uint32 internalsOffset) mod)"
     ],
-    "0xFF55fB76F5671dD9eB6c62EffF8D693Bb161a3ad": [
+    "arb-nova:0xFF55fB76F5671dD9eB6c62EffF8D693Bb161a3ad": [
       "constructor(address _logic, address admin_, bytes _data) payable",
       "event AdminChanged(address previousAdmin, address newAdmin)",
       "event BeaconUpgraded(address indexed beacon)",
@@ -1306,19 +1295,21 @@
     ]
   },
   "usedTemplates": {
-    "orbitstack/Bridge": "0x845301f405250de17dac319b98e789faa82ba4b2112fa393bc9e5543309f6fdb",
-    "orbitstack/ChallengeManager": "0xfc9631d764c7dfe78bf9aff4ff330c0778db49f425f53bc05fe3563a3a8b1818",
-    "orbitstack/Inbox": "0xd0dac54a5086572ce3617a54758925dc0549cddf5901e35abeabc6a82c8e4125",
-    "orbitstack/OneStepProofEntry": "0x074184951191630feeaa1da3328d97eb4b6b01fcab82d65b95edbab72a8f3f24",
-    "orbitstack/OneStepProver0": "0x559f6ee495bd31dc9c44eb080b7465809cc4be6b4320e9eaaa57688d40e5393f",
-    "orbitstack/OneStepProverHostIo": "0x005f15de59af5ea5756cd602e399228055af398efab35e1838bc380b50b40d9c",
-    "orbitstack/OneStepProverMath": "0x9b4bb3e22278824fe310f080640053b421ec7571e8b89875e70c6a428073c9e4",
-    "orbitstack/OneStepProverMemory": "0xe7c75f6dbf6da1c4532a8bdc920a2159d59c38ad05c35e4c49405d5e2939ecb9",
-    "orbitstack/Outbox": "0xc10e243b743384d55d03accc7e87313f0d3928160f4bbc7542fb7263b477e6ba",
-    "orbitstack/RollupEventInbox": "0x3595225eeb70fac31bb4956d7a85fe36e2dc41e296ea3aca04d02f00ab56672b",
-    "orbitstack/RollupProxy": "0xe63a9a0b0c6e99c11e84a68e2508b9c630918a71f31d300638d43ca02ef76b31",
-    "orbitstack/SequencerInbox": "0x6c9fb56a71e6c16fcf572638338a9ca472776731ab17ec214ed873a63f006223",
-    "orbitstack/UpgradeExecutor": "0x08963d43011c21d1756bbf66e6e16480551aaafe1608fc4775c9e3c7da846f19",
-    "orbitstack/ValidatorUtils": "0x6da1a099d095b1ed59b7e8c0ae9c2494104c73fb1d73560be6733faacdb84f6f"
-  }
+    "orbitstack/Bridge": "0x021d1c558348a8ac876fad0f0af08c828492fdfc313056db0a923dec120b1f09",
+    "orbitstack/ChallengeManager": "0x8760ed03abe46cb507ea6364ccb9aad7e04b5e32c39a48cb81efd7277e495054",
+    "orbitstack/Inbox": "0x6fbb45d11251921c07e800160fe95b7bb7e81f6f3b7d0c02107126e904d8cd9c",
+    "orbitstack/OneStepProofEntry": "0x6fbb45d11251921c07e800160fe95b7bb7e81f6f3b7d0c02107126e904d8cd9c",
+    "orbitstack/OneStepProver0": "0x6fbb45d11251921c07e800160fe95b7bb7e81f6f3b7d0c02107126e904d8cd9c",
+    "orbitstack/OneStepProverHostIo": "0x6fbb45d11251921c07e800160fe95b7bb7e81f6f3b7d0c02107126e904d8cd9c",
+    "orbitstack/OneStepProverMath": "0x6fbb45d11251921c07e800160fe95b7bb7e81f6f3b7d0c02107126e904d8cd9c",
+    "orbitstack/OneStepProverMemory": "0x6fbb45d11251921c07e800160fe95b7bb7e81f6f3b7d0c02107126e904d8cd9c",
+    "orbitstack/Outbox": "0x8dbaaf653890815197f4c39ef9d1000a8dfc0338ef34b273788a6d2087d4cfec",
+    "orbitstack/RollupEventInbox": "0x6fbb45d11251921c07e800160fe95b7bb7e81f6f3b7d0c02107126e904d8cd9c",
+    "orbitstack/RollupProxy": "0x9ecd81a9da8abc61f7ca4b4d204fabb54ffafc208082ed540300e88c7b5c00ee",
+    "orbitstack/SequencerInbox": "0x100e93a03486bc9e5e0302baf9dc4f98d011fa54d4088db1cd234f5812482ba1",
+    "orbitstack/UpgradeExecutor": "0xf65e73e609a464b657011e80920c1852ae19b0e3d493e4678f74b99052ee87fe",
+    "orbitstack/ValidatorUtils": "0x6fbb45d11251921c07e800160fe95b7bb7e81f6f3b7d0c02107126e904d8cd9c"
+  },
+  "usedBlockNumbers": { "nova": 82973305 },
+  "permissionsConfigHash": "0xd4af25354ec13e8c7d40c837abc6eb5712028714b0977ec06dc783e57f819afc"
 }

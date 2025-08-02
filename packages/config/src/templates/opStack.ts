@@ -1,10 +1,10 @@
 import type { EntryParameters } from '@l2beat/discovery'
 import {
   assert,
-  EthereumAddress,
+  ChainSpecificAddress,
+  formatSeconds,
   ProjectId,
   UnixTime,
-  formatSeconds,
 } from '@l2beat/shared-pure'
 import { formatEther } from 'ethers/lib/utils'
 import {
@@ -16,10 +16,10 @@ import {
   EXITS,
   FORCE_TRANSACTIONS,
   OPERATOR,
-  RISK_VIEW,
-  TECHNOLOGY_DATA_AVAILABILITY,
   pickWorseRisk,
+  RISK_VIEW,
   sumRisk,
+  TECHNOLOGY_DATA_AVAILABILITY,
 } from '../common'
 import { BADGES } from '../common/badges'
 import { EXPLORER_URLS } from '../common/explorerUrls'
@@ -42,9 +42,8 @@ import type {
   ProjectCustomDa,
   ProjectDaTrackingConfig,
   ProjectEscrow,
-  ProjectFinalityConfig,
-  ProjectFinalityInfo,
   ProjectLivenessInfo,
+  ProjectReviewStatus,
   ProjectRisk,
   ProjectScalingCapability,
   ProjectScalingCategory,
@@ -65,6 +64,7 @@ import {
   generateDiscoveryDrivenContracts,
   generateDiscoveryDrivenPermissions,
 } from './generateDiscoveryDrivenSections'
+import { getDiscoveryInfo } from './getDiscoveryInfo'
 import { explorerReferences, mergeBadges, safeGetImplementation } from './utils'
 
 export const CELESTIA_DA_PROVIDER: DAProvider = {
@@ -114,7 +114,7 @@ interface OpStackConfigCommon {
   capability?: ProjectScalingCapability
   architectureImage?: string
   stateValidationImage?: string
-  isArchived?: true
+  archivedAt?: UnixTime
   addedAt: UnixTime
   daProvider?: DAProvider
   customDa?: ProjectCustomDa
@@ -123,13 +123,12 @@ interface OpStackConfigCommon {
   upgradeability?: {
     upgradableBy?: ProjectUpgradeableActor[]
   }
-  l1StandardBridgeEscrow?: EthereumAddress
+  l1StandardBridgeEscrow?: ChainSpecificAddress
   l1StandardBridgeTokens?: string[]
   l1StandardBridgePremintedTokens?: string[]
   optimismPortalPremintedTokens?: string[]
   activityConfig?: ProjectActivityConfig
   genesisTimestamp: UnixTime
-  finality?: ProjectFinalityConfig
   l2OutputOracle?: EntryParameters
   disputeGameFactory?: EntryParameters
   portal?: EntryParameters
@@ -147,8 +146,7 @@ interface OpStackConfigCommon {
   nodeSourceLink?: string
   chainConfig?: ChainConfig
   hasProperSecurityCouncil?: boolean
-  usesBlobs?: boolean
-  isUnderReview?: boolean
+  reviewStatus?: ProjectReviewStatus
   stage?: ProjectScalingStage
   additionalBadges?: Badge[]
   additionalPurposes?: ProjectScalingPurpose[]
@@ -156,9 +154,12 @@ interface OpStackConfigCommon {
   nonTemplateRiskView?: Partial<ProjectScalingRiskView>
   usingAltVm?: boolean
   reasonsForBeingOther?: ReasonForBeingInOther[]
+  hasSuperchainScUpgrades?: boolean
   display: Omit<ProjectScalingDisplay, 'provider' | 'category' | 'purposes'> & {
     category?: ProjectScalingCategory
   }
+  /** Set to true if projects posts blobs to Ethereum */
+  usesEthereumBlobs?: boolean
   /** Configure to enable DA metrics tracking for chain using Celestia DA */
   celestiaDa?: {
     namespace: string
@@ -185,6 +186,7 @@ export interface OpStackConfigL2 extends OpStackConfigCommon {
 
 export interface OpStackConfigL3 extends OpStackConfigCommon {
   stackedRiskView?: ProjectScalingRiskView
+  hostChain: string
 }
 
 function opStackCommon(
@@ -198,7 +200,7 @@ function opStackCommon(
     | 'stateValidationImage'
     | 'architectureImage'
     | 'purposes'
-    | 'stack'
+    | 'stacks'
     | 'category'
     | 'warning'
   >
@@ -240,13 +242,16 @@ function opStackCommon(
   if (fraudProofType === 'Permissionless') {
     architectureImage.push('permissionless')
   }
+  if (fraudProofType === 'Kailua') {
+    architectureImage.push('kailua')
+  }
 
   const nativeContractRisks: ProjectRisk[] = [
     templateVars.nonTemplateContractRisks ??
-      (partOfSuperchain
+      (templateVars.hasSuperchainScUpgrades
         ? ({
             category: 'Funds can be stolen if',
-            text: `a contract receives a malicious code upgrade. Both regular and emergency upgrades must be approved by both the Security Council and the Foundation. There is no delay on regular upgrades.`,
+            text: 'a contract receives a malicious code upgrade. Both regular and emergency upgrades must be approved by both the Security Council and the Foundation. There is no delay on regular upgrades.',
           } satisfies ProjectRisk)
         : CONTRACTS.UPGRADE_NO_DELAY_RISK),
   ]
@@ -256,11 +261,11 @@ function opStackCommon(
     ...Object.values(templateVars.additionalDiscoveries ?? {}),
   ]
   return {
-    isArchived: templateVars.isArchived,
+    archivedAt: templateVars.archivedAt,
     id: ProjectId(templateVars.discovery.projectName),
     addedAt: templateVars.addedAt,
     capability: templateVars.capability ?? 'universal',
-    isUnderReview: templateVars.isUnderReview ?? false,
+    reviewStatus: templateVars.reviewStatus,
     display: {
       purposes: templateVars.overridingPurposes ?? [
         'Universal',
@@ -272,11 +277,17 @@ function opStackCommon(
         (templateVars.stateValidationImage ??
         fraudProofType === 'Permissionless')
           ? 'opfp'
-          : undefined,
-      stack: 'OP Stack',
+          : fraudProofType === 'Kailua'
+            ? 'kailua'
+            : undefined,
+      stacks: ['OP Stack'],
       category:
         templateVars.display.category ??
-        (postsToEthereum(templateVars) ? 'Optimistic Rollup' : 'Optimium'),
+        (templateVars.reasonsForBeingOther
+          ? 'Other'
+          : postsToEthereum(templateVars)
+            ? 'Optimistic Rollup'
+            : 'Optimium'),
       warning:
         templateVars.display.warning === undefined
           ? 'Fraud proof system is currently under development. Users need to trust the block proposer to submit correct L1 state roots.'
@@ -298,16 +309,27 @@ function opStackCommon(
         },
       ),
       escrows: [
-        templateVars.discovery.getEscrowDetails({
-          includeInTotal: type === 'layer2',
-          address: portal.address,
-          tokens: optimismPortalTokens,
-          premintedTokens: templateVars.optimismPortalPremintedTokens,
-          description: `Main entry point for users depositing ${optimismPortalTokens.join(
-            ', ',
-          )}.`,
-          ...upgradeability,
-        }),
+        migratedToLockbox(templateVars)
+          ? templateVars.discovery.getEscrowDetails({
+              includeInTotal: type === 'layer2',
+              address: templateVars.discovery.getContract('ETHLockbox').address,
+              tokens: optimismPortalTokens,
+              premintedTokens: templateVars.optimismPortalPremintedTokens,
+              description: `Main escrow for users depositing ${optimismPortalTokens.join(
+                ', ',
+              )}.`,
+              ...upgradeability,
+            })
+          : templateVars.discovery.getEscrowDetails({
+              includeInTotal: type === 'layer2',
+              address: portal.address,
+              tokens: optimismPortalTokens,
+              premintedTokens: templateVars.optimismPortalPremintedTokens,
+              description: `Main entry point for users depositing ${optimismPortalTokens.join(
+                ', ',
+              )}.`,
+              ...upgradeability,
+            }),
         templateVars.discovery.getEscrowDetails({
           includeInTotal: type === 'layer2',
           address: l1StandardBridgeEscrow,
@@ -322,6 +344,9 @@ function opStackCommon(
       ],
       daTracking: getDaTracking(templateVars),
     },
+    ecosystemInfo: {
+      id: ProjectId('superchain'),
+    },
     technology: getTechnology(templateVars, explorerUrl, daProvider),
     permissions: generateDiscoveryDrivenPermissions(allDiscoveries),
     contracts: {
@@ -333,76 +358,87 @@ function opStackCommon(
     customDa: templateVars.customDa,
     reasonsForBeingOther: templateVars.reasonsForBeingOther,
     stateDerivation: templateVars.stateDerivation,
-    stateValidation: getStateValidation(templateVars),
+    stateValidation: getStateValidation(templateVars, explorerUrl),
     riskView: getRiskView(templateVars, daProvider),
     stage:
       templateVars.stage ??
       computedStage(templateVars, postsToEthereum(templateVars)),
     dataAvailability: extractDA(daProvider),
     scopeOfAssessment: templateVars.scopeOfAssessment,
+    discoveryInfo: getDiscoveryInfo(allDiscoveries),
   }
 }
 
 function getDaTracking(
   templateVars: OpStackConfigCommon,
 ): ProjectDaTrackingConfig[] | undefined {
+  // Return non-template tracking if it exists
   if (templateVars.nonTemplateDaTracking) {
     return templateVars.nonTemplateDaTracking
   }
 
+  const systemConfig = templateVars.discovery
+
   const usesBlobs =
-    templateVars.usesBlobs ??
-    templateVars.discovery.getContractValue<{
-      isSequencerSendingBlobTx: boolean
-    }>('SystemConfig', 'opStackDA').isSequencerSendingBlobTx
-
-  const sequencerInbox = templateVars.discovery.getContractValue<string>(
-    'SystemConfig',
-    'sequencerInbox',
-  )
-
-  const inboxStartBlock =
-    templateVars.discovery.getContractValueOrUndefined<number>(
+    templateVars.usesEthereumBlobs ??
+    systemConfig.getContractValue<{ isSequencerSendingBlobTx: boolean }>(
       'SystemConfig',
-      'startBlock',
-    ) ?? 0
+      'opStackDA',
+    ).isSequencerSendingBlobTx
 
-  const sequencer = templateVars.discovery.getContractValue<string>(
-    'SystemConfig',
-    'batcherHash',
-  )
+  if (usesBlobs) {
+    const sequencerInbox = systemConfig.getContractValue<ChainSpecificAddress>(
+      'SystemConfig',
+      'sequencerInbox',
+    )
 
-  return usesBlobs
-    ? [
-        {
-          type: 'ethereum',
-          daLayer: ProjectId('ethereum'),
-          sinceBlock: inboxStartBlock,
-          inbox: sequencerInbox,
-          sequencers: [sequencer],
-        },
-      ]
-    : templateVars.celestiaDa
-      ? [
-          {
-            type: 'celestia',
-            daLayer: ProjectId('celestia'),
-            // TODO: update to value from discovery
-            sinceBlock: templateVars.celestiaDa.sinceBlock,
-            namespace: templateVars.celestiaDa.namespace,
-          },
-        ]
-      : templateVars.availDa
-        ? [
-            {
-              type: 'avail',
-              daLayer: ProjectId('avail'),
-              // TODO: update to value from discovery
-              sinceBlock: templateVars.availDa.sinceBlock,
-              appId: templateVars.availDa.appId,
-            },
-          ]
-        : undefined
+    const inboxStartBlock =
+      systemConfig.getContractValueOrUndefined<number>(
+        'SystemConfig',
+        'startBlock',
+      ) ?? 0
+
+    const sequencer = systemConfig.getContractValue<ChainSpecificAddress>(
+      'SystemConfig',
+      'batcherHash',
+    )
+
+    return [
+      {
+        type: 'ethereum',
+        daLayer: ProjectId('ethereum'),
+        sinceBlock: inboxStartBlock,
+        inbox: ChainSpecificAddress.address(sequencerInbox),
+        sequencers: [ChainSpecificAddress.address(sequencer)],
+      },
+    ]
+  }
+
+  if (templateVars.celestiaDa) {
+    return [
+      {
+        type: 'celestia',
+        daLayer: ProjectId('celestia'),
+        // TODO: update to value from discovery
+        sinceBlock: templateVars.celestiaDa.sinceBlock,
+        namespace: templateVars.celestiaDa.namespace,
+      },
+    ]
+  }
+
+  if (templateVars.availDa) {
+    return [
+      {
+        type: 'avail',
+        daLayer: ProjectId('avail'),
+        // TODO: update to value from discovery
+        sinceBlock: templateVars.availDa.sinceBlock,
+        appId: templateVars.availDa.appId,
+      },
+    ]
+  }
+
+  return undefined
 }
 
 export function opStackL2(templateVars: OpStackConfigL2): ScalingProject {
@@ -411,6 +447,7 @@ export function opStackL2(templateVars: OpStackConfigL2): ScalingProject {
     templateVars,
     EXPLORER_URLS['ethereum'],
   )
+
   return {
     type: 'layer2',
     ...common,
@@ -419,12 +456,10 @@ export function opStackL2(templateVars: OpStackConfigL2): ScalingProject {
       ...templateVars.display,
       warning: templateVars.display.warning,
       liveness: getLiveness(templateVars),
-      finality: getFinality(templateVars),
     },
     config: {
       ...common.config,
       trackedTxs: getTrackedTxs(templateVars),
-      finality: ifPostsToEthereum(templateVars, templateVars.finality),
     },
     upgradesAndGovernance: templateVars.upgradesAndGovernance,
   }
@@ -432,7 +467,7 @@ export function opStackL2(templateVars: OpStackConfigL2): ScalingProject {
 
 export function opStackL3(templateVars: OpStackConfigL3): ScalingProject {
   const layer2s = require('../processing/layer2s').layer2s as ScalingProject[]
-  const hostChain = templateVars.discovery.chain
+  const hostChain = templateVars.hostChain
   const baseChain = layer2s.find((l2) => l2.id === hostChain)
   assert(baseChain, `Could not find base chain ${hostChain} in layer2s`)
 
@@ -479,6 +514,7 @@ export function opStackL3(templateVars: OpStackConfigL3): ScalingProject {
 
 function getStateValidation(
   templateVars: OpStackConfigCommon,
+  explorerUrl: string | undefined,
 ): ProjectScalingStateValidation | undefined {
   if (templateVars.stateValidation !== undefined) {
     return templateVars.stateValidation
@@ -486,8 +522,34 @@ function getStateValidation(
 
   const fraudProofType = getFraudProofType(templateVars)
   switch (fraudProofType) {
-    case 'None':
-      return undefined
+    case 'None': {
+      const l2OutputOracle =
+        templateVars.l2OutputOracle ??
+        templateVars.discovery.getContract('L2OutputOracle')
+      return {
+        categories: [
+          {
+            title: 'No state validation',
+            description:
+              'OP Stack projects can use the OP fault proof system, already being deployed on some. This project though is not using fault proofs yet and is relying on the honesty of the permissioned Proposer and Challengers to ensure state correctness. The smart contract system permits invalid state roots.',
+            risks: [
+              {
+                category: 'Funds can be stolen if',
+                text: 'an invalid state root is submitted to the system.',
+                isCritical: true,
+              },
+            ],
+            references: explorerReferences(explorerUrl, [
+              {
+                title:
+                  'L2OutputOracle.sol - source code, deleteL2Outputs function',
+                address: safeGetImplementation(l2OutputOracle),
+              },
+            ]),
+          },
+        ],
+      }
+    }
     case 'Permissioned': {
       const maxClockDuration = templateVars.discovery.getContractValue<number>(
         'PermissionedDisputeGame',
@@ -531,6 +593,7 @@ function getStateValidation(
         gameSplitDepth: permissionedGameSplitDepth,
         gameClockExtension: permissionedGameClockExtension,
         oracleChallengePeriod: oracleChallengePeriod,
+        isPermissionless: false,
       })
     }
     case 'Permissionless': {
@@ -576,7 +639,116 @@ function getStateValidation(
         gameSplitDepth: permissionlessGameSplitDepth,
         gameClockExtension: permissionlessGameClockExtension,
         oracleChallengePeriod: oracleChallengePeriod,
+        isPermissionless: true,
       })
+    }
+    case 'Kailua': {
+      const kailuaBond = templateVars.discovery.getContractValue<number>(
+        'KailuaTreasury',
+        'participationBond',
+      )
+      const proposalOutputCount =
+        templateVars.discovery.getContractValue<number>(
+          'KailuaTreasury',
+          'PROPOSAL_OUTPUT_COUNT',
+        )
+      const outputBlockSpan = templateVars.discovery.getContractValue<number>(
+        'KailuaTreasury',
+        'OUTPUT_BLOCK_SPAN',
+      )
+      const vanguardAdvantage = templateVars.discovery.getContractValue<number>(
+        'KailuaTreasury',
+        'vanguardAdvantage',
+      )
+      const disputeGameFinalityDelaySeconds =
+        templateVars.discovery.getContractValue<number>(
+          'OptimismPortal2',
+          'disputeGameFinalityDelaySeconds',
+        )
+      const maxClockDuration = templateVars.discovery.getContractValue<number>(
+        'KailuaGame',
+        'MAX_CLOCK_DURATION',
+      )
+      return {
+        categories: [
+          {
+            title: 'State root proposals',
+            description: `Proposers submit state roots as children of any (possibly unresolved) previous state root proposal, by calling the \`propose()\` function in the KailuaTreasury. A parent state root can have multiple conflicting children, composing a tournament. Each proposer requires to lock a bond, currently set to ${formatEther(
+              kailuaBond,
+            )} ETH, that can be slashed if any proposal made by them is proven incorrect via a fault proof or a conflicting validity proof. The bond can be withdrawn once the proposer has no more pending proposals that need to be resolved and was not eliminated.
+
+Proposals consist of a state root and a reference to their parent and implicitly challenge any sibling proposals who have the same parent. A proposal asserts that the proposed state root constitutes a valid state transition from the parent's state root. To offer efficient zk fault proofs, each proposal must include ${proposalOutputCount} intermediate state commitments, each spanning ${outputBlockSpan} L2 blocks. 
+
+Proposals target sequential tournament epochs of currently ${proposalOutputCount} * ${outputBlockSpan} L2 blocks. A tournament with a resolved parent tournament, a single child- and no conflicting sibling proposals can be resolved after ${formatSeconds(maxClockDuration)}. 
+
+The **Vanguard** is a privileged actor who can always make the first child proposal on a parent state root. They can, in the worst case, delay each tournament for up to ${formatSeconds(vanguardAdvantage)} by not making this first proposal. Sibling proposals made after the Vanguard's initial one or after the ${formatSeconds(vanguardAdvantage)} vanguardAdvantage in each tournament are permissionless.`,
+            references: [
+              {
+                title: "'Sequencing' - Kailua Docs",
+                url: 'https://risc0.github.io/kailua/design.html#sequencing',
+              },
+              {
+                title: 'Vanguard - Kailua Docs',
+                url: 'https://risc0.github.io/kailua/parameters.html#vanguard-advantage',
+              },
+            ],
+          },
+          {
+            title: 'Challenges',
+            description: `
+Any conflicting sibling proposals within a tournament that are made within the ${formatSeconds(maxClockDuration)} challenge period of a proposal they are challenging, delay resolving the tournament until sufficient ZK proofs are published to leave one single tournament survivor.
+
+In the tree of proposed state roots, each parent node can have multiple children. These children are indirectly challenging each other in a tournament, which can only be resolved if but a single child survives. A state root can be resolved if it is **the only remaining proposal** due to any combination of the following elimination methods: 
+1. the proposal's challenge period of ${formatSeconds(maxClockDuration)} has ended before a conflicting proposal was made
+2. the proposal is proven correct with a full validity proof (invalidates all conflicting proposals)
+3. a conflicting sibling proposal is proven faulty
+
+Proving any of the ${proposalOutputCount} intermediate state commitments in a proposal faulty invalidates the entire proposal. Proving a proposal valid invalidates all conflicting siblings. Pruning of a tournament's children happens strictly chronologically, which guarantees that the first faulty proposal of a given proposer is always pruned first. When pruned, an invalid proposal leads to the elimination of its proposer, which invalidates all their subsequent proposals, slashes their bond, and disallows future proposals by the same address. A slashed bond is transferred to an address chosen by the prover who caused the slashing.
+
+A single remaining child in a tournament can be 'resolved' and will be finalized and usable for withdrawals after an execution delay of ${formatSeconds(disputeGameFinalityDelaySeconds)} (time for the Guardian to manually blacklist malicious state roots).`,
+            references: [
+              {
+                url: 'https://risc0.github.io/kailua/design.html#disputes',
+                title: 'Disputes - Kailua Docs',
+              },
+            ],
+          },
+          {
+            title: 'Validity proofs',
+            description: `Validity proofs and fault proofs both must be accompanied by a ZK proof that ensures that the new state was derived by correctly applying a series of valid user transactions to the previous state. These proofs are then verified on Ethereum by a smart contract.
+
+The Kailua state validation system is primarily optimistically resolved, so no validity proofs are required in the happy case. But two different zk proofs on unresolved state roots are possible and permissionless: The proveValidity() function proves a state root proposal's full validity, automatically invalidating all conflicting sibling proposals. proveOutputFault() allows any actor to eliminate a state root proposal for which they can prove that any of the ${proposalOutputCount} intermediate state transitions in the proposal are not correct. Both are zk proofs of validity, although one is used as an efficient fault proof to invalidate a single conflicting state transition.`,
+            references: [
+              {
+                url: 'https://risc0.github.io/kailua/introduction.html',
+                title: 'Risc0 Kailua Docs',
+              },
+              {
+                url: 'https://github.com/risc0/risc0-ethereum/blob/main/contracts/version-management-design.md',
+                title: 'Verifier upgrade and deprecation - Kailua Docs',
+              },
+            ],
+            risks: [
+              {
+                category: 'Funds can be stolen if',
+                text: 'the validity proof cryptography is broken or implemented incorrectly.',
+              },
+              {
+                category: 'Funds can be stolen if',
+                text: 'no challenger checks the published state',
+              },
+              {
+                category: 'Funds can be stolen if',
+                text: 'the proposer routes proof verification through a malicious or faulty verifier by specifying an unsafe route selector.',
+              },
+              {
+                category: 'Funds can be frozen if',
+                text: 'a verifier needed for a given proof is paused by its permissioned owner.',
+              },
+            ],
+          },
+        ],
+      }
     }
   }
 }
@@ -588,6 +760,7 @@ function describeOPFP({
   gameSplitDepth,
   gameClockExtension,
   oracleChallengePeriod,
+  isPermissionless,
 }: {
   disputeGameBonds: number
   maxClockDuration: number
@@ -595,6 +768,7 @@ function describeOPFP({
   gameSplitDepth: number
   gameClockExtension: number
   oracleChallengePeriod: number
+  isPermissionless: boolean
 }): ProjectScalingStateValidation {
   const exponentialBondsFactor = 1.09493 // hardcoded, from https://specs.optimism.io/fault-proof/stage-one/bond-incentives.html?highlight=1.09493#bond-scaling
 
@@ -613,8 +787,7 @@ function describeOPFP({
   })()
 
   return {
-    description:
-      'Updates to the system state can be proposed and challenged by anyone who has sufficient funds. If a state root passes the challenge period, it is optimistically considered correct and made actionable for withdrawals.',
+    description: `Updates to the system state can be proposed and challenged by ${isPermissionless ? 'anyone who has sufficient funds' : 'permissioned operators only'}. If a state root passes the challenge period, it is optimistically considered correct and made actionable for withdrawals.`,
     categories: [
       {
         title: 'State root proposals',
@@ -630,7 +803,7 @@ function describeOPFP({
       },
       {
         title: 'Challenges',
-        description: `Challenges are opened to disprove invalid state roots using bisection games. Each bisection move requires a stake that increases expontentially with the depth of the bisection, with a factor of ${exponentialBondsFactor}. The maximum depth is ${gameMaxDepth}, and reaching it therefore requires a cumulative stake of ${parseFloat(
+        description: `Challenges are opened to disprove invalid state roots using bisection games. Each bisection move requires a stake that increases expontentially with the depth of the bisection, with a factor of ${exponentialBondsFactor}. The maximum depth is ${gameMaxDepth}, and reaching it therefore requires a cumulative stake of ${Number.parseFloat(
           formatEther(permissionlessGameFullCost),
         ).toFixed(
           2,
@@ -697,7 +870,7 @@ function getRiskViewStateValidation(
     case 'None': {
       return {
         ...RISK_VIEW.STATE_NONE,
-        secondLine: formatChallengePeriod(getFinalizationPeriod(templateVars)),
+        secondLine: formatChallengePeriod(getChallengePeriod(templateVars)),
       }
     }
     case 'Permissioned': {
@@ -705,15 +878,21 @@ function getRiskViewStateValidation(
         ...RISK_VIEW.STATE_FP_INT,
         description:
           RISK_VIEW.STATE_FP_INT.description +
-          ` Only one entity is currently allowed to propose and submit challenges, as only permissioned games are currently allowed.`,
+          ' Only one entity is currently allowed to propose and submit challenges, as only permissioned games are currently allowed.',
         sentiment: 'bad',
-        secondLine: formatChallengePeriod(getFinalizationPeriod(templateVars)),
+        secondLine: formatChallengePeriod(getChallengePeriod(templateVars)),
       }
     }
     case 'Permissionless': {
       return {
         ...RISK_VIEW.STATE_FP_INT,
-        secondLine: formatChallengePeriod(getFinalizationPeriod(templateVars)),
+        secondLine: formatChallengePeriod(getChallengePeriod(templateVars)),
+      }
+    }
+    case 'Kailua': {
+      return {
+        ...RISK_VIEW.STATE_FP_HYBRID_ZK,
+        secondLine: formatChallengePeriod(getChallengePeriod(templateVars)),
       }
     }
   }
@@ -723,7 +902,15 @@ function getRiskViewExitWindow(
   templateVars: OpStackConfigCommon,
 ): TableReadyValue {
   const finalizationPeriod = getFinalizationPeriod(templateVars)
-
+  if (templateVars.hasSuperchainScUpgrades) {
+    return {
+      value: 'None',
+      description:
+        'There is no exit window for users to exit in case of unwanted regular upgrades as they are initiated by the Security Council with instant upgrade power and without proper notice.',
+      sentiment: 'bad',
+      orderHint: -finalizationPeriod,
+    }
+  }
   return RISK_VIEW.EXIT_WINDOW(0, finalizationPeriod)
 }
 
@@ -738,6 +925,13 @@ function getRiskViewProposerFailure(
       return RISK_VIEW.PROPOSER_CANNOT_WITHDRAW
     case 'Permissionless':
       return RISK_VIEW.PROPOSER_SELF_PROPOSE_ROOTS
+    case 'Kailua':
+      return RISK_VIEW.PROPOSER_SELF_PROPOSE_WHITELIST_DROPPED_ZK(
+        templateVars.discovery.getContractValue<number>(
+          'KailuaTreasury',
+          'vanguardAdvantage',
+        ),
+      )
   }
 }
 
@@ -754,6 +948,7 @@ function computedStage(
     None: null,
     Permissioned: false,
     Permissionless: true,
+    Kailua: true,
   }
 
   return getStage(
@@ -763,18 +958,24 @@ function computedStage(
         stateRootsPostedToL1: true,
         dataAvailabilityOnL1: true,
         rollupNodeSourceAvailable: templateVars.isNodeAvailable,
-      },
-      stage1: {
-        principle: false,
         stateVerificationOnL1: fraudProofType !== 'None',
         fraudProofSystemAtLeast5Outsiders: fraudProofMapping[fraudProofType],
-        usersHave7DaysToExit: false,
-        usersCanExitWithoutCooperation: false,
+      },
+      stage1: {
+        principle:
+          fraudProofType === 'Permissionless' &&
+          (templateVars.hasProperSecurityCouncil ?? false),
+        usersHave7DaysToExit:
+          fraudProofType === 'Permissionless' &&
+          (templateVars.hasProperSecurityCouncil ?? false),
+        usersCanExitWithoutCooperation:
+          fraudProofType === 'Permissionless' || fraudProofType === 'Kailua',
         securityCouncilProperlySetUp:
           templateVars.hasProperSecurityCouncil ?? null,
       },
       stage2: {
-        proofSystemOverriddenOnlyInCaseOfABug: null,
+        proofSystemOverriddenOnlyInCaseOfABug:
+          fraudProofType === 'None' ? null : false,
         fraudProofSystemIsPermissionless: fraudProofMapping[fraudProofType],
         delayWith30DExitWindow: false,
       },
@@ -794,20 +995,21 @@ function getTechnology(
   explorerUrl: string | undefined,
   daProvider: DAProvider | undefined,
 ): ProjectScalingTechnology {
-  const sequencerInbox = EthereumAddress(
-    templateVars.discovery.getContractValue('SystemConfig', 'sequencerInbox'),
+  const sequencerInbox = ChainSpecificAddress.address(
+    ChainSpecificAddress(
+      templateVars.discovery.getContractValue('SystemConfig', 'sequencerInbox'),
+    ),
   )
 
   const portal = getOptimismPortal(templateVars)
 
   const usesBlobs =
-    templateVars.usesBlobs ??
+    templateVars.usesEthereumBlobs ??
     templateVars.discovery.getContractValue<{
       isSequencerSendingBlobTx: boolean
     }>('SystemConfig', 'opStackDA').isSequencerSendingBlobTx
 
   return {
-    stateCorrectness: getTechnologyStateCorrectness(templateVars, explorerUrl),
     dataAvailability: templateVars.nonTemplateTechnology?.dataAvailability ?? {
       ...technologyDA(daProvider, usesBlobs),
       references: [
@@ -893,104 +1095,8 @@ function getTechnologyOperator(
     }
     case 'Permissioned':
     case 'Permissionless':
+    case 'Kailua':
       return OPERATOR.CENTRALIZED_OPERATOR
-  }
-}
-
-function getTechnologyStateCorrectness(
-  templateVars: OpStackConfigCommon,
-  explorerUrl: string | undefined,
-): ProjectTechnologyChoice | undefined {
-  if (templateVars.nonTemplateTechnology?.stateCorrectness !== undefined) {
-    return templateVars.nonTemplateTechnology.stateCorrectness
-  }
-
-  const fraudProofType = getFraudProofType(templateVars)
-  switch (fraudProofType) {
-    case 'None': {
-      const l2OutputOracle =
-        templateVars.l2OutputOracle ??
-        templateVars.discovery.getContract('L2OutputOracle')
-
-      return {
-        name: 'Fraud proofs are not enabled',
-        description:
-          'OP Stack projects can use the OP fault proof system, already being deployed on some. This project though is not using fault proofs yet and is relying on the honesty of the permissioned Proposer and Challengers to ensure state correctness. The smart contract system permits invalid state roots.',
-        risks: [
-          {
-            category: 'Funds can be stolen if',
-            text: 'an invalid state root is submitted to the system.',
-            isCritical: true,
-          },
-        ],
-        references: explorerReferences(explorerUrl, [
-          {
-            title: 'L2OutputOracle.sol - source code, deleteL2Outputs function',
-            address: safeGetImplementation(l2OutputOracle),
-          },
-        ]),
-      }
-    }
-    case 'Permissioned': {
-      const disputeGameFactory =
-        templateVars.discovery.getContract('DisputeGameFactory')
-      const permissionedDisputeGame = templateVars.discovery.getContract(
-        'PermissionedDisputeGame',
-      )
-      return {
-        name: 'Fraud proofs ensure state correctness',
-        description:
-          'After some period of time, the published state root is assumed to be correct. For a certain time period, one of the whitelisted actors can submit a fraud proof that shows that the state was incorrect.',
-        risks: [
-          {
-            category: 'Funds can be stolen if',
-            text: 'no validator checks the published state. Fraud proofs assume at least one honest and able validator.',
-          },
-        ],
-        references: explorerReferences(explorerUrl, [
-          {
-            title:
-              'DisputeGameFactory.sol - Etherscan source code, create() function',
-            address: safeGetImplementation(disputeGameFactory),
-          },
-          {
-            title:
-              'PermissionedDisputeGame.sol - Etherscan source code, attack() function',
-            address: permissionedDisputeGame.address,
-          },
-        ]),
-      }
-    }
-    case 'Permissionless': {
-      const disputeGameFactory =
-        templateVars.discovery.getContract('DisputeGameFactory')
-      const faultDisputeGame =
-        templateVars.discovery.getContract('FaultDisputeGame')
-
-      return {
-        name: 'Fraud proofs ensure state correctness',
-        description:
-          'After some period of time, the published state root is assumed to be correct. During the challenge period, anyone is allowed to submit a fraud proof that shows that the state was incorrect.',
-        risks: [
-          {
-            category: 'Funds can be stolen if',
-            text: 'no validator checks the published state. Fraud proofs assume at least one honest and able validator.',
-          },
-        ],
-        references: explorerReferences(explorerUrl, [
-          {
-            title:
-              'DisputeGameFactory.sol - Etherscan source code, create() function',
-            address: safeGetImplementation(disputeGameFactory),
-          },
-          {
-            title:
-              'FaultDisputeGame.sol - Etherscan source code, attack() function',
-            address: faultDisputeGame.address,
-          },
-        ]),
-      }
-    }
   }
 }
 
@@ -1086,6 +1192,53 @@ function getTechnologyExitMechanism(
       })
       break
     }
+    case 'Kailua': {
+      const disputeGameFinalityDelaySeconds =
+        templateVars.discovery.getContractValue<number>(
+          portal.name ?? portal.address,
+          'disputeGameFinalityDelaySeconds',
+        )
+
+      const proofMaturityDelaySeconds =
+        templateVars.discovery.getContractValue<number>(
+          portal.name ?? portal.address,
+          'proofMaturityDelaySeconds',
+        )
+
+      const disputeGameName = 'KailuaGame'
+
+      const maxClockDuration = templateVars.discovery.getContractValue<number>(
+        disputeGameName,
+        'MAX_CLOCK_DURATION',
+      )
+
+      result.push({
+        name: 'Regular exits',
+        description: `The user initiates the withdrawal by submitting a regular transaction on this chain. When a state root containing such transaction is settled, the funds become available for withdrawal on L1 after ${formatSeconds(
+          disputeGameFinalityDelaySeconds,
+        )}. Withdrawal inclusion can be proven before state root settlement, but a ${formatSeconds(
+          proofMaturityDelaySeconds,
+        )} period has to pass before it becomes actionable. The process of state root settlement takes a challenge period of at least ${formatSeconds(
+          maxClockDuration,
+        )} to complete. Finally the user submits an L1 transaction to claim the funds. This transaction requires a merkle proof.`,
+        risks: [],
+        references: [
+          {
+            title: `${portal.name}.sol - Etherscan source code, proveWithdrawalTransaction function`,
+            url: `https://etherscan.io/address/${safeGetImplementation(
+              portal,
+            )}#code`,
+          },
+          {
+            title: `${portal.name}.sol - Etherscan source code, finalizeWithdrawalTransaction function`,
+            url: `https://etherscan.io/address/${safeGetImplementation(
+              portal,
+            )}#code`,
+          },
+        ],
+      })
+      break
+    }
   }
 
   result.push({
@@ -1093,7 +1246,7 @@ function getTechnologyExitMechanism(
     references: [
       {
         title: 'Forced withdrawal from an OP Stack blockchain',
-        url: 'https://stack.optimism.io/docs/security/forced-withdrawal/',
+        url: 'https://docs.optimism.io/stack/transactions/forced-transaction',
       },
     ],
   })
@@ -1129,7 +1282,7 @@ function getDAProvider(
   hostChainDA?: DAProvider,
 ): DAProvider {
   const postsToCelestia =
-    templateVars.usesBlobs ??
+    templateVars.usesEthereumBlobs ??
     templateVars.discovery.getContractValue<{
       isUsingCelestia: boolean
     }>('SystemConfig', 'opStackDA').isUsingCelestia
@@ -1146,7 +1299,7 @@ function getDAProvider(
 
   if (daProvider === undefined) {
     const usesBlobs =
-      templateVars.usesBlobs ??
+      templateVars.usesEthereumBlobs ??
       templateVars.discovery.getContractValue<{
         isSequencerSendingBlobTx: boolean
       }>('SystemConfig', 'opStackDA').isSequencerSendingBlobTx
@@ -1184,38 +1337,29 @@ function getLiveness(
       templateVars.display.name
     } is an Optimistic rollup that posts transaction data to the L1. For a transaction to be considered final, it has to be posted within a tx batch on L1 that links to a previous finalized batch. If the previous batch is missing, transaction finalization can be delayed up to ${formatSeconds(
       HARDCODED.OPTIMISM.SEQUENCING_WINDOW_SECONDS,
-    )} or until it gets published. The state root gets finalized ${formatSeconds(
+    )} or until it gets published. The state root is settled ${formatSeconds(
       finalizationPeriod,
     )} after it has been posted.`,
-  })
-}
-
-function getFinality(
-  templateVars: OpStackConfigCommon,
-): ProjectFinalityInfo | undefined {
-  const finalizationPeriod = getFinalizationPeriod(templateVars)
-
-  return ifPostsToEthereum(templateVars, {
-    warnings: {
-      timeToInclusion: {
-        sentiment: 'neutral',
-        value:
-          "It's assumed that transaction data batches are submitted sequentially.",
-      },
-    },
-    finalizationPeriod: finalizationPeriod,
   })
 }
 
 function getTrackedTxs(
   templateVars: OpStackConfigCommon,
 ): Layer2TxConfig[] | undefined {
+  if (templateVars.nonTemplateTrackedTxs !== undefined) {
+    return templateVars.nonTemplateTrackedTxs
+  }
+
   const fraudProofType = getFraudProofType(templateVars)
-  const sequencerInbox = EthereumAddress(
-    templateVars.discovery.getContractValue('SystemConfig', 'sequencerInbox'),
+  const sequencerInbox = ChainSpecificAddress.address(
+    ChainSpecificAddress(
+      templateVars.discovery.getContractValue('SystemConfig', 'sequencerInbox'),
+    ),
   )
-  const sequencerAddress = EthereumAddress(
-    templateVars.discovery.getContractValue('SystemConfig', 'batcherHash'),
+  const sequencerAddress = ChainSpecificAddress.address(
+    ChainSpecificAddress(
+      templateVars.discovery.getContractValue('SystemConfig', 'batcherHash'),
+    ),
   )
 
   switch (fraudProofType) {
@@ -1224,41 +1368,40 @@ function getTrackedTxs(
         templateVars.l2OutputOracle ??
         templateVars.discovery.getContract('L2OutputOracle')
 
-      return (
-        templateVars.nonTemplateTrackedTxs ?? [
-          {
-            uses: [
-              { type: 'liveness', subtype: 'batchSubmissions' },
-              { type: 'l2costs', subtype: 'batchSubmissions' },
-            ],
-            query: {
-              formula: 'transfer',
-              from: sequencerAddress,
-              to: sequencerInbox,
-              sinceTimestamp: templateVars.genesisTimestamp,
-            },
+      return [
+        {
+          uses: [
+            { type: 'liveness', subtype: 'batchSubmissions' },
+            { type: 'l2costs', subtype: 'batchSubmissions' },
+          ],
+          query: {
+            formula: 'transfer',
+            from: sequencerAddress,
+            to: sequencerInbox,
+            sinceTimestamp: templateVars.genesisTimestamp,
           },
-          {
-            uses: [
-              { type: 'liveness', subtype: 'stateUpdates' },
-              { type: 'l2costs', subtype: 'stateUpdates' },
-            ],
-            query: {
-              formula: 'functionCall',
-              address: l2OutputOracle.address,
-              selector: '0x9aaab648',
-              functionSignature:
-                'function proposeL2Output(bytes32 _outputRoot, uint256 _l2BlockNumber, bytes32 _l1Blockhash, uint256 _l1BlockNumber)',
-              sinceTimestamp: UnixTime(
-                l2OutputOracle.sinceTimestamp ?? templateVars.genesisTimestamp,
-              ),
-            },
+        },
+        {
+          uses: [
+            { type: 'liveness', subtype: 'stateUpdates' },
+            { type: 'l2costs', subtype: 'stateUpdates' },
+          ],
+          query: {
+            formula: 'functionCall',
+            address: ChainSpecificAddress.address(l2OutputOracle.address),
+            selector: '0x9aaab648',
+            functionSignature:
+              'function proposeL2Output(bytes32 _outputRoot, uint256 _l2BlockNumber, bytes32 _l1Blockhash, uint256 _l1BlockNumber)',
+            sinceTimestamp: UnixTime(
+              l2OutputOracle.sinceTimestamp ?? templateVars.genesisTimestamp,
+            ),
           },
-        ]
-      )
+        },
+      ]
     }
     case 'Permissioned':
-    case 'Permissionless': {
+    case 'Permissionless':
+    case 'Kailua': {
       const disputeGameFactory =
         templateVars.disputeGameFactory ??
         templateVars.discovery.getContract('DisputeGameFactory')
@@ -1283,7 +1426,7 @@ function getTrackedTxs(
           ],
           query: {
             formula: 'functionCall',
-            address: disputeGameFactory.address,
+            address: ChainSpecificAddress.address(disputeGameFactory.address),
             selector: '0x82ecf2f6',
             functionSignature:
               'function create(uint32 _gameType, bytes32 _rootClaim, bytes _extraData) payable returns (address proxy_)',
@@ -1297,7 +1440,7 @@ function getTrackedTxs(
 
 function postsToEthereum(templateVars: OpStackConfigCommon): boolean {
   const postsToCelestia =
-    templateVars.usesBlobs ??
+    templateVars.usesEthereumBlobs ??
     templateVars.discovery.getContractValue<{
       isUsingCelestia: boolean
     }>('SystemConfig', 'opStackDA').isUsingCelestia
@@ -1345,7 +1488,8 @@ function getFinalizationPeriod(templateVars: OpStackConfigCommon): number {
       )
     }
     case 'Permissioned':
-    case 'Permissionless': {
+    case 'Permissionless':
+    case 'Kailua': {
       return templateVars.discovery.getContractValue<number>(
         'OptimismPortal2',
         'proofMaturityDelaySeconds',
@@ -1354,7 +1498,42 @@ function getFinalizationPeriod(templateVars: OpStackConfigCommon): number {
   }
 }
 
-type FraudProofType = 'None' | 'Permissioned' | 'Permissionless'
+function getChallengePeriod(templateVars: OpStackConfigCommon): number {
+  const fraudProofType = getFraudProofType(templateVars)
+
+  switch (fraudProofType) {
+    case 'None': {
+      const l2OutputOracle =
+        templateVars.l2OutputOracle ??
+        templateVars.discovery.getContract('L2OutputOracle')
+
+      return templateVars.discovery.getContractValue<number>(
+        l2OutputOracle.name ?? l2OutputOracle.address,
+        'FINALIZATION_PERIOD_SECONDS',
+      )
+    }
+    case 'Permissioned': {
+      return templateVars.discovery.getContractValue<number>(
+        'PermissionedDisputeGame',
+        'maxClockDuration',
+      )
+    }
+    case 'Permissionless': {
+      return templateVars.discovery.getContractValue<number>(
+        'FaultDisputeGame',
+        'maxClockDuration',
+      )
+    }
+    case 'Kailua': {
+      return templateVars.discovery.getContractValue<number>(
+        'KailuaGame',
+        'MAX_CLOCK_DURATION',
+      )
+    }
+  }
+}
+
+type FraudProofType = 'None' | 'Permissioned' | 'Permissionless' | 'Kailua'
 
 function getFraudProofType(templateVars: OpStackConfigCommon): FraudProofType {
   const portal = getOptimismPortal(templateVars)
@@ -1369,22 +1548,29 @@ function getFraudProofType(templateVars: OpStackConfigCommon): FraudProofType {
 
   if (respectedGameType === 0) {
     return 'Permissionless'
-  } else if (respectedGameType === 1) {
-    return 'Permissioned'
-  } else {
-    throw new Error(`Unexpected respectedGameType = ${respectedGameType}`)
   }
+  if (respectedGameType === 1) {
+    return 'Permissioned'
+  }
+  if (respectedGameType === 1337) {
+    return 'Kailua'
+  }
+  throw new Error(`Unexpected respectedGameType = ${respectedGameType}`)
 }
 
 function isPartOfSuperchain(templateVars: OpStackConfigCommon): boolean {
   return templateVars.discovery.hasContract('SuperchainConfig')
 }
 
+function migratedToLockbox(templateVars: OpStackConfigCommon): boolean {
+  return templateVars.discovery.hasContract('ETHLockbox')
+}
+
 function hostChainDAProvider(hostChain: ScalingProject): DAProvider {
   const DABadge = hostChain.badges?.find((b) => b.type === 'DA')
   assert(DABadge !== undefined, 'Host chain must have data availability badge')
   assert(
-    hostChain.technology.dataAvailability !== undefined,
+    hostChain.technology?.dataAvailability !== undefined,
     'Host chain must have technology data availability',
   )
   assert(

@@ -14,16 +14,17 @@ import type {
   ProjectBridgeRisks,
   ProjectBridgeTechnology,
   ProjectContracts,
+  ProjectCustomColors,
   ProjectCustomDa,
   ProjectDaTrackingConfig,
   ProjectDiscoveryInfo,
+  ProjectEcosystemInfo,
   ProjectEscrow,
-  ProjectFinalityConfig,
-  ProjectFinalityInfo,
   ProjectLinks,
   ProjectLivenessConfig,
   ProjectLivenessInfo,
   ProjectPermissions,
+  ProjectReviewStatus,
   ProjectScalingCapability,
   ProjectScalingCategory,
   ProjectScalingDa,
@@ -46,22 +47,28 @@ export interface ScalingProject {
   id: ProjectId
   /** If the project is an L3, ProjectId that serves as the base layer */
   hostChain?: ProjectId
-  /** Is the project univeral or app specific (e.g. DEX) */
+  /** Does the project have a testnet? */
+  hasTestnet?: boolean
+  /** Is the project universal or app specific (e.g. DEX) */
   capability: ProjectScalingCapability
   /** Date of creation of the file (not the project) */
   addedAt: UnixTime
-  /** Is this project archived? */
-  isArchived?: boolean
+  /** Date of archiving of the project */
+  archivedAt?: UnixTime
   /** Is this project an upcoming rollup? */
   isUpcoming?: boolean
-  /** Has this project changed and is under review? */
-  isUnderReview?: boolean
+  /** What is the review status of this project? */
+  reviewStatus?: ProjectReviewStatus
+  /** Colors used in the project's branding. E.g. ecosystem gradient, project page accents */
+  colors?: ProjectCustomColors
   /** Information displayed about the project on the frontend */
   display: ProjectScalingDisplay
   /** Information required to calculate the stats of the project */
   config: ProjectScalingConfig
   /** Technical chain configuration */
   chainConfig?: ChainConfig
+  /** Ecosystem information */
+  ecosystemInfo?: ProjectEcosystemInfo
   /** Data availability of scaling project */
   dataAvailability?: ProjectScalingDa
   /** Details about the custom availability solution */
@@ -73,13 +80,13 @@ export interface ScalingProject {
   /** Rollup stage */
   stage: ProjectScalingStage
   /** Deep dive into project technology */
-  technology: ProjectScalingTechnology
+  technology?: ProjectScalingTechnology
   /** Open-source node details */
   stateDerivation?: ProjectScalingStateDerivation
   /** Explains how project validates state */
   stateValidation?: ProjectScalingStateValidation
   /** List of smart contracts used in the project */
-  contracts: ProjectContracts
+  contracts?: ProjectContracts
   /** List of permissioned addresses on a given chain */
   permissions?: Record<string, ProjectPermissions>
   /** Links to recent developments, milestones achieved by the project */
@@ -91,7 +98,7 @@ export interface ScalingProject {
   /** Things we have or haven't checked while assesing the stage */
   scopeOfAssessment?: ProjectScalingScopeOfAssessment
   /** Discodrive markers - shouldn't be configured by a user */
-  discoveryInfo?: ProjectDiscoveryInfo
+  discoveryInfo: ProjectDiscoveryInfo
   /** Upgrades and governance explained */
   upgradesAndGovernance?: string
 }
@@ -109,8 +116,6 @@ export interface ProjectScalingConfig {
   trackedTxs?: Layer2TxConfig[]
   /** Configuration for getting liveness data */
   liveness?: ProjectLivenessConfig
-  /** Configuration for getting finality data */
-  finality?: ProjectFinalityConfig
 }
 
 export interface ProjectScalingDisplay {
@@ -122,16 +127,18 @@ export interface ProjectScalingDisplay {
   slug: string
   /** Name of the category the scaling project belongs to */
   category: ProjectScalingCategory
-  /** Technological stack */
-  stack?: ProjectScalingStack
+  /** Technological stacks */
+  stacks?: ProjectScalingStack[]
   /** A warning displayed in the header of the project. Also will be displayed as yellow shield next to project name (table view) */
   headerWarning?: string
   /** Warning for TVL */
-  tvlWarning?: WarningWithSentiment
+  tvsWarning?: WarningWithSentiment
   /** A warning displayed above the description of the project */
   warning?: string
   /** Project raw with red warning will turn into red, and there will be red warning icon with this message */
   redWarning?: string
+  /** Emergency warning for the project. If present project will be displayed as in emergency mode. */
+  emergencyWarning?: string
   /** A few sentences describing the scaling project */
   description: string
   /** Detailed description of the scaling project, will be visible in detailed description section */
@@ -150,16 +157,11 @@ export interface ProjectScalingDisplay {
   sequencingImage?: string
   /** Tooltip contents for liveness tab for given project */
   liveness?: ProjectLivenessInfo
-  finality?: ProjectFinalityInfo
   /** Warning for Costs */
   costsWarning?: WarningWithSentiment
 }
 
 export interface ProjectScalingTechnology {
-  /** What state correctness mechanism is used in the project */
-  stateCorrectness?: ProjectTechnologyChoice
-  /** What is the new cryptography used in the project */
-  newCryptography?: ProjectTechnologyChoice
   /** What is the data availability choice for the project */
   dataAvailability?: ProjectTechnologyChoice
   /** What are the details about project operator(s) */
@@ -188,7 +190,7 @@ export interface Layer2TrackedTxUse {
   type: TrackedTxsConfigType
   subtype: TrackedTxsConfigSubtype
 }
-
+/** This type is used to query GBQ and manual matching of transactions within a block */
 type TrackedTxQuery = FunctionCall | Transfer | SharpSubmission | SharedBridge
 
 interface FunctionCall {
@@ -196,6 +198,8 @@ interface FunctionCall {
   address: EthereumAddress
   selector: `0x${string}`
   functionSignature: `function ${string}`
+  /** Topics are used to filter logs and identify internal calls*/
+  topics?: string[]
   /** Inclusive */
   sinceTimestamp: UnixTime
   /** Inclusive */
@@ -204,7 +208,7 @@ interface FunctionCall {
 
 interface Transfer {
   formula: 'transfer'
-  from: EthereumAddress
+  from?: EthereumAddress
   to: EthereumAddress
   /** Inclusive */
   sinceTimestamp: UnixTime
@@ -238,10 +242,11 @@ export interface Bridge {
   id: ProjectId
   /** Date of creation of the file (not the project) */
   addedAt: UnixTime
-  isArchived?: boolean
+  archivedAt?: UnixTime
   isUpcoming?: boolean
-  isUnderReview?: boolean
+  reviewStatus?: ProjectReviewStatus
   display: BridgeDisplay
+  colors?: ProjectCustomColors
   config: BridgeConfig
   chainConfig?: ChainConfig
   riskView: ProjectBridgeRisks
@@ -249,7 +254,8 @@ export interface Bridge {
   contracts?: ProjectContracts
   permissions?: Record<string, ProjectPermissions>
   milestones?: Milestone[]
-  discoveryInfo?: ProjectDiscoveryInfo
+  upgradesAndGovernance?: string
+  discoveryInfo: ProjectDiscoveryInfo
 }
 
 export interface BridgeDisplay {
@@ -262,6 +268,7 @@ export interface BridgeDisplay {
   category: BridgeCategory
   links: ProjectLinks
   architectureImage?: string
+  upgradesAndGovernanceImage?: string
 }
 
 export interface BridgeConfig {

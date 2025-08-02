@@ -1,15 +1,19 @@
-import { assert, type EthereumAddress } from '@l2beat/shared-pure'
-import * as z from 'zod'
+import {
+  assert,
+  ChainSpecificAddress,
+  type EthereumAddress,
+} from '@l2beat/shared-pure'
+import { v } from '@l2beat/validate'
 import type { IProvider } from '../../provider/IProvider'
 import { FunctionSelectorDecoder } from '../../utils/FunctionSelectorDecoder'
 import type { Handler, HandlerResult } from '../Handler'
 
-export type EIP2535FacetHandlerDefinition = z.infer<
+export type EIP2535FacetHandlerDefinition = v.infer<
   typeof EIP2535FacetHandlerDefinition
 >
-export const EIP2535FacetHandlerDefinition = z.strictObject({
-  type: z.literal('eip2535Facets'),
-  ignoreRelative: z.optional(z.boolean()),
+export const EIP2535FacetHandlerDefinition = v.strictObject({
+  type: v.literal('eip2535Facets'),
+  ignoreRelative: v.boolean().optional(),
 })
 
 type FacetsEntry = [EthereumAddress, string[]]
@@ -24,7 +28,7 @@ export class EIP2535FacetHandler implements Handler {
 
   async execute(
     provider: IProvider,
-    address: EthereumAddress,
+    address: ChainSpecificAddress,
   ): Promise<HandlerResult> {
     const method =
       'function facets() view returns (tuple(address addr, bytes4[] selectors)[] result)'
@@ -34,7 +38,9 @@ export class EIP2535FacetHandler implements Handler {
       'Facets call failed, maybe this contract is not an EIP2535 proxy',
     )
 
-    const implementations = facets.map((facet) => facet[0])
+    const implementations = facets.map((facet) =>
+      ChainSpecificAddress.fromLong(provider.chain, facet[0]),
+    )
     const decoder = new FunctionSelectorDecoder(provider)
     await decoder.fetchTargets(implementations)
 
@@ -45,7 +51,10 @@ export class EIP2535FacetHandler implements Handler {
 
       const selectors = await Promise.all(
         encodedSelectors.map((encodedSelector) =>
-          decoder.decodeSelector(implementation, encodedSelector),
+          decoder.decodeSelector(
+            ChainSpecificAddress.fromLong(provider.chain, implementation),
+            encodedSelector,
+          ),
         ),
       )
 

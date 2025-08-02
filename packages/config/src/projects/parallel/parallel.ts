@@ -1,4 +1,8 @@
-import { EthereumAddress, UnixTime } from '@l2beat/shared-pure'
+import {
+  ChainSpecificAddress,
+  EthereumAddress,
+  UnixTime,
+} from '@l2beat/shared-pure'
 import { REASON_FOR_BEING_OTHER } from '../../common'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
@@ -8,7 +12,7 @@ const discovery = new ProjectDiscovery('parallel')
 
 export const parallel: ScalingProject = orbitStackL2({
   addedAt: UnixTime(1704289654), // 2024-01-03T13:47:34Z
-  isArchived: true,
+  archivedAt: UnixTime(1733356800), // 2024-12-05T00:00:00.000Z,
   discovery,
   reasonsForBeingOther: [REASON_FOR_BEING_OTHER.NO_PROOFS],
   display: {
@@ -22,7 +26,7 @@ export const parallel: ScalingProject = orbitStackL2({
       'Parallel is an Ethereum L2 solution utilizing Arbitrum Nitro technology.',
     links: {
       websites: ['https://parallel.fi'],
-      apps: ['https://parallel.fi/airdrop'],
+      bridges: ['https://parallel.fi/airdrop'],
       documentation: ['https://docs.parallel.fi/parallel-chain/overview'],
       explorers: [
         'https://explorerl2new-surprised-harlequin-bonobo-fvcy2k9oqh.t.conduit.xyz/',
@@ -108,13 +112,17 @@ export const parallel: ScalingProject = orbitStackL2({
   ],
   nonTemplateEscrows: [
     discovery.getEscrowDetails({
-      address: EthereumAddress('0x6Eb9240d4add111D5Fc81b10Ff12eECabcf9752d'),
+      address: ChainSpecificAddress(
+        'eth:0x6Eb9240d4add111D5Fc81b10Ff12eECabcf9752d',
+      ),
       tokens: '*',
       description:
         'Main entry point for users depositing ERC20 tokens. Upon depositing, on L2 a generic, "wrapped" token will be minted.',
     }),
     discovery.getEscrowDetails({
-      address: EthereumAddress('0xa1c86E2362dba0525075622af6d5f739B1304D45'),
+      address: ChainSpecificAddress(
+        'eth:0xa1c86E2362dba0525075622af6d5f739B1304D45',
+      ),
       tokens: '*',
       source: 'external',
       description:

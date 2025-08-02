@@ -1,3 +1,876 @@
+Generated with discovered.json: 0x9e716abd894a8ef5d97af8cf1bad4af1da3f0357
+
+# Diff at Thu, 31 Jul 2025 10:58:43 GMT:
+
+- author: Mateusz Radomski (<radomski.main@protonmail.com>)
+- comparing to: main@07319d194d312aca8103826b7db44d44613cc7fa block: 1753687799
+- current timestamp: 1753687799
+
+## Description
+
+Discovery rerun on the same block number with only config-related changes.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 1753687799 (main branch discovery), not current.
+
+```diff
+    contract LineazkLink (0x5Cb18b6e4e6F3b46Ce646b0f4704D53724C5Df05) {
+    +++ description: None
+      name:
+-        "zkLink"
++        "LineazkLink"
+    }
+```
+
+```diff
+    contract LineaL1ERC20Bridge (0x62cE247f34dc316f93D3830e4Bf10959FCe630f8) {
+    +++ description: None
+      name:
+-        "L1ERC20Bridge"
++        "LineaL1ERC20Bridge"
+    }
+```
+
+Generated with discovered.json: 0x4a3b7c559d46b02e72658af04c0ad9e3d5026609
+
+# Diff at Mon, 14 Jul 2025 12:47:21 GMT:
+
+- author: Mateusz Radomski (<radomski.main@protonmail.com>)
+- comparing to: main@9f4300dad2f3d080cd56fa311d4a848556c74e72 block: 19494394
+- current block number: 19494394
+
+## Description
+
+Discovery rerun on the same block number with only config-related changes.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 19494394 (main branch discovery), not current.
+
+```diff
+    contract LineaOwner (0x0Bff4B38792a95314b3463E1Bf9831BDa1995391) {
+    +++ description: None
+      address:
+-        "0x0Bff4B38792a95314b3463E1Bf9831BDa1995391"
++        "linea:0x0Bff4B38792a95314b3463E1Bf9831BDa1995391"
+      values.$implementation:
+-        "0x3E5c63644E683549055b9Be8653de26E0B4CD36E"
++        "linea:0x3E5c63644E683549055b9Be8653de26E0B4CD36E"
+      values.$members.0:
+-        "0xd30898ECdc21C72250a5fd1dbD37FF7D63237Db5"
++        "linea:0xd30898ECdc21C72250a5fd1dbD37FF7D63237Db5"
+      values.$members.1:
+-        "0x7785bccF9110C188Dad39bE49D4Cdf6c6CC03F10"
++        "linea:0x7785bccF9110C188Dad39bE49D4Cdf6c6CC03F10"
+      values.$members.2:
+-        "0x4D9b22B92Ff9faFAc013f82faCA88BDa8E778cb5"
++        "linea:0x4D9b22B92Ff9faFAc013f82faCA88BDa8E778cb5"
+      values.$members.3:
+-        "0xF801886AE2e127A269B0F11892edb54F692d02dF"
++        "linea:0xF801886AE2e127A269B0F11892edb54F692d02dF"
+      values.$members.4:
+-        "0xC75EFCffEE930706daec5CaCA012551f6a1845D7"
++        "linea:0xC75EFCffEE930706daec5CaCA012551f6a1845D7"
+      values.$members.5:
+-        "0x24a257B7D975E7ec6219C4cFCbcF6E504253c7A9"
++        "linea:0x24a257B7D975E7ec6219C4cFCbcF6E504253c7A9"
+      values.$members.6:
+-        "0xd8F26118505417Ef6468Ac8A2AE1E5117245Db92"
++        "linea:0xd8F26118505417Ef6468Ac8A2AE1E5117245Db92"
+      values.$members.7:
+-        "0xcC1A2bd1a459be0C7fAd3B7F9Fa9a6CBBFE9BFa5"
++        "linea:0xcC1A2bd1a459be0C7fAd3B7F9Fa9a6CBBFE9BFa5"
+      implementationNames.0x0Bff4B38792a95314b3463E1Bf9831BDa1995391:
+-        "GnosisSafeProxy"
+      implementationNames.0x3E5c63644E683549055b9Be8653de26E0B4CD36E:
+-        "GnosisSafeL2"
+      implementationNames.linea:0x0Bff4B38792a95314b3463E1Bf9831BDa1995391:
++        "GnosisSafeProxy"
+      implementationNames.linea:0x3E5c63644E683549055b9Be8653de26E0B4CD36E:
++        "GnosisSafeL2"
+    }
+```
+
+```diff
+    EOA  (0x24a257B7D975E7ec6219C4cFCbcF6E504253c7A9) {
+    +++ description: None
+      address:
+-        "0x24a257B7D975E7ec6219C4cFCbcF6E504253c7A9"
++        "linea:0x24a257B7D975E7ec6219C4cFCbcF6E504253c7A9"
+    }
+```
+
+```diff
+    EOA  (0x34788Df312acC671E62C9aB15523F7CDC4D29BA9) {
+    +++ description: None
+      address:
+-        "0x34788Df312acC671E62C9aB15523F7CDC4D29BA9"
++        "linea:0x34788Df312acC671E62C9aB15523F7CDC4D29BA9"
+    }
+```
+
+```diff
+    EOA  (0x4732015b3B1712A4FC5C059195300D12d529bb77) {
+    +++ description: None
+      address:
+-        "0x4732015b3B1712A4FC5C059195300D12d529bb77"
++        "linea:0x4732015b3B1712A4FC5C059195300D12d529bb77"
+    }
+```
+
+```diff
+    EOA  (0x4D9b22B92Ff9faFAc013f82faCA88BDa8E778cb5) {
+    +++ description: None
+      address:
+-        "0x4D9b22B92Ff9faFAc013f82faCA88BDa8E778cb5"
++        "linea:0x4D9b22B92Ff9faFAc013f82faCA88BDa8E778cb5"
+    }
+```
+
+```diff
+    contract ValidatorTimelock (0x509ff56c152315EdeE91A2e0f059195519507e01) {
+    +++ description: None
+      address:
+-        "0x509ff56c152315EdeE91A2e0f059195519507e01"
++        "linea:0x509ff56c152315EdeE91A2e0f059195519507e01"
+      values.constructorArgs._initialOwner:
+-        "0x34788Df312acC671E62C9aB15523F7CDC4D29BA9"
++        "linea:0x34788Df312acC671E62C9aB15523F7CDC4D29BA9"
+      values.constructorArgs._zkSyncContract:
+-        "0x5Cb18b6e4e6F3b46Ce646b0f4704D53724C5Df05"
++        "linea:0x5Cb18b6e4e6F3b46Ce646b0f4704D53724C5Df05"
+      values.constructorArgs._validator:
+-        "0x4732015b3B1712A4FC5C059195300D12d529bb77"
++        "linea:0x4732015b3B1712A4FC5C059195300D12d529bb77"
+      values.owner:
+-        "0x34788Df312acC671E62C9aB15523F7CDC4D29BA9"
++        "linea:0x34788Df312acC671E62C9aB15523F7CDC4D29BA9"
+      values.pendingOwner:
+-        "0x0000000000000000000000000000000000000000"
++        "linea:0x0000000000000000000000000000000000000000"
+      values.validator:
+-        "0x4732015b3B1712A4FC5C059195300D12d529bb77"
++        "linea:0x4732015b3B1712A4FC5C059195300D12d529bb77"
+      values.zkSyncContract:
+-        "0x5Cb18b6e4e6F3b46Ce646b0f4704D53724C5Df05"
++        "linea:0x5Cb18b6e4e6F3b46Ce646b0f4704D53724C5Df05"
+      implementationNames.0x509ff56c152315EdeE91A2e0f059195519507e01:
+-        "ValidatorTimelock"
+      implementationNames.linea:0x509ff56c152315EdeE91A2e0f059195519507e01:
++        "ValidatorTimelock"
+    }
+```
+
+```diff
+    EOA  (0x54B39C0e4089f0789b9f8EdE20D725e1AFF805Cb) {
+    +++ description: None
+      address:
+-        "0x54B39C0e4089f0789b9f8EdE20D725e1AFF805Cb"
++        "linea:0x54B39C0e4089f0789b9f8EdE20D725e1AFF805Cb"
+    }
+```
+
+```diff
+    contract zkLink (0x5Cb18b6e4e6F3b46Ce646b0f4704D53724C5Df05) {
+    +++ description: None
+      address:
+-        "0x5Cb18b6e4e6F3b46Ce646b0f4704D53724C5Df05"
++        "linea:0x5Cb18b6e4e6F3b46Ce646b0f4704D53724C5Df05"
+      values.$implementation.0:
+-        "0x6a91814E3481967Ea350398cf748aB845DF43c05"
++        "linea:0x6a91814E3481967Ea350398cf748aB845DF43c05"
+      values.$implementation.1:
+-        "0xF3d053C29666D653Fa8629190579844BffE9FB92"
++        "linea:0xF3d053C29666D653Fa8629190579844BffE9FB92"
+      values.$implementation.2:
+-        "0xa3A4de013fbC21F46a3AB0F504dcEFfAd217252e"
++        "linea:0xa3A4de013fbC21F46a3AB0F504dcEFfAd217252e"
+      values.$implementation.3:
+-        "0xFF6e83e6A5cc362b8B40d819fBE7840aD13A3488"
++        "linea:0xFF6e83e6A5cc362b8B40d819fBE7840aD13A3488"
+      values.$pastUpgrades.0.2.0:
+-        "0x73B076425025A3Bf059001D5bE0E21384C8cf049"
++        "linea:0x73B076425025A3Bf059001D5bE0E21384C8cf049"
+      values.$pastUpgrades.0.2.1:
+-        "0xfE3EB2e5AfaA936093C0DD2dB8898F4a2643FfE0"
++        "linea:0xfE3EB2e5AfaA936093C0DD2dB8898F4a2643FfE0"
+      values.$pastUpgrades.0.2.2:
+-        "0x6052B353022dA2C61a999bf081C349260de993Af"
++        "linea:0x6052B353022dA2C61a999bf081C349260de993Af"
+      values.$pastUpgrades.0.2.3:
+-        "0x5e7077bf147Fc1Bb8f46039cc40bBd39F2dDfEa0"
++        "linea:0x5e7077bf147Fc1Bb8f46039cc40bBd39F2dDfEa0"
+      values.$pastUpgrades.1.2.0:
+-        "0x73B076425025A3Bf059001D5bE0E21384C8cf049"
++        "linea:0x73B076425025A3Bf059001D5bE0E21384C8cf049"
+      values.$pastUpgrades.1.2.1:
+-        "0xfE3EB2e5AfaA936093C0DD2dB8898F4a2643FfE0"
++        "linea:0xfE3EB2e5AfaA936093C0DD2dB8898F4a2643FfE0"
+      values.$pastUpgrades.1.2.2:
+-        "0x5e7077bf147Fc1Bb8f46039cc40bBd39F2dDfEa0"
++        "linea:0x5e7077bf147Fc1Bb8f46039cc40bBd39F2dDfEa0"
+      values.$pastUpgrades.1.2.3:
+-        "0x841f709F4219a1283300c0250cA7c582aD2B289c"
++        "linea:0x841f709F4219a1283300c0250cA7c582aD2B289c"
+      values.$pastUpgrades.2.2.0:
+-        "0x73B076425025A3Bf059001D5bE0E21384C8cf049"
++        "linea:0x73B076425025A3Bf059001D5bE0E21384C8cf049"
+      values.$pastUpgrades.2.2.1:
+-        "0xfE3EB2e5AfaA936093C0DD2dB8898F4a2643FfE0"
++        "linea:0xfE3EB2e5AfaA936093C0DD2dB8898F4a2643FfE0"
+      values.$pastUpgrades.2.2.2:
+-        "0x5e7077bf147Fc1Bb8f46039cc40bBd39F2dDfEa0"
++        "linea:0x5e7077bf147Fc1Bb8f46039cc40bBd39F2dDfEa0"
+      values.$pastUpgrades.2.2.3:
+-        "0x841f709F4219a1283300c0250cA7c582aD2B289c"
++        "linea:0x841f709F4219a1283300c0250cA7c582aD2B289c"
+      values.$pastUpgrades.3.2.0:
+-        "0xcE8E69a2685c80Eb6bd825d0552f44BB34f35503"
++        "linea:0xcE8E69a2685c80Eb6bd825d0552f44BB34f35503"
+      values.$pastUpgrades.3.2.1:
+-        "0xb1d0354063527E4426c4bEcbDB75fE0fb112e3CB"
++        "linea:0xb1d0354063527E4426c4bEcbDB75fE0fb112e3CB"
+      values.$pastUpgrades.3.2.2:
+-        "0x11bf5BC6327f7BECB0AE753932A181c8fB5780bA"
++        "linea:0x11bf5BC6327f7BECB0AE753932A181c8fB5780bA"
+      values.$pastUpgrades.3.2.3:
+-        "0x1b19287CE898217D937571EABa97ec50F27d1206"
++        "linea:0x1b19287CE898217D937571EABa97ec50F27d1206"
+      values.$pastUpgrades.4.2.0:
+-        "0x2b1f8EcEc8C5E09395D83910b5Cbf0E149E271DC"
++        "linea:0x2b1f8EcEc8C5E09395D83910b5Cbf0E149E271DC"
+      values.$pastUpgrades.4.2.1:
+-        "0xF3d053C29666D653Fa8629190579844BffE9FB92"
++        "linea:0xF3d053C29666D653Fa8629190579844BffE9FB92"
+      values.$pastUpgrades.4.2.2:
+-        "0x253AbB100Dd2606e73E41A26D03269fd13de5548"
++        "linea:0x253AbB100Dd2606e73E41A26D03269fd13de5548"
+      values.$pastUpgrades.4.2.3:
+-        "0x268F47D6058c3122131e2f8Df1B634793e4B0a7c"
++        "linea:0x268F47D6058c3122131e2f8Df1B634793e4B0a7c"
+      values.$pastUpgrades.5.2.0:
+-        "0xB76Ee80B3344D86580C990638bDE1915E58d2c6f"
++        "linea:0xB76Ee80B3344D86580C990638bDE1915E58d2c6f"
+      values.$pastUpgrades.5.2.1:
+-        "0xF3d053C29666D653Fa8629190579844BffE9FB92"
++        "linea:0xF3d053C29666D653Fa8629190579844BffE9FB92"
+      values.$pastUpgrades.5.2.2:
+-        "0x495220D99B432b0de3e1F1fe206AA0E26A051C63"
++        "linea:0x495220D99B432b0de3e1F1fe206AA0E26A051C63"
+      values.$pastUpgrades.5.2.3:
+-        "0x9f2E11F287733c4EF5B9A6ED923b780c28062727"
++        "linea:0x9f2E11F287733c4EF5B9A6ED923b780c28062727"
+      values.$pastUpgrades.6.2.0:
+-        "0x6a91814E3481967Ea350398cf748aB845DF43c05"
++        "linea:0x6a91814E3481967Ea350398cf748aB845DF43c05"
+      values.$pastUpgrades.6.2.1:
+-        "0xF3d053C29666D653Fa8629190579844BffE9FB92"
++        "linea:0xF3d053C29666D653Fa8629190579844BffE9FB92"
+      values.$pastUpgrades.6.2.2:
+-        "0xa3A4de013fbC21F46a3AB0F504dcEFfAd217252e"
++        "linea:0xa3A4de013fbC21F46a3AB0F504dcEFfAd217252e"
+      values.$pastUpgrades.6.2.3:
+-        "0xFF6e83e6A5cc362b8B40d819fBE7840aD13A3488"
++        "linea:0xFF6e83e6A5cc362b8B40d819fBE7840aD13A3488"
+      values.facetAddresses.0:
+-        "0x6a91814E3481967Ea350398cf748aB845DF43c05"
++        "linea:0x6a91814E3481967Ea350398cf748aB845DF43c05"
+      values.facetAddresses.1:
+-        "0xF3d053C29666D653Fa8629190579844BffE9FB92"
++        "linea:0xF3d053C29666D653Fa8629190579844BffE9FB92"
+      values.facetAddresses.2:
+-        "0xa3A4de013fbC21F46a3AB0F504dcEFfAd217252e"
++        "linea:0xa3A4de013fbC21F46a3AB0F504dcEFfAd217252e"
+      values.facetAddresses.3:
+-        "0xFF6e83e6A5cc362b8B40d819fBE7840aD13A3488"
++        "linea:0xFF6e83e6A5cc362b8B40d819fBE7840aD13A3488"
+      values.facets.0.addr:
+-        "0x6a91814E3481967Ea350398cf748aB845DF43c05"
++        "linea:0x6a91814E3481967Ea350398cf748aB845DF43c05"
+      values.facets.1.addr:
+-        "0xF3d053C29666D653Fa8629190579844BffE9FB92"
++        "linea:0xF3d053C29666D653Fa8629190579844BffE9FB92"
+      values.facets.2.addr:
+-        "0xa3A4de013fbC21F46a3AB0F504dcEFfAd217252e"
++        "linea:0xa3A4de013fbC21F46a3AB0F504dcEFfAd217252e"
+      values.facets.3.addr:
+-        "0xFF6e83e6A5cc362b8B40d819fBE7840aD13A3488"
++        "linea:0xFF6e83e6A5cc362b8B40d819fBE7840aD13A3488"
+      values.getGateway:
+-        "0x7b5780d6df85A7dF96a3e1A019639a1dbDe937dB"
++        "linea:0x7b5780d6df85A7dF96a3e1A019639a1dbDe937dB"
+      values.getGovernor:
+-        "0xeF528a8Ca4B6aFDB6716Ef9f11bCa0c5C47454ec"
++        "linea:0xeF528a8Ca4B6aFDB6716Ef9f11bCa0c5C47454ec"
+      values.getPendingGovernor:
+-        "0x0000000000000000000000000000000000000000"
++        "linea:0x0000000000000000000000000000000000000000"
+      values.getVerifier:
+-        "0x902C3806A84f4e855a8746e92d7F1C9a51400458"
++        "linea:0x902C3806A84f4e855a8746e92d7F1C9a51400458"
+      values.validators.0:
+-        "0x54B39C0e4089f0789b9f8EdE20D725e1AFF805Cb"
++        "linea:0x54B39C0e4089f0789b9f8EdE20D725e1AFF805Cb"
+      values.validators.1:
+-        "0x509ff56c152315EdeE91A2e0f059195519507e01"
++        "linea:0x509ff56c152315EdeE91A2e0f059195519507e01"
+      implementationNames.0x5Cb18b6e4e6F3b46Ce646b0f4704D53724C5Df05:
+-        "DiamondProxy"
+      implementationNames.0x6a91814E3481967Ea350398cf748aB845DF43c05:
+-        ""
+      implementationNames.0xF3d053C29666D653Fa8629190579844BffE9FB92:
+-        "GettersFacet"
+      implementationNames.0xa3A4de013fbC21F46a3AB0F504dcEFfAd217252e:
+-        ""
+      implementationNames.0xFF6e83e6A5cc362b8B40d819fBE7840aD13A3488:
+-        ""
+      implementationNames.linea:0x5Cb18b6e4e6F3b46Ce646b0f4704D53724C5Df05:
++        "DiamondProxy"
+      implementationNames.linea:0x6a91814E3481967Ea350398cf748aB845DF43c05:
++        ""
+      implementationNames.linea:0xF3d053C29666D653Fa8629190579844BffE9FB92:
++        "GettersFacet"
+      implementationNames.linea:0xa3A4de013fbC21F46a3AB0F504dcEFfAd217252e:
++        ""
+      implementationNames.linea:0xFF6e83e6A5cc362b8B40d819fBE7840aD13A3488:
++        ""
+    }
+```
+
+```diff
+    contract L1ERC20Bridge (0x62cE247f34dc316f93D3830e4Bf10959FCe630f8) {
+    +++ description: None
+      address:
+-        "0x62cE247f34dc316f93D3830e4Bf10959FCe630f8"
++        "linea:0x62cE247f34dc316f93D3830e4Bf10959FCe630f8"
+      values.$admin:
+-        "0xeF528a8Ca4B6aFDB6716Ef9f11bCa0c5C47454ec"
++        "linea:0xeF528a8Ca4B6aFDB6716Ef9f11bCa0c5C47454ec"
+      values.$implementation:
+-        "0xDe1d7311d3eb7bc94f7EBAEd86978d3a82d5328A"
++        "linea:0xDe1d7311d3eb7bc94f7EBAEd86978d3a82d5328A"
+      values.$pastUpgrades.0.2.0:
+-        "0xB8017A397E7844635c5a2750d0BEB2af97506461"
++        "linea:0xB8017A397E7844635c5a2750d0BEB2af97506461"
+      values.$pastUpgrades.1.2.0:
+-        "0xDe1d7311d3eb7bc94f7EBAEd86978d3a82d5328A"
++        "linea:0xDe1d7311d3eb7bc94f7EBAEd86978d3a82d5328A"
+      values.l2Bridge:
+-        "0x01c3f51294494e350AD69B999Db6B382b3B510b9"
++        "linea:0x01c3f51294494e350AD69B999Db6B382b3B510b9"
+      values.l2TokenBeacon:
+-        "0x45A4e87354154EB95c2896A43B65bf1148F34908"
++        "linea:0x45A4e87354154EB95c2896A43B65bf1148F34908"
+      implementationNames.0x62cE247f34dc316f93D3830e4Bf10959FCe630f8:
+-        "TransparentUpgradeableProxy"
+      implementationNames.0xDe1d7311d3eb7bc94f7EBAEd86978d3a82d5328A:
+-        "L1ERC20Bridge"
+      implementationNames.linea:0x62cE247f34dc316f93D3830e4Bf10959FCe630f8:
++        "TransparentUpgradeableProxy"
+      implementationNames.linea:0xDe1d7311d3eb7bc94f7EBAEd86978d3a82d5328A:
++        "L1ERC20Bridge"
+    }
+```
+
+```diff
+    EOA  (0x7785bccF9110C188Dad39bE49D4Cdf6c6CC03F10) {
+    +++ description: None
+      address:
+-        "0x7785bccF9110C188Dad39bE49D4Cdf6c6CC03F10"
++        "linea:0x7785bccF9110C188Dad39bE49D4Cdf6c6CC03F10"
+    }
+```
+
+```diff
+    contract LineaL2Gateway (0x7b5780d6df85A7dF96a3e1A019639a1dbDe937dB) {
+    +++ description: None
+      address:
+-        "0x7b5780d6df85A7dF96a3e1A019639a1dbDe937dB"
++        "linea:0x7b5780d6df85A7dF96a3e1A019639a1dbDe937dB"
+      values.$admin:
+-        "0x0Bff4B38792a95314b3463E1Bf9831BDa1995391"
++        "linea:0x0Bff4B38792a95314b3463E1Bf9831BDa1995391"
+      values.$implementation:
+-        "0x0C25f3ACCB17a9D60408D1c79bD7218073DAd518"
++        "linea:0x0C25f3ACCB17a9D60408D1c79bD7218073DAd518"
+      values.$pastUpgrades.0.2.0:
+-        "0xaFc54E8277f8Bb8c195C794B0D10D6766e89DF0a"
++        "linea:0xaFc54E8277f8Bb8c195C794B0D10D6766e89DF0a"
+      values.$pastUpgrades.1.2.0:
+-        "0x0C25f3ACCB17a9D60408D1c79bD7218073DAd518"
++        "linea:0x0C25f3ACCB17a9D60408D1c79bD7218073DAd518"
+      values.getRemoteGateway:
+-        "0x803460416C2682Ac54FccF03eF77b10A12f2809b"
++        "linea:0x803460416C2682Ac54FccF03eF77b10A12f2809b"
+      values.MESSAGE_SERVICE:
+-        "0x508Ca82Df566dCD1B0DE8296e70a96332cD644ec"
++        "linea:0x508Ca82Df566dCD1B0DE8296e70a96332cD644ec"
+      values.owner:
+-        "0x0Bff4B38792a95314b3463E1Bf9831BDa1995391"
++        "linea:0x0Bff4B38792a95314b3463E1Bf9831BDa1995391"
+      values.ZKLINK:
+-        "0x5Cb18b6e4e6F3b46Ce646b0f4704D53724C5Df05"
++        "linea:0x5Cb18b6e4e6F3b46Ce646b0f4704D53724C5Df05"
+      implementationNames.0x7b5780d6df85A7dF96a3e1A019639a1dbDe937dB:
+-        "ERC1967Proxy"
+      implementationNames.0x0C25f3ACCB17a9D60408D1c79bD7218073DAd518:
+-        "LineaL2Gateway"
+      implementationNames.linea:0x7b5780d6df85A7dF96a3e1A019639a1dbDe937dB:
++        "ERC1967Proxy"
+      implementationNames.linea:0x0C25f3ACCB17a9D60408D1c79bD7218073DAd518:
++        "LineaL2Gateway"
+    }
+```
+
+```diff
+    contract Verifier (0x902C3806A84f4e855a8746e92d7F1C9a51400458) {
+    +++ description: None
+      address:
+-        "0x902C3806A84f4e855a8746e92d7F1C9a51400458"
++        "linea:0x902C3806A84f4e855a8746e92d7F1C9a51400458"
+      implementationNames.0x902C3806A84f4e855a8746e92d7F1C9a51400458:
+-        "Verifier"
+      implementationNames.linea:0x902C3806A84f4e855a8746e92d7F1C9a51400458:
++        "Verifier"
+    }
+```
+
+```diff
+    EOA  (0xC75EFCffEE930706daec5CaCA012551f6a1845D7) {
+    +++ description: None
+      address:
+-        "0xC75EFCffEE930706daec5CaCA012551f6a1845D7"
++        "linea:0xC75EFCffEE930706daec5CaCA012551f6a1845D7"
+    }
+```
+
+```diff
+    EOA  (0xcC1A2bd1a459be0C7fAd3B7F9Fa9a6CBBFE9BFa5) {
+    +++ description: None
+      address:
+-        "0xcC1A2bd1a459be0C7fAd3B7F9Fa9a6CBBFE9BFa5"
++        "linea:0xcC1A2bd1a459be0C7fAd3B7F9Fa9a6CBBFE9BFa5"
+    }
+```
+
+```diff
+    EOA  (0xd30898ECdc21C72250a5fd1dbD37FF7D63237Db5) {
+    +++ description: None
+      address:
+-        "0xd30898ECdc21C72250a5fd1dbD37FF7D63237Db5"
++        "linea:0xd30898ECdc21C72250a5fd1dbD37FF7D63237Db5"
+    }
+```
+
+```diff
+    EOA  (0xd8F26118505417Ef6468Ac8A2AE1E5117245Db92) {
+    +++ description: None
+      address:
+-        "0xd8F26118505417Ef6468Ac8A2AE1E5117245Db92"
++        "linea:0xd8F26118505417Ef6468Ac8A2AE1E5117245Db92"
+    }
+```
+
+```diff
+    contract Governance (0xeF528a8Ca4B6aFDB6716Ef9f11bCa0c5C47454ec) {
+    +++ description: None
+      address:
+-        "0xeF528a8Ca4B6aFDB6716Ef9f11bCa0c5C47454ec"
++        "linea:0xeF528a8Ca4B6aFDB6716Ef9f11bCa0c5C47454ec"
+      values.owner:
+-        "0x0Bff4B38792a95314b3463E1Bf9831BDa1995391"
++        "linea:0x0Bff4B38792a95314b3463E1Bf9831BDa1995391"
+      values.pendingOwner:
+-        "0x0000000000000000000000000000000000000000"
++        "linea:0x0000000000000000000000000000000000000000"
+      values.securityCouncil:
+-        "0x0000000000000000000000000000000000000000"
++        "linea:0x0000000000000000000000000000000000000000"
+      implementationNames.0xeF528a8Ca4B6aFDB6716Ef9f11bCa0c5C47454ec:
+-        "Governance"
+      implementationNames.linea:0xeF528a8Ca4B6aFDB6716Ef9f11bCa0c5C47454ec:
++        "Governance"
+    }
+```
+
+```diff
+    EOA  (0xF801886AE2e127A269B0F11892edb54F692d02dF) {
+    +++ description: None
+      address:
+-        "0xF801886AE2e127A269B0F11892edb54F692d02dF"
++        "linea:0xF801886AE2e127A269B0F11892edb54F692d02dF"
+    }
+```
+
+```diff
++   Status: CREATED
+    contract LineaOwner (0x0Bff4B38792a95314b3463E1Bf9831BDa1995391)
+    +++ description: None
+```
+
+```diff
++   Status: CREATED
+    contract ValidatorTimelock (0x509ff56c152315EdeE91A2e0f059195519507e01)
+    +++ description: None
+```
+
+```diff
++   Status: CREATED
+    contract zkLink (0x5Cb18b6e4e6F3b46Ce646b0f4704D53724C5Df05)
+    +++ description: None
+```
+
+```diff
++   Status: CREATED
+    contract L1ERC20Bridge (0x62cE247f34dc316f93D3830e4Bf10959FCe630f8)
+    +++ description: None
+```
+
+```diff
++   Status: CREATED
+    contract LineaL2Gateway (0x7b5780d6df85A7dF96a3e1A019639a1dbDe937dB)
+    +++ description: None
+```
+
+```diff
++   Status: CREATED
+    contract Verifier (0x902C3806A84f4e855a8746e92d7F1C9a51400458)
+    +++ description: None
+```
+
+```diff
++   Status: CREATED
+    contract Governance (0xeF528a8Ca4B6aFDB6716Ef9f11bCa0c5C47454ec)
+    +++ description: None
+```
+
+Generated with discovered.json: 0x649b980aef955e54966a92474b74daf2e514c53d
+
+# Diff at Fri, 30 May 2025 06:44:11 GMT:
+
+- author: sekuba (<29250140+sekuba@users.noreply.github.com>)
+- comparing to: main@a4d8c436027d17df0f9b76843cd6deb1888fa381 block: 17565279
+- current block number: 19494394
+
+## Description
+
+upgrade to an unverified implementation.
+
+hardcoded validators, parking original `validators` config.jsonc snippet here because the comments are broken
+```
+"handler": {
+  "type": "event",
+  "select": "validatorAddress",
+  "add": {
+    "event": "ValidatorStatusUpdate",
+    "where": ["=", "#isActive", true]
+  },
+  "remove": {
+    "event": "ValidatorStatusUpdate",
+    "where": ["!=", "#isActive", true]
+  }
+}
+```
+
+## Watched changes
+
+```diff
+    contract zkLink (0x5Cb18b6e4e6F3b46Ce646b0f4704D53724C5Df05) {
+    +++ description: None
+      sourceHashes:
+-        ["0xcd2dee9d49d75aa37138514c1f32d29c60222002963e0c0a7e1a815dff00444f","0x28d2bbb6847ab4d4dfc220d056bad884fa0fb9d713ee16b26a55e0e48e494d73"]
+      values.$implementation.3:
+-        "0x9f2E11F287733c4EF5B9A6ED923b780c28062727"
++        "0x6a91814E3481967Ea350398cf748aB845DF43c05"
+      values.$implementation.2:
+-        "0x495220D99B432b0de3e1F1fe206AA0E26A051C63"
++        "0xF3d053C29666D653Fa8629190579844BffE9FB92"
+      values.$implementation.1:
+-        "0xF3d053C29666D653Fa8629190579844BffE9FB92"
++        "0xFF6e83e6A5cc362b8B40d819fBE7840aD13A3488"
+      values.$implementation.0:
+-        "0xB76Ee80B3344D86580C990638bDE1915E58d2c6f"
++        "0xa3A4de013fbC21F46a3AB0F504dcEFfAd217252e"
+      values.$pastUpgrades.6:
++        ["2024-05-22T15:53:09.000Z","0x63cc92d7d7f235ed4094027a72b93973cb159c4cca509f669668032a0b6d9e96",["0xB76Ee80B3344D86580C990638bDE1915E58d2c6f","0xF3d053C29666D653Fa8629190579844BffE9FB92","0x495220D99B432b0de3e1F1fe206AA0E26A051C63","0x9f2E11F287733c4EF5B9A6ED923b780c28062727"]]
+      values.$pastUpgrades.5.2.3:
+-        "0x9f2E11F287733c4EF5B9A6ED923b780c28062727"
++        "0x841f709F4219a1283300c0250cA7c582aD2B289c"
+      values.$pastUpgrades.5.2.2:
+-        "0x495220D99B432b0de3e1F1fe206AA0E26A051C63"
++        "0xfE3EB2e5AfaA936093C0DD2dB8898F4a2643FfE0"
+      values.$pastUpgrades.5.2.1:
+-        "0xF3d053C29666D653Fa8629190579844BffE9FB92"
++        "0x73B076425025A3Bf059001D5bE0E21384C8cf049"
+      values.$pastUpgrades.5.2.0:
+-        "0xB76Ee80B3344D86580C990638bDE1915E58d2c6f"
++        "0x5e7077bf147Fc1Bb8f46039cc40bBd39F2dDfEa0"
+      values.$pastUpgrades.5.1:
+-        "2024-05-22T15:53:09.000Z"
++        "2024-03-04T03:26:13.000Z"
+      values.$pastUpgrades.5.0:
+-        "0x63cc92d7d7f235ed4094027a72b93973cb159c4cca509f669668032a0b6d9e96"
++        "0x33b1bba23b3c4bf16fb2b10b47dfda138dc2ff659fc32e2d0926b716e76f3dbc"
+      values.$pastUpgrades.4.2:
+-        ["0x73B076425025A3Bf059001D5bE0E21384C8cf049","0xfE3EB2e5AfaA936093C0DD2dB8898F4a2643FfE0","0x5e7077bf147Fc1Bb8f46039cc40bBd39F2dDfEa0","0x841f709F4219a1283300c0250cA7c582aD2B289c"]
++        "0xc126f92dc36c78ecb4aac331b0cc9e92ba1693d8b1a83981f4cb789cd1c55a6b"
+      values.$pastUpgrades.4.1:
+-        "2024-03-04T03:26:13.000Z"
++        ["0x6a91814E3481967Ea350398cf748aB845DF43c05","0xF3d053C29666D653Fa8629190579844BffE9FB92","0xa3A4de013fbC21F46a3AB0F504dcEFfAd217252e","0xFF6e83e6A5cc362b8B40d819fBE7840aD13A3488"]
+      values.$pastUpgrades.4.0:
+-        "0x33b1bba23b3c4bf16fb2b10b47dfda138dc2ff659fc32e2d0926b716e76f3dbc"
++        "2025-05-14T03:35:45.000Z"
+      values.$upgradeCount:
+-        6
++        7
+      values.facetAddresses.3:
+-        "0x9f2E11F287733c4EF5B9A6ED923b780c28062727"
++        "0x6a91814E3481967Ea350398cf748aB845DF43c05"
+      values.facetAddresses.2:
+-        "0x495220D99B432b0de3e1F1fe206AA0E26A051C63"
++        "0xF3d053C29666D653Fa8629190579844BffE9FB92"
+      values.facetAddresses.1:
+-        "0xF3d053C29666D653Fa8629190579844BffE9FB92"
++        "0xFF6e83e6A5cc362b8B40d819fBE7840aD13A3488"
+      values.facetAddresses.0:
+-        "0xB76Ee80B3344D86580C990638bDE1915E58d2c6f"
++        "0xa3A4de013fbC21F46a3AB0F504dcEFfAd217252e"
+      values.facets.3.addr:
+-        "0xB76Ee80B3344D86580C990638bDE1915E58d2c6f"
++        "0xFF6e83e6A5cc362b8B40d819fBE7840aD13A3488"
+      values.facets.3.selectors.12:
+-        "0xbe6f11cf"
+      values.facets.3.selectors.11:
+-        "0x17338945"
+      values.facets.3.selectors.10:
+-        "0x1cc5d103"
+      values.facets.3.selectors.9:
+-        "0x64bf8d66"
+      values.facets.3.selectors.8:
+-        "0x0e18b681"
+      values.facets.3.selectors.7:
+-        "0xf235757f"
+      values.facets.3.selectors.6:
+-        "0xe58bb639"
+      values.facets.3.selectors.5:
+-        "0x19b25add"
+      values.facets.3.selectors.4:
+-        "0x90646b4a"
++        "0x6a74f6f5"
+      values.facets.3.selectors.3:
+-        "0x27ae4c16"
++        "0x97c09d34"
+      values.facets.3.selectors.2:
+-        "0xa9f6d941"
++        "0xc3d93e7c"
+      values.facets.3.selectors.1:
+-        "0x4623c91d"
++        "0x93406cf2"
+      values.facets.3.selectors.0:
+-        "0x4dd18bf5"
++        "0x7f61885c"
+      values.facets.1.addr:
+-        "0x495220D99B432b0de3e1F1fe206AA0E26A051C63"
++        "0xa3A4de013fbC21F46a3AB0F504dcEFfAd217252e"
+      values.facets.0.addr:
+-        "0x9f2E11F287733c4EF5B9A6ED923b780c28062727"
++        "0x6a91814E3481967Ea350398cf748aB845DF43c05"
+      values.facets.0.selectors.12:
++        "0xbe6f11cf"
+      values.facets.0.selectors.11:
++        "0x17338945"
+      values.facets.0.selectors.10:
++        "0x1cc5d103"
+      values.facets.0.selectors.9:
++        "0x64bf8d66"
+      values.facets.0.selectors.8:
++        "0x0e18b681"
+      values.facets.0.selectors.7:
++        "0xf235757f"
+      values.facets.0.selectors.6:
++        "0xe58bb639"
+      values.facets.0.selectors.5:
++        "0x19b25add"
+      values.facets.0.selectors.4:
+-        "0x6a74f6f5"
++        "0x90646b4a"
+      values.facets.0.selectors.3:
+-        "0x97c09d34"
++        "0x27ae4c16"
+      values.facets.0.selectors.2:
+-        "0xc3d93e7c"
++        "0xa9f6d941"
+      values.facets.0.selectors.1:
+-        "0x93406cf2"
++        "0x4623c91d"
+      values.facets.0.selectors.0:
+-        "0x7f61885c"
++        "0x4dd18bf5"
+      values.FORWARD_REQUEST_TYPE_HASH:
+-        "0xe0aaca1722ef50bb0c9b032e5b16ce2b79fa9f23638835456b27fd6894f8292c"
+      implementationNames.0xB76Ee80B3344D86580C990638bDE1915E58d2c6f:
+-        "AdminFacet"
+      implementationNames.0x495220D99B432b0de3e1F1fe206AA0E26A051C63:
+-        "MailboxFacet"
+      implementationNames.0x9f2E11F287733c4EF5B9A6ED923b780c28062727:
+-        "ExecutorFacet"
+      implementationNames.0x6a91814E3481967Ea350398cf748aB845DF43c05:
++        ""
+      implementationNames.0xa3A4de013fbC21F46a3AB0F504dcEFfAd217252e:
++        ""
+      implementationNames.0xFF6e83e6A5cc362b8B40d819fBE7840aD13A3488:
++        ""
+      unverified:
++        true
+    }
+```
+
+## Source code changes
+
+```diff
+.../zkLink/AdminFacet.1.sol => /dev/null           | 1970 --------------------
+ .../zkLink/ExecutorFacet.4.sol => /dev/null        |  949 ----------
+ .../zkLink/MailboxFacet.3.sol => /dev/null         | 1851 ------------------
+ 3 files changed, 4770 deletions(-)
+```
+
+Generated with discovered.json: 0x756db9bdb68a59ec6cbfc001e0ee7e778c29d03e
+
+# Diff at Wed, 28 May 2025 11:34:48 GMT:
+
+- author: Mateusz Radomski (<radomski.main@protonmail.com>)
+- comparing to: main@13b95854804f5ec749939a5230d24dfeedf19d1e block: 17565279
+- current block number: 17565279
+
+## Description
+
+Discovery rerun on the same block number with only config-related changes.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 17565279 (main branch discovery), not current.
+
+```diff
+    contract zkLink (0x5Cb18b6e4e6F3b46Ce646b0f4704D53724C5Df05) {
+    +++ description: None
+      sourceHashes.4:
+-        "0xb6a5aa1fb38aec46fe13d3e977cb8a06b3e3fd7e5c1ec2ef87f58fa4d21d3f45"
+      sourceHashes.3:
+-        "0xe7e19467e9bc94a61947db08bfecea640d85dd166beac055385b877417dfbd71"
+      sourceHashes.2:
+-        "0xbe5fe6b595b02be18ecb35c95a6b4b18c75aa4a08ab3cf035b72e9e5f71109d9"
+      sourceHashes.1:
+-        "0x0aeeb5887677b09d5c9b6dfb6fd52bf2c97728ae0aedb533baab3f7fe0653ac3"
++        "0x28d2bbb6847ab4d4dfc220d056bad884fa0fb9d713ee16b26a55e0e48e494d73"
+    }
+```
+
+Generated with discovered.json: 0x82d421c2a4ba290aefc28dd6b5a55bd6ed25849f
+
+# Diff at Fri, 23 May 2025 09:41:21 GMT:
+
+- author: Adrian Adamiak (<adrian@adamiak.net>)
+- comparing to: main@69cd181abbc3c830a6caf2f4429b37cae72ffdb8 block: 17565279
+- current block number: 17565279
+
+## Description
+
+Introduced .role field on each permission, defaulting to field name on which it was defined (with '.' prefix)
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 17565279 (main branch discovery), not current.
+
+```diff
+    contract LineaOwner (0x0Bff4B38792a95314b3463E1Bf9831BDa1995391) {
+    +++ description: None
+      receivedPermissions.0.role:
++        "admin"
+    }
+```
+
+```diff
+    contract Governance (0xeF528a8Ca4B6aFDB6716Ef9f11bCa0c5C47454ec) {
+    +++ description: None
+      receivedPermissions.0.role:
++        "admin"
+    }
+```
+
+Generated with discovered.json: 0xf2d073a7cd313ee63829a336ec2408f20ca3bd58
+
+# Diff at Tue, 29 Apr 2025 08:19:30 GMT:
+
+- author: Adrian Adamiak (<adrian@adamiak.net>)
+- comparing to: main@ef7477af00fe0b57a2f7cacf7e958c12494af662 block: 17565279
+- current block number: 17565279
+
+## Description
+
+Field .issuedPermissions is removed from the output as no longer needed. Added 'permissionsConfigHash' due to refactoring of the modelling process (into a separate command).
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 17565279 (main branch discovery), not current.
+
+```diff
+    contract L1ERC20Bridge (0x62cE247f34dc316f93D3830e4Bf10959FCe630f8) {
+    +++ description: None
+      issuedPermissions:
+-        [{"permission":"upgrade","to":"0xeF528a8Ca4B6aFDB6716Ef9f11bCa0c5C47454ec","via":[]}]
+    }
+```
+
+```diff
+    contract LineaL2Gateway (0x7b5780d6df85A7dF96a3e1A019639a1dbDe937dB) {
+    +++ description: None
+      issuedPermissions:
+-        [{"permission":"upgrade","to":"0x0Bff4B38792a95314b3463E1Bf9831BDa1995391","via":[]}]
+    }
+```
+
+Generated with discovered.json: 0xe2af1bc9ddaceeb92b4f5eee117cf2b6682afb41
+
+# Diff at Mon, 31 Mar 2025 12:35:31 GMT:
+
+- author: sekuba (<29250140+sekuba@users.noreply.github.com>)
+- comparing to: main@71ffebe835be10b6d5d09ef65aa19b910de8a2ec block: 17195680
+- current block number: 17565279
+
+## Description
+
+Ignore (config related).
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 17195680 (main branch discovery), not current.
+
+```diff
+    contract L1ERC20Bridge (0x62cE247f34dc316f93D3830e4Bf10959FCe630f8) {
+    +++ description: None
+      values.$pastUpgrades.1:
++        ["2024-04-03T12:30:11.000Z","0x151e5e3496cc0cfa545a4515a036154bb172dea85ccafce5563b408a83793570",["0xDe1d7311d3eb7bc94f7EBAEd86978d3a82d5328A"]]
+      values.$pastUpgrades.0:
++        [["0xB8017A397E7844635c5a2750d0BEB2af97506461"],"0xd4a7bf62cc26e7852b2f27b65739c9d3fb4c0f7ad57757d0a854391c9b1395c3","2024-02-29T14:48:33.000Z"]
+      values.$upgradeCount:
+-        0
++        2
+    }
+```
+
 Generated with discovered.json: 0xdc5c6c7e7983d97265f340084f26454c61c7a1e5
 
 # Diff at Wed, 26 Mar 2025 14:31:19 GMT:

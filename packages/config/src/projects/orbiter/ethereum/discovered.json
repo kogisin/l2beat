@@ -1,32 +1,32 @@
 {
   "name": "orbiter",
   "chain": "ethereum",
-  "blockNumber": 21322840,
-  "configHash": "0xf004b8ed666d707b0600e545194f49191853c91ea1adebb511fd49dfacfc44dc",
+  "timestamp": 1733239295,
+  "configHash": "0x78c13092631280f3415ea84f57c179d4bc23f6319cffd7647347a3ef8ce9e465",
   "entries": [
     {
-      "address": "0x095D2918B03b2e86D68551DCF11302121fb626c9",
+      "address": "eth:0x095D2918B03b2e86D68551DCF11302121fb626c9",
       "type": "EOA",
       "proxyType": "EOA"
     },
     {
-      "address": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+      "address": "eth:0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
       "type": "EOA",
       "proxyType": "EOA"
     },
     {
-      "address": "0x80C67432656d59144cEFf962E8fAF8926599bCF8",
+      "address": "eth:0x80C67432656d59144cEFf962E8fAF8926599bCF8",
       "type": "EOA",
       "proxyType": "EOA"
     },
     {
-      "address": "0xd7Aa9ba6cAAC7b0436c91396f22ca5a7F31664fC",
+      "address": "eth:0xd7Aa9ba6cAAC7b0436c91396f22ca5a7F31664fC",
       "type": "EOA",
       "proxyType": "EOA"
     },
     {
       "name": "OBSource",
-      "address": "0xD9D74a29307cc6Fc8BF424ee4217f1A587FBc8Dc",
+      "address": "eth:0xD9D74a29307cc6Fc8BF424ee4217f1A587FBc8Dc",
       "type": "Contract",
       "sourceHashes": [
         "0xe23a80bc25bbb7fd86290d129904d428cc4cac65b4598f208bbc449d4d9c6951"
@@ -35,14 +35,18 @@
       "sinceTimestamp": 1649661119,
       "sinceBlock": 14563000,
       "values": { "$immutable": true },
-      "derivedName": "OBSource"
+      "implementationNames": {
+        "eth:0xD9D74a29307cc6Fc8BF424ee4217f1A587FBc8Dc": "OBSource"
+      }
     }
   ],
   "abis": {
-    "0xD9D74a29307cc6Fc8BF424ee4217f1A587FBc8Dc": [
+    "eth:0xD9D74a29307cc6Fc8BF424ee4217f1A587FBc8Dc": [
       "function transfer(address _to, bytes _ext) payable",
       "function transferERC20(address _token, address _to, uint256 _amount, bytes _ext)"
     ]
   },
-  "usedTemplates": {}
+  "usedTemplates": {},
+  "usedBlockNumbers": { "ethereum": 21322840 },
+  "permissionsConfigHash": "0x209182ea632eadc638e2a11456fb8a2ab92c2166e05349b7d20eb028d1ef40b2"
 }

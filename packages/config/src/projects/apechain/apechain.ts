@@ -6,10 +6,10 @@ import type { ScalingProject } from '../../internalTypes'
 import { AnytrustDAC } from '../../templates/anytrust-template'
 import { orbitStackL3 } from '../../templates/orbitStack'
 
-const discovery = new ProjectDiscovery('apechain', 'arbitrum')
+const discovery = new ProjectDiscovery('apechain')
 
 export const apechain: ScalingProject = orbitStackL3({
-  addedAt: UnixTime(1719939717), // 2024-07-02T17:01:57Z
+  addedAt: UnixTime(1729296000), // 2024-10-19
   additionalBadges: [BADGES.L3ParentChain.Arbitrum, BADGES.RaaS.Caldera],
   reasonsForBeingOther: [
     REASON_FOR_BEING_OTHER.CLOSED_PROOFS,
@@ -22,7 +22,7 @@ export const apechain: ScalingProject = orbitStackL3({
       'ApeChain is an Optimium on Arbitrum, built on the Orbit stack. It is built to support the ApeCoin ecosystem. Powered by $APE as gas token it aims to host assets and games of the ApeCoin ecosystem with development and growth led by Horizen Labs.',
     links: {
       websites: ['https://apechain.com/'],
-      apps: ['https://apechain.com/portal'],
+      bridges: ['https://apechain.com/portal'],
       documentation: ['https://docs.apechain.com/'],
       explorers: ['https://apescan.io/'],
       socialMedia: [
@@ -32,6 +32,7 @@ export const apechain: ScalingProject = orbitStackL3({
       ],
     },
   },
+  hostChain: 'arbitrum',
   discovery,
   bridge: discovery.getContract('Bridge'),
   rollupProxy: discovery.getContract('RollupProxy'),
@@ -39,6 +40,8 @@ export const apechain: ScalingProject = orbitStackL3({
   chainConfig: {
     name: 'apechain',
     chainId: 33139,
+    coingeckoPlatform: 'apechain',
+    sinceTimestamp: UnixTime(1724863522),
     apis: [
       {
         type: 'rpc',
@@ -48,7 +51,15 @@ export const apechain: ScalingProject = orbitStackL3({
     ],
     gasTokens: ['APE'],
   },
-  // associatedTokens: ['APE'],
-  overrideEscrows: [],
-  customDa: AnytrustDAC({ discovery }),
+  associatedTokens: ['APE'],
+  customDa: AnytrustDAC({ discovery, hostChain: 'arbitrum' }),
+  milestones: [
+    {
+      title: 'Mainnet Launch',
+      url: 'https://x.com/apecoin/status/1847731593437155673',
+      date: '2024-10-19T00:00:00Z',
+      description: 'ApeChain launches its Mainnet.',
+      type: 'general',
+    },
+  ],
 })

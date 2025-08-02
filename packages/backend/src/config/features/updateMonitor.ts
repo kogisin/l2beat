@@ -17,17 +17,30 @@ export function getUpdateMonitorConfig(
 ): UpdateMonitorConfig {
   const paths = getDiscoveryPaths()
   const configReader = new ConfigReader(paths.discovery)
+
+  const allChains = [
+    ...new Set(
+      configReader.readAllDiscoveredProjects().flatMap((x) => x.chains),
+    ),
+  ]
+  const enabledChains = allChains.filter((chain) =>
+    flags.isEnabled('updateMonitor', chain),
+  )
+  const disabledChains = allChains.filter(
+    (chain) => !flags.isEnabled('updateMonitor', chain),
+  )
   return {
     configReader,
     paths,
     runOnStart: isLocal
       ? env.boolean('UPDATE_MONITOR_RUN_ON_START', true)
       : undefined,
+    updateDifferEnabled: flags.isEnabled('updateMonitor', 'updateDiffer'),
     discord: getDiscordConfig(env, isLocal),
-    chains: configReader
-      .readAllChains()
-      .filter((chain) => flags.isEnabled('updateMonitor', chain))
-      .map((chain) => getChainDiscoveryConfig(env, chain, chains)),
+    chains: enabledChains.map((chain) =>
+      getChainDiscoveryConfig(env, chain, chains),
+    ),
+    disabledChains,
     cacheEnabled: env.optionalBoolean(['DISCOVERY_CACHE_ENABLED']),
     cacheUri: env.string(['DISCOVERY_CACHE_URI'], 'postgres'),
     updateMessagesRetentionPeriodDays: env.integer(
@@ -78,7 +91,11 @@ function getChainDiscoveryConfig(
     : undefined
 
   const explorerApi = chainConfig.apis.find(
-    (x) => x.type === 'etherscan' || x.type === 'blockscout',
+    (x) =>
+      x.type === 'etherscan' ||
+      x.type === 'routescan' ||
+      x.type === 'blockscout' ||
+      x.type === 'sourcify',
   )
 
   if (!explorerApi) {
@@ -109,7 +126,7 @@ function getChainDiscoveryConfig(
     ]),
     multicall: multicallConfig,
     explorer:
-      explorerApi.type === 'blockscout'
+      explorerApi.type === 'blockscout' || explorerApi.type === 'routescan'
         ? {
             type: explorerApi.type,
             url: explorerApi.url,
@@ -117,16 +134,17 @@ function getChainDiscoveryConfig(
               getContractCreation: explorerApi.contractCreationUnsupported,
             },
           }
-        : {
-            type: explorerApi.type,
-            url: explorerApi.url,
-            apiKey: env.string([
-              `${ENV_NAME}_ETHERSCAN_API_KEY_FOR_DISCOVERY`,
-              `${ENV_NAME}_ETHERSCAN_API_KEY`,
-            ]),
-            unsupported: {
-              getContractCreation: explorerApi.contractCreationUnsupported,
+        : explorerApi.type === 'sourcify'
+          ? {
+              type: explorerApi.type,
+              chainId: explorerApi.chainId,
+            }
+          : {
+              type: explorerApi.type,
+              url: env.string('ETHERSCAN_API_URL'),
+              apiKey: env.string('ETHERSCAN_API_KEY'),
+              // biome-ignore lint/style/noNonNullAssertion: We assume it's there since there is no etherscan for non-evm chains
+              chainId: chainConfig.chainId!,
             },
-          },
   }
 }

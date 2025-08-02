@@ -1,5 +1,10 @@
-import { EthereumAddress, UnixTime, formatSeconds } from '@l2beat/shared-pure'
-import { SOA } from '../../common'
+import {
+  assert,
+  EthereumAddress,
+  formatSeconds,
+  UnixTime,
+} from '@l2beat/shared-pure'
+import { EXITS, SOA } from '../../common'
 import { BADGES } from '../../common/badges'
 import { getStage } from '../../common/stages/getStage'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
@@ -7,56 +12,47 @@ import type { ScalingProject } from '../../internalTypes'
 import { orbitStackL2 } from '../../templates/orbitStack'
 
 const discovery = new ProjectDiscovery('kinto')
-const l2discovery = new ProjectDiscovery('kinto', 'kinto')
 
-// !!!!!!! l2critDelay WILL NEED TO BE INCREASED TO 12d FROM 11d !!!!!!!!!!!!
-const l2critDelay = 11 * 24 * 60 * 60
+const l2critDelay = 12 * 24 * 60 * 60 // 1) force tx: 0d 2) be sanctioned: 1d 3) sanction expiry/cooldown, force tx: 4d 4) execute forced tx: 5d 5) exit window left: 7d
 
-// asserts as soon as the permissions are fully in place (-->04/01)
-// const contractKeys = [
-//   'edKintoMultisig2ADMIN',
-//   'edKintoMultisig2UPGRADER',
-//   'edScADMIN',
-//   'edScUPGRADER',
-//   'edScSECURITY_COUNCIL',
-//   'tadKintoAppRegistry',
-//   'tadKintoID',
-//   'tadKintoWalletFactory',
-// ]
-// assert(
-//   contractKeys.every(
-//     (key) =>
-//       l2critDelay ===
-//       l2discovery.getContractValue<number>('AccessManager', key),
-//   ),
-//   '11d delay in Accessmanager changed, edit gov section',
-// )
-// assert(
-//   l2critDelay ===
-//     l2discovery.getContractValue<number>('Kinto Multisig 2', 'RECOVERY_TIME'),
-//   'recovery time in the KintoWallet is not 12d, malicious recoveries do not provide a 7d exit window.',
-// )
+const contractKeys = [
+  'edKintoMultisig2ADMIN',
+  'tadKintoAppRegistry',
+  'tadKintoID',
+  'tadKintoWalletFactory',
+]
+assert(
+  contractKeys.every(
+    (key) =>
+      l2critDelay === discovery.getContractValue<number>('AccessManager', key),
+  ),
+  '12d delay in Accessmanager changed, edit gov section',
+)
+assert(
+  l2critDelay ===
+    discovery.getContractValue<number>('Kinto Multisig 2', 'RECOVERY_TIME'),
+  'recovery time in the KintoWallet is not 12d, malicious recoveries do not provide a 7d exit window.',
+)
+assert(
+  l2critDelay ===
+    discovery.getContractValue<number>('KintoID', 'EXIT_WINDOW_PERIOD'),
+  'exit window period in the KintoID is not 12d, malicious sanctions do not provide a 7d exit window.',
+)
 
-const sanctionExpirySeconds = l2discovery.getContractValue<number>(
+const sanctionExpirySeconds = discovery.getContractValue<number>(
   'KintoID',
   'SANCTION_EXPIRY_PERIOD',
 )
-
-// assert(
-//   l2critDelay - (sanctionExpirySeconds + 2 * 24 * 60 * 60) === 7 * 24 * 60 * 60, // upgrade delay must be 1d force tx + sanctionExpirySeconds + 1d force tx + 7d exit window
-//   'sanctioned user does not have 7d to exit',
-// )
 
 // Validators: https://docs.kinto.xyz/kinto-the-safe-l2/security-kyc-aml/kinto-validators
 // SC: https://docs.kinto.xyz/kinto-the-safe-l2/security-kyc-aml/security-council
 
 export const kinto: ScalingProject = orbitStackL2({
   capability: 'appchain',
-  addedAt: UnixTime(1695735468), // 2023-09-26T13:37:48Z
+  addedAt: UnixTime(1716336000), // 2024-05-22T00:00:00Z
   discovery,
-  additionalBadges: [BADGES.RaaS.Caldera],
+  additionalBadges: [BADGES.RaaS.Caldera, BADGES.VM.AppChain],
   overridingPurposes: ['KYC-ed DeFi'],
-  additionalDiscoveries: { ['kinto']: l2discovery },
   display: {
     name: 'Kinto',
     slug: 'kinto',
@@ -65,7 +61,7 @@ export const kinto: ScalingProject = orbitStackL2({
       'Kinto is an Orbit stack L2 with account abstraction and KYC enabled for all users, supporting both modern financial institutions and decentralized protocols.',
     links: {
       websites: ['https://kinto.xyz'],
-      apps: ['https://engen.kinto.xyz'],
+      bridges: ['https://engen.kinto.xyz'],
       documentation: ['https://docs.kinto.xyz'],
       explorers: ['https://explorer.kinto.xyz/', 'https://kintoscan.io/'],
       repositories: ['https://github.com/kintoxyz'],
@@ -77,6 +73,7 @@ export const kinto: ScalingProject = orbitStackL2({
       ],
     },
   },
+  associatedTokens: ['K'],
   chainConfig: {
     name: 'kinto',
     chainId: 7887,
@@ -101,7 +98,7 @@ export const kinto: ScalingProject = orbitStackL2({
   bridge: discovery.getContract('Bridge'),
   rollupProxy: discovery.getContract('RollupProxy'),
   sequencerInbox: discovery.getContract('SequencerInbox'),
-  usesBlobs: true,
+  usesEthereumBlobs: true,
   nonTemplateRiskView: {
     exitWindow: {
       value: 'None',
@@ -139,11 +136,11 @@ export const kinto: ScalingProject = orbitStackL2({
         stateRootsPostedToL1: true,
         dataAvailabilityOnL1: true,
         rollupNodeSourceAvailable: true,
-      },
-      stage1: {
-        principle: false,
         stateVerificationOnL1: true,
         fraudProofSystemAtLeast5Outsiders: true,
+      },
+      stage1: {
+        principle: true,
         usersHave7DaysToExit: true,
         usersCanExitWithoutCooperation: true,
         securityCouncilProperlySetUp: true,
@@ -178,19 +175,19 @@ Contracts outside of the ones necessary to interact with the smart wallet and to
   ),
   upgradesAndGovernance: `
 All critical system smart contracts are upgradeable (can be arbitrarily changed). This permission is held by the ${discovery.getMultisigStats('Kinto Security Council')} Kinto Security Council on Layer 1 and can be executed without any delay.
-On the Kinto Layer 2, critical permissions are mostly guarded by an AccessManager contract, and then passed down with configurable delays to both the Security Council and the ${l2discovery.getMultisigStats('Kinto Multisig 2')} Kinto Multisig 2.
+On the Kinto Layer 2, critical permissions are mostly guarded by an AccessManager contract, and then passed down with configurable delays to both the Security Council and the ${discovery.getMultisigStats('Kinto Multisig 2')} Kinto Multisig 2.
 
 The Appchain designation of Kinto is mainly due to a modified L2 node, which queries a special censoring contract on L2 (called KintoAppRegistry) for a whitelist to filter transactions.
 This makes the KintoAppRegistry contract a critical system contract and any change to its configuration equivalent to an upgrade of the Layer 2 system.
 The KintoAppRegistry contract is also governed via the AccessManager by the Security Council or the Kinto Multisig 2 with a ${formatSeconds(l2critDelay)} delay.
 
-Another critical contract on the Appchain is called KintoID. Permissioned actors with the 'KYC provider' role in the KintoID contract can 'sanction' (freeze) user smart wallets, preventing them from transacting. 
+Another critical contract on the Appchain is called KintoID. Permissioned actors with the 'KYC provider' role in the KintoID contract can 'sanction' (freeze) user smart wallets, preventing them from transacting.
 To protect users from this role which is mostly held by EOAs, a sanction expires if not confirmed by the Security Council within ${formatSeconds(sanctionExpirySeconds)}.
-An expired sanction guarantees the user a ${formatSeconds(l2discovery.getContractValue<number>('KintoID', 'EXIT_WINDOW_PERIOD') - sanctionExpirySeconds)} cooldown window during which they cannot be sanctioned again.
+An expired sanction guarantees the user a ${formatSeconds(discovery.getContractValue<number>('KintoID', 'EXIT_WINDOW_PERIOD') - sanctionExpirySeconds)} cooldown window during which they cannot be sanctioned again.
 
 The canonical (enforced) smartwallet for users on Kinto can be upgraded via the KintoWalletFactory, using the same path via the AccessManager.
 Additionally, each smart wallet must use a recoverer address custodied by Turnkey. This allows users to reset the wallet signers via their email in case they lose their passkey.
-It also necessitates a recovery delay to prevent turnkey from maliciously using their recoverer permission. During this period of ${formatSeconds(l2discovery.getContractValue<number>('Kinto Multisig 2', 'RECOVERY_TIME'))}, the user can cancel the recovery process with any transaction in their smart wallet.
+It also necessitates a recovery delay to prevent turnkey from maliciously using their recoverer permission. During this period of ${formatSeconds(discovery.getContractValue<number>('Kinto Multisig 2', 'RECOVERY_TIME'))}, the user can cancel the recovery process with any transaction in their smart wallet.
 
 The permissioned sanctions logic by KYC providers necessitates at least an ${formatSeconds(l2critDelay)} delay on all upgrades that aren't executed by the Security Council, allowing the user at least 7d to exit.`,
   nonTemplateTechnology: {
@@ -198,11 +195,11 @@ The permissioned sanctions logic by KYC providers necessitates at least an ${for
       {
         name: 'Enforced smart wallets and KYC',
         description: `
-      The Kinto L2 node is a fork of Arbitrum's geth implementation with notable changes to the state transition function. 
-      A valid state transition in Kinto [disallows all transactions by EOAs](https://github.com/KintoXYZ/kinto-go-ethereum/blob/7aba9b812a82d9339d29a2345946c3d7030a0377/core/kinto_hardfork_7.go#L58) and new contract creation, unless specifically whitelisted. 
+      The Kinto L2 node is a fork of Arbitrum's geth implementation with notable changes to the state transition function.
+      A valid state transition in Kinto [disallows all transactions by EOAs](https://github.com/KintoXYZ/kinto-go-ethereum/blob/7aba9b812a82d9339d29a2345946c3d7030a0377/core/kinto_hardfork_7.go#L58) and new contract creation, unless specifically whitelisted.
       The current whitelist is sourced directly from the KintoAppRegistry smart contract on Kinto L2, and can be modified by the L2 governance.
       This setup effectively enforces smart wallet use because the auxiliary contracts of the standard KintoWallet smart wallet (like the EntryPoint and the KintoWalletFactory) are whitelisted.
-        
+
       The KYC validation is part of the KintoWallet signature verification. Since all users must use the same implementation of this smart wallet, all user transactions on Kinto check for an up-to-date KYC flag, and are dropped in case the check fails.`,
         risks: [
           {
@@ -218,6 +215,36 @@ The permissioned sanctions logic by KYC providers necessitates at least an ${for
           {
             title: 'User Owned KYC - Kinto documentation',
             url: 'https://docs.kinto.xyz/kinto-the-safe-l2/security-kyc-aml/how-does-kinto-solve-it',
+          },
+        ],
+      },
+    ],
+    exitMechanisms: [
+      {
+        ...EXITS.REGULAR_MESSAGING('optimistic'),
+        references: [
+          {
+            title: 'Transaction lifecycle - Arbitrum documentation',
+            url: 'https://developer.offchainlabs.com/tx-lifecycle',
+          },
+          {
+            title: 'L2 to L1 Messages - Arbitrum documentation',
+            url: 'https://developer.offchainlabs.com/arbos/l2-to-l1-messaging',
+          },
+          {
+            title: 'Mainnet for everyone - Arbitrum Blog',
+            url: 'https://offchain.medium.com/mainnet-for-everyone-27ce0f67c85e',
+          },
+        ],
+        risks: [],
+      },
+      {
+        ...EXITS.AUTONOMOUS,
+        references: [
+          ...EXITS.AUTONOMOUS.references,
+          {
+            title: 'List of whitelisted Kinto validators',
+            url: 'https://docs.kinto.xyz/kinto-the-modular-exchange/security-kyc-aml/kinto-validators',
           },
         ],
       },

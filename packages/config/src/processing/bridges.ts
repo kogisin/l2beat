@@ -14,14 +14,15 @@ import { debridge } from '../projects/debridge/debridge'
 import { everclearbridge } from '../projects/everclearbridge/everclearbridge'
 import { fraxferry } from '../projects/fraxferry/fraxferry'
 import { gravity } from '../projects/gravity/gravity'
-import { harmony } from '../projects/harmony/harmony'
 import { hop } from '../projects/hop/hop'
 import { hyperlane } from '../projects/hyperlane/hyperlane'
+import { hyperliquid } from '../projects/hyperliquid/hyperliquid'
 import { hyphen } from '../projects/hyphen/hyphen'
 import { layerzerov2oft } from '../projects/layerzerov2oft/layerzerov2oft'
 import { lzOmnichain } from '../projects/lzomnichain/lzomnichain'
 import { multichain } from '../projects/multichain/multichain'
 import { near } from '../projects/near/near'
+import { nearomni } from '../projects/nearomni/nearomni'
 import { nomad } from '../projects/nomad/nomad'
 import { omni } from '../projects/omni/omni'
 import { opticsV1 } from '../projects/opticsV1/opticsV1'
@@ -46,7 +47,6 @@ import { synapse } from '../projects/synapse/synapse'
 import { train } from '../projects/train/train'
 import { transporter } from '../projects/transporter/transporter'
 import { wormholeV1 } from '../projects/wormholeV1/wormholeV1'
-import { xdai } from '../projects/xdai/xdai'
 
 export const bridges: Bridge[] = [
   acrossV3,
@@ -62,15 +62,16 @@ export const bridges: Bridge[] = [
   davos,
   everclearbridge,
   gravity,
-  harmony,
   hyperlane,
   chainport,
   hop,
+  hyperliquid,
   hyphen,
   lzOmnichain,
   layerzerov2oft,
   multichain,
   near,
+  nearomni,
   fraxferry,
   nomad,
   omni,
@@ -95,6 +96,5 @@ export const bridges: Bridge[] = [
   transporter,
   portal,
   wormholeV1,
-  xdai,
   symbiosis,
 ]

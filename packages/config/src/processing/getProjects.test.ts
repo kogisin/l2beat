@@ -1,12 +1,12 @@
-import { existsSync } from 'fs'
 import {
+  createTrackedTxId,
   type TrackedTxConfigEntry,
   type TrackedTxFunctionCallConfig,
   type TrackedTxTransferConfig,
-  createTrackedTxId,
 } from '@l2beat/shared'
 import { assert, EthereumAddress, type ProjectId } from '@l2beat/shared-pure'
 import { expect } from 'earl'
+import { existsSync } from 'fs'
 import { NON_DISCOVERY_DRIVEN_PROJECTS } from '../test/constants'
 import { checkRisk } from '../test/helpers'
 import type { BaseProject } from '../types'
@@ -42,6 +42,18 @@ describe('getProjects', () => {
 
         const dir = `./src/projects/${project.id}/${project.id}.ts`
         expect(existsSync(dir)).toEqual(true)
+      })
+    }
+  })
+
+  describe('every non-ecosystem project has statuses and display', () => {
+    for (const project of projects) {
+      if (project.ecosystemConfig) {
+        continue
+      }
+      it(project.name, () => {
+        expect(project.statuses).not.toEqual(undefined)
+        expect(project.display).not.toEqual(undefined)
       })
     }
   })
@@ -128,8 +140,8 @@ describe('getProjects', () => {
       const target = [...layer2s, ...layer3s].filter(
         (project) =>
           !project.isUpcoming &&
-          !project.isUnderReview &&
-          !project.isArchived &&
+          !project.reviewStatus &&
+          !project.archivedAt &&
           // TODO: Ideally the category check should be removed, but
           // hyperliquid and polygon-pos are exceptions that would fail the test
           (project.display.category === 'Optimium' ||
@@ -166,23 +178,21 @@ describe('getProjects', () => {
         const contracts = project.contracts?.addresses ?? {}
         for (const [chain, perChain] of Object.entries(contracts)) {
           for (const [i, contract] of perChain.entries()) {
-            const description = contract.description
-            if (description) {
-              it(`contracts[${i}].description - each line ends with a dot`, () => {
-                for (const descLine of description.trimEnd().split('\n')) {
-                  expect(descLine.trimEnd().endsWith('.')).toEqual(true)
-                }
-              })
-            }
-
-            it(`contracts[${chain}][${i}] name isn't empty`, () => {
-              expect(contract.name.trim().length).toBeGreaterThan(0)
+            it(`contract [${chain}:${contract.address}] name isn't empty`, () => {
+              assert(
+                contract.name.trim().length > 0,
+                [
+                  `contract [${chain}:${contract.address}] name is empty`,
+                  `this is most likely because it's unverified and the name needs to be assigned manually`,
+                ].join('\n'),
+              )
             })
+
             const upgradableBy = contract.upgradableBy
-            const permissionsForChain = (project.permissions ?? {})[chain]
+            const permissions = Object.values(project.permissions ?? {})
             const all = [
-              ...(permissionsForChain?.roles ?? []),
-              ...(permissionsForChain?.actors ?? []),
+              ...permissions.flatMap((p) => p.roles ?? []),
+              ...permissions.flatMap((p) => p.actors ?? []),
             ]
             const actors = all.map((x) => {
               if (x.name === 'EOA') {
@@ -193,7 +203,7 @@ describe('getProjects', () => {
             })
 
             if (upgradableBy) {
-              it(`contracts[${chain}][${i}].upgradableBy is valid`, () => {
+              it(`contracts[${project.id}][${chain}][${i}].upgradableBy is valid`, () => {
                 expect(actors).toInclude(...upgradableBy.map((a) => a.name))
               })
             }
@@ -314,9 +324,9 @@ describe('getProjects', () => {
             } => e.params.formula === 'transfer',
           )
           for (const config of transferConfigs ?? []) {
-            const key = `${config.params.from.toString()}-${config.params.to.toString()}-${
-              config.type
-            }`
+            const key =
+              (config.params.from ? `${config.params.from.toString()}-` : '') +
+              `${config.params.to.toString()}-${config.type}`
             assert(
               !transfers.has(key),
               `Duplicate transfer config in ${project.id}`,
@@ -349,24 +359,6 @@ describe('getProjects', () => {
           }
         }
       })
-    })
-  })
-
-  describe('escrows', () => {
-    it('every escrow is unique', () => {
-      const addressToKey = (address: EthereumAddress, chain: string) =>
-        `${address.toString()} (${chain})`
-      const addresses = new Set<string>()
-
-      for (const project of projects) {
-        for (const { address, chain } of project.tvlConfig?.escrows ?? []) {
-          it(address.toString(), () => {
-            const key = addressToKey(address, chain ?? 'ethereum')
-            expect(addresses.has(key)).toEqual(false)
-            addresses.add(key)
-          })
-        }
-      }
     })
   })
 
@@ -470,18 +462,66 @@ describe('getProjects', () => {
       'stack',
     ])
 
-    // All new projects should have non-zero sinceBlock - it will make sync more efficient
-    describe('every project has non-zero sinceBlock', () => {
+    // All new projects should have non-zero sinceBlock/sinceTimestamp - it will make sync more efficient
+    describe('every project has non-zero sinceBlock/sinceTimestamp', () => {
       for (const project of projects) {
         if (project.daTrackingConfig) {
           if (!excluded.has(project.id)) {
             it(project.id, () => {
               assert(project.daTrackingConfig) // type issue
               for (const config of project.daTrackingConfig) {
-                expect(config.sinceBlock).toBeGreaterThan(0)
+                if (
+                  config.type === 'ethereum' ||
+                  config.type === 'avail' ||
+                  config.type === 'celestia'
+                ) {
+                  expect(config.sinceBlock).toBeGreaterThan(0)
+                } else {
+                  expect(config.sinceTimestamp).toBeGreaterThan(0)
+                }
               }
             })
           }
+        }
+      }
+    })
+
+    describe('every appId is unique for Avail projects', () => {
+      const appIds = new Map<string, string>()
+      for (const project of projects) {
+        if (project.daTrackingConfig) {
+          it(project.id, () => {
+            assert(project.daTrackingConfig) // type issue
+            for (const config of project.daTrackingConfig) {
+              if (config.type === 'avail') {
+                assert(
+                  !appIds.has(config.appId),
+                  `Duplicate appId (${config.appId}) detected [${project.id}, ${appIds.get(config.appId)}]`,
+                )
+                appIds.set(config.appId, project.id)
+              }
+            }
+          })
+        }
+      }
+    })
+
+    describe('every namespace is unique for Celestia projects', () => {
+      const namespaces = new Map<string, string>()
+      for (const project of projects) {
+        if (project.daTrackingConfig) {
+          it(project.id, () => {
+            assert(project.daTrackingConfig) // type issue
+            for (const config of project.daTrackingConfig) {
+              if (config.type === 'celestia') {
+                assert(
+                  !namespaces.has(config.namespace),
+                  `Duplicate namespace (${config.namespace}) detected [${project.id}, ${namespaces.get(config.namespace)}]`,
+                )
+                namespaces.set(config.namespace, project.id)
+              }
+            }
+          })
         }
       }
     })
@@ -490,7 +530,9 @@ describe('getProjects', () => {
   describe('all new projects are discovery driven', () => {
     const isNormalProject = (p: BaseProject) => {
       return (
-        p.isScaling === true && p.isArchived !== true && p.isUpcoming !== true
+        p.isScaling === true &&
+        p.archivedAt === undefined &&
+        p.isUpcoming !== true
       )
     }
 
@@ -512,7 +554,7 @@ describe('getProjects', () => {
   })
 
   describe('badges', () => {
-    const signularBadges = [
+    const singularBadges = [
       'Infra',
       'RaaS',
       'DA',
@@ -521,7 +563,7 @@ describe('getProjects', () => {
       'L3ParentChain',
     ]
 
-    for (const badge of signularBadges) {
+    for (const badge of singularBadges) {
       it(`has maximum one ${badge} badge`, () => {
         for (const project of projects) {
           const badges = project.display?.badges?.filter(
@@ -532,6 +574,20 @@ describe('getProjects', () => {
           }
         }
       })
+    }
+  })
+
+  describe('associated tokens can only have category other', () => {
+    for (const project of projects) {
+      if (!project.tvsConfig) {
+        continue
+      }
+      const associated = project.tvsConfig?.filter((t) => t.isAssociated)
+      for (const a of associated) {
+        it(`${project.name}: ${a.id}`, () => {
+          expect(a.category).toEqual('other')
+        })
+      }
     }
   })
 })

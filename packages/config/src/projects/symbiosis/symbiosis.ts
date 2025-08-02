@@ -1,7 +1,8 @@
-import { ProjectId, UnixTime } from '@l2beat/shared-pure'
+import { ChainSpecificAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
 import { BRIDGE_RISK_VIEW } from '../../common'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { Bridge } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('symbiosis')
 
@@ -34,11 +35,6 @@ export const symbiosis: Bridge = {
       value: 'Third Party',
       description:
         '2/3 of the MPC group (the Symbiosis relayers network) is required to create a cross-chain message with the MPC signature.',
-      sentiment: 'bad',
-    },
-    sourceUpgradeability: {
-      value: 'Yes',
-      description: 'Contracts are upgradable using a Multisig.',
       sentiment: 'bad',
     },
     destinationToken: BRIDGE_RISK_VIEW.CANONICAL_OR_WRAPPED,
@@ -108,7 +104,9 @@ export const symbiosis: Bridge = {
   config: {
     escrows: [
       {
-        address: discovery.getContract('Portal').address, // Portal v2
+        address: ChainSpecificAddress.address(
+          discovery.getContract('Portal').address,
+        ), // Portal v2
         sinceTimestamp: UnixTime(1668373200),
         tokens: '*',
         chain: 'ethereum',
@@ -117,7 +115,7 @@ export const symbiosis: Bridge = {
   },
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails(
           'MetaRouter',
           'An upgradeable contract to process funds by provided route.',
@@ -135,7 +133,7 @@ export const symbiosis: Bridge = {
     risks: [],
   },
   permissions: {
-    [discovery.chain]: {
+    ethereum: {
       actors: [
         discovery.contractAsPermissioned(
           discovery.getContract('Multisig'),
@@ -144,4 +142,5 @@ export const symbiosis: Bridge = {
       ],
     },
   },
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

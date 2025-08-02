@@ -1,17 +1,13 @@
-import { Logger, RateLimiter } from '@l2beat/backend-tools'
+import { type Logger, RateLimiter } from '@l2beat/backend-tools'
+import type { HttpClient } from '@l2beat/shared'
 import {
   assert,
   EthereumAddress,
   Hash256,
   Retries,
   UnixTime,
-  stringAsInt,
 } from '@l2beat/shared-pure'
-
-import type { ContractSource } from './IEtherscanClient'
-
-import type { HttpClient } from '@l2beat/shared'
-import { z } from 'zod'
+import { v } from '@l2beat/validate'
 import {
   ContractCreatorAndCreationTxHashResult,
   ContractSourceResult,
@@ -20,6 +16,7 @@ import {
   tryParseEtherscanResponse,
 } from './EtherscanModels'
 import type {
+  ContractSource,
   EtherscanUnsupportedMethods,
   IEtherscanClient,
 } from './IEtherscanClient'
@@ -30,8 +27,8 @@ class EtherscanError extends Error {}
 const shouldRetry = Retries.exponentialBackOff({
   stepMs: 2000, // 4s, 8s, 16s, 32s, 64s, 128s, 256s, 512s, 1024s, 2048s
   maxAttempts: 10,
-  maxDistanceMs: Infinity,
-  notifyAfterAttempts: Infinity,
+  maxDistanceMs: Number.POSITIVE_INFINITY,
+  notifyAfterAttempts: Number.POSITIVE_INFINITY,
 })
 
 export class EtherscanClient implements IEtherscanClient {
@@ -42,11 +39,12 @@ export class EtherscanClient implements IEtherscanClient {
 
   constructor(
     protected readonly httpClient: HttpClient,
+    protected readonly logger: Logger,
     protected readonly url: string,
     protected readonly apiKey: string,
     protected readonly minTimestamp: UnixTime,
     protected readonly unsupportedMethods: EtherscanUnsupportedMethods = {},
-    protected readonly logger = Logger.SILENT,
+    protected readonly defaultParams: Record<string, string> = {},
   ) {
     this.callWithRetries = this.rateLimiter.wrap(
       this.callWithRetries.bind(this),
@@ -58,11 +56,21 @@ export class EtherscanClient implements IEtherscanClient {
    */
   static createForDiscovery(
     httpClient: HttpClient,
+    logger: Logger,
     url: string,
     apiKey: string,
     unsupportedMethods: EtherscanUnsupportedMethods = {},
+    defaultParams: Record<string, string> = {},
   ): EtherscanClient {
-    return new EtherscanClient(httpClient, url, apiKey, 0, unsupportedMethods)
+    return new EtherscanClient(
+      httpClient,
+      logger,
+      url,
+      apiKey,
+      0,
+      unsupportedMethods,
+      defaultParams,
+    )
   }
 
   // Etherscan API is not stable enough to trust it to return "closest" block.
@@ -82,7 +90,11 @@ export class EtherscanClient implements IEtherscanClient {
           closest: 'before',
         })
 
-        return stringAsInt().parse(result)
+        return v
+          .string()
+          .transform(Number)
+          .check(Number.isInteger)
+          .parse(result)
       } catch (error) {
         if (typeof error !== 'object') {
           const errorString =
@@ -140,7 +152,7 @@ export class EtherscanClient implements IEtherscanClient {
         files = Object.fromEntries(decodedSource.sources)
         remappings = decodedSource.remappings
       } catch (e) {
-        console.error(e)
+        this.logger.error(e)
       }
     }
 
@@ -191,7 +203,7 @@ export class EtherscanClient implements IEtherscanClient {
     const resp = OneTransactionListResult.parse(response)[0]
     assert(resp)
 
-    return UnixTime(parseInt(resp.timeStamp, 10))
+    return UnixTime(Number.parseInt(resp.timeStamp, 10))
   }
 
   async getAtMost10RecentOutgoingTxs(
@@ -245,10 +257,15 @@ export class EtherscanClient implements IEtherscanClient {
     action: string,
     params: Record<string, string>,
   ): Promise<unknown> {
+    const queryParams = {
+      ...this.defaultParams,
+      ...params,
+    }
+
     const query = new URLSearchParams({
       module,
       action,
-      ...params,
+      ...queryParams,
       apikey: this.apiKey,
     })
     const url = `${this.url}?${query.toString()}`
@@ -272,9 +289,9 @@ export class EtherscanClient implements IEtherscanClient {
   }
 }
 
-const Sources = z.record(z.object({ content: z.string() }))
-const Settings = z.object({ remappings: z.array(z.string()).optional() })
-const EtherscanSource = z.object({ sources: Sources, settings: Settings })
+const Sources = v.record(v.string(), v.object({ content: v.string() }))
+const Settings = v.object({ remappings: v.array(v.string()).optional() })
+const EtherscanSource = v.object({ sources: Sources, settings: Settings })
 
 interface DecodedSource {
   sources: [string, string][]
@@ -286,6 +303,7 @@ function decodeEtherscanSource(
   source: string,
   solidityVersion: string,
 ): DecodedSource {
+  source = source.trim()
   if (!source.startsWith('{')) {
     let extension = 'sol'
     if (solidityVersion.startsWith('vyper')) {

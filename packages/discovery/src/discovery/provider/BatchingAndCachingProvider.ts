@@ -1,4 +1,4 @@
-import { createHash } from 'crypto'
+import type { Logger } from '@l2beat/backend-tools'
 import type { BlobsInBlock } from '@l2beat/shared'
 import {
   assert,
@@ -7,16 +7,18 @@ import {
   type Hash256,
   UnixTime,
 } from '@l2beat/shared-pure'
+import { createHash } from 'crypto'
 import { BigNumber, type providers } from 'ethers'
 import type { ContractSource } from '../../utils/IEtherscanClient'
 import { isRevert } from '../utils/isRevert'
 import { DebugTransactionCallResponse } from './DebugTransactionTrace'
 import type { CacheEntry } from './DiscoveryCache'
+import { getBlockNumberSwitching } from './getBlockNumberSwitching'
 import type { ContractDeployment, RawProviders } from './IProvider'
 import type { LowLevelProvider } from './LowLevelProvider'
+import type { MulticallClient } from './multicall/MulticallClient'
 import type { ReorgAwareCache } from './ReorgAwareCache'
 import { ProviderMeasurement, ProviderStats } from './Stats'
-import type { MulticallClient } from './multicall/MulticallClient'
 
 interface ScheduledCall {
   resolve: (value: Bytes) => void
@@ -61,25 +63,26 @@ export class BatchingAndCachingProvider {
     private cache: ReorgAwareCache,
     private provider: LowLevelProvider,
     private multicallClient: MulticallClient,
+    private logger: Logger,
   ) {}
 
   async raw<T>(
     cacheKey: string,
-    fn: (providers: RawProviders) => Promise<T>,
+    fn: (providers: RawProviders, logger: Logger) => Promise<T>,
   ): Promise<T> {
     const entry = await this.cache.entry(cacheKey, [], undefined)
     const cached = entry.read()
     if (cached !== undefined) {
       return parseCacheEntry(cached)
     }
-    const result = await fn(this.provider.getRawProviders())
+    const result = await fn(this.provider.getRawProviders(), this.logger)
     if (result !== undefined) {
       entry.write(JSON.stringify(result))
     }
     return result
   }
 
-  async call(
+  call(
     address: EthereumAddress,
     data: Bytes,
     blockNumber: number,
@@ -112,9 +115,8 @@ export class BatchingAndCachingProvider {
       this.stats.mark(ProviderMeasurement.CALL, duration)
       if (cached === REVERT_MARKER_VALUE) {
         throw new Error('Execution reverted')
-      } else {
-        return Bytes.fromHex(cached)
       }
+      return Bytes.fromHex(cached)
     }
 
     try {
@@ -401,7 +403,9 @@ export class BatchingAndCachingProvider {
     for (const item of items) {
       for (const nested of item.items) {
         const topicLogs = byTopic.get(item.topic) ?? []
-        nested.logs.push(...topicLogs)
+        for (const topic of topicLogs) {
+          nested.logs.push(topic)
+        }
       }
     }
 
@@ -430,6 +434,43 @@ export class BatchingAndCachingProvider {
 
     entry.write(JSON.stringify(block))
     return block
+  }
+
+  async getBlockNumberAtOrBefore(timestamp: UnixTime): Promise<number> {
+    let duration = -performance.now()
+    const entry = await this.cache.entry(
+      'getBlockNumberAtOrBefore',
+      [timestamp],
+      undefined,
+    )
+    const cached = entry.read()
+    if (cached !== undefined) {
+      duration += performance.now()
+      this.stats.mark(
+        ProviderMeasurement.GET_BLOCK_NUMBER_AT_OR_BEFORE,
+        duration,
+      )
+      return parseCacheEntry(cached)
+    }
+    let blockNumber: number
+    try {
+      blockNumber =
+        await this.provider.getBlockNumberAtOrBeforeExplorer(timestamp)
+    } catch {
+      blockNumber = await getBlockNumberSwitching(
+        timestamp,
+        1, // NOTE(radomski): We don't support discovery on block 0, but assuming it's fine
+        await this.provider.getBlockNumber(),
+        async (blockNumber: number) => {
+          const block = await this.getBlock(blockNumber)
+          assert(block !== undefined, `Could not find block ${blockNumber}`)
+          return UnixTime(block.timestamp)
+        },
+      )
+    }
+
+    entry.write(blockNumber.toString())
+    return blockNumber
   }
 
   async getTransaction(
@@ -529,11 +570,10 @@ export class BatchingAndCachingProvider {
       this.stats.mark(ProviderMeasurement.GET_DEPLOYMENT, duration)
       if (cached === UNDEFINED_MARKER_VALUE) {
         return undefined
-      } else {
-        const parsed = parseCacheEntry(cached)
-        parsed.timestamp = UnixTime(parsed.timestamp)
-        return parsed
       }
+      const parsed = parseCacheEntry(cached)
+      parsed.timestamp = UnixTime(parsed.timestamp)
+      return parsed
     }
     const deployment = await this.provider.getDeployment(address)
     if (deployment !== undefined) {
@@ -641,8 +681,7 @@ async function getAllLogs(
         getAllLogs(provider, address, topics, midPoint + 1, toBlock),
       ])
       return a.concat(b)
-    } else {
-      throw e
     }
+    throw e
   }
 }

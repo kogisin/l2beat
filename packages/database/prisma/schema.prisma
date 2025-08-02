@@ -57,45 +57,20 @@ model AggregatedL2Cost {
   @@index([timestamp])
 }
 
-model Amount {
-  timestamp       DateTime @db.Timestamp(6)
-  amount          Decimal  @db.Decimal(80, 0)
-  configurationId String   @db.Char(12)
-
-  @@id([configurationId, timestamp])
-}
-
-model BlockTimestamp {
-  chain       String   @db.VarChar(255)
-  timestamp   DateTime @db.Timestamp(6)
-  blockNumber Int
-
-  @@id([chain, timestamp])
-}
-
 model DataAvailability {
-  timestamp DateTime @db.Timestamp(6)
-  daLayer   String   @db.VarChar(255)
-  projectId String   @db.VarChar(255)
-  totalSize BigInt
+  timestamp       DateTime @db.Timestamp(6)
+  daLayer         String   @db.VarChar(255)
+  projectId       String   @db.VarChar(255)
+  configurationId String   @db.VarChar(12)
+  totalSize       BigInt
 
-  @@id([timestamp, daLayer, projectId])
+  @@id([timestamp, daLayer, projectId, configurationId])
+  @@index([projectId, timestamp(sort: Asc)])
 }
 
 model DiscoveryCache {
   key   String @id
   value String
-}
-
-model Finality {
-  projectId              String   @db.VarChar(255)
-  timestamp              DateTime @db.Timestamp(6)
-  minimumTimeToInclusion Int
-  maximumTimeToInclusion Int
-  averageTimeToInclusion Int
-  averageStateUpdate     Int?
-
-  @@id([projectId, timestamp])
 }
 
 model IndexerConfiguration {
@@ -142,76 +117,50 @@ model Liveness {
   configurationId String   @db.VarChar(12)
 
   @@id([configurationId, txHash])
+  @@index([configurationId, timestamp])
 }
 
-model Price {
+model RealTimeLiveness {
+  configurationId String   @db.VarChar(12)
+  txHash          String   @db.VarChar(255)
   timestamp       DateTime @db.Timestamp(6)
-  priceUsd        Float    @db.Real
-  configurationId String   @db.Char(12)
+  blockNumber     Int
 
-  @@id([configurationId, timestamp])
-}
-
-model TvlCleaner {
-  repositoryName        String    @id @db.VarChar(255)
-  hourlyCleanedUntil    DateTime? @db.Timestamp(6)
-  sixHourlyCleanedUntil DateTime? @db.Timestamp(6)
+  @@id([configurationId, txHash])
+  @@index([configurationId, timestamp])
 }
 
 model UpdateMonitor {
-  projectName       String    @db.VarChar(255)
+  projectId         String    @db.VarChar(255)
   blockNumber       Int
   timestamp         DateTime? @db.Timestamp(6)
   discoveryJsonBlob Json
   configHash        String    @default("") @db.VarChar(255)
   chainId           Int       @default(1)
 
-  @@id([projectName, chainId])
+  @@id([projectId, chainId])
 }
 
 model UpdateNotifier {
   id           Int      @id @default(autoincrement())
   createdAt    DateTime @default(now()) @db.Timestamp(6)
   updatedAt    DateTime @default(now()) @db.Timestamp(6)
-  projectName  String   @db.VarChar(255)
-  blockNumber  Int
+  projectId    String   @db.VarChar(255)
+  timestamp    DateTime @default(now()) @db.Timestamp(6)
   diffJsonBlob Json
   chainId      Int      @default(1)
 
-  @@index([blockNumber])
-  @@index([projectName])
+  @@index([timestamp])
+  @@index([projectId])
 }
 
 model UpdateMessage {
-  projectName String   @db.VarChar(255)
-  chain       String   @db.VarChar(255)
-  blockNumber Int
-  timestamp   DateTime @db.Timestamp(6)
-  message     String   @db.Text
+  projectId String   @db.VarChar(255)
+  chain     String   @db.VarChar(255)
+  timestamp DateTime @db.Timestamp(6)
+  message   String   @db.Text
 
-  @@id([projectName, chain, blockNumber])
-}
-
-model Value {
-  timestamp                   DateTime @db.Timestamp(6)
-  projectId                   String   @db.VarChar(255)
-  dataSource                  String   @db.VarChar(255)
-  external                    BigInt?
-  externalAssociated          BigInt   @default(0)
-  externalForTotal            BigInt?
-  externalAssociatedForTotal  BigInt   @default(0)
-  canonical                   BigInt?
-  canonicalAssociated         BigInt   @default(0)
-  canonicalForTotal           BigInt?
-  canonicalAssociatedForTotal BigInt   @default(0)
-  native                      BigInt?
-  nativeAssociated            BigInt   @default(0)
-  nativeForTotal              BigInt?
-  nativeAssociatedForTotal    BigInt   @default(0)
-  ether                       BigInt   @default(0)
-  stablecoin                  BigInt   @default(0)
-
-  @@id([projectId, timestamp, dataSource])
+  @@id([projectId, chain, timestamp])
 }
 
 model VerifierStatus {
@@ -224,15 +173,16 @@ model VerifierStatus {
 }
 
 model AggregatedLiveness {
-  projectId String   @db.VarChar(255)
-  subtype   String   @db.VarChar(255)
-  range     String   @db.VarChar(255)
-  min       Int
-  avg       Int
-  max       Int
-  updatedAt DateTime @db.Timestamp(6)
+  timestamp       DateTime @db.Timestamp(6)
+  projectId       String   @db.VarChar(255)
+  subtype         String   @db.VarChar(255)
+  min             Int
+  avg             Int
+  max             Int
+  numberOfRecords Int
 
-  @@id([projectId, subtype, range])
+  @@id([timestamp, projectId, subtype])
+  @@index([projectId])
 }
 
 model Anomaly {
@@ -244,24 +194,43 @@ model Anomaly {
   @@id([timestamp, projectId, subtype])
 }
 
+model RealTimeAnomaly {
+  start      DateTime  @db.Timestamp(6)
+  projectId  String    @db.VarChar(255)
+  subtype    String    @db.VarChar(255)
+  status     String    @db.VarChar(255)
+  isApproved Boolean   @default(false)
+  end        DateTime? @db.Timestamp(6)
+
+  @@id([start, projectId, subtype])
+}
+
+model AnomalyStats {
+  timestamp DateTime @db.Timestamp(6)
+  projectId String   @db.VarChar(255)
+  subtype   String   @db.VarChar(255)
+  mean      Float    @db.Real
+  stdDev    Float    @db.Real
+
+  @@id([timestamp, projectId, subtype])
+}
+
 model FlatSources {
-  projectName String @db.VarChar(255)
+  projectId   String   @db.VarChar(255)
   chainId     Int
-  blockNumber Int
-  contentHash String @db.VarChar(255)
+  timestamp   DateTime @default(now()) @db.Timestamp(6)
+  contentHash String   @db.VarChar(255)
   flat        Json
 
-  @@id([projectName, chainId])
+  @@id([projectId, chainId])
 }
 
 model TvsAmount {
   timestamp       DateTime @db.Timestamp(6)
   configurationId String   @db.Char(12)
-  project         String   @db.VarChar(255)
   amount          Decimal  @db.Decimal(80, 0)
 
   @@id([timestamp, configurationId])
-  @@index([project])
 }
 
 model TvsBlockTimestamp {
@@ -297,20 +266,60 @@ model TokenValue {
   @@id([timestamp, configurationId])
   @@index([projectId])
   @@index([tokenId])
+  @@index([projectId, tokenId, timestamp(sort: Desc)])
 }
 
 model ProjectValue {
-  timestamp  DateTime @db.Timestamp(6)
-  project    String   @db.VarChar(255)
-  type       String   @db.VarChar(255)
-  value      Float    @db.Real
-  canonical  Float    @db.Real
-  external   Float    @db.Real
-  native     Float    @db.Real
-  ether      Float    @db.Real
-  stablecoin Float    @db.Real
-  other      Float    @db.Real
-  associated Float    @db.Real
+  timestamp     DateTime @db.Timestamp(6)
+  project       String   @db.VarChar(255)
+  type          String   @db.VarChar(255)
+  value         Float    @db.Real
+  canonical     Float    @db.Real
+  external      Float    @db.Real
+  native        Float    @db.Real
+  ether         Float    @db.Real
+  stablecoin    Float    @db.Real
+  other         Float    @db.Real
+  associated    Float    @db.Real
+  btc           Float    @default(0) @db.Real
+  rwaRestricted Float    @default(0) @db.Real
+  rwaPublic     Float    @default(0) @db.Real
 
   @@id([timestamp, project, type])
+  @@index([type, project, timestamp])
+}
+
+model UpdateDiff {
+  projectId         String   @db.VarChar(255)
+  chain             String   @db.VarChar(255)
+  address           String   @db.VarChar(255)
+  type              String   @db.VarChar(255)
+  timestamp         DateTime @db.Timestamp(6)
+  diffBaseTimestamp DateTime @default(now()) @db.Timestamp(6)
+  diffHeadTimestamp DateTime @default(now()) @db.Timestamp(6)
+
+  @@unique([projectId, address, type, chain])
+}
+
+model Notification {
+  id              String   @db.VarChar(255)
+  channel         String   @db.VarChar(255)
+  type            String   @db.VarChar(255)
+  relatedEntityId String   @db.VarChar(255)
+  timestamp       DateTime @db.Timestamp(6)
+
+  @@id([id])
+}
+
+model Blob {
+  id          Int      @id @default(autoincrement())
+  blockNumber Int
+  timestamp   DateTime @db.Timestamp(6)
+  daLayer     Int
+  from        String   @db.VarChar(255)
+  to          String?  @db.VarChar(255)
+  topics      String?
+  size        BigInt?
+
+  @@index([blockNumber])
 }

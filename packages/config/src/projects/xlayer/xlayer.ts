@@ -2,10 +2,9 @@ import { EthereumAddress, UnixTime } from '@l2beat/shared-pure'
 import {
   DA_BRIDGES,
   DA_LAYERS,
-  NEW_CRYPTOGRAPHY,
+  REASON_FOR_BEING_OTHER,
   RISK_VIEW,
 } from '../../common'
-import { REASON_FOR_BEING_OTHER } from '../../common'
 import { BADGES } from '../../common/badges'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
@@ -29,10 +28,12 @@ const isForcedBatchDisallowed =
   discovery.getContractValue<string>('Validium', 'forceBatchAddress') !==
   '0x0000000000000000000000000000000000000000'
 
+const rollupModuleContract = discovery.getContract('Validium')
+
 export const xlayer: ScalingProject = polygonCDKStack({
   addedAt: UnixTime(1713983341), // 2024-04-24T18:29:01Z
   discovery,
-  additionalBadges: [BADGES.DA.DAC, BADGES.Infra.AggLayer],
+  additionalBadges: [BADGES.DA.DAC, BADGES.Infra.Agglayer],
   daProvider: {
     layer: DA_LAYERS.DAC,
     bridge: DA_BRIDGES.DAC_MEMBERS({
@@ -67,6 +68,7 @@ export const xlayer: ScalingProject = polygonCDKStack({
     name: 'xlayer',
     chainId: 196,
     explorerUrl: 'https://rpc.xlayer.tech',
+    gasTokens: ['OKB'],
     sinceTimestamp: UnixTime(1711782180),
     multicallContracts: [
       {
@@ -115,6 +117,23 @@ export const xlayer: ScalingProject = polygonCDKStack({
       },
     }),
   ],
+  // project-specific sequencer txs (can be listed when we are able to split the shared agglayer trackedTxs):
+  // nonTemplateTrackedTxs: [
+  //   {
+  //     uses: [
+  //       { type: 'liveness', subtype: 'batchSubmissions' },
+  //       { type: 'l2costs', subtype: 'batchSubmissions' },
+  //     ],
+  //     query: {
+  //       formula: 'functionCall',
+  //       address: rollupModuleContract.address,
+  //       selector: '0xb910e0f9',
+  //       functionSignature:
+  //         'function sequenceBatches(tuple(bytes transactions, bytes32 forcedGlobalExitRoot, uint64 forcedTimestamp, bytes32 forcedBlockHashL1)[] batches, uint32 l1InfoTreeLeafCount, uint64 maxSequenceTimestamp, bytes32 expectedFinalAccInputHash, address l2Coinbase)',
+  //       sinceTimestamp: UnixTime(1736257283),
+  //     },
+  //   },
+  // ],
   milestones: [
     {
       title: 'X Layer Public Launch',
@@ -124,14 +143,9 @@ export const xlayer: ScalingProject = polygonCDKStack({
       type: 'general',
     },
   ],
-  rollupModuleContract: discovery.getContract('Validium'),
+  rollupModuleContract,
   rollupVerifierContract: discovery.getContract('Verifier'),
   isForcedBatchDisallowed,
-  nonTemplateTechnology: {
-    newCryptography: {
-      ...NEW_CRYPTOGRAPHY.ZK_BOTH,
-    },
-  },
   customDa: PolygoncdkDAC({
     dac: {
       requiredMembers: requiredSignaturesDAC,

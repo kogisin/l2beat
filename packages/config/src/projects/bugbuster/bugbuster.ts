@@ -1,4 +1,4 @@
-import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
+import { ChainSpecificAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
 import {
   DA_BRIDGES,
   DA_LAYERS,
@@ -6,23 +6,25 @@ import {
   EXITS,
   FORCE_TRANSACTIONS,
   OPERATOR,
+  REASON_FOR_BEING_OTHER,
   RISK_VIEW,
   TECHNOLOGY_DATA_AVAILABILITY,
 } from '../../common'
-import { REASON_FOR_BEING_OTHER } from '../../common'
 import { BADGES } from '../../common/badges'
 import { getStage } from '../../common/stages/getStage'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import { HARDCODED } from '../../discovery/values/hardcoded'
 import type { ScalingProject } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
-const discovery = new ProjectDiscovery('bugbuster', 'optimism')
+const discovery = new ProjectDiscovery('bugbuster')
 
 export const bugbuster: ScalingProject = {
   type: 'layer3',
   id: ProjectId('bugbuster'),
   capability: 'appchain',
   addedAt: UnixTime(1723722996), // 2024-08-15T11:56:36Z
+  archivedAt: UnixTime(1743897600), // 2025-04-06T00:00:00.000Z,
   hostChain: ProjectId('optimism'),
   badges: [
     BADGES.Stack.Cartesi,
@@ -38,8 +40,8 @@ export const bugbuster: ScalingProject = {
     description:
       'Bug Buster is an open source bug bounty platform for web3, powered by Cartesi.',
     purposes: ['Bug bounty'],
-    category: 'Optimistic Rollup',
-    stack: 'Cartesi Rollups',
+    category: 'Other',
+    stacks: ['Cartesi Rollups'],
     redWarning:
       'Critical contract references can be changed by an EOA which could result in the loss of all funds.',
     links: {
@@ -60,7 +62,9 @@ export const bugbuster: ScalingProject = {
   config: {
     escrows: [
       discovery.getEscrowDetails({
-        address: EthereumAddress('0x3ff5c7383f614256053c3f6b86a47ba974937299'),
+        address: ChainSpecificAddress(
+          'oeth:0x3ff5c7383f614256053c3f6b86a47ba974937299',
+        ),
         tokens: '*',
         description: 'DApp Contract storing bounties funds.',
       }),
@@ -73,11 +77,11 @@ export const bugbuster: ScalingProject = {
         stateRootsPostedToL1: true,
         dataAvailabilityOnL1: true,
         rollupNodeSourceAvailable: 'UnderReview',
+        stateVerificationOnL1: false,
+        fraudProofSystemAtLeast5Outsiders: null,
       },
       stage1: {
         principle: false,
-        stateVerificationOnL1: false,
-        fraudProofSystemAtLeast5Outsiders: null,
         usersHave7DaysToExit: false,
         usersCanExitWithoutCooperation: false,
         securityCouncilProperlySetUp: null,
@@ -92,36 +96,40 @@ export const bugbuster: ScalingProject = {
       rollupNodeLink: '',
     },
   ),
+  stateValidation: {
+    categories: [
+      {
+        title: 'No state validation',
+        description:
+          'Ultimately, Cartesi DApps will use interactive fraud proofs to enforce state correctness. This feature is currently in development and the Bug Buster DApp permits invalid state roots.',
+        risks: [
+          {
+            category: 'Funds can be stolen if',
+            text: 'an invalid state root is submitted to the system by the configured Authority.',
+            isCritical: true,
+          },
+          {
+            category: 'Funds can be stolen if',
+            text: 'the DApp owner changes the consensus implementation maliciously.',
+            isCritical: true,
+          },
+        ],
+        references: [
+          {
+            title:
+              'Authority.sol#L48 - Optimism Etherscan source code, submitClaim function',
+            url: 'https://optimistic.etherscan.io/address/0x4246F5b1E52Fef1C52c96a9b1B679AE818d4fb35#code#F1#L48',
+          },
+          {
+            title:
+              'CartesiDApp.sol#L201 - Optimism Etherscan source code, migrateToConsensus function',
+            url: 'https://optimistic.etherscan.io/address/0x3ff5c7383f614256053c3f6b86a47ba974937299#code#F1#L201',
+          },
+        ],
+      },
+    ],
+  },
   technology: {
-    stateCorrectness: {
-      name: 'Fraud proofs are in development',
-      description:
-        'Ultimately, Cartesi DApps will use interactive fraud proofs to enforce state correctness. This feature is currently in development and the Bug Buster DApp permits invalid state roots.',
-      risks: [
-        {
-          category: 'Funds can be stolen if',
-          text: 'an invalid state root is submitted to the system by the configured Authority.',
-          isCritical: true,
-        },
-        {
-          category: 'Funds can be stolen if',
-          text: 'the DApp owner changes the consensus implementation maliciously.',
-          isCritical: true,
-        },
-      ],
-      references: [
-        {
-          title:
-            'Authority.sol#L48 - Optimism Etherscan source code, submitClaim function',
-          url: 'https://optimistic.etherscan.io/address/0x4246F5b1E52Fef1C52c96a9b1B679AE818d4fb35#code#F1#L48',
-        },
-        {
-          title:
-            'CartesiDApp.sol#L201 - Optimism Etherscan source code, migrateToConsensus function',
-          url: 'https://optimistic.etherscan.io/address/0x3ff5c7383f614256053c3f6b86a47ba974937299#code#F1#L201',
-        },
-      ],
-    },
     dataAvailability: {
       ...TECHNOLOGY_DATA_AVAILABILITY.ON_CHAIN_CANONICAL,
       references: [
@@ -171,7 +179,7 @@ export const bugbuster: ScalingProject = {
     proposerFailure: RISK_VIEW.PROPOSER_CANNOT_WITHDRAW,
   },
   permissions: {
-    [discovery.chain]: {
+    optimism: {
       actors: [
         discovery.getPermissionDetails(
           'BugBuster Owner',
@@ -188,7 +196,7 @@ export const bugbuster: ScalingProject = {
   },
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      optimism: [
         discovery.getContractDetails('BugBuster', {
           description:
             'CartesiDApp instance for the Bug Buster DApp, responsible for holding assets and allowing the DApp to interact with other smart contracts.',
@@ -212,4 +220,5 @@ export const bugbuster: ScalingProject = {
     },
     risks: [],
   },
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

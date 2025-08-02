@@ -1,4 +1,1050 @@
-Generated with discovered.json: 0x555b6651688f6537558d1f87c59bafb212c559c3
+Generated with discovered.json: 0x99d2959cfe56b53c7357ae0d3a201c5ee291a36a
+
+# Diff at Mon, 14 Jul 2025 12:45:50 GMT:
+
+- author: Mateusz Radomski (<radomski.main@protonmail.com>)
+- comparing to: main@9f4300dad2f3d080cd56fa311d4a848556c74e72 block: 22581193
+- current block number: 22581193
+
+## Description
+
+Discovery rerun on the same block number with only config-related changes.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 22581193 (main branch discovery), not current.
+
+```diff
+    EOA  (0x000000000000000000000000000000000000dEaD) {
+    +++ description: None
+      address:
+-        "0x000000000000000000000000000000000000dEaD"
++        "eth:0x000000000000000000000000000000000000dEaD"
+    }
+```
+
+```diff
+    contract AddressManager (0x039A3B4AF85A91626f428b8B881603b6DD1f6C4C) {
+    +++ description: Legacy contract used to manage a mapping of string names to addresses. Modern OP stack uses a different standard proxy system instead, but this contract is still necessary for backwards compatibility with several older contracts.
+      address:
+-        "0x039A3B4AF85A91626f428b8B881603b6DD1f6C4C"
++        "eth:0x039A3B4AF85A91626f428b8B881603b6DD1f6C4C"
+      values.owner:
+-        "0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"
++        "eth:0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"
+      implementationNames.0x039A3B4AF85A91626f428b8B881603b6DD1f6C4C:
+-        "AddressManager"
+      implementationNames.eth:0x039A3B4AF85A91626f428b8B881603b6DD1f6C4C:
++        "AddressManager"
+    }
+```
+
+```diff
+    contract L1CrossDomainMessenger (0x03D5bc58E7b7E13ba785F67AFA2d2fC49cB2BdF3) {
+    +++ description: Sends messages from host chain to this chain, and relays messages back onto host chain. In the event that a message sent from host chain to this chain is rejected for exceeding this chain's epoch gas limit, it can be resubmitted via this contract's replay function.
+      address:
+-        "0x03D5bc58E7b7E13ba785F67AFA2d2fC49cB2BdF3"
++        "eth:0x03D5bc58E7b7E13ba785F67AFA2d2fC49cB2BdF3"
+      values.$admin:
+-        "0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"
++        "eth:0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"
+      values.$implementation:
+-        "0xD09C8E2C6D124bCE71235046B95ab676bE1d5601"
++        "eth:0xD09C8E2C6D124bCE71235046B95ab676bE1d5601"
+      values.$pastUpgrades.0.2.0:
+-        "0xD09C8E2C6D124bCE71235046B95ab676bE1d5601"
++        "eth:0xD09C8E2C6D124bCE71235046B95ab676bE1d5601"
+      values.OTHER_MESSENGER:
+-        "0x4200000000000000000000000000000000000007"
++        "eth:0x4200000000000000000000000000000000000007"
+      values.otherMessenger:
+-        "0x4200000000000000000000000000000000000007"
++        "eth:0x4200000000000000000000000000000000000007"
+      values.portal:
+-        "0x39A90926306E11497EC5FE1C459910258B620edD"
++        "eth:0x39A90926306E11497EC5FE1C459910258B620edD"
+      values.PORTAL:
+-        "0x39A90926306E11497EC5FE1C459910258B620edD"
++        "eth:0x39A90926306E11497EC5FE1C459910258B620edD"
+      values.ResolvedDelegateProxy_addressManager:
+-        "0x039A3B4AF85A91626f428b8B881603b6DD1f6C4C"
++        "eth:0x039A3B4AF85A91626f428b8B881603b6DD1f6C4C"
+      values.superchainConfig:
+-        "0x5e8d351FD046Aa0b3DDA24096751996C0c397C61"
++        "eth:0x5e8d351FD046Aa0b3DDA24096751996C0c397C61"
+      implementationNames.0x03D5bc58E7b7E13ba785F67AFA2d2fC49cB2BdF3:
+-        "ResolvedDelegateProxy"
+      implementationNames.0xD09C8E2C6D124bCE71235046B95ab676bE1d5601:
+-        "L1CrossDomainMessenger"
+      implementationNames.eth:0x03D5bc58E7b7E13ba785F67AFA2d2fC49cB2BdF3:
++        "ResolvedDelegateProxy"
+      implementationNames.eth:0xD09C8E2C6D124bCE71235046B95ab676bE1d5601:
++        "L1CrossDomainMessenger"
+    }
+```
+
+```diff
+    contract ProxyAdmin (0x161aF05fA6BdA1c6E7Ee12839d470931bA796948) {
+    +++ description: None
+      address:
+-        "0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"
++        "eth:0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"
+      values.addressManager:
+-        "0x039A3B4AF85A91626f428b8B881603b6DD1f6C4C"
++        "eth:0x039A3B4AF85A91626f428b8B881603b6DD1f6C4C"
+      values.owner:
+-        "0x2C73A1610EE822a8C2C21eddd455e725A3334c8C"
++        "eth:0x2C73A1610EE822a8C2C21eddd455e725A3334c8C"
+      implementationNames.0x161aF05fA6BdA1c6E7Ee12839d470931bA796948:
+-        "ProxyAdmin"
+      implementationNames.eth:0x161aF05fA6BdA1c6E7Ee12839d470931bA796948:
++        "ProxyAdmin"
+    }
+```
+
+```diff
+    contract L1StandardBridge (0x1adE86B9cc8a50Db747b7aaC32E8527d42c71fC1) {
+    +++ description: The main entry point to deposit ERC20 tokens from host chain to this chain.
+      address:
+-        "0x1adE86B9cc8a50Db747b7aaC32E8527d42c71fC1"
++        "eth:0x1adE86B9cc8a50Db747b7aaC32E8527d42c71fC1"
+      values.$admin:
+-        "0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"
++        "eth:0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"
+      values.$implementation:
+-        "0x4f30C8A322ab6f84F15B8955B58D295E138B14Ca"
++        "eth:0x4f30C8A322ab6f84F15B8955B58D295E138B14Ca"
+      values.l2TokenBridge:
+-        "0x4200000000000000000000000000000000000010"
++        "eth:0x4200000000000000000000000000000000000010"
+      values.messenger:
+-        "0x03D5bc58E7b7E13ba785F67AFA2d2fC49cB2BdF3"
++        "eth:0x03D5bc58E7b7E13ba785F67AFA2d2fC49cB2BdF3"
+      values.MESSENGER:
+-        "0x03D5bc58E7b7E13ba785F67AFA2d2fC49cB2BdF3"
++        "eth:0x03D5bc58E7b7E13ba785F67AFA2d2fC49cB2BdF3"
+      values.OTHER_BRIDGE:
+-        "0x4200000000000000000000000000000000000010"
++        "eth:0x4200000000000000000000000000000000000010"
+      values.otherBridge:
+-        "0x4200000000000000000000000000000000000010"
++        "eth:0x4200000000000000000000000000000000000010"
+      values.superchainConfig:
+-        "0x5e8d351FD046Aa0b3DDA24096751996C0c397C61"
++        "eth:0x5e8d351FD046Aa0b3DDA24096751996C0c397C61"
+      implementationNames.0x1adE86B9cc8a50Db747b7aaC32E8527d42c71fC1:
+-        "L1ChugSplashProxy"
+      implementationNames.0x4f30C8A322ab6f84F15B8955B58D295E138B14Ca:
+-        "L1StandardBridge"
+      implementationNames.eth:0x1adE86B9cc8a50Db747b7aaC32E8527d42c71fC1:
++        "L1ChugSplashProxy"
+      implementationNames.eth:0x4f30C8A322ab6f84F15B8955B58D295E138B14Ca:
++        "L1StandardBridge"
+    }
+```
+
+```diff
+    contract Optopia Multisig (0x2C73A1610EE822a8C2C21eddd455e725A3334c8C) {
+    +++ description: None
+      address:
+-        "0x2C73A1610EE822a8C2C21eddd455e725A3334c8C"
++        "eth:0x2C73A1610EE822a8C2C21eddd455e725A3334c8C"
+      values.$implementation:
+-        "0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552"
++        "eth:0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552"
+      values.$members.0:
+-        "0xb6130283Ed292E3f42465617d6d8FFd61F615462"
++        "eth:0xb6130283Ed292E3f42465617d6d8FFd61F615462"
+      values.$members.1:
+-        "0xe30FD2f41326d500f5071440546643d9A7926e63"
++        "eth:0xe30FD2f41326d500f5071440546643d9A7926e63"
+      values.$members.2:
+-        "0xd01De08Cc118Cc1a1b39c54c8b4ff02A8ADE63eE"
++        "eth:0xd01De08Cc118Cc1a1b39c54c8b4ff02A8ADE63eE"
+      implementationNames.0x2C73A1610EE822a8C2C21eddd455e725A3334c8C:
+-        "GnosisSafeProxy"
+      implementationNames.0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552:
+-        "GnosisSafe"
+      implementationNames.eth:0x2C73A1610EE822a8C2C21eddd455e725A3334c8C:
++        "GnosisSafeProxy"
+      implementationNames.eth:0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552:
++        "GnosisSafe"
+    }
+```
+
+```diff
+    EOA  (0x33397410000A219fa5a476c5B51032B367C77e78) {
+    +++ description: None
+      address:
+-        "0x33397410000A219fa5a476c5B51032B367C77e78"
++        "eth:0x33397410000A219fa5a476c5B51032B367C77e78"
+    }
+```
+
+```diff
+    contract OptimismPortal (0x39A90926306E11497EC5FE1C459910258B620edD) {
+    +++ description: The main entry point to deposit funds from host chain to this chain. It also allows to prove and finalize withdrawals.
+      address:
+-        "0x39A90926306E11497EC5FE1C459910258B620edD"
++        "eth:0x39A90926306E11497EC5FE1C459910258B620edD"
+      values.$admin:
+-        "0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"
++        "eth:0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"
+      values.$implementation:
+-        "0xFe9B3d40DB0ec8f97D9ea638e926b3aEED8cF29B"
++        "eth:0xFe9B3d40DB0ec8f97D9ea638e926b3aEED8cF29B"
+      values.$pastUpgrades.0.2.0:
+-        "0x63dD9FB4b0Af7a158E819cDfE781082bCb60e21D"
++        "eth:0x63dD9FB4b0Af7a158E819cDfE781082bCb60e21D"
+      values.$pastUpgrades.1.2.0:
+-        "0xFe9B3d40DB0ec8f97D9ea638e926b3aEED8cF29B"
++        "eth:0xFe9B3d40DB0ec8f97D9ea638e926b3aEED8cF29B"
+      values.$pastUpgrades.2.2.0:
+-        "0x63dD9FB4b0Af7a158E819cDfE781082bCb60e21D"
++        "eth:0x63dD9FB4b0Af7a158E819cDfE781082bCb60e21D"
+      values.$pastUpgrades.3.2.0:
+-        "0x9b29299b791a36DA8Dd7dDeBe55038576995145b"
++        "eth:0x9b29299b791a36DA8Dd7dDeBe55038576995145b"
+      values.$pastUpgrades.4.2.0:
+-        "0xFe9B3d40DB0ec8f97D9ea638e926b3aEED8cF29B"
++        "eth:0xFe9B3d40DB0ec8f97D9ea638e926b3aEED8cF29B"
+      values.guardian:
+-        "0xd01De08Cc118Cc1a1b39c54c8b4ff02A8ADE63eE"
++        "eth:0xd01De08Cc118Cc1a1b39c54c8b4ff02A8ADE63eE"
+      values.GUARDIAN:
+-        "0xd01De08Cc118Cc1a1b39c54c8b4ff02A8ADE63eE"
++        "eth:0xd01De08Cc118Cc1a1b39c54c8b4ff02A8ADE63eE"
+      values.L2_ORACLE:
+-        "0xdd80E05004f40815EaEf12ffeE69c2a8A5112aA5"
++        "eth:0xdd80E05004f40815EaEf12ffeE69c2a8A5112aA5"
+      values.l2Oracle:
+-        "0xdd80E05004f40815EaEf12ffeE69c2a8A5112aA5"
++        "eth:0xdd80E05004f40815EaEf12ffeE69c2a8A5112aA5"
+      values.l2Sender:
+-        "0x000000000000000000000000000000000000dEaD"
++        "eth:0x000000000000000000000000000000000000dEaD"
+      values.superchainConfig:
+-        "0x5e8d351FD046Aa0b3DDA24096751996C0c397C61"
++        "eth:0x5e8d351FD046Aa0b3DDA24096751996C0c397C61"
+      values.SYSTEM_CONFIG:
+-        "0x94118F86eE37Fa4Fdb266CDab1e55B8F0D6959D9"
++        "eth:0x94118F86eE37Fa4Fdb266CDab1e55B8F0D6959D9"
+      values.systemConfig:
+-        "0x94118F86eE37Fa4Fdb266CDab1e55B8F0D6959D9"
++        "eth:0x94118F86eE37Fa4Fdb266CDab1e55B8F0D6959D9"
+      implementationNames.0x39A90926306E11497EC5FE1C459910258B620edD:
+-        "Proxy"
+      implementationNames.0xFe9B3d40DB0ec8f97D9ea638e926b3aEED8cF29B:
+-        "OptimismPortal"
+      implementationNames.eth:0x39A90926306E11497EC5FE1C459910258B620edD:
++        "Proxy"
+      implementationNames.eth:0xFe9B3d40DB0ec8f97D9ea638e926b3aEED8cF29B:
++        "OptimismPortal"
+    }
+```
+
+```diff
+    EOA  (0x3D0Bf26E60a689a7Da5EA3ddAD7371F27f7671a5) {
+    +++ description: None
+      address:
+-        "0x3D0Bf26E60a689a7Da5EA3ddAD7371F27f7671a5"
++        "eth:0x3D0Bf26E60a689a7Da5EA3ddAD7371F27f7671a5"
+    }
+```
+
+```diff
+    contract SuperchainConfig (0x5e8d351FD046Aa0b3DDA24096751996C0c397C61) {
+    +++ description: This is NOT the shared SuperchainConfig contract of the OP stack Superchain but rather a local fork. It manages the `PAUSED_SLOT`, a boolean value indicating whether the local chain is paused, and `GUARDIAN_SLOT`, the address of the guardian which can pause and unpause the system.
+      address:
+-        "0x5e8d351FD046Aa0b3DDA24096751996C0c397C61"
++        "eth:0x5e8d351FD046Aa0b3DDA24096751996C0c397C61"
+      values.$admin:
+-        "0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"
++        "eth:0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"
+      values.$implementation:
+-        "0xF3E372Ec07a9Bf0C94ff21ceBe02952F2164996F"
++        "eth:0xF3E372Ec07a9Bf0C94ff21ceBe02952F2164996F"
+      values.$pastUpgrades.0.2.0:
+-        "0xF3E372Ec07a9Bf0C94ff21ceBe02952F2164996F"
++        "eth:0xF3E372Ec07a9Bf0C94ff21ceBe02952F2164996F"
+      values.guardian:
+-        "0xd01De08Cc118Cc1a1b39c54c8b4ff02A8ADE63eE"
++        "eth:0xd01De08Cc118Cc1a1b39c54c8b4ff02A8ADE63eE"
+      implementationNames.0x5e8d351FD046Aa0b3DDA24096751996C0c397C61:
+-        "Proxy"
+      implementationNames.0xF3E372Ec07a9Bf0C94ff21ceBe02952F2164996F:
+-        "SuperchainConfig"
+      implementationNames.eth:0x5e8d351FD046Aa0b3DDA24096751996C0c397C61:
++        "Proxy"
+      implementationNames.eth:0xF3E372Ec07a9Bf0C94ff21ceBe02952F2164996F:
++        "SuperchainConfig"
+    }
+```
+
+```diff
+    EOA  (0x91901DF65F086A3330D1C95796d66a1cF941E1B1) {
+    +++ description: None
+      address:
+-        "0x91901DF65F086A3330D1C95796d66a1cF941E1B1"
++        "eth:0x91901DF65F086A3330D1C95796d66a1cF941E1B1"
+    }
+```
+
+```diff
+    contract SystemConfig (0x94118F86eE37Fa4Fdb266CDab1e55B8F0D6959D9) {
+    +++ description: Contains configuration parameters such as the Sequencer address, gas limit on this chain and the unsafe block signer address.
+      address:
+-        "0x94118F86eE37Fa4Fdb266CDab1e55B8F0D6959D9"
++        "eth:0x94118F86eE37Fa4Fdb266CDab1e55B8F0D6959D9"
+      values.$admin:
+-        "0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"
++        "eth:0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"
+      values.$implementation:
+-        "0xa65DE544846795C7eeAd60790197B0EB755547ee"
++        "eth:0xa65DE544846795C7eeAd60790197B0EB755547ee"
+      values.$pastUpgrades.0.2.0:
+-        "0xa65DE544846795C7eeAd60790197B0EB755547ee"
++        "eth:0xa65DE544846795C7eeAd60790197B0EB755547ee"
+      values.batcherHash:
+-        "0x3D0Bf26E60a689a7Da5EA3ddAD7371F27f7671a5"
++        "eth:0x3D0Bf26E60a689a7Da5EA3ddAD7371F27f7671a5"
+      values.batchInbox:
+-        "0xfF00000000000000000000000000000000062050"
++        "eth:0xfF00000000000000000000000000000000062050"
+      values.l1CrossDomainMessenger:
+-        "0x03D5bc58E7b7E13ba785F67AFA2d2fC49cB2BdF3"
++        "eth:0x03D5bc58E7b7E13ba785F67AFA2d2fC49cB2BdF3"
+      values.l1ERC721Bridge:
+-        "0xAFc9946b25e3e93208b7E2D477680C5B6e2952be"
++        "eth:0xAFc9946b25e3e93208b7E2D477680C5B6e2952be"
+      values.l1StandardBridge:
+-        "0x1adE86B9cc8a50Db747b7aaC32E8527d42c71fC1"
++        "eth:0x1adE86B9cc8a50Db747b7aaC32E8527d42c71fC1"
+      values.l2OutputOracle:
+-        "0xdd80E05004f40815EaEf12ffeE69c2a8A5112aA5"
++        "eth:0xdd80E05004f40815EaEf12ffeE69c2a8A5112aA5"
+      values.optimismMintableERC20Factory:
+-        "0xB77d3ea899ef38c464e19F5A6CBc5a37187DC43c"
++        "eth:0xB77d3ea899ef38c464e19F5A6CBc5a37187DC43c"
+      values.optimismPortal:
+-        "0x39A90926306E11497EC5FE1C459910258B620edD"
++        "eth:0x39A90926306E11497EC5FE1C459910258B620edD"
+      values.owner:
+-        "0xd01De08Cc118Cc1a1b39c54c8b4ff02A8ADE63eE"
++        "eth:0xd01De08Cc118Cc1a1b39c54c8b4ff02A8ADE63eE"
+      values.sequencerInbox:
+-        "0xfF00000000000000000000000000000000062050"
++        "eth:0xfF00000000000000000000000000000000062050"
+      values.unsafeBlockSigner:
+-        "0x91901DF65F086A3330D1C95796d66a1cF941E1B1"
++        "eth:0x91901DF65F086A3330D1C95796d66a1cF941E1B1"
+      implementationNames.0x94118F86eE37Fa4Fdb266CDab1e55B8F0D6959D9:
+-        "Proxy"
+      implementationNames.0xa65DE544846795C7eeAd60790197B0EB755547ee:
+-        "SystemConfig"
+      implementationNames.eth:0x94118F86eE37Fa4Fdb266CDab1e55B8F0D6959D9:
++        "Proxy"
+      implementationNames.eth:0xa65DE544846795C7eeAd60790197B0EB755547ee:
++        "SystemConfig"
+    }
+```
+
+```diff
+    contract L1ERC721Bridge (0xAFc9946b25e3e93208b7E2D477680C5B6e2952be) {
+    +++ description: Used to bridge ERC-721 tokens from host chain to this chain.
+      address:
+-        "0xAFc9946b25e3e93208b7E2D477680C5B6e2952be"
++        "eth:0xAFc9946b25e3e93208b7E2D477680C5B6e2952be"
+      values.$admin:
+-        "0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"
++        "eth:0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"
+      values.$implementation:
+-        "0xe04D088840aE793afd0970fE97FEC6Ac7BaF4AAC"
++        "eth:0xe04D088840aE793afd0970fE97FEC6Ac7BaF4AAC"
+      values.$pastUpgrades.0.2.0:
+-        "0xe04D088840aE793afd0970fE97FEC6Ac7BaF4AAC"
++        "eth:0xe04D088840aE793afd0970fE97FEC6Ac7BaF4AAC"
+      values.messenger:
+-        "0x03D5bc58E7b7E13ba785F67AFA2d2fC49cB2BdF3"
++        "eth:0x03D5bc58E7b7E13ba785F67AFA2d2fC49cB2BdF3"
+      values.MESSENGER:
+-        "0x03D5bc58E7b7E13ba785F67AFA2d2fC49cB2BdF3"
++        "eth:0x03D5bc58E7b7E13ba785F67AFA2d2fC49cB2BdF3"
+      values.OTHER_BRIDGE:
+-        "0x4200000000000000000000000000000000000014"
++        "eth:0x4200000000000000000000000000000000000014"
+      values.otherBridge:
+-        "0x4200000000000000000000000000000000000014"
++        "eth:0x4200000000000000000000000000000000000014"
+      values.superchainConfig:
+-        "0x5e8d351FD046Aa0b3DDA24096751996C0c397C61"
++        "eth:0x5e8d351FD046Aa0b3DDA24096751996C0c397C61"
+      implementationNames.0xAFc9946b25e3e93208b7E2D477680C5B6e2952be:
+-        "Proxy"
+      implementationNames.0xe04D088840aE793afd0970fE97FEC6Ac7BaF4AAC:
+-        "L1ERC721Bridge"
+      implementationNames.eth:0xAFc9946b25e3e93208b7E2D477680C5B6e2952be:
++        "Proxy"
+      implementationNames.eth:0xe04D088840aE793afd0970fE97FEC6Ac7BaF4AAC:
++        "L1ERC721Bridge"
+    }
+```
+
+```diff
+    EOA  (0xb6130283Ed292E3f42465617d6d8FFd61F615462) {
+    +++ description: None
+      address:
+-        "0xb6130283Ed292E3f42465617d6d8FFd61F615462"
++        "eth:0xb6130283Ed292E3f42465617d6d8FFd61F615462"
+    }
+```
+
+```diff
+    EOA  (0xd01De08Cc118Cc1a1b39c54c8b4ff02A8ADE63eE) {
+    +++ description: None
+      address:
+-        "0xd01De08Cc118Cc1a1b39c54c8b4ff02A8ADE63eE"
++        "eth:0xd01De08Cc118Cc1a1b39c54c8b4ff02A8ADE63eE"
+    }
+```
+
+```diff
+    contract L2OutputOracle (0xdd80E05004f40815EaEf12ffeE69c2a8A5112aA5) {
+    +++ description: Contains a list of proposed state roots which Proposers assert to be a result of block execution. Currently only the PROPOSER address can submit new state roots.
+      address:
+-        "0xdd80E05004f40815EaEf12ffeE69c2a8A5112aA5"
++        "eth:0xdd80E05004f40815EaEf12ffeE69c2a8A5112aA5"
+      values.$admin:
+-        "0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"
++        "eth:0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"
+      values.$implementation:
+-        "0xDe94ECc695F2Df967b49ED11829eC9f7c1831a61"
++        "eth:0xDe94ECc695F2Df967b49ED11829eC9f7c1831a61"
+      values.$pastUpgrades.0.2.0:
+-        "0x38f2D861b23866b92188155C4876F0879cA706Ec"
++        "eth:0x38f2D861b23866b92188155C4876F0879cA706Ec"
+      values.$pastUpgrades.1.2.0:
+-        "0xfc2Af8738f04d14833BBcE3AD446F603E91D9306"
++        "eth:0xfc2Af8738f04d14833BBcE3AD446F603E91D9306"
+      values.$pastUpgrades.2.2.0:
+-        "0xDe94ECc695F2Df967b49ED11829eC9f7c1831a61"
++        "eth:0xDe94ECc695F2Df967b49ED11829eC9f7c1831a61"
++++ severity: HIGH
+      values.challenger:
+-        "0xd01De08Cc118Cc1a1b39c54c8b4ff02A8ADE63eE"
++        "eth:0xd01De08Cc118Cc1a1b39c54c8b4ff02A8ADE63eE"
+      values.CHALLENGER:
+-        "0xd01De08Cc118Cc1a1b39c54c8b4ff02A8ADE63eE"
++        "eth:0xd01De08Cc118Cc1a1b39c54c8b4ff02A8ADE63eE"
++++ severity: HIGH
+      values.proposer:
+-        "0x33397410000A219fa5a476c5B51032B367C77e78"
++        "eth:0x33397410000A219fa5a476c5B51032B367C77e78"
+      values.PROPOSER:
+-        "0x33397410000A219fa5a476c5B51032B367C77e78"
++        "eth:0x33397410000A219fa5a476c5B51032B367C77e78"
+      implementationNames.0xdd80E05004f40815EaEf12ffeE69c2a8A5112aA5:
+-        "Proxy"
+      implementationNames.0xDe94ECc695F2Df967b49ED11829eC9f7c1831a61:
+-        "L2OutputOracle"
+      implementationNames.eth:0xdd80E05004f40815EaEf12ffeE69c2a8A5112aA5:
++        "Proxy"
+      implementationNames.eth:0xDe94ECc695F2Df967b49ED11829eC9f7c1831a61:
++        "L2OutputOracle"
+    }
+```
+
+```diff
+    EOA  (0xe30FD2f41326d500f5071440546643d9A7926e63) {
+    +++ description: None
+      address:
+-        "0xe30FD2f41326d500f5071440546643d9A7926e63"
++        "eth:0xe30FD2f41326d500f5071440546643d9A7926e63"
+    }
+```
+
+```diff
+    EOA  (0xfF00000000000000000000000000000000062050) {
+    +++ description: None
+      address:
+-        "0xfF00000000000000000000000000000000062050"
++        "eth:0xfF00000000000000000000000000000000062050"
+    }
+```
+
+```diff
++   Status: CREATED
+    contract AddressManager (0x039A3B4AF85A91626f428b8B881603b6DD1f6C4C)
+    +++ description: Legacy contract used to manage a mapping of string names to addresses. Modern OP stack uses a different standard proxy system instead, but this contract is still necessary for backwards compatibility with several older contracts.
+```
+
+```diff
++   Status: CREATED
+    contract L1CrossDomainMessenger (0x03D5bc58E7b7E13ba785F67AFA2d2fC49cB2BdF3)
+    +++ description: Sends messages from host chain to this chain, and relays messages back onto host chain. In the event that a message sent from host chain to this chain is rejected for exceeding this chain's epoch gas limit, it can be resubmitted via this contract's replay function.
+```
+
+```diff
++   Status: CREATED
+    contract ProxyAdmin (0x161aF05fA6BdA1c6E7Ee12839d470931bA796948)
+    +++ description: None
+```
+
+```diff
++   Status: CREATED
+    contract L1StandardBridge (0x1adE86B9cc8a50Db747b7aaC32E8527d42c71fC1)
+    +++ description: The main entry point to deposit ERC20 tokens from host chain to this chain.
+```
+
+```diff
++   Status: CREATED
+    contract Optopia Multisig (0x2C73A1610EE822a8C2C21eddd455e725A3334c8C)
+    +++ description: None
+```
+
+```diff
++   Status: CREATED
+    contract OptimismPortal (0x39A90926306E11497EC5FE1C459910258B620edD)
+    +++ description: The main entry point to deposit funds from host chain to this chain. It also allows to prove and finalize withdrawals.
+```
+
+```diff
++   Status: CREATED
+    contract SuperchainConfig (0x5e8d351FD046Aa0b3DDA24096751996C0c397C61)
+    +++ description: This is NOT the shared SuperchainConfig contract of the OP stack Superchain but rather a local fork. It manages the `PAUSED_SLOT`, a boolean value indicating whether the local chain is paused, and `GUARDIAN_SLOT`, the address of the guardian which can pause and unpause the system.
+```
+
+```diff
++   Status: CREATED
+    contract SystemConfig (0x94118F86eE37Fa4Fdb266CDab1e55B8F0D6959D9)
+    +++ description: Contains configuration parameters such as the Sequencer address, gas limit on this chain and the unsafe block signer address.
+```
+
+```diff
++   Status: CREATED
+    contract L1ERC721Bridge (0xAFc9946b25e3e93208b7E2D477680C5B6e2952be)
+    +++ description: Used to bridge ERC-721 tokens from host chain to this chain.
+```
+
+```diff
++   Status: CREATED
+    contract L2OutputOracle (0xdd80E05004f40815EaEf12ffeE69c2a8A5112aA5)
+    +++ description: Contains a list of proposed state roots which Proposers assert to be a result of block execution. Currently only the PROPOSER address can submit new state roots.
+```
+
+Generated with discovered.json: 0x2367cdc15453267b1f99313f9f742ebbca6cc636
+
+# Diff at Fri, 04 Jul 2025 12:19:13 GMT:
+
+- author: Mateusz Radomski (<radomski.main@protonmail.com>)
+- comparing to: main@1f56dc47fe915564d4555300304da4d3bcbc087f block: 22581193
+- current block number: 22581193
+
+## Description
+
+Discovery rerun on the same block number with only config-related changes.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 22581193 (main branch discovery), not current.
+
+```diff
+    contract ProxyAdmin (0x161aF05fA6BdA1c6E7Ee12839d470931bA796948) {
+    +++ description: None
+      directlyReceivedPermissions.0.from:
+-        "ethereum:0x039A3B4AF85A91626f428b8B881603b6DD1f6C4C"
++        "eth:0x039A3B4AF85A91626f428b8B881603b6DD1f6C4C"
+      directlyReceivedPermissions.1.from:
+-        "ethereum:0x03D5bc58E7b7E13ba785F67AFA2d2fC49cB2BdF3"
++        "eth:0x03D5bc58E7b7E13ba785F67AFA2d2fC49cB2BdF3"
+      directlyReceivedPermissions.2.from:
+-        "ethereum:0x1adE86B9cc8a50Db747b7aaC32E8527d42c71fC1"
++        "eth:0x1adE86B9cc8a50Db747b7aaC32E8527d42c71fC1"
+      directlyReceivedPermissions.3.from:
+-        "ethereum:0x39A90926306E11497EC5FE1C459910258B620edD"
++        "eth:0x39A90926306E11497EC5FE1C459910258B620edD"
+      directlyReceivedPermissions.4.from:
+-        "ethereum:0x5e8d351FD046Aa0b3DDA24096751996C0c397C61"
++        "eth:0x5e8d351FD046Aa0b3DDA24096751996C0c397C61"
+      directlyReceivedPermissions.5.from:
+-        "ethereum:0x94118F86eE37Fa4Fdb266CDab1e55B8F0D6959D9"
++        "eth:0x94118F86eE37Fa4Fdb266CDab1e55B8F0D6959D9"
+      directlyReceivedPermissions.6.from:
+-        "ethereum:0xAFc9946b25e3e93208b7E2D477680C5B6e2952be"
++        "eth:0xAFc9946b25e3e93208b7E2D477680C5B6e2952be"
+      directlyReceivedPermissions.7.from:
+-        "ethereum:0xdd80E05004f40815EaEf12ffeE69c2a8A5112aA5"
++        "eth:0xdd80E05004f40815EaEf12ffeE69c2a8A5112aA5"
+    }
+```
+
+```diff
+    contract Optopia Multisig (0x2C73A1610EE822a8C2C21eddd455e725A3334c8C) {
+    +++ description: None
+      receivedPermissions.0.via.0.address:
+-        "ethereum:0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"
++        "eth:0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"
+      receivedPermissions.0.from:
+-        "ethereum:0x039A3B4AF85A91626f428b8B881603b6DD1f6C4C"
++        "eth:0x039A3B4AF85A91626f428b8B881603b6DD1f6C4C"
+      receivedPermissions.1.via.0.address:
+-        "ethereum:0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"
++        "eth:0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"
+      receivedPermissions.1.from:
+-        "ethereum:0x03D5bc58E7b7E13ba785F67AFA2d2fC49cB2BdF3"
++        "eth:0x03D5bc58E7b7E13ba785F67AFA2d2fC49cB2BdF3"
+      receivedPermissions.2.via.0.address:
+-        "ethereum:0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"
++        "eth:0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"
+      receivedPermissions.2.from:
+-        "ethereum:0x1adE86B9cc8a50Db747b7aaC32E8527d42c71fC1"
++        "eth:0x1adE86B9cc8a50Db747b7aaC32E8527d42c71fC1"
+      receivedPermissions.3.via.0.address:
+-        "ethereum:0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"
++        "eth:0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"
+      receivedPermissions.3.from:
+-        "ethereum:0x39A90926306E11497EC5FE1C459910258B620edD"
++        "eth:0x39A90926306E11497EC5FE1C459910258B620edD"
+      receivedPermissions.4.via.0.address:
+-        "ethereum:0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"
++        "eth:0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"
+      receivedPermissions.4.from:
+-        "ethereum:0x5e8d351FD046Aa0b3DDA24096751996C0c397C61"
++        "eth:0x5e8d351FD046Aa0b3DDA24096751996C0c397C61"
+      receivedPermissions.5.via.0.address:
+-        "ethereum:0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"
++        "eth:0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"
+      receivedPermissions.5.from:
+-        "ethereum:0x94118F86eE37Fa4Fdb266CDab1e55B8F0D6959D9"
++        "eth:0x94118F86eE37Fa4Fdb266CDab1e55B8F0D6959D9"
+      receivedPermissions.6.via.0.address:
+-        "ethereum:0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"
++        "eth:0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"
+      receivedPermissions.6.from:
+-        "ethereum:0xAFc9946b25e3e93208b7E2D477680C5B6e2952be"
++        "eth:0xAFc9946b25e3e93208b7E2D477680C5B6e2952be"
+      receivedPermissions.7.via.0.address:
+-        "ethereum:0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"
++        "eth:0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"
+      receivedPermissions.7.from:
+-        "ethereum:0xdd80E05004f40815EaEf12ffeE69c2a8A5112aA5"
++        "eth:0xdd80E05004f40815EaEf12ffeE69c2a8A5112aA5"
+      directlyReceivedPermissions.0.from:
+-        "ethereum:0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"
++        "eth:0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"
+    }
+```
+
+```diff
+    EOA  (0x33397410000A219fa5a476c5B51032B367C77e78) {
+    +++ description: None
+      receivedPermissions.0.from:
+-        "ethereum:0xdd80E05004f40815EaEf12ffeE69c2a8A5112aA5"
++        "eth:0xdd80E05004f40815EaEf12ffeE69c2a8A5112aA5"
+      receivedPermissions.1.from:
+-        "ethereum:0xdd80E05004f40815EaEf12ffeE69c2a8A5112aA5"
++        "eth:0xdd80E05004f40815EaEf12ffeE69c2a8A5112aA5"
+    }
+```
+
+```diff
+    EOA  (0x3D0Bf26E60a689a7Da5EA3ddAD7371F27f7671a5) {
+    +++ description: None
+      receivedPermissions.0.from:
+-        "ethereum:0x94118F86eE37Fa4Fdb266CDab1e55B8F0D6959D9"
++        "eth:0x94118F86eE37Fa4Fdb266CDab1e55B8F0D6959D9"
+    }
+```
+
+```diff
+    EOA  (0xd01De08Cc118Cc1a1b39c54c8b4ff02A8ADE63eE) {
+    +++ description: None
+      receivedPermissions.0.from:
+-        "ethereum:0xdd80E05004f40815EaEf12ffeE69c2a8A5112aA5"
++        "eth:0xdd80E05004f40815EaEf12ffeE69c2a8A5112aA5"
+      receivedPermissions.1.from:
+-        "ethereum:0xdd80E05004f40815EaEf12ffeE69c2a8A5112aA5"
++        "eth:0xdd80E05004f40815EaEf12ffeE69c2a8A5112aA5"
+      receivedPermissions.2.from:
+-        "ethereum:0x39A90926306E11497EC5FE1C459910258B620edD"
++        "eth:0x39A90926306E11497EC5FE1C459910258B620edD"
+      receivedPermissions.3.from:
+-        "ethereum:0x39A90926306E11497EC5FE1C459910258B620edD"
++        "eth:0x39A90926306E11497EC5FE1C459910258B620edD"
+      receivedPermissions.4.from:
+-        "ethereum:0x5e8d351FD046Aa0b3DDA24096751996C0c397C61"
++        "eth:0x5e8d351FD046Aa0b3DDA24096751996C0c397C61"
+      receivedPermissions.5.from:
+-        "ethereum:0x94118F86eE37Fa4Fdb266CDab1e55B8F0D6959D9"
++        "eth:0x94118F86eE37Fa4Fdb266CDab1e55B8F0D6959D9"
+    }
+```
+
+Generated with discovered.json: 0xbef490f6c954eaf9b917ebf09cb6e7bd9f0319c5
+
+# Diff at Mon, 16 Jun 2025 08:42:25 GMT:
+
+- author: Mateusz Radomski (<radomski.main@protonmail.com>)
+- comparing to: main@e1208475abce20cea1768d2e4878c03350c1b7c9 block: 22581193
+- current block number: 22581193
+
+## Description
+
+Discovery rerun on the same block number with only config-related changes.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 22581193 (main branch discovery), not current.
+
+```diff
+    contract L1CrossDomainMessenger (0x03D5bc58E7b7E13ba785F67AFA2d2fC49cB2BdF3) {
+    +++ description: Sends messages from host chain to this chain, and relays messages back onto host chain. In the event that a message sent from host chain to this chain is rejected for exceeding this chain's epoch gas limit, it can be resubmitted via this contract's replay function.
+      values.$admin:
++        "0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"
+    }
+```
+
+```diff
+    contract ProxyAdmin (0x161aF05fA6BdA1c6E7Ee12839d470931bA796948) {
+    +++ description: None
+      directlyReceivedPermissions.7:
++        {"permission":"upgrade","from":"ethereum:0x39A90926306E11497EC5FE1C459910258B620edD","role":"admin"}
+      directlyReceivedPermissions.6.from:
+-        "ethereum:0x39A90926306E11497EC5FE1C459910258B620edD"
++        "ethereum:0x94118F86eE37Fa4Fdb266CDab1e55B8F0D6959D9"
+      directlyReceivedPermissions.5.from:
+-        "ethereum:0x94118F86eE37Fa4Fdb266CDab1e55B8F0D6959D9"
++        "ethereum:0xAFc9946b25e3e93208b7E2D477680C5B6e2952be"
+      directlyReceivedPermissions.4.from:
+-        "ethereum:0xAFc9946b25e3e93208b7E2D477680C5B6e2952be"
++        "ethereum:0x03D5bc58E7b7E13ba785F67AFA2d2fC49cB2BdF3"
+    }
+```
+
+```diff
+    contract Optopia Multisig (0x2C73A1610EE822a8C2C21eddd455e725A3334c8C) {
+    +++ description: None
+      receivedPermissions.7:
++        {"permission":"upgrade","from":"ethereum:0x39A90926306E11497EC5FE1C459910258B620edD","role":"admin","via":[{"address":"ethereum:0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"}]}
+      receivedPermissions.6.from:
+-        "ethereum:0x39A90926306E11497EC5FE1C459910258B620edD"
++        "ethereum:0x94118F86eE37Fa4Fdb266CDab1e55B8F0D6959D9"
+      receivedPermissions.5.from:
+-        "ethereum:0x94118F86eE37Fa4Fdb266CDab1e55B8F0D6959D9"
++        "ethereum:0xAFc9946b25e3e93208b7E2D477680C5B6e2952be"
+      receivedPermissions.4.from:
+-        "ethereum:0xAFc9946b25e3e93208b7E2D477680C5B6e2952be"
++        "ethereum:0x03D5bc58E7b7E13ba785F67AFA2d2fC49cB2BdF3"
+    }
+```
+
+Generated with discovered.json: 0x3626f6cc6d9f3a6a511857b73fa1f3f94b16c1c9
+
+# Diff at Fri, 30 May 2025 07:10:25 GMT:
+
+- author: sekuba (<29250140+sekuba@users.noreply.github.com>)
+- comparing to: main@a4d8c436027d17df0f9b76843cd6deb1888fa381 block: 22581193
+- current block number: 22581193
+
+## Description
+
+config: change comment about eip1559 fee val
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 22581193 (main branch discovery), not current.
+
+```diff
+    contract SystemConfig (0x94118F86eE37Fa4Fdb266CDab1e55B8F0D6959D9) {
+    +++ description: Contains configuration parameters such as the Sequencer address, gas limit on this chain and the unsafe block signer address.
+      fieldMeta.eip1559Denominator:
++        {"description":"volatility param: lower denominator -> quicker fee changes on L2"}
+    }
+```
+
+Generated with discovered.json: 0x94a5d2cd04288907be23c4060534370420d05aee
+
+# Diff at Wed, 28 May 2025 12:14:45 GMT:
+
+- author: Luca Donno (<donnoh99@gmail.com>)
+- comparing to: main@27d647bcbd8edf5cbba70b7be8478445dbba59bf block: 21184911
+- current block number: 22581193
+
+## Description
+
+For some reason the ERC20Factory has a EOA as the implementation contract. Ignored as it shows as implementation unverified on frontend and it's unusable anyway.
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 21184911 (main branch discovery), not current.
+
+```diff
+    contract ProxyAdmin (0x161aF05fA6BdA1c6E7Ee12839d470931bA796948) {
+    +++ description: None
+      directlyReceivedPermissions.7:
+-        {"permission":"upgrade","from":"0xB77d3ea899ef38c464e19F5A6CBc5a37187DC43c","role":"admin"}
+    }
+```
+
+```diff
+    contract Optopia Multisig (0x2C73A1610EE822a8C2C21eddd455e725A3334c8C) {
+    +++ description: None
+      receivedPermissions.7:
+-        {"permission":"upgrade","from":"0xB77d3ea899ef38c464e19F5A6CBc5a37187DC43c","role":"admin","via":[{"address":"0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"}]}
+    }
+```
+
+```diff
+-   Status: DELETED
+    contract OptimismMintableERC20Factory (0xB77d3ea899ef38c464e19F5A6CBc5a37187DC43c)
+    +++ description: None
+```
+
+Generated with discovered.json: 0x16bd4ff353ceb7106d48d0332937bc0d69e900a8
+
+# Diff at Fri, 23 May 2025 09:41:01 GMT:
+
+- author: Adrian Adamiak (<adrian@adamiak.net>)
+- comparing to: main@69cd181abbc3c830a6caf2f4429b37cae72ffdb8 block: 21184911
+- current block number: 21184911
+
+## Description
+
+Introduced .role field on each permission, defaulting to field name on which it was defined (with '.' prefix)
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 21184911 (main branch discovery), not current.
+
+```diff
+    contract ProxyAdmin (0x161aF05fA6BdA1c6E7Ee12839d470931bA796948) {
+    +++ description: None
+      directlyReceivedPermissions.7.role:
++        "admin"
+      directlyReceivedPermissions.6.role:
++        "admin"
+      directlyReceivedPermissions.5.role:
++        "admin"
+      directlyReceivedPermissions.4.role:
++        "admin"
+      directlyReceivedPermissions.3.role:
++        "admin"
+      directlyReceivedPermissions.2.role:
++        "admin"
+      directlyReceivedPermissions.1.permission:
+-        "interact"
++        "upgrade"
+      directlyReceivedPermissions.1.from:
+-        "0x039A3B4AF85A91626f428b8B881603b6DD1f6C4C"
++        "0x1adE86B9cc8a50Db747b7aaC32E8527d42c71fC1"
+      directlyReceivedPermissions.1.description:
+-        "set and change address mappings."
++        "upgrading the bridge implementation can give access to all funds escrowed therein."
+      directlyReceivedPermissions.1.role:
++        ".$admin"
+      directlyReceivedPermissions.0.permission:
+-        "upgrade"
++        "interact"
+      directlyReceivedPermissions.0.from:
+-        "0x1adE86B9cc8a50Db747b7aaC32E8527d42c71fC1"
++        "0x039A3B4AF85A91626f428b8B881603b6DD1f6C4C"
+      directlyReceivedPermissions.0.description:
+-        "upgrading the bridge implementation can give access to all funds escrowed therein."
++        "set and change address mappings."
+      directlyReceivedPermissions.0.role:
++        ".owner"
+    }
+```
+
+```diff
+    contract Optopia Multisig (0x2C73A1610EE822a8C2C21eddd455e725A3334c8C) {
+    +++ description: None
+      receivedPermissions.7.role:
++        "admin"
+      receivedPermissions.6.role:
++        "admin"
+      receivedPermissions.5.role:
++        "admin"
+      receivedPermissions.4.role:
++        "admin"
+      receivedPermissions.3.role:
++        "admin"
+      receivedPermissions.2.role:
++        "admin"
+      receivedPermissions.1.permission:
+-        "interact"
++        "upgrade"
+      receivedPermissions.1.from:
+-        "0x039A3B4AF85A91626f428b8B881603b6DD1f6C4C"
++        "0x1adE86B9cc8a50Db747b7aaC32E8527d42c71fC1"
+      receivedPermissions.1.description:
+-        "set and change address mappings."
++        "upgrading the bridge implementation can give access to all funds escrowed therein."
+      receivedPermissions.1.role:
++        ".$admin"
+      receivedPermissions.0.permission:
+-        "upgrade"
++        "interact"
+      receivedPermissions.0.from:
+-        "0x1adE86B9cc8a50Db747b7aaC32E8527d42c71fC1"
++        "0x039A3B4AF85A91626f428b8B881603b6DD1f6C4C"
+      receivedPermissions.0.description:
+-        "upgrading the bridge implementation can give access to all funds escrowed therein."
++        "set and change address mappings."
+      receivedPermissions.0.role:
++        ".owner"
+      directlyReceivedPermissions.0.role:
++        ".owner"
+    }
+```
+
+```diff
+    EOA  (0x33397410000A219fa5a476c5B51032B367C77e78) {
+    +++ description: None
+      receivedPermissions.1:
++        {"permission":"propose","from":"0xdd80E05004f40815EaEf12ffeE69c2a8A5112aA5","role":".proposer"}
+      receivedPermissions.0.role:
++        ".PROPOSER"
+    }
+```
+
+```diff
+    EOA  (0x3D0Bf26E60a689a7Da5EA3ddAD7371F27f7671a5) {
+    +++ description: None
+      receivedPermissions.0.role:
++        ".batcherHash"
+    }
+```
+
+```diff
+    EOA  (0xd01De08Cc118Cc1a1b39c54c8b4ff02A8ADE63eE) {
+    +++ description: None
+      receivedPermissions.5:
++        {"permission":"guard","from":"0x39A90926306E11497EC5FE1C459910258B620edD","role":".GUARDIAN"}
+      receivedPermissions.4:
++        {"permission":"challenge","from":"0xdd80E05004f40815EaEf12ffeE69c2a8A5112aA5","role":".CHALLENGER"}
+      receivedPermissions.3.role:
++        ".guardian"
+      receivedPermissions.2.role:
++        ".challenger"
+      receivedPermissions.1.permission:
+-        "interact"
++        "guard"
+      receivedPermissions.1.from:
+-        "0x94118F86eE37Fa4Fdb266CDab1e55B8F0D6959D9"
++        "0x39A90926306E11497EC5FE1C459910258B620edD"
+      receivedPermissions.1.description:
+-        "it can update the preconfer address, the batch submitter (Sequencer) address and the gas configuration of the system."
+      receivedPermissions.1.role:
++        ".guardian"
+      receivedPermissions.0.permission:
+-        "guard"
++        "interact"
+      receivedPermissions.0.from:
+-        "0x39A90926306E11497EC5FE1C459910258B620edD"
++        "0x94118F86eE37Fa4Fdb266CDab1e55B8F0D6959D9"
+      receivedPermissions.0.description:
++        "it can update the preconfer address, the batch submitter (Sequencer) address and the gas configuration of the system."
+      receivedPermissions.0.role:
++        ".owner"
+    }
+```
+
+Generated with discovered.json: 0xa17f6345901598458fd8f2d5da0067f968c82eeb
+
+# Diff at Tue, 29 Apr 2025 08:19:08 GMT:
+
+- author: Adrian Adamiak (<adrian@adamiak.net>)
+- comparing to: main@ef7477af00fe0b57a2f7cacf7e958c12494af662 block: 21184911
+- current block number: 21184911
+
+## Description
+
+Field .issuedPermissions is removed from the output as no longer needed. Added 'permissionsConfigHash' due to refactoring of the modelling process (into a separate command).
+
+## Config/verification related changes
+
+Following changes come from updates made to the config file,
+or/and contracts becoming verified, not from differences found during
+discovery. Values are for block 21184911 (main branch discovery), not current.
+
+```diff
+    contract AddressManager (0x039A3B4AF85A91626f428b8B881603b6DD1f6C4C) {
+    +++ description: Legacy contract used to manage a mapping of string names to addresses. Modern OP stack uses a different standard proxy system instead, but this contract is still necessary for backwards compatibility with several older contracts.
+      issuedPermissions:
+-        [{"permission":"interact","to":"0x2C73A1610EE822a8C2C21eddd455e725A3334c8C","description":"set and change address mappings.","via":[{"address":"0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"}]}]
+    }
+```
+
+```diff
+    contract L1StandardBridge (0x1adE86B9cc8a50Db747b7aaC32E8527d42c71fC1) {
+    +++ description: The main entry point to deposit ERC20 tokens from host chain to this chain.
+      issuedPermissions:
+-        [{"permission":"upgrade","to":"0x2C73A1610EE822a8C2C21eddd455e725A3334c8C","description":"upgrading the bridge implementation can give access to all funds escrowed therein.","via":[{"address":"0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"}]}]
+    }
+```
+
+```diff
+    contract OptimismPortal (0x39A90926306E11497EC5FE1C459910258B620edD) {
+    +++ description: The main entry point to deposit funds from host chain to this chain. It also allows to prove and finalize withdrawals.
+      issuedPermissions:
+-        [{"permission":"guard","to":"0xd01De08Cc118Cc1a1b39c54c8b4ff02A8ADE63eE","via":[]},{"permission":"upgrade","to":"0x2C73A1610EE822a8C2C21eddd455e725A3334c8C","via":[{"address":"0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"}]}]
+    }
+```
+
+```diff
+    contract SuperchainConfig (0x5e8d351FD046Aa0b3DDA24096751996C0c397C61) {
+    +++ description: This is NOT the shared SuperchainConfig contract of the OP stack Superchain but rather a local fork. It manages the `PAUSED_SLOT`, a boolean value indicating whether the local chain is paused, and `GUARDIAN_SLOT`, the address of the guardian which can pause and unpause the system.
+      issuedPermissions:
+-        [{"permission":"guard","to":"0xd01De08Cc118Cc1a1b39c54c8b4ff02A8ADE63eE","via":[]},{"permission":"upgrade","to":"0x2C73A1610EE822a8C2C21eddd455e725A3334c8C","via":[{"address":"0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"}]}]
+    }
+```
+
+```diff
+    contract SystemConfig (0x94118F86eE37Fa4Fdb266CDab1e55B8F0D6959D9) {
+    +++ description: Contains configuration parameters such as the Sequencer address, gas limit on this chain and the unsafe block signer address.
+      issuedPermissions:
+-        [{"permission":"interact","to":"0xd01De08Cc118Cc1a1b39c54c8b4ff02A8ADE63eE","description":"it can update the preconfer address, the batch submitter (Sequencer) address and the gas configuration of the system.","via":[]},{"permission":"sequence","to":"0x3D0Bf26E60a689a7Da5EA3ddAD7371F27f7671a5","via":[]},{"permission":"upgrade","to":"0x2C73A1610EE822a8C2C21eddd455e725A3334c8C","via":[{"address":"0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"}]}]
+    }
+```
+
+```diff
+    contract L1ERC721Bridge (0xAFc9946b25e3e93208b7E2D477680C5B6e2952be) {
+    +++ description: Used to bridge ERC-721 tokens from host chain to this chain.
+      issuedPermissions:
+-        [{"permission":"upgrade","to":"0x2C73A1610EE822a8C2C21eddd455e725A3334c8C","via":[{"address":"0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"}]}]
+    }
+```
+
+```diff
+    contract OptimismMintableERC20Factory (0xB77d3ea899ef38c464e19F5A6CBc5a37187DC43c) {
+    +++ description: None
+      issuedPermissions:
+-        [{"permission":"upgrade","to":"0x2C73A1610EE822a8C2C21eddd455e725A3334c8C","via":[{"address":"0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"}]}]
+    }
+```
+
+```diff
+    contract L2OutputOracle (0xdd80E05004f40815EaEf12ffeE69c2a8A5112aA5) {
+    +++ description: Contains a list of proposed state roots which Proposers assert to be a result of block execution. Currently only the PROPOSER address can submit new state roots.
+      issuedPermissions:
+-        [{"permission":"challenge","to":"0xd01De08Cc118Cc1a1b39c54c8b4ff02A8ADE63eE","via":[]},{"permission":"propose","to":"0x33397410000A219fa5a476c5B51032B367C77e78","via":[]},{"permission":"upgrade","to":"0x2C73A1610EE822a8C2C21eddd455e725A3334c8C","via":[{"address":"0x161aF05fA6BdA1c6E7Ee12839d470931bA796948"}]}]
+    }
+```
+
+Generated with discovered.json: 0x5782059f7e1379df8df1600a91b13638016a821f
 
 # Diff at Thu, 27 Mar 2025 11:14:47 GMT:
 

@@ -18,10 +18,9 @@ export const arenaz = opStackL2({
     slug: 'arenaz',
     description:
       'Arena-Z is an OP stack Optimistic Rollup where studios and gamers, creators and players unite to pioneer the future of entertainment.',
-    category: 'Optimistic Rollup',
     links: {
       websites: ['https://arena-z.gg/'],
-      apps: [
+      bridges: [
         'https://bridge.arena-z.gg/bridge/arena-z',
         'https://leagueofkingdoms.com/',
       ],
@@ -29,6 +28,7 @@ export const arenaz = opStackL2({
       socialMedia: ['https://x.com/OfficialArenaZ'],
     },
   },
+  hasSuperchainScUpgrades: true,
   chainConfig: {
     name: 'arenaz',
     chainId: 7897,
@@ -39,14 +39,6 @@ export const arenaz = opStackL2({
         callsPerMinute: 1500,
       },
     ],
-  },
-  finality: {
-    type: 'OPStack',
-    minTimestamp: genesisTimestamp,
-    genesisTimestamp: genesisTimestamp,
-    l2BlockTimeSeconds: 2,
-    lag: 0,
-    stateUpdate: 'disabled',
   },
   genesisTimestamp,
   stateDerivation: DERIVATION.OPSTACK('ARENAZ'),

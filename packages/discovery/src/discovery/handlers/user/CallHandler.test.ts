@@ -1,8 +1,9 @@
-import { EthereumAddress } from '@l2beat/shared-pure'
+import { ChainSpecificAddress } from '@l2beat/shared-pure'
 import { expect, mockObject } from 'earl'
 
 import type { IProvider } from '../../provider/IProvider'
 import { EXEC_REVERT_MSG } from '../utils/callMethod'
+import { toFunctionFragment } from '../utils/toFunctionFragment'
 import { CallHandler } from './CallHandler'
 
 describe(CallHandler.name, () => {
@@ -182,14 +183,15 @@ describe(CallHandler.name, () => {
 
   describe('execute', () => {
     const method = 'function add(uint256 a, uint256 b) view returns (uint256)'
-    const address = EthereumAddress.random()
+    const methodFragment = toFunctionFragment(method)
+    const address = ChainSpecificAddress.random()
 
     it('calls the method with the provided parameters', async () => {
       const provider = mockObject<IProvider>({
         blockNumber: 123,
         chain: 'foo',
         async callMethod<T>(
-          passedAddress: EthereumAddress,
+          passedAddress: ChainSpecificAddress,
           _abi: string,
           data: unknown[],
         ) {
@@ -208,18 +210,19 @@ describe(CallHandler.name, () => {
       const result = await handler.execute(provider, address, {})
       expect(result).toEqual({
         field: 'add',
+        fragment: methodFragment,
         value: 3,
         ignoreRelative: undefined,
       })
     })
 
     it('calls the method with the provided parameters and address', async () => {
-      const inAddress = EthereumAddress.random()
+      const inAddress = ChainSpecificAddress.random()
       const provider = mockObject<IProvider>({
         blockNumber: 123,
         chain: 'foo',
         async callMethod<T>(
-          passedAddress: EthereumAddress,
+          passedAddress: ChainSpecificAddress,
           _abi: string,
           data: unknown[],
         ) {
@@ -243,6 +246,7 @@ describe(CallHandler.name, () => {
       const result = await handler.execute(provider, address, {})
       expect(result).toEqual({
         field: 'add',
+        fragment: methodFragment,
         value: 3,
         ignoreRelative: undefined,
       })
@@ -253,7 +257,7 @@ describe(CallHandler.name, () => {
         blockNumber: 123,
         chain: 'foo',
         async callMethod<T>(
-          passedAddress: EthereumAddress,
+          passedAddress: ChainSpecificAddress,
           _abi: string,
           data: unknown[],
         ) {
@@ -275,18 +279,19 @@ describe(CallHandler.name, () => {
       })
       expect(result).toEqual({
         field: 'add',
+        fragment: methodFragment,
         value: 3,
         ignoreRelative: undefined,
       })
     })
 
     it('calls the method with the provided parameters and address as dependency', async () => {
-      const inAddress = EthereumAddress.random()
+      const inAddress = ChainSpecificAddress.random()
       const provider = mockObject<IProvider>({
         blockNumber: 123,
         chain: 'foo',
         async callMethod<T>(
-          passedAddress: EthereumAddress,
+          passedAddress: ChainSpecificAddress,
           _abi: string,
           data: unknown[],
         ) {
@@ -315,6 +320,7 @@ describe(CallHandler.name, () => {
       })
       expect(result).toEqual({
         field: 'add',
+        fragment: methodFragment,
         value: 3,
         ignoreRelative: undefined,
       })
@@ -337,6 +343,7 @@ describe(CallHandler.name, () => {
       const result = await handler.execute(provider, address, {})
       expect(result).toEqual({
         field: 'add',
+        fragment: methodFragment,
         error: 'oops',
         ignoreRelative: undefined,
       })
@@ -359,6 +366,7 @@ describe(CallHandler.name, () => {
       const result = await handler.execute(provider, address, {})
       expect(result).toEqual({
         field: 'add',
+        fragment: methodFragment,
         value: 3,
         ignoreRelative: true,
       })
@@ -404,6 +412,7 @@ describe(CallHandler.name, () => {
       expect(result).toEqual({
         field: 'add',
         error: EXEC_REVERT_MSG,
+        fragment: methodFragment,
         ignoreRelative: undefined,
       })
     })

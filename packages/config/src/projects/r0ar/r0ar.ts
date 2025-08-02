@@ -1,23 +1,29 @@
-import { EthereumAddress, UnixTime } from '@l2beat/shared-pure'
+import { UnixTime } from '@l2beat/shared-pure'
+import { REASON_FOR_BEING_OTHER } from '../../common'
 import { BADGES } from '../../common/badges'
+import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
-import { underReviewL2 } from '../../templates/underReview'
+import { opStackL2 } from '../../templates/opStack'
 
-export const r0ar: ScalingProject = underReviewL2({
-  id: 'r0ar',
+const discovery = new ProjectDiscovery('r0ar')
+const genesisTimestamp = UnixTime(1728285623)
+
+export const r0ar: ScalingProject = opStackL2({
   capability: 'universal',
   addedAt: UnixTime(1739282637), // 2025-02-11T14:03:57Z
-  badges: [BADGES.Stack.OPStack, BADGES.VM.EVM, BADGES.RaaS.Zeeve],
+  additionalBadges: [BADGES.RaaS.Zeeve],
+  reasonsForBeingOther: [REASON_FOR_BEING_OTHER.NO_PROOFS],
   display: {
     name: 'R0ar',
     slug: 'r0ar',
-    description: 'R0ar is an Optimistic Rollup utilizing the OP Stack.',
-    purposes: ['Universal'],
-    category: 'Optimistic Rollup',
-    stack: 'OP Stack',
+    description:
+      'R0ar is an Optimistic Rollup utilizing the OP Stack focusing on DeFi.',
+    redWarning:
+      'Critical contracts can be upgraded by an EOA which could result in the loss of all funds.',
+    stacks: ['OP Stack'],
     links: {
       websites: ['https://r0ar.io/'],
-      apps: ['https://r0arbridge.io/'],
+      bridges: ['https://r0arbridge.io/'],
       documentation: [],
       explorers: ['https://r0arscan.io/'],
       socialMedia: ['https://x.com/th3r0ar', 'https://t.me/r0ar_community'],
@@ -33,12 +39,7 @@ export const r0ar: ScalingProject = underReviewL2({
     startBlock: 1,
     adjustCount: { type: 'SubtractOne' },
   },
-  escrows: [
-    {
-      address: EthereumAddress('0x2c6af306f8d0cd6d9e76d43b2dc9a4e60a7f446e'),
-      sinceTimestamp: UnixTime(1726179731),
-      tokens: ['ETH'],
-      chain: 'ethereum',
-    },
-  ],
+  discovery,
+  genesisTimestamp,
+  isNodeAvailable: 'UnderReview',
 })

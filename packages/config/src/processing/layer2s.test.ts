@@ -1,20 +1,22 @@
 import {
   assert,
-  EthereumAddress,
-  UnixTime,
   assertUnreachable,
+  ChainSpecificAddress,
+  EthereumAddress,
   notUndefined,
+  UnixTime,
 } from '@l2beat/shared-pure'
 import { expect } from 'earl'
 import { utils } from 'ethers'
-import { uniq } from 'lodash'
+import uniq from 'lodash/uniq'
 import { describe } from 'mocha'
 import { ProjectDiscovery } from '../discovery/ProjectDiscovery'
 import type { ProjectScalingTechnology } from '../internalTypes'
 import { checkRisk } from '../test/helpers'
 import { getTokenList } from '../tokens/tokens'
-import type { ProjectTechnologyChoice, ReferenceLink } from '../types'
+import type { ProjectTechnologyChoice } from '../types'
 import { chains } from './chains'
+import { ecosystems } from './ecosystems'
 import { layer2s, milestonesLayer2s } from './layer2s'
 
 const tokenList = getTokenList(chains)
@@ -24,6 +26,33 @@ describe('layer2s', () => {
     for (const layer2 of layer2s) {
       expect(layer2.hostChain).toEqual(undefined)
       expect(layer2.stackedRiskView).toEqual(undefined)
+    }
+  })
+
+  describe('others', () => {
+    for (const layer2 of layer2s) {
+      it(`every project with reasonsForBeingOther has Other category: ${layer2.display.name}`, () => {
+        if (layer2.reasonsForBeingOther) {
+          expect(layer2.display.category === 'Other').toEqual(true)
+        }
+      })
+
+      it(`every Other project has reasonsForBeingOther configured: ${layer2.display.name}`, () => {
+        if (layer2.display.category === 'Other') {
+          expect(!!layer2.reasonsForBeingOther).toEqual(true)
+        }
+      })
+    }
+  })
+
+  describe('ecosystems', () => {
+    const ecosystemIds = ecosystems.map((e) => e.id)
+    for (const layer2 of layer2s) {
+      it(`every project with ecosystemInfo has valid ecosystem configured: ${layer2.display.name}`, () => {
+        if (layer2.ecosystemInfo) {
+          expect(ecosystemIds).toInclude(layer2.ecosystemInfo.id)
+        }
+      })
     }
   })
 
@@ -54,7 +83,7 @@ describe('layer2s', () => {
     describe('every escrow in new format resolves to discovery entry', () => {
       for (const layer2 of layer2s) {
         // NOTE(radomski): PolygonCDK projects have a shared escrow
-        if (layer2.display.stack === 'Polygon') continue
+        if (layer2.display.stacks?.includes('Agglayer CDK')) continue
 
         try {
           const discovery = new ProjectDiscovery(layer2.id.toString())
@@ -65,7 +94,9 @@ describe('layer2s', () => {
             it(`${layer2.id.toString()} : ${escrow.address.toString()}`, () => {
               // try to resolve escrow by address
               // if it does not exist the assert will throw
-              discovery.getContractByAddress(escrow.address.toString())
+              discovery.getContractByAddress(
+                ChainSpecificAddress.from('eth', escrow.address),
+              )
             })
           }
         } catch {
@@ -219,20 +250,11 @@ describe('layer2s', () => {
 
             const discovery = new ProjectDiscovery(project.id.toString())
             addresses.forEach((a) => {
-              discovery.getContractByAddress(a.toString())
+              discovery.getContractByAddress(
+                ChainSpecificAddress.from('eth', a),
+              )
             })
           }
-        })
-      }
-    })
-  })
-
-  describe('finality', () => {
-    describe('every project with finality enabled has finalizationPeriod property', () => {
-      const projectsWithFinality = layer2s.filter((p) => p.config.finality)
-      for (const project of projectsWithFinality) {
-        it(project.id.toString(), () => {
-          expect(project.display.finality?.finalizationPeriod).not.toBeNullish()
         })
       }
     })
@@ -242,8 +264,8 @@ describe('layer2s', () => {
     describe('all arbitrum and op stack chains have the assessCount defined', () => {
       const opAndArbL2sWithActivity = layer2s
         .filter((layer2) => {
-          const { stack } = layer2.display
-          return stack === 'Arbitrum' || stack === 'OP Stack'
+          const { stacks: stack } = layer2.display
+          return stack?.includes('Arbitrum') || stack?.includes('OP Stack')
         })
         .flatMap((layer2) => {
           const { activityConfig } = layer2.config
@@ -272,68 +294,30 @@ describe('layer2s', () => {
   })
 
   describe('references', () => {
-    describe('permissions references are valid', () => {
-      for (const layer2 of layer2s) {
-        try {
-          const discovery = new ProjectDiscovery(layer2.id.toString())
+    for (const layer2 of layer2s) {
+      it(`${layer2.id.toString()}`, () => {
+        const discoveryAddresses = new Set(
+          new ProjectDiscovery(layer2.id)
+            .getTopLevelAddresses()
+            .map((address) =>
+              ChainSpecificAddress.address(address).toString().toLowerCase(),
+            ),
+        )
 
-          for (const perChain of Object.values(layer2.permissions ?? {})) {
-            const all = [...(perChain.roles ?? []), ...(perChain.actors ?? [])]
-            for (const { name, references } of all) {
-              const referencedAddresses = getAddressFromReferences(references)
-              if (referencedAddresses.length === 0) continue
+        const referencedAddresses = new Set(
+          JSON.stringify(layer2)
+            .match(/address\/(0x[a-fA-F0-9]{40})/g)
+            ?.map((match) => match.slice(8).toLowerCase()) || [],
+        )
 
-              it(`${layer2.id.toString()} : ${name}`, () => {
-                const contractAddresses = discovery.getAllContractAddresses()
-                expect(
-                  contractAddresses.some((a) =>
-                    referencedAddresses.includes(a),
-                  ),
-                ).toEqual(true)
-              })
-            }
-          }
-        } catch {
-          continue
+        for (const address of referencedAddresses) {
+          assert(
+            discoveryAddresses.has(address),
+            `${layer2.id} references ${address} but it's not found in discovery`,
+          )
         }
-      }
-    })
-
-    describe('technology references are valid', () => {
-      for (const layer2 of layer2s) {
-        try {
-          const discovery = new ProjectDiscovery(layer2.id.toString())
-          if (layer2.technology.isUnderReview === true) continue
-
-          for (const [key, choicesAny] of Object.entries(layer2.technology)) {
-            if (choicesAny === undefined) {
-              continue
-            }
-            it(`${layer2.id.toString()} : ${key}`, () => {
-              const choicesTyped = choicesAny as
-                | ProjectTechnologyChoice
-                | ProjectTechnologyChoice[]
-
-              const choices = Array.isArray(choicesTyped)
-                ? choicesTyped
-                : [choicesTyped]
-              const referencedAddresses = getReferencedAddresses(
-                choices.flatMap((c) => c.references).map((ref) => ref.url),
-              )
-
-              const allAddresses = discovery
-                .getAllContractAddresses()
-                .concat(discovery.getContractsAndEoas().map((m) => m.address))
-              for (const address of referencedAddresses) {
-                expect(allAddresses.includes(address)).toBeTruthy()
-              }
-            })
-          }
-        } catch {
-          continue
-        }
-      }
-    })
+      })
+    }
   })
 
   describe('display', () => {
@@ -354,7 +338,7 @@ describe('layer2s', () => {
           >
 
           function check(key: Key) {
-            const item = layer2.technology[key]
+            const item = layer2.technology?.[key]
             if (Array.isArray(item)) {
               for (const [i, x] of item.entries()) {
                 checkChoice(x, `${key}[${i}]`)
@@ -380,8 +364,6 @@ describe('layer2s', () => {
             })
           }
 
-          check('stateCorrectness')
-          check('newCryptography')
           check('dataAvailability')
           check('operator')
           check('forceTransactions')
@@ -466,28 +448,23 @@ describe('layer2s', () => {
     })
 
     describe('date', () => {
-      for (const project of layer2s) {
-        if (project.milestones === undefined) {
-          continue
-        }
-        for (const milestone of project.milestones) {
-          it(`Milestone: ${milestone.title} (${project.display.name}) date is full day`, () => {
-            expect(
-              UnixTime.isFull(
-                UnixTime.fromDate(new Date(milestone.date)),
-                'day',
-              ),
-            ).toEqual(true)
-          })
-        }
-      }
-      for (const milestone of milestonesLayer2s) {
-        it(`Milestone: ${milestone.title} (main page) date is full day`, () => {
+      const allMilestones = [
+        ...milestonesLayer2s,
+        ...layer2s.flatMap((l) => l.milestones ?? []),
+      ]
+      it('is full day', () => {
+        for (const milestone of allMilestones ?? []) {
           expect(
             UnixTime.isFull(UnixTime.fromDate(new Date(milestone.date)), 'day'),
           ).toEqual(true)
-        })
-      }
+        }
+      })
+
+      it('is correct', () => {
+        for (const milestone of allMilestones ?? []) {
+          expect(new Date(milestone.date).getTime()).not.toEqual(Number.NaN)
+        }
+      })
     })
   })
 
@@ -519,7 +496,9 @@ describe('layer2s', () => {
       for (const layer2 of layer2s) {
         if (!layer2.stateValidation) continue
 
-        expect(layer2.stateValidation?.description.endsWith('.')).toEqual(true)
+        if (layer2.stateValidation.description) {
+          expect(layer2.stateValidation.description.endsWith('.')).toEqual(true)
+        }
         layer2.stateValidation?.categories.forEach((category) => {
           expect(category.description.endsWith('.')).toEqual(true)
         })
@@ -538,11 +517,6 @@ describe('layer2s', () => {
     }
   })
 })
-
-function getAddressFromReferences(references: ReferenceLink[] = []) {
-  const addresses = references.map((r) => r.url)
-  return getReferencedAddresses(addresses)
-}
 
 export function getReferencedAddresses(addresses: string[] = []) {
   return [...addresses.join(';').matchAll(/0x[a-fA-F0-9]{40}/g)].map((e) =>

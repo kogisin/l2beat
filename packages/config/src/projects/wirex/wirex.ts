@@ -2,10 +2,9 @@ import { UnixTime } from '@l2beat/shared-pure'
 import {
   DA_BRIDGES,
   DA_LAYERS,
-  NEW_CRYPTOGRAPHY,
+  REASON_FOR_BEING_OTHER,
   RISK_VIEW,
 } from '../../common'
-import { REASON_FOR_BEING_OTHER } from '../../common'
 import { BADGES } from '../../common/badges'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
@@ -31,8 +30,8 @@ const isForcedBatchDisallowed =
 
 export const wirex: ScalingProject = polygonCDKStack({
   addedAt: UnixTime(1720180654), // 2024-07-05T11:57:34Z
+  archivedAt: UnixTime(1742774400), // 2025-03-24T00:00:00.000Z,
   additionalBadges: [BADGES.DA.DAC, BADGES.RaaS.Gateway],
-  isArchived: true,
   additionalPurposes: ['Payments'],
   reasonsForBeingOther: [REASON_FOR_BEING_OTHER.SMALL_DAC],
   display: {
@@ -42,7 +41,7 @@ export const wirex: ScalingProject = polygonCDKStack({
       'Pay Chain is a Validium built on the Polygon CDK stack. It is used as the infrastructure for the Wirex non-custodial debit cards.',
     links: {
       websites: ['https://wirexpaychain.com/'],
-      apps: ['https://pay-chain-bridge.wirexpaychain.com/'],
+      bridges: ['https://pay-chain-bridge.wirexpaychain.com/'],
       documentation: ['https://docs.wirexpaychain.com/tech/wirex-pay-chain'],
       explorers: ['https://pay-chain-blockscout.wirexpaychain.com/'],
       socialMedia: [
@@ -111,11 +110,6 @@ export const wirex: ScalingProject = polygonCDKStack({
       },
     }),
   ],
-  nonTemplateTechnology: {
-    newCryptography: {
-      ...NEW_CRYPTOGRAPHY.ZK_BOTH,
-    },
-  },
   stateDerivation: {
     nodeSoftware:
       'Node software can be found [here](https://github.com/0xPolygon/cdk-validium-node).',
@@ -131,7 +125,7 @@ export const wirex: ScalingProject = polygonCDKStack({
       url: 'https://x.com/wirexpaychain/status/1828779629051793710',
       date: '2024-08-28',
       description:
-        'Wirex Pay Chain launches officially, integrated with Polygon AggLayer.',
+        'Wirex Pay Chain launches officially, integrated with Polygon Agglayer.',
       type: 'general',
     },
   ],

@@ -1,15 +1,16 @@
-import { mkdirSync } from 'fs'
-import { dirname } from 'path'
+import { Logger } from '@l2beat/backend-tools'
 import {
   AllProviders,
   type DiscoveryChainConfig,
-  type IProvider,
-  SQLiteCache,
+  type ExplorerConfig,
   getDiscoveryPaths,
   getMulticall3Config,
+  type IProvider,
+  SQLiteCache,
 } from '@l2beat/discovery'
-import type { ExplorerConfig } from '@l2beat/discovery/dist/utils/IEtherscanClient'
 import { HttpClient } from '@l2beat/shared'
+import { mkdirSync } from 'fs'
+import { dirname } from 'path'
 
 const UNKNOWN_CHAIN_NAME = 'UnknownChainName'
 
@@ -32,12 +33,18 @@ export async function getProvider(
         type: 'etherscan',
         url: 'ERROR',
         apiKey: 'ERROR',
+        chainId: -1,
       },
     },
   ]
 
-  const allProviders = new AllProviders(chainConfigs, httpClient, cache)
+  const allProviders = new AllProviders(
+    chainConfigs,
+    httpClient,
+    cache,
+    Logger.SILENT,
+  )
   const blockNumber =
     await allProviders.getLatestBlockNumber(UNKNOWN_CHAIN_NAME)
-  return allProviders.get(UNKNOWN_CHAIN_NAME, blockNumber)
+  return allProviders.getByBlockNumber(UNKNOWN_CHAIN_NAME, blockNumber)
 }

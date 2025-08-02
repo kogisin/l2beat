@@ -1,4 +1,3 @@
-import { INDEXER_NAMES } from '@l2beat/backend-shared'
 import type { BlockTimestampProvider } from '@l2beat/shared'
 import {
   assert,
@@ -7,9 +6,10 @@ import {
   UnixTime,
 } from '@l2beat/shared-pure'
 import { Indexer } from '@l2beat/uif'
+import { INDEXER_NAMES } from '../../../tools/uif/indexerIdentity'
 import { ManagedMultiIndexer } from '../../../tools/uif/multi/ManagedMultiIndexer'
 import type { ManagedMultiIndexerOptions } from '../../../tools/uif/multi/types'
-import type { SyncOptimizer } from '../../tvl/utils/SyncOptimizer'
+import type { SyncOptimizer } from '../tools/SyncOptimizer'
 import type { BlockTimestampConfig } from '../types'
 
 interface BlockTimestampIndexerDeps
@@ -25,7 +25,7 @@ export class BlockTimestampIndexer extends ManagedMultiIndexer<BlockTimestampCon
   constructor(private readonly $: BlockTimestampIndexerDeps) {
     assert(
       $.configurations.length === 1,
-      `This indexer should take only one configuration`,
+      'This indexer should take only one configuration',
     )
     super({
       ...$,

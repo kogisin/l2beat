@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { v } from '@l2beat/validate'
 import { create } from 'zustand'
 
 export const PANEL_IDS = [
@@ -8,7 +8,9 @@ export const PANEL_IDS = [
   'code',
   'preview',
   'terminal',
+  'template',
 ] as const
+
 export type PanelId = (typeof PANEL_IDS)[number]
 
 export type Panel = { id: PanelId; size: number }
@@ -26,9 +28,10 @@ type State = {
 type Action = {
   changePanel: (from: PanelId, to: PanelId) => void
   addPanel: () => void
+  ensurePanel: (panelId: PanelId) => void
   setActivePanel: (id: PanelId | undefined) => void
   removePanel: (id?: PanelId) => void
-  toggleFullScren: (id?: PanelId) => void
+  toggleFullScreen: (id?: PanelId) => void
   resize: (id: PanelId, fraction: number) => void
   resizeAll: () => void
   mouseMove: (x: number, y: number) => void
@@ -47,16 +50,16 @@ const DEFAULT_LAYOUT: Panel[] = [
 const MAX_LAYOUTS = 6
 
 function readStoredLayouts() {
-  const zPanel = z.object({
-    id: z.enum(PANEL_IDS),
-    size: z.number().gt(0),
+  const zPanel = v.object({
+    id: v.enum(PANEL_IDS),
+    size: v.number().check((v) => v > 0),
   })
 
   const layouts: Panel[][] = new Array(MAX_LAYOUTS).fill(DEFAULT_LAYOUT)
   const json = localStorage.getItem('multi-app/layouts') ?? '[]'
   try {
     const object = JSON.parse(json)
-    const items = z.array(z.array(zPanel)).parse(object)
+    const items = v.array(v.array(zPanel)).parse(object)
     for (let i = 0; i < layouts.length; i++) {
       layouts[i] = items[i] ?? DEFAULT_LAYOUT
     }
@@ -129,6 +132,19 @@ export const useMultiViewStore = create<State & Action>((set) => ({
         active: nextPanelId,
       }
     }),
+  ensurePanel: (panelId: PanelId) =>
+    set((state) => {
+      const demandedPanel = state.panels.find((p) => p.id === panelId)
+      if (demandedPanel !== undefined) {
+        return state
+      }
+
+      const panels = state.panels.concat([{ id: panelId, size: 1 }])
+      return {
+        ...withLayouts(state, panels),
+        active: panelId,
+      }
+    }),
   removePanel: (id) =>
     set((state) => {
       const targetId = id ?? state.active
@@ -152,7 +168,7 @@ export const useMultiViewStore = create<State & Action>((set) => ({
       }
     }),
   setActivePanel: (id) => set(() => ({ active: id })),
-  toggleFullScren: (id) =>
+  toggleFullScreen: (id) =>
     set((state) => {
       const targetId = id ?? state.active
       return {
@@ -182,12 +198,13 @@ export const useMultiViewStore = create<State & Action>((set) => ({
       return withLayouts(state, panels)
     }),
   resizeAll: () =>
-    set((state) => ({
-      panels: state.panels.map((panel) => ({
+    set((state) => {
+      const panels = state.panels.map((panel) => ({
         ...panel,
         size: panel.id === 'list' ? 0.5 : 1,
-      })),
-    })),
+      }))
+      return withLayouts(state, panels)
+    }),
   mouseMove: (x, y) => set(() => ({ mouse: { x, y } })),
   pickUp: (id) => set(() => ({ pickedUp: id })),
   order: (id, before) =>

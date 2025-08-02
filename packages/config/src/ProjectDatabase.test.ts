@@ -1,12 +1,12 @@
-import { unlinkSync } from 'fs'
 import {
   AssetId,
   ChainId,
   CoingeckoId,
+  type LegacyToken,
   ProjectId,
-  type Token,
 } from '@l2beat/shared-pure'
 import { expect } from 'earl'
+import { unlinkSync } from 'fs'
 import { ProjectDatabase } from './ProjectDatabase'
 import type { BaseProject } from './types'
 
@@ -86,7 +86,7 @@ describe(ProjectDatabase.name, () => {
   })
 
   it('can add and retrieve a token', async () => {
-    const token: Token = {
+    const token: LegacyToken = {
       id: AssetId('foo'),
       name: 'Foo',
       coingeckoId: CoingeckoId('foo'),

@@ -1,9 +1,9 @@
 import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
 
-import { CONTRACTS } from '../../common'
-import { BRIDGE_RISK_VIEW } from '../../common'
+import { BRIDGE_RISK_VIEW, CONTRACTS } from '../../common'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { Bridge } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('polynetwork')
 
@@ -16,15 +16,15 @@ const warningText = isPaused ? 'The bridge is currently paused.' : undefined
 export const polynetwork: Bridge = {
   type: 'bridge',
   id: ProjectId('polynetwork'),
-  isArchived: true,
   addedAt: UnixTime(1662628329), // 2022-09-08T09:12:09Z
+  archivedAt: UnixTime(1742256000), // 2025-03-18T00:00:00.000Z,
   display: {
     name: 'Poly Bridge',
     slug: 'polynetwork',
     warning: warningText,
     links: {
       websites: ['https://bridge.poly.network/', 'https://poly.network/'],
-      apps: ['https://bridge.poly.network/'],
+      bridges: ['https://bridge.poly.network/'],
       socialMedia: [
         'https://twitter.com/PolyNetwork2',
         'https://polynetwork.medium.com/',
@@ -56,11 +56,6 @@ export const polynetwork: Bridge = {
       // EthCrossChainManager.sol#1467
       // n - (n - 1) / 3 (n = keepers count)
       description: '3/4 MultiSig of PolyNetwork Keepers',
-      sentiment: 'bad',
-    },
-    sourceUpgradeability: {
-      value: 'Yes',
-      description: 'Contracts can be upgraded',
       sentiment: 'bad',
     },
     destinationToken: {
@@ -140,7 +135,7 @@ export const polynetwork: Bridge = {
   },
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails(
           'PolyWrapper',
           'Entrypoint contract for the bridge. It proxies requests to LockProxy.',
@@ -208,7 +203,7 @@ export const polynetwork: Bridge = {
     risks: [CONTRACTS.UPGRADE_NO_DELAY_RISK],
   },
   permissions: {
-    [discovery.chain]: {
+    ethereum: {
       actors: [
         discovery.getPermissionDetails(
           'Owner and Fee Collector at PolyWrapper and owner at LockProxyWithLP',
@@ -254,4 +249,5 @@ export const polynetwork: Bridge = {
       type: 'incident',
     },
   ],
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

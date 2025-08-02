@@ -1,8 +1,12 @@
+# This file is used by preview builds in heroku pipeline
 build:
   docker:
-    backend: Dockerfile.backend
+    frontend: Dockerfile.frontend
+setup:
+  config:
+    NODE_ENV: production
 run:
   web:
-    command: 
-    - npm run start
-    image: backend
+    command:
+    - node ./dist/server/index.js
+    image: frontend

@@ -1,4 +1,4 @@
-import { UnixTime } from '@l2beat/shared-pure'
+import { ProjectId, UnixTime } from '@l2beat/shared-pure'
 import type { ScalingProject } from '../../internalTypes'
 import { upcomingL2 } from '../../templates/upcoming'
 
@@ -10,10 +10,10 @@ export const haust: ScalingProject = upcomingL2({
     name: 'Haust Network',
     slug: 'haust',
     description:
-      'Haust Network is a zkEVM Layer 2 blockchain built on the Polygon CDK, integrating with the AggLayer and Account Abstraction from the outset.',
+      'Haust Network is a zkEVM Layer 2 blockchain built on the Polygon CDK, integrating with the Agglayer and Account Abstraction from the outset.',
     purposes: ['Exchange'],
     category: 'ZK Rollup',
-    stack: 'Polygon',
+    stacks: ['Agglayer CDK'],
     links: {
       websites: ['https://haust.network/'],
       documentation: ['https://docs.haust.network/'],
@@ -26,5 +26,8 @@ export const haust: ScalingProject = upcomingL2({
         'https://medium.com/@haustnetwork',
       ],
     },
+  },
+  ecosystemInfo: {
+    id: ProjectId('agglayer'),
   },
 })

@@ -1,10 +1,9 @@
+import type { NextApiRequest, NextApiResponse } from 'next'
 import { SUPPORTED_CHAINS } from '@/chains'
 import { ChainService } from '@/server/services/ChainService'
 import type { ApiError, LatestBlockApiRequest } from '@/types'
-import type { NextApiRequest, NextApiResponse } from 'next'
 import { loadDb } from '../../server/db/db'
 
-// biome-ignore lint/style/noDefaultExport: api handler
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<number | ApiError>,

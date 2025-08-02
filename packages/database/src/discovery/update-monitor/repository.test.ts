@@ -15,7 +15,7 @@ describeDatabase(UpdateMonitorRepository.name, (db) => {
   })
 
   it(UpdateMonitorRepository.prototype.findLatest.name, async () => {
-    const projectName = 'project'
+    const projectId = 'project'
 
     const expectedEth: UpdateMonitorRecord = record()
     const expectedArb: UpdateMonitorRecord = record({
@@ -25,37 +25,43 @@ describeDatabase(UpdateMonitorRepository.name, (db) => {
     await repository.upsert(expectedEth)
     await repository.upsert(expectedArb)
 
-    const resultEth = await repository.findLatest(projectName, ChainId.ETHEREUM)
-    const resultArb = await repository.findLatest(projectName, ChainId.ARBITRUM)
+    const resultEth = await repository.findLatest(projectId, ChainId.ETHEREUM)
+    const resultArb = await repository.findLatest(projectId, ChainId.ARBITRUM)
 
     expect(resultEth).toEqual(expectedEth)
     expect(resultArb).toEqual(expectedArb)
   })
 
   it(UpdateMonitorRepository.prototype.upsert.name, async () => {
-    const projectName = 'project'
+    const projectId = 'project'
 
     const discovery: UpdateMonitorRecord = {
-      projectName,
+      projectId,
       chainId: ChainId.ETHEREUM,
       blockNumber: -1,
       timestamp: 0,
       discovery: {
-        name: projectName,
+        name: projectId,
         chain: 'ethereum',
         blockNumber: -1,
+        timestamp: -1,
         configHash: Hash256.random(),
         entries: [],
         abis: {},
         usedTemplates: {},
+        usedBlockNumbers: {},
       },
       configHash: CONFIG_HASH,
     }
     await repository.upsert(discovery)
 
-    const updated: UpdateMonitorRecord = { ...discovery, blockNumber: 1 }
+    const updated: UpdateMonitorRecord = {
+      ...discovery,
+      blockNumber: 1,
+      timestamp: 1,
+    }
     await repository.upsert(updated)
-    const latest = await repository.findLatest(projectName, ChainId.ETHEREUM)
+    const latest = await repository.findLatest(projectId, ChainId.ETHEREUM)
 
     expect(latest).toEqual(updated)
   })
@@ -63,7 +69,7 @@ describeDatabase(UpdateMonitorRepository.name, (db) => {
 
 function record(params?: Partial<UpdateMonitorRecord>): UpdateMonitorRecord {
   return {
-    projectName: 'project',
+    projectId: 'project',
     chainId: ChainId.ETHEREUM,
     blockNumber: -1,
     timestamp: 0,
@@ -71,10 +77,12 @@ function record(params?: Partial<UpdateMonitorRecord>): UpdateMonitorRecord {
       name: 'project',
       chain: 'ethereum',
       blockNumber: -1,
+      timestamp: -1,
       configHash: Hash256.random(),
       entries: [],
       abis: {},
       usedTemplates: {},
+      usedBlockNumbers: {},
     },
     configHash: CONFIG_HASH,
     ...params,

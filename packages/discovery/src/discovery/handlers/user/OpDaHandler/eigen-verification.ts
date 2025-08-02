@@ -1,6 +1,6 @@
-import { assert, EthereumAddress, UnixTime } from '@l2beat/shared-pure'
+import { ChainSpecificAddress } from '@l2beat/shared-pure'
+import { v } from '@l2beat/validate'
 import { RLP } from 'ethers/lib/utils'
-import { z } from 'zod'
 import type { Transaction } from '../../../../utils/IEtherscanClient'
 import type { IProvider } from '../../../provider/IProvider'
 
@@ -9,34 +9,30 @@ import type { IProvider } from '../../../provider/IProvider'
  * These versioning prefixes are super weird.
  */
 const EIGEN_DA_CONSTANTS = {
-  COMMITMENT_PREFIX: '0x01',
+  COMMITMENT_FIRST_BYTE: '01',
   COMMITMENT_THIRD_BYTE: '00',
-  EIGEN_AVS: EthereumAddress('0x870679e138bcdf293b7ff14dd44b70fc97e12fc0'),
+  EIGEN_AVS: ChainSpecificAddress(
+    'eth:0x870679e138bcdf293b7ff14dd44b70fc97e12fc0',
+  ),
 } as const
 
 export async function checkForEigenDA(
   provider: IProvider,
   sequencerTxs: Transaction[],
 ) {
+  const possibleCommitments = sequencerTxs.map(({ input }) =>
+    reduceUntil(input),
+  )
+
   // Byte-check step + RLP decode attempt
   const eigenBlobInfos =
-    sequencerTxs.length > 0 &&
-    sequencerTxs.flatMap((tx) => {
-      const thirdByte = tx.input.slice(6, 8)
-
-      const prefixMatch = tx.input.startsWith(
-        EIGEN_DA_CONSTANTS.COMMITMENT_PREFIX,
-      )
-      const thirdByteMatch =
-        thirdByte === EIGEN_DA_CONSTANTS.COMMITMENT_THIRD_BYTE
-
-      const hasByteMatch = prefixMatch && thirdByteMatch
-
-      if (!hasByteMatch) {
+    possibleCommitments.length > 0 &&
+    possibleCommitments.flatMap((input) => {
+      if (!input) {
         return []
       }
 
-      const eigenBlobInfo = tryParsingEigenDaBlobInfo(tx.input)
+      const eigenBlobInfo = tryParsingEigenDaBlobInfo(input)
 
       if (!eigenBlobInfo) {
         return []
@@ -71,9 +67,7 @@ export async function checkForEigenDA(
 async function getConfirmedBatchHeaderHashes(
   provider: IProvider,
 ): Promise<string[]> {
-  const blockToSwitch = await getEthereumBlock(provider)
-
-  const ethereumProvider = provider.switchChain('ethereum', blockToSwitch)
+  const ethereumProvider = await provider.switchChain('ethereum')
 
   const logs = await ethereumProvider.getEvents(
     EIGEN_DA_CONSTANTS.EIGEN_AVS,
@@ -82,31 +76,6 @@ async function getConfirmedBatchHeaderHashes(
   )
 
   return logs.map((log) => log.event.batchHeaderHash.toLowerCase())
-}
-
-async function getEthereumBlock(provider: IProvider) {
-  if (provider.chain === 'ethereum') {
-    return provider.blockNumber
-  }
-
-  const currentBlock = await provider.getBlock(provider.blockNumber)
-  assert(currentBlock, 'Current block is undefined')
-
-  const timestamp = UnixTime(currentBlock.timestamp)
-
-  // We need to switch to ethereum to get the block number.
-  // Eigen AVS lives there.
-  // Yet we need to pass 'some' block number to the provider to perform the switch.
-  // Can't do. You get the idea. That's why we pass 0. It doesn't matter.
-  const ethereumProvider = provider.switchChain('ethereum', 0)
-
-  const correspondingEthereumBlock = await ethereumProvider.raw(
-    `optimism_eigen_cross_chain_translate_${provider.blockNumber}_${provider.chain}`,
-    ({ etherscanClient }) =>
-      etherscanClient.getBlockNumberAtOrBefore(timestamp),
-  )
-
-  return correspondingEthereumBlock
 }
 
 function extractBlobBatchHeaderHash(decoded: EigenDaBlobInfo): string {
@@ -130,16 +99,31 @@ function extractBlobBatchHeaderHash(decoded: EigenDaBlobInfo): string {
   return blobBatchHeaderHash.toLowerCase()
 }
 
-function tryParsingEigenDaBlobInfo(inputData: string): EigenDaBlobInfo | null {
-  try {
-    // strip three commitment type bytes + 0x
-    const eigenCommitment = inputData.slice(4 * 2)
-    // Sometimes it's prefixed with 00, sometimes it's not.
-    const noTypeCommitment = eigenCommitment.startsWith('00')
-      ? eigenCommitment.slice(2)
-      : eigenCommitment
+// Some projects (yghm Mantle) prefixes commitment with some data
+// So we reduce until we find the commitment start point.
+function reduceUntil(input: string) {
+  for (let i = 0; i < input.length; i++) {
+    const slice = input.slice(i, input.length)
 
-    const rlp = RLP.decode('0x' + noTypeCommitment)
+    const firstByte = slice.slice(0, 2)
+    const thirdByte = slice.slice(4, 6)
+
+    if (
+      firstByte === EIGEN_DA_CONSTANTS.COMMITMENT_FIRST_BYTE &&
+      thirdByte === EIGEN_DA_CONSTANTS.COMMITMENT_THIRD_BYTE
+    ) {
+      const commitment = slice.slice(6)
+      // sometimes we still have 00 remaining
+      return commitment.startsWith('00') ? commitment.slice(2) : commitment
+    }
+  }
+}
+
+function tryParsingEigenDaBlobInfo(
+  possibleCommitment: string,
+): EigenDaBlobInfo | null {
+  try {
+    const rlp = RLP.decode('0x' + possibleCommitment)
 
     return EigenDaBlobInfo.parse(rlp)
   } catch {
@@ -151,47 +135,47 @@ function tryParsingEigenDaBlobInfo(inputData: string): EigenDaBlobInfo | null {
  * @see https://github.com/Layr-Labs/eigenda/blob/master/api/proto/disperser/disperser.proto
  * @commit 733bcbe
  */
-type EigenDaBlobInfo = z.infer<typeof EigenDaBlobInfo>
-const EigenDaBlobInfo = z.tuple([
+type EigenDaBlobInfo = v.infer<typeof EigenDaBlobInfo>
+const EigenDaBlobInfo = v.tuple([
   // Blob header
-  z.tuple([
+  v.tuple([
     // KZG commitment
-    z.tuple([
-      z.string(), // x
-      z.string(), // y
+    v.tuple([
+      v.string(), // x
+      v.string(), // y
     ]),
-    z.string(), // data length
+    v.string(), // data length
     // repeated BlobQuorumParams
-    z.array(
-      z.tuple([
-        z.string(), // quorum number
-        z.string(), // adversary threshold percentage
-        z.string(), // confirmation threshold percentage
-        z.string(), // chunk length
+    v.array(
+      v.tuple([
+        v.string(), // quorum number
+        v.string(), // adversary threshold percentage
+        v.string(), // confirmation threshold percentage
+        v.string(), // chunk length
       ]),
     ),
   ]),
   // Blob verification proof
-  z.tuple([
-    z.string(), // batch id
-    z.string(), // blob index
+  v.tuple([
+    v.string(), // batch id
+    v.string(), // blob index
     // Batch metadata
-    z.tuple([
+    v.tuple([
       // Batch header
-      z.tuple([
-        z.string(), // batch root
-        z.string(), // quorum numbers
-        z.string(), // quorum signed
-        z.string(), // reference block number
+      v.tuple([
+        v.string(), // batch root
+        v.string(), // quorum numbers
+        v.string(), // quorum signed
+        v.string(), // reference block number
       ]),
-      z.string(), // signatory record hash
-      z.string(), // fee
-      z.string(), // confirmation height
-      z
+      v.string(), // signatory record hash
+      v.string(), // fee
+      v.string(), // confirmation height
+      v
         .string()
-        .length(64 + 2), // batch header hash <---
+        .check((v) => v.length === 64 + 2), // batch header hash <---
     ]),
-    z.string(), // inclusion proof
-    z.string(), // quorum index
+    v.string(), // inclusion proof
+    v.string(), // quorum index
   ]),
 ])

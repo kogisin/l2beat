@@ -1,25 +1,23 @@
 import { Logger, RateLimiter } from '@l2beat/backend-tools'
+import type { HttpClient } from '@l2beat/shared'
 import {
   assert,
   EthereumAddress,
   Hash256,
-  UnixTime,
   type json,
+  UnixTime,
 } from '@l2beat/shared-pure'
-
-import type { ContractSource } from './IEtherscanClient'
-
-import type { HttpClient } from '@l2beat/shared'
 import {
   BlockscoutGetBlockNoByTime,
   ContractCreatorAndCreationTxHashResult,
   ContractSourceResult,
   OneTransactionListResult,
+  parseBlockscoutResponse,
   TransactionListResult,
   UnverifiedContractSourceResult,
-  parseBlockscoutResponse,
 } from './BlockscoutModels'
 import type {
+  ContractSource,
   EtherscanUnsupportedMethods,
   IEtherscanClient,
 } from './IEtherscanClient'
@@ -124,7 +122,7 @@ export class BlockscoutClient implements IEtherscanClient {
     assert(result)
     const files: Record<string, string> = {}
     files[result.FileName] = result.SourceCode
-    for (const file of result.AdditionalSources) {
+    for (const file of result.AdditionalSources ?? []) {
       // NOTE(radomski): Blockscout API returns filenames with a leading
       // single quote. Potentially an error with string escaping on their
       // end.
@@ -140,7 +138,7 @@ export class BlockscoutClient implements IEtherscanClient {
       abi: jsonToHumanReadableAbi(result.ABI),
       solidityVersion: result.CompilerVersion,
       constructorArguments: '',
-      remappings: result.CompilerSettings.remappings ?? [],
+      remappings: result.CompilerSettings?.remappings ?? [],
       files,
     }
   }
@@ -181,7 +179,7 @@ export class BlockscoutClient implements IEtherscanClient {
     const resp = OneTransactionListResult.parse(response)[0]
     assert(resp)
 
-    return UnixTime(parseInt(resp.timeStamp, 10))
+    return UnixTime(Number.parseInt(resp.timeStamp, 10))
   }
 
   async getAtMost10RecentOutgoingTxs(

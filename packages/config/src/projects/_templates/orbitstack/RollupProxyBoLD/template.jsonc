@@ -15,6 +15,14 @@
     "stakeToken"
   ],
   "fields": {
+    "getValidators": {
+      "permissions": [
+        {
+          "type": "validate",
+          "description": "Can propose new state roots (called nodes) and challenge state roots on the host chain."
+        }
+      ]
+    },
     "isPostBoLD": {
       "handler": {
         "type": "hardcoded",
@@ -45,7 +53,7 @@
         "method": "wasmModuleRoot",
         "args": []
       },
-      "returnType": "(ArbOsWasmModuleRoot)"
+      "edit": ["format", "ArbOsWasmModuleRoot"]
     },
     "challenges": {
       "description": "Emitted on createChallenge() in RollupUserLogic.",

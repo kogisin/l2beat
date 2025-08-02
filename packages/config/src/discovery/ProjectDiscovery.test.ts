@@ -1,13 +1,12 @@
-import { assert, EthereumAddress } from '@l2beat/shared-pure'
-import { expect, mockObject } from 'earl'
-
 import {
   type ConfigReader,
-  DiscoveryConfig,
-  type RawDiscoveryConfig,
+  ConfigRegistry,
+  type DiscoveryConfig,
 } from '@l2beat/discovery'
+import { assert, ChainSpecificAddress } from '@l2beat/shared-pure'
+import { expect, mockFn, mockObject } from 'earl'
 import { contractStub, discoveredJsonStub } from '../test/stubs/discoveredJson'
-import { ProjectDiscovery, formatAsBulletPoints } from './ProjectDiscovery'
+import { ProjectDiscovery } from './ProjectDiscovery'
 
 describe(ProjectDiscovery.name, () => {
   const projectName = 'ExampleProject'
@@ -15,10 +14,10 @@ describe(ProjectDiscovery.name, () => {
     readConfig: (projectName: string, chain: string) =>
       mockConfig(projectName, chain),
     readDiscovery: () => discoveredJsonStub,
-    getDisplayMode: () => 'fromDiscovery',
+    readAllDiscoveredChainsForProject: mockFn().returns(['ethereum']),
   })
 
-  const discovery = new ProjectDiscovery(projectName, 'ethereum', configReader)
+  const discovery = new ProjectDiscovery(projectName, configReader)
 
   describe(ProjectDiscovery.prototype.getContract.name, () => {
     it('should return contract for given address', () => {
@@ -28,7 +27,9 @@ describe(ProjectDiscovery.name, () => {
     })
 
     it('should throw an error if contract with given address does not exist', () => {
-      const nonExistingAddress = '0xF380166F8490F24AF32Bf47D1aA217FBA62B6575'
+      const nonExistingAddress = ChainSpecificAddress(
+        'eth:0xF380166F8490F24AF32Bf47D1aA217FBA62B6575',
+      )
 
       expect(() => discovery.getContract(nonExistingAddress)).toThrow(
         `Assertion Error: No contract of ${nonExistingAddress} address found (${projectName})`,
@@ -80,11 +81,7 @@ describe(ProjectDiscovery.name, () => {
   })
 
   it('reads configurations for different chainIds', () => {
-    const discovery = new ProjectDiscovery(
-      'ExampleProject',
-      'arbitrum',
-      configReader,
-    )
+    const discovery = new ProjectDiscovery('ExampleProject', configReader)
     const contract = discovery.getContract(contractStub.address.toString())
 
     expect(JSON.stringify(contract)).toEqual(JSON.stringify(contractStub))
@@ -92,11 +89,7 @@ describe(ProjectDiscovery.name, () => {
 
   describe(ProjectDiscovery.prototype.getPermissionsByRole.name, () => {
     it('should find contracts and eoas by role', () => {
-      const discovery = new ProjectDiscovery(
-        'ExampleProject',
-        'ethereum',
-        configReader,
-      )
+      const discovery = new ProjectDiscovery('ExampleProject', configReader)
       const sequencers = discovery.getPermissionsByRole('sequence')
       expect(sequencers).toEqual([
         {
@@ -107,8 +100,8 @@ describe(ProjectDiscovery.name, () => {
           url: 'https://etherscan.io/address/0x0D4C1222f5e839a911e2053860e45F18921D72ac',
         },
         {
-          address: EthereumAddress(
-            '0x000000000000000000000000000000000000Bb22',
+          address: ChainSpecificAddress(
+            'eth:0x000000000000000000000000000000000000Bb22',
           ),
           type: 'EOA',
           isVerified: true,
@@ -122,7 +115,7 @@ describe(ProjectDiscovery.name, () => {
   describe(ProjectDiscovery.prototype.replaceAddressesWithNames.name, () => {
     it('should replace addresses with names', () => {
       const replaced = discovery.replaceAddressesWithNames(
-        'Can be updated by 0x0D4C1222f5e839a911e2053860e45F18921D72ac, 0x787A0ACaB02437c60Aafb1a29167A3609801e320',
+        'Can be updated by eth:0x0D4C1222f5e839a911e2053860e45F18921D72ac, eth:0x787A0ACaB02437c60Aafb1a29167A3609801e320',
       )
       expect(replaced).toEqual(
         'Can be updated by MockedContract, 0x787A0ACaB02437c60Aafb1a29167A3609801e320',
@@ -131,26 +124,12 @@ describe(ProjectDiscovery.name, () => {
   })
 })
 
-describe(formatAsBulletPoints.name, () => {
-  it('should format description as bullet points', () => {
-    const description = ['First point', 'Second point', 'Third point']
-    const formatted = formatAsBulletPoints(description)
-    expect(formatted).toEqual('* First point\n* Second point\n* Third point\n')
-  })
-
-  it('should format single point as string', () => {
-    const description = ['Single point']
-    const formatted = formatAsBulletPoints(description)
-    expect(formatted).toEqual('Single point')
-  })
-})
-
 function mockConfig(
   name: string,
   chain = 'ethereum',
-  innerConfig: Partial<RawDiscoveryConfig> = {},
-): DiscoveryConfig {
-  return new DiscoveryConfig({
+  innerConfig: Partial<DiscoveryConfig> = {},
+): ConfigRegistry {
+  return new ConfigRegistry({
     name,
     chain,
     initialAddresses: [],

@@ -1,20 +1,26 @@
-import type { Logger } from '@l2beat/backend-tools'
-import {
-  type AllProviders,
-  type DiscoveryConfig,
-  type DiscoveryEngine,
-  DiscoveryLogger,
-  type DiscoveryOutput,
-  flattenDiscoveredSources,
-  toRawDiscoveryOutput,
-} from '@l2beat/discovery'
+import { Logger } from '@l2beat/backend-tools'
 import {
   type AllProviderStats,
+  type AllProviders,
+  type Analysis,
+  ConfigReader,
+  type ConfigRegistry,
+  combinePermissionsIntoDiscovery,
+  type DiscoveryBlockNumbers,
+  type DiscoveryEngine,
+  type DiscoveryOutput,
+  DiscoveryRegistry,
+  flattenDiscoveredSources,
+  getDependenciesToDiscoverForProject,
+  getDiscoveryPaths,
+  modelPermissions,
   ProviderMeasurement,
   type ProviderStats,
-} from '@l2beat/discovery/dist/discovery/provider/Stats'
-import { assert } from '@l2beat/shared-pure'
-import { isError } from 'lodash'
+  type TemplateService,
+  toRawDiscoveryOutput,
+} from '@l2beat/discovery'
+import { assert, UnixTime, withoutUndefinedKeys } from '@l2beat/shared-pure'
+import isError from 'lodash/isError'
 import { Gauge } from 'prom-client'
 
 export interface DiscoveryRunnerOptions {
@@ -36,6 +42,7 @@ export class DiscoveryRunner {
   constructor(
     private readonly allProviders: AllProviders,
     private readonly discoveryEngine: DiscoveryEngine,
+    private readonly templateService: TemplateService,
     readonly chain: string,
   ) {}
 
@@ -44,33 +51,162 @@ export class DiscoveryRunner {
   }
 
   private async discover(
-    config: DiscoveryConfig,
-    blockNumber: number,
+    projectName: string,
+    projectChain: string,
+    discoveryTimestamp: number,
+    dependentDiscoveries: 'useCurrentTimestamp' | DiscoveryBlockNumbers,
+    logger: Logger,
+    configReader?: ConfigReader,
   ): Promise<DiscoveryRunResult> {
-    const provider = this.allProviders.get(config.chain, blockNumber)
-    const result = await this.discoveryEngine.discover(provider, config)
+    logger.info(
+      `Attempting discovery of ${projectName} on ${projectChain} at timestamp ${discoveryTimestamp}`,
+    )
 
-    setDiscoveryMetrics(this.allProviders.getStats(config.chain), config.chain)
+    const discoveryPaths = getDiscoveryPaths()
+    configReader ??= new ConfigReader(discoveryPaths.discovery)
+    const rawConfig = configReader.readRawConfig(projectName)
 
-    const discovery = toRawDiscoveryOutput(config, blockNumber, result)
-    const flatSources = flattenDiscoveredSources(result, DiscoveryLogger.SILENT)
+    let toDiscover: { project: string; chain: string }[] = []
+    if (rawConfig.modelCrossChainPermissions) {
+      logger.info('Discovering dependencies for cross-chain modelling')
+      toDiscover = getDependenciesToDiscoverForProject(
+        projectName,
+        configReader,
+      )
+      logger.info('Dependent project:', toDiscover)
+      logger.info(
+        'Requested dependent block numbers:',
+        dependentDiscoveries ?? 'none',
+      )
+    } else {
+      logger.info('Discovering only current project - no cross-chain modelling')
+      toDiscover.push({ project: projectName, chain: projectChain })
+    }
 
-    return { discovery, flatSources }
+    if (dependentDiscoveries !== 'useCurrentTimestamp') {
+      // Always default the discovery of current project to discoveryBlockNumber
+      dependentDiscoveries[projectName] ??= {}
+      dependentDiscoveries[projectName][projectChain] ??= {
+        timestamp: discoveryTimestamp,
+      }
+    }
+
+    const discoveries = await this.discoverMany(
+      toDiscover,
+      dependentDiscoveries,
+      configReader,
+      logger,
+    )
+
+    setDiscoveryMetrics(this.allProviders.getStats(projectChain), projectChain)
+
+    const permissionsOutput = await modelPermissions(
+      projectName,
+      discoveries,
+      configReader,
+      this.templateService,
+      discoveryPaths,
+      { debug: false },
+    )
+    const projectDiscovery = discoveries.get(projectName, projectChain)
+    combinePermissionsIntoDiscovery(
+      projectDiscovery.discoveryOutput,
+      permissionsOutput,
+    )
+
+    assert(projectDiscovery.analysis)
+    // TODO: Should not be here - drop it and use implementation name once it's ready
+    // if somebody changes the name and decides to re-colorize
+    // then .flat folder will be incorrect
+    // Duplicated from saveDiscoveryResult.ts
+    const remappedResults = remapNames(
+      projectDiscovery.analysis,
+      projectDiscovery.discoveryOutput,
+    )
+    const flatSources = flattenDiscoveredSources(remappedResults, Logger.SILENT)
+
+    return {
+      discovery: withoutUndefinedKeys(projectDiscovery.discoveryOutput),
+      flatSources,
+    }
+  }
+
+  private async discoverMany(
+    toDiscover: { project: string; chain: string }[],
+    dependentDiscoveries: 'useCurrentTimestamp' | DiscoveryBlockNumbers,
+    configReader: ConfigReader,
+    logger: Logger,
+  ) {
+    const discoveries = new DiscoveryRegistry()
+    for (const dependency of toDiscover) {
+      let dependencyTimestamp
+      if (dependentDiscoveries === 'useCurrentTimestamp') {
+        dependencyTimestamp = UnixTime.now()
+      } else {
+        dependencyTimestamp =
+          dependentDiscoveries?.[dependency.project]?.[dependency.chain]
+            ?.timestamp
+
+        if (dependencyTimestamp === undefined) {
+          // We rediscover on the past block number, but with current configs and dependencies.
+          // Those dependencies might not have been referenced in the old discovery.
+          // In that case we don't fail - the diff will show all those "added".
+          logger.info(
+            `No block number found for dependency ${dependency.project} on ${dependency.chain}, skipping its rediscovery.`,
+          )
+          continue
+        }
+      }
+
+      const dependencyConfig = configReader.readConfig(
+        dependency.project,
+        dependency.chain,
+      )
+      const provider = await this.allProviders.get(
+        dependency.chain,
+        dependencyTimestamp,
+      )
+      logger.info(
+        `Discovering ${dependencyConfig.name} on ${dependencyConfig.chain} at timestamp ${dependencyTimestamp}`,
+      )
+      const analysis = await this.discoveryEngine.discover(
+        provider,
+        dependencyConfig.structure,
+      )
+      const discovery = toRawDiscoveryOutput(
+        this.templateService,
+        dependencyConfig,
+        dependencyTimestamp,
+        { [dependencyConfig.chain]: provider.blockNumber },
+        analysis,
+      )
+      discoveries.set(dependency.project, dependency.chain, discovery, analysis)
+    }
+    return discoveries
   }
 
   async discoverWithRetry(
-    config: DiscoveryConfig,
-    blockNumber: number,
+    config: ConfigRegistry,
+    timestamp: UnixTime,
     logger: Logger,
     maxRetries = MAX_RETRIES,
     delayMs = RETRY_DELAY_MS,
+    dependentDiscoveries?: 'useCurrentTimestamp' | DiscoveryBlockNumbers,
+    configReader?: ConfigReader,
   ): Promise<DiscoveryRunResult> {
     let result: DiscoveryRunResult | undefined = undefined
     let err: Error | undefined = undefined
 
     for (let i = 0; i <= maxRetries; i++) {
       try {
-        result = await this.discover(config, blockNumber)
+        result = await this.discover(
+          config.name,
+          config.chain,
+          timestamp,
+          dependentDiscoveries ?? {},
+          logger,
+          configReader,
+        )
         break
       } catch (error) {
         err = isError(err) ? (error as Error) : new Error(JSON.stringify(error))
@@ -171,3 +307,29 @@ const highLevelProviderDurationGauge: ProviderGauge = new Gauge({
   help: 'Average duration of methods in high level provider calls done during discovery',
   labelNames: ['chain', 'method'],
 })
+
+function remapNames(
+  results: Analysis[],
+  discoveryOutput: DiscoveryOutput,
+): Analysis[] {
+  return results.map((entry) => {
+    if (entry.type === 'EOA') {
+      return entry
+    }
+
+    const matchingEntry = discoveryOutput.entries.find(
+      (e) => e.address === entry.address,
+    )
+
+    if (!matchingEntry) {
+      return entry
+    }
+
+    const newName = matchingEntry.name ?? entry.name
+
+    return {
+      ...entry,
+      name: newName,
+    }
+  })
+}

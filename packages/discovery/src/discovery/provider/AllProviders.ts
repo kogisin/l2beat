@@ -1,19 +1,24 @@
-import { Logger } from '@l2beat/backend-tools'
-import { CelestiaApiClient, type HttpClient, RpcClient } from '@l2beat/shared'
-import { BlobClient } from '@l2beat/shared'
-import { assert } from '@l2beat/shared-pure'
+import type { Logger } from '@l2beat/backend-tools'
+import {
+  BlobClient,
+  CelestiaApiClient,
+  CoingeckoClient,
+  type HttpClient,
+  RpcClient,
+} from '@l2beat/shared'
+import { assert, type UnixTime } from '@l2beat/shared-pure'
 import { providers } from 'ethers'
 import type { DiscoveryChainConfig } from '../../config/types'
 import { getExplorerClient } from '../../utils/IEtherscanClient'
 import { BatchingAndCachingProvider } from './BatchingAndCachingProvider'
 import type { DiscoveryCache } from './DiscoveryCache'
+import { getBlockNumberTwoProviders } from './getBlockNumberTwoProviders'
 import { HighLevelProvider } from './HighLevelProvider'
 import type { IProvider, RawProviders } from './IProvider'
 import { LowLevelProvider } from './LowLevelProvider'
+import { MulticallClient } from './multicall/MulticallClient'
 import { ReorgAwareCache } from './ReorgAwareCache'
 import { type AllProviderStats, ProviderStats } from './Stats'
-import { getBlockNumberTwoProviders } from './getBlockNumberTwoProviders'
-import { MulticallClient } from './multicall/MulticallClient'
 
 export class AllProviders {
   private config: Map<
@@ -31,6 +36,7 @@ export class AllProviders {
     chainConfigs: DiscoveryChainConfig[],
     http: HttpClient,
     private discoveryCache: DiscoveryCache,
+    private logger: Logger,
   ) {
     for (const config of chainConfigs) {
       const baseProvider = new providers.StaticJsonRpcProvider(
@@ -45,7 +51,7 @@ export class AllProviders {
               config.chainId,
             )
 
-      const etherscanClient = getExplorerClient(http, config.explorer)
+      const etherscanClient = getExplorerClient(http, config.explorer, logger)
       let blobClient: BlobClient | undefined
       let celestiaApiClient: CelestiaApiClient | undefined
 
@@ -54,14 +60,14 @@ export class AllProviders {
         retryStrategy: 'SCRIPT',
         callsPerMinute: 60,
         sourceName: 'ethereum',
-        logger: Logger.SILENT,
+        logger,
         http,
       })
 
       if (config.beaconApiUrl) {
         blobClient = new BlobClient({
           beaconApiUrl: config.beaconApiUrl,
-          logger: Logger.SILENT,
+          logger,
           rpcClient: ethereumRpc,
           retryStrategy: 'SCRIPT',
           sourceName: 'beaconAPI',
@@ -74,12 +80,21 @@ export class AllProviders {
         celestiaApiClient = new CelestiaApiClient({
           url: config.celestiaApiUrl,
           http,
-          logger: Logger.SILENT,
+          logger,
           sourceName: 'celestia-api',
           callsPerMinute: 300,
           retryStrategy: 'SCRIPT',
         })
       }
+
+      const coingeckoClient = new CoingeckoClient({
+        apiKey: config.coingeckoApiKey,
+        logger,
+        sourceName: 'coingecko',
+        http,
+        callsPerMinute: config.coingeckoApiKey ? 400 : 10,
+        retryStrategy: 'SCRIPT',
+      })
 
       this.config.set(config.name, {
         config,
@@ -89,6 +104,7 @@ export class AllProviders {
           etherscanClient,
           blobClient,
           celestiaApiClient,
+          coingeckoClient,
         },
       })
     }
@@ -103,51 +119,63 @@ export class AllProviders {
     )
   }
 
-  get(chain: string, blockNumber: number): IProvider {
-    const config = this.config.get(chain)
-    assert(
-      config !== undefined,
-      `Chain [${chain}] has not been configured or is missing .env variables.`,
-    )
-
-    const lowLevelProvider =
-      this.lowLevelProviders.get(chain) ??
-      new LowLevelProvider(
-        config.providers.baseProvider,
-        config.providers.eventProvider,
-        config.providers.etherscanClient,
-        config.providers.celestiaApiClient,
-        config.providers.blobClient,
-      )
-    this.lowLevelProviders.set(chain, lowLevelProvider)
-
-    const reorgAwareCache = new ReorgAwareCache(
-      this.discoveryCache,
-      lowLevelProvider,
+  async get(chain: string, timestamp: UnixTime): Promise<IProvider> {
+    const batchingAndCachingProvider = this.getBatchingAndCachingProvider(chain)
+    const stateless = HighLevelProvider.createStateless(
+      this,
+      batchingAndCachingProvider,
       chain,
     )
 
-    const multicallClient =
-      this.multicallClients.get(chain) ??
-      new MulticallClient(lowLevelProvider, config.config.multicall)
-    this.multicallClients.set(chain, multicallClient)
+    const blockNumber = await stateless.getBlockNumberAtOrBefore(timestamp)
+    return this.getImplementation(
+      chain,
+      batchingAndCachingProvider,
+      timestamp,
+      blockNumber,
+    )
+  }
 
-    const batchingAndCachingProvider =
-      this.batchingAndCachingProviders.get(chain) ??
-      new BatchingAndCachingProvider(
-        reorgAwareCache,
-        lowLevelProvider,
-        multicallClient,
-      )
-    this.batchingAndCachingProviders.set(chain, batchingAndCachingProvider)
+  async getByBlockNumber(
+    chain: string,
+    blockNumber: number,
+  ): Promise<IProvider> {
+    const batchingAndCachingProvider = this.getBatchingAndCachingProvider(chain)
+    const stateless = HighLevelProvider.createStateless(
+      this,
+      batchingAndCachingProvider,
+      chain,
+    )
 
-    const chainKey = `${chain}:${blockNumber}`
+    const block = await stateless.getBlock(blockNumber)
+    assert(
+      block !== undefined,
+      `Could not find block ${blockNumber} @ ${chain}`,
+    )
+    const timestamp = block.timestamp
+
+    return this.getImplementation(
+      chain,
+      batchingAndCachingProvider,
+      timestamp,
+      blockNumber,
+    )
+  }
+
+  private getImplementation(
+    chain: string,
+    batchingAndCachingProvider: BatchingAndCachingProvider,
+    timestamp: UnixTime,
+    blockNumber: number,
+  ): IProvider {
+    const chainKey = `${chain}:${timestamp}`
     const provider =
       this.highLevelProviders.get(chainKey) ??
       new HighLevelProvider(
         this,
         batchingAndCachingProvider,
         chain,
+        timestamp,
         blockNumber,
       )
     this.highLevelProviders.set(chainKey, provider)
@@ -171,5 +199,50 @@ export class AllProviders {
       lowLevelMeasurements:
         this.lowLevelProviders.get(chain)?.stats ?? new ProviderStats(),
     }
+  }
+
+  private getBatchingAndCachingProvider(
+    chain: string,
+  ): BatchingAndCachingProvider {
+    const config = this.config.get(chain)
+    assert(
+      config !== undefined,
+      `Chain [${chain}] has not been configured or is missing .env variables.`,
+    )
+
+    const lowLevelProvider =
+      this.lowLevelProviders.get(chain) ??
+      new LowLevelProvider(
+        config.providers.baseProvider,
+        config.providers.eventProvider,
+        config.providers.etherscanClient,
+        config.providers.coingeckoClient,
+        config.providers.celestiaApiClient,
+        config.providers.blobClient,
+        this.logger,
+      )
+    this.lowLevelProviders.set(chain, lowLevelProvider)
+
+    const reorgAwareCache = new ReorgAwareCache(
+      this.discoveryCache,
+      lowLevelProvider,
+      chain,
+    )
+
+    const multicallClient =
+      this.multicallClients.get(chain) ??
+      new MulticallClient(lowLevelProvider, config.config.multicall)
+    this.multicallClients.set(chain, multicallClient)
+
+    const batchingAndCachingProvider =
+      this.batchingAndCachingProviders.get(chain) ??
+      new BatchingAndCachingProvider(
+        reorgAwareCache,
+        lowLevelProvider,
+        multicallClient,
+        this.logger,
+      )
+    this.batchingAndCachingProviders.set(chain, batchingAndCachingProvider)
+    return batchingAndCachingProvider
   }
 }

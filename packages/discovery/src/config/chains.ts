@@ -9,12 +9,18 @@ interface ChainConfig {
   chainId: number
   // See: https://github.com/safe-global/safe-core-sdk/blob/9b64da33bc55615349d527909d4b792e05bb9826/packages/protocol-kit/src/utils/eip-3770/config.ts
   shortName: string
-  explorer: {
-    type: 'etherscan' | 'blockscout'
-    url: string
-    unsupported?: EtherscanUnsupportedMethods
-  }
+  explorer:
+    | {
+        type: 'etherscan' | 'blockscout' | 'routescan'
+        url: string
+        unsupported?: EtherscanUnsupportedMethods
+      }
+    | {
+        type: 'sourcify'
+        chainId: number
+      }
   multicall: MulticallConfig | undefined
+  coingeckoPlatform?: string
 }
 
 export const chains: ChainConfig[] = [
@@ -27,6 +33,7 @@ export const chains: ChainConfig[] = [
       type: 'etherscan',
       url: 'https://api.etherscan.io/api',
     },
+    coingeckoPlatform: 'ethereum',
   },
   {
     name: 'arbitrum',
@@ -37,6 +44,7 @@ export const chains: ChainConfig[] = [
       type: 'etherscan',
       url: 'https://api.arbiscan.io/api',
     },
+    coingeckoPlatform: 'arbitrum-one',
   },
   {
     name: 'nova',
@@ -47,6 +55,7 @@ export const chains: ChainConfig[] = [
       type: 'etherscan',
       url: 'https://api-nova.arbiscan.io/api',
     },
+    coingeckoPlatform: 'arbitrum-nova',
   },
   {
     name: 'optimism',
@@ -57,6 +66,7 @@ export const chains: ChainConfig[] = [
       type: 'etherscan',
       url: 'https://api-optimistic.etherscan.io/api',
     },
+    coingeckoPlatform: 'optimistic-ethereum',
   },
   {
     name: 'polygonpos',
@@ -100,6 +110,7 @@ export const chains: ChainConfig[] = [
         getContractCreation: true,
       },
     },
+    coingeckoPlatform: 'celo',
   },
   {
     name: 'linea',
@@ -110,6 +121,7 @@ export const chains: ChainConfig[] = [
       type: 'etherscan',
       url: 'https://api.lineascan.build/api',
     },
+    coingeckoPlatform: 'linea',
   },
   {
     name: 'base',
@@ -120,6 +132,7 @@ export const chains: ChainConfig[] = [
       type: 'etherscan',
       url: 'https://api.basescan.org/api',
     },
+    coingeckoPlatform: 'base',
   },
   {
     name: 'polygonzkevm',
@@ -156,6 +169,7 @@ export const chains: ChainConfig[] = [
       type: 'etherscan',
       url: 'https://api-era.zksync.network/api',
     },
+    coingeckoPlatform: 'zksync',
   },
   {
     name: 'sepolia',
@@ -176,6 +190,7 @@ export const chains: ChainConfig[] = [
       type: 'etherscan',
       url: 'https://api.scrollscan.com/api',
     },
+    coingeckoPlatform: 'scroll',
   },
   {
     name: 'mantle',
@@ -183,9 +198,10 @@ export const chains: ChainConfig[] = [
     shortName: 'mantle',
     multicall: getMulticall3Config(304717),
     explorer: {
-      type: 'etherscan',
-      url: 'https://api.routescan.io/v2/network/mainnet/evm/5000/etherscan/api',
+      type: 'blockscout',
+      url: 'https://explorer.mantle.xyz/api',
     },
+    coingeckoPlatform: 'mantle',
   },
   {
     name: 'metis',
@@ -193,9 +209,10 @@ export const chains: ChainConfig[] = [
     shortName: 'metis-andromeda',
     multicall: getMulticall3Config(2338552),
     explorer: {
-      type: 'etherscan',
+      type: 'routescan',
       url: 'https://api.routescan.io/v2/network/mainnet/evm/1088/etherscan/api',
     },
+    coingeckoPlatform: 'metis',
   },
   {
     name: 'bobanetwork',
@@ -203,9 +220,10 @@ export const chains: ChainConfig[] = [
     shortName: 'boba',
     multicall: getMulticall3Config(446859),
     explorer: {
-      type: 'etherscan',
+      type: 'routescan',
       url: 'https://api.routescan.io/v2/network/mainnet/evm/288/etherscan/api',
     },
+    coingeckoPlatform: 'boba',
   },
   {
     name: 'mode',
@@ -213,9 +231,10 @@ export const chains: ChainConfig[] = [
     shortName: 'mode',
     multicall: getMulticall3Config(2465882),
     explorer: {
-      type: 'etherscan',
+      type: 'routescan',
       url: 'https://api.routescan.io/v2/network/mainnet/evm/34443/etherscan/api',
     },
+    coingeckoPlatform: 'mode',
   },
   {
     name: 'zora',
@@ -226,6 +245,7 @@ export const chains: ChainConfig[] = [
       type: 'blockscout',
       url: 'https://explorer.zora.energy/api',
     },
+    coingeckoPlatform: 'zora',
   },
   {
     name: 'mantapacific',
@@ -236,6 +256,7 @@ export const chains: ChainConfig[] = [
       type: 'blockscout',
       url: 'https://pacific-explorer.manta.network/api',
     },
+    coingeckoPlatform: 'manta',
   },
   {
     name: 'blast',
@@ -246,6 +267,7 @@ export const chains: ChainConfig[] = [
       type: 'etherscan',
       url: 'https://api.blastscan.io/api',
     },
+    coingeckoPlatform: 'blast',
   },
   {
     name: 'kinto',
@@ -269,6 +291,7 @@ export const chains: ChainConfig[] = [
       type: 'etherscan',
       url: 'https://api.uniscan.xyz/api',
     },
+    coingeckoPlatform: 'unichain',
   },
   {
     name: 'ink',
@@ -282,6 +305,7 @@ export const chains: ChainConfig[] = [
       type: 'blockscout',
       url: 'https://explorer.inkonchain.com/api',
     },
+    coingeckoPlatform: 'ink',
   },
   {
     name: 'everclear',
@@ -291,6 +315,38 @@ export const chains: ChainConfig[] = [
     explorer: {
       type: 'blockscout',
       url: 'https://scan.everclear.org/api',
+    },
+  },
+  {
+    name: 'zircuit',
+    chainId: 48900,
+    shortName: 'zircuit',
+    multicall: undefined,
+    explorer: {
+      type: 'sourcify',
+      chainId: 48900,
+    },
+    coingeckoPlatform: 'zircuit',
+  },
+  {
+    name: 'katana',
+    chainId: 747474,
+    shortName: 'katana',
+    multicall: undefined,
+    explorer: {
+      type: 'blockscout',
+      url: 'https://explorer.katanarpc.com/api',
+    },
+    coingeckoPlatform: 'katana',
+  },
+  {
+    name: 'gateway',
+    chainId: 9075,
+    shortName: 'gateway',
+    multicall: undefined,
+    explorer: {
+      type: 'routescan',
+      url: 'https://block-explorer-api.era-gateway-mainnet.zksync.dev/api',
     },
   },
 ] as const satisfies ChainConfig[]

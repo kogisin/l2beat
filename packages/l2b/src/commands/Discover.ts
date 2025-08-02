@@ -1,26 +1,29 @@
+import type { Logger } from '@l2beat/backend-tools'
 import {
   ConfigReader,
   DiscoverCommandArgs,
   type DiscoveryModuleConfig,
   getChainConfig,
+  getChainFullName,
+  getChainShortName,
   getDiscoveryPaths,
 } from '@l2beat/discovery'
-import { EthereumAddress } from '@l2beat/shared-pure'
+import {
+  ChainSpecificAddress,
+  EthereumAddress,
+  UnixTime,
+} from '@l2beat/shared-pure'
 import chalk from 'chalk'
 import { command, option, optional, positional, string } from 'cmd-ts'
+import { getPlainLogger } from '../implementations/common/getPlainLogger'
 import { discoverAndUpdateDiffHistory } from '../implementations/discovery/discoveryWrapper'
 
 // NOTE(radomski): We need to modify the args object because the only allowed
 // chains are those that we know of. But we also want to allow the user to
-// specify "all" as the chain namas the chain name.
-const { project, chain, ...remainingArgs } = DiscoverCommandArgs
+// specify "all" as the chain name.
+const { project: _, chain: __, ...remainingArgs } = DiscoverCommandArgs
 const args = {
   ...remainingArgs,
-  chainQuery: positional({
-    type: string,
-    displayName: 'chainQuery',
-    description: DiscoverCommandArgs.chain.description,
-  }),
   projectQuery: positional({
     type: string,
     displayName: 'projectQuery',
@@ -40,15 +43,16 @@ const configReader = new ConfigReader(paths.discovery)
 
 export const Discover = command({
   name: 'discover',
-  description: 'User interface to discover projects located in discovery',
+  description: 'User interface to discover projects located in discovery.',
   args,
   handler: async (args) => {
-    const projectsOnChain: Record<string, string[]> = resolveProjectsOnChain(
+    const logger = getPlainLogger()
+    const projectsOnChain: Record<string, string[]> = resolveProjects(
       args.projectQuery,
-      args.chainQuery,
     )
 
-    logProjectsToDiscover(projectsOnChain)
+    logProjectsToDiscover(projectsOnChain, logger)
+    const timestamp = getTimestamp(args)
 
     for (const chainName in projectsOnChain) {
       const chain = getChainConfig(chainName)
@@ -57,68 +61,69 @@ export const Discover = command({
           ...args,
           project,
           chain,
+          timestamp: timestamp ?? args.timestamp,
         }
 
-        await discoverAndUpdateDiffHistory(config, args.message)
+        await discoverAndUpdateDiffHistory(config, {
+          logger,
+          description: args.message,
+        })
       }
     }
   },
 })
 
-function logProjectsToDiscover(projectsOnChain: Record<string, string[]>) {
+function logProjectsToDiscover(
+  projectsOnChain: Record<string, string[]>,
+  logger: Logger,
+) {
   if (Object.keys(projectsOnChain).length === 0) {
-    console.log(chalk.greenBright('Nothing to discover'))
+    logger.info(chalk.greenBright('Nothing to discover'))
     return
   }
 
-  console.log('Will discover')
+  logger.info('Will discover')
   for (const chainName in projectsOnChain) {
-    console.log(chalk.blue(chainName))
+    logger.info(chalk.blue(chainName))
     for (const project of projectsOnChain[chainName]) {
-      console.log(`  - ${chalk.yellowBright(project)}`)
+      logger.info(`  - ${chalk.yellowBright(project)}`)
     }
   }
 }
 
-function resolveProjectsOnChain(projectQuery: string, chainQuery: string) {
+function resolveProjects(projectQuery: string) {
   const result: Record<string, string[]> = {}
+  const entries = configReader.readAllConfiguredProjects()
 
-  const chains: string[] = []
-  if (chainQuery === 'all') {
-    chains.push(...configReader.readAllChains())
-  } else {
-    chains.push(chainQuery)
-  }
+  const predicate: Predicate = EthereumAddress.check(projectQuery)
+    ? addressPredicate
+    : projectPredicate
 
-  for (const chain of chains) {
-    const projects = resolveProjects(projectQuery, chain)
-    if (projects.length > 0) {
-      result[chain] = projects
+  for (const { project, chains } of entries) {
+    const matchingChains = chains.filter((chain) => {
+      const query = EthereumAddress.check(projectQuery)
+        ? ChainSpecificAddress.from(getChainShortName(chain), projectQuery)
+        : projectQuery
+
+      return predicate(query, project)
+    })
+
+    for (const chain of matchingChains) {
+      if (!result[chain]) {
+        result[chain] = []
+      }
+      result[chain].push(project)
     }
   }
 
   return result
 }
 
-type Predicate = (
-  needle: string,
-  haystackProject: string,
-  haystackChain: string,
-) => boolean
-
-function resolveProjects(projectQuery: string, chain: string): string[] {
-  const allProjects = configReader.readAllProjectsForChain(chain)
-  const predicate: Predicate = EthereumAddress.check(projectQuery)
-    ? addressPredicate
-    : projectPredicate
-
-  return allProjects.filter((p) => predicate(projectQuery, p, chain))
-}
+type Predicate = (needle: string, haystackProject: string) => boolean
 
 function projectPredicate(
   needleProject: string,
   haystackProject: string,
-  _: string,
 ): boolean {
   return needleProject === haystackProject
 }
@@ -126,11 +131,29 @@ function projectPredicate(
 function addressPredicate(
   needleAddress: string,
   haystackProject: string,
-  haystackChain: string,
 ): boolean {
-  const discovery = configReader.readDiscovery(haystackProject, haystackChain)
+  const address = ChainSpecificAddress(needleAddress)
+  const chain = getChainFullName(ChainSpecificAddress.chain(address))
+  const discovery = configReader.readDiscovery(haystackProject, chain)
 
-  return (
-    discovery.entries.find((c) => c.address === needleAddress) !== undefined
-  )
+  return discovery.entries.find((c) => c.address === address) !== undefined
+}
+
+// TODO(radomski): This will not exist. In the future all of this information
+// will be stored in the discovery but since we're emulating having a single
+// discovered.json we have to do this trick.
+function getTimestamp(args: {
+  timestamp: number | undefined
+  dev: boolean
+  dryRun: boolean
+}): UnixTime | undefined {
+  if (
+    args.dev === false &&
+    args.dryRun === false &&
+    args.timestamp === undefined
+  ) {
+    return UnixTime.now()
+  }
+
+  return undefined
 }

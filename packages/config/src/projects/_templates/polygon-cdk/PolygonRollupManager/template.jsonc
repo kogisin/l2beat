@@ -1,7 +1,7 @@
 {
   "$schema": "../../../../../../discovery/schemas/contract.v2.schema.json",
   "displayName": "PolygonRollupManager",
-  "description": "The central shared managing contract for Layer 2s on the Polygon AggLayer. This contract receives L2 state roots as well as ZK proofs. All connected Layer 2s can be globally paused by activating the 'Emergency State'. This can be done by the {{emergencyCouncilAdminAC}} or by anyone able to prove a non-deterministic pending state or after {{_HALT_AGGREGATION_TIMEOUT}} of inactive verifiers.",
+  "description": "The central shared managing contract for Layer 2s on the Polygon Agglayer. This contract receives L2 state roots as well as ZK proofs. All connected Layer 2s can be globally paused by activating the 'Emergency State'. This can be done by the {{emergencyCouncilAdminAC}} or by anyone able to prove a non-deterministic pending state or after {{_HALT_AGGREGATION_TIMEOUT}} of inactive verifiers.",
   "types": {
     "IsGreaterThanOne": {
       "typeCaster": "GreaterThan",
@@ -151,15 +151,18 @@
     },
     "rollupsData": {
       "description": "Maps rollup contracts and their verifier. Any change should be picked up also by the specific rollup config, unless it's a new rollup. [rollupContract, chainID, verifier, rollupTypeID]",
-      "severity": "MEDIUM",
+      "severity": "LOW",
       "handler": {
         "type": "array",
         "method": "rollupIDToRollupData",
         "startIndex": 1,
-        "pickFields": ["rollupContract", "chainID", "verifier", "rollupTypeID"],
         "length": "{{ rollupCount }}",
         "ignoreRelative": true
-      }
+      },
+      "edit": [
+        "map",
+        ["pick", "rollupContract", "chainID", "verifier", "rollupTypeID"]
+      ]
     },
     "rollupTypes": {
       "description": "struct consensusImplementation, verifier, forkID, rollupCompatibilityID, bool obsolete, genesisBlock",
@@ -168,9 +171,9 @@
         "method": "rollupTypeMap",
         "startIndex": 1,
         "length": "{{ rollupTypeCount }}",
-        "pickFields": ["consensusImplementation", "verifier"],
         "ignoreRelative": true
-      }
+      },
+      "edit": ["map", ["pick", "consensusImplementation", "verifier"]]
     },
     "isVerifyingBatches": {
       "description": "Checks if lastVerifiedBatch for a rollupID is greater than one. Works like a trigger for projects becoming active after deployment. Mind that index here is rollupID-1.",
@@ -178,10 +181,12 @@
         "type": "array",
         "method": "rollupIDToRollupData",
         "startIndex": 1,
-        "length": "{{ rollupCount }}",
-        "pickFields": ["lastVerifiedBatch"]
+        "length": "{{ rollupCount }}"
       },
-      "returnType": "(IsGreaterThanOne[][])"
+      "edit": [
+        "map",
+        ["pipe", ["get", "lastVerifiedBatch"], ["format", "IsGreaterThanOne"]]
+      ]
     }
   },
   "category": "shared"

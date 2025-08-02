@@ -2,10 +2,9 @@ import { UnixTime } from '@l2beat/shared-pure'
 import {
   DA_BRIDGES,
   DA_LAYERS,
-  NEW_CRYPTOGRAPHY,
+  REASON_FOR_BEING_OTHER,
   RISK_VIEW,
 } from '../../common'
-import { REASON_FOR_BEING_OTHER } from '../../common'
 import { BADGES } from '../../common/badges'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
@@ -30,7 +29,7 @@ const isForcedBatchDisallowed =
 
 export const witness: ScalingProject = polygonCDKStack({
   addedAt: UnixTime(1720180654), // 2024-07-05T11:57:34Z
-  isArchived: true,
+  archivedAt: UnixTime(1738022400), // 2025-01-28T00:00:00.000Z,
   discovery,
   additionalBadges: [BADGES.DA.DAC],
   additionalPurposes: ['IoT', 'Oracles'],
@@ -74,7 +73,7 @@ export const witness: ScalingProject = polygonCDKStack({
       'Witness Chain is a Validium built on the Polygon CDK stack and Eigenlayer validates services. The purpose of the project is to create a DePIN coordination Layer.',
     links: {
       websites: ['https://witnesschain.com/'],
-      apps: ['https://witnesschain-bridge.eu-north-2.gateway.fm'],
+      bridges: ['https://witnesschain-bridge.eu-north-2.gateway.fm'],
       documentation: ['https://docs.witnesschain.com/'],
       explorers: ['https://witnesschain-blockscout.eu-north-2.gateway.fm/'],
       repositories: ['https://github.com/witnesschain-com'],
@@ -122,11 +121,6 @@ export const witness: ScalingProject = polygonCDKStack({
   rollupModuleContract: discovery.getContract('Validium'),
   rollupVerifierContract: discovery.getContract('Verifier'),
   isForcedBatchDisallowed,
-  nonTemplateTechnology: {
-    newCryptography: {
-      ...NEW_CRYPTOGRAPHY.ZK_BOTH,
-    },
-  },
   customDa: PolygoncdkDAC({
     dac: {
       requiredMembers: requiredSignaturesDAC,

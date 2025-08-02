@@ -18,7 +18,7 @@ export const swan: ScalingProject = opStackL2({
       'Swan Chain is an OP Stack L2 providing comprehensive AI infrastructure on the blockchain.',
     links: {
       websites: ['https://swanchain.io/'],
-      apps: ['https://bridge.swanchain.io/'],
+      bridges: ['https://bridge.swanchain.io/'],
       documentation: ['https://docs.swanchain.io/'],
       explorers: [
         'https://mainnet-explorer.swanchain.io/',
@@ -35,15 +35,6 @@ export const swan: ScalingProject = opStackL2({
     },
   },
   genesisTimestamp: UnixTime(1718640220),
-  // failing, needs different analyzer?
-  // finality: {
-  //   type: 'OPStack-blob',
-  //   genesisTimestamp: UnixTime(1718640220),
-  //   minTimestamp: UnixTime(1718683727), // first blob
-  //   l2BlockTimeSeconds: 2,
-  //   lag: 0,
-  //   stateUpdate: 'disabled',
-  // },
   isNodeAvailable: true,
   chainConfig: {
     name: 'swan',
@@ -51,14 +42,14 @@ export const swan: ScalingProject = opStackL2({
     apis: [
       {
         type: 'rpc',
-        url: 'https://mainnet-rpc01.swanchain.io',
+        url: 'https://mainnet-rpc-01.swanchain.org',
         callsPerMinute: 1500,
       },
     ],
   },
   milestones: [
     {
-      title: 'Mainnet launch',
+      title: 'Mainnet Launch',
       url: 'https://swanchain.medium.com/announcement-swan-chain-mainnet-is-now-live-e34feadec170',
       date: '2024-07-02T00:00:00Z',
       description: 'Swan Mainnet launches.',

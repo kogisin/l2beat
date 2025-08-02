@@ -1,6 +1,6 @@
 import type { Logger } from '@l2beat/backend-tools'
 import type { Database } from '@l2beat/database'
-import { assert, UnixTime, notUndefined } from '@l2beat/shared-pure'
+import { assert, notUndefined, UnixTime } from '@l2beat/shared-pure'
 import type { Indexer } from '@l2beat/uif'
 import type { Config } from '../../config'
 import type { Providers } from '../../providers/Providers'
@@ -8,13 +8,9 @@ import type { Clock } from '../../tools/Clock'
 import { HourlyIndexer } from '../../tools/HourlyIndexer'
 import { IndexerService } from '../../tools/uif/IndexerService'
 import type { ApplicationModule } from '../ApplicationModule'
-import { SyncOptimizer } from '../tvl/utils/SyncOptimizer'
 import { BlockTimestampIndexer } from './indexers/BlockTimestampIndexer'
 import { CirculatingSupplyAmountIndexer } from './indexers/CirculatingSupplyAmountIndexer'
-import {
-  type OnchainAmountConfig,
-  OnchainAmountIndexer,
-} from './indexers/OnchainAmountIndexer'
+import { OnchainAmountIndexer } from './indexers/OnchainAmountIndexer'
 import { ProjectValueIndexer } from './indexers/ProjectValueIndexer'
 import { TokenValueIndexer } from './indexers/TokenValueIndexer'
 import { TvsPriceIndexer } from './indexers/TvsPriceIndexer'
@@ -25,6 +21,8 @@ import {
   generateConfigurationId,
 } from './tools/extractPricesAndAmounts'
 import { getTokenSyncRange } from './tools/getTokenSyncRange'
+import { SyncOptimizer } from './tools/SyncOptimizer'
+import { isOnchainAmountConfig } from './types'
 
 export function initTvsModule(
   config: Config,
@@ -40,7 +38,7 @@ export function initTvsModule(
 
   logger = logger.tag({ feature: 'tvs', module: 'tvs' })
 
-  logger.info(`TVS config loaded`, {
+  logger.info('TVS config loaded', {
     projects: config.tvs.projects.length,
     prices: config.tvs.prices.length,
     amounts: config.tvs.amounts.length,
@@ -82,7 +80,7 @@ export function initTvsModule(
     configurations: config.tvs.amounts
       .filter((a) => a.type === 'circulatingSupply')
       .map((amount) => ({
-        // configurationId has to be 12 characters long so we cannot use the priceId directly
+        // configurationId has to be 12 characters long so we cannot use the apiId directly
         id: amount.id,
         minHeight: amount.sinceTimestamp,
         maxHeight: amount.untilTimestamp ?? null,
@@ -97,9 +95,9 @@ export function initTvsModule(
     circulatingSupplyIndexer,
   )
 
-  const blockTimestampIndexers: Indexer[] = []
+  const blockTimestampIndexers = new Map<string, Indexer>()
 
-  for (const chain of config.tvs.chains) {
+  for (const block of config.tvs.blockTimestamps) {
     const blockTimestampIndexer = new BlockTimestampIndexer({
       syncOptimizer,
       blockTimestampProvider: providers.blockTimestamp,
@@ -107,27 +105,31 @@ export function initTvsModule(
       indexerService,
       configurations: [
         {
-          id: chain.configurationId,
-          minHeight: chain.sinceTimestamp,
-          maxHeight: chain.untilTimestamp ?? null,
-          properties: chain,
+          id: block.configurationId,
+          minHeight: block.sinceTimestamp,
+          maxHeight: block.untilTimestamp ?? null,
+          properties: block,
         },
       ],
       db: database,
       logger,
     })
-    blockTimestampIndexers.push(blockTimestampIndexer)
+    blockTimestampIndexers.set(block.chainName, blockTimestampIndexer)
+  }
 
-    const configurations = config.tvs.amounts.filter(
-      (a) =>
-        a.chain === chain.chainName &&
-        (a.type === 'totalSupply' || a.type === 'balanceOfEscrow'),
-    ) as OnchainAmountConfig[]
+  const onchainAmounts = config.tvs.amounts.filter(isOnchainAmountConfig)
+
+  for (const chain of config.tvs.chains) {
+    const blockTimestampIndexer = blockTimestampIndexers.get(chain)
+    assert(blockTimestampIndexer, `${chain}: No blockTimestampIndexer found`)
+
+    const configurations = onchainAmounts.filter((a) => a.chain === chain)
 
     const amountIndexer = new OnchainAmountIndexer({
       syncOptimizer,
-      chain: chain.chainName,
+      chain: chain,
       totalSupplyProvider: providers.totalSupply,
+      starknetTotalSupplyProvider: providers.starknetTotalSupply,
       balanceProvider: providers.balance,
       parents: [blockTimestampIndexer],
       indexerService,
@@ -140,14 +142,14 @@ export function initTvsModule(
       db: database,
       logger,
     })
-    amountIndexers.set(chain.chainName, amountIndexer)
+    amountIndexers.set(chain, amountIndexer)
   }
 
   const valueIndexers: Indexer[] = []
 
   for (const project of config.tvs.projects) {
     const dbStorage = new DBStorage(database, logger)
-    const valueService = new ValueService(dbStorage)
+    const valueService = new ValueService(dbStorage, logger)
 
     const amountSources = project.amountSources.map((source) => {
       const indexer = amountIndexers.get(source)
@@ -175,7 +177,7 @@ export function initTvsModule(
       indexerService,
       configurations: tokensWithRanges.map((t) => {
         return {
-          id: TokenValueIndexer.idToConfigurationId(t.id),
+          id: TokenValueIndexer.idToConfigurationId(t),
           minHeight: t.sinceTimestamp,
           maxHeight: t.untilTimestamp ?? null,
           properties: t,
@@ -189,7 +191,7 @@ export function initTvsModule(
 
     const since = tokensWithRanges.reduce(
       (prev, curr) => (prev > curr.sinceTimestamp ? curr.sinceTimestamp : prev),
-      Infinity,
+      Number.POSITIVE_INFINITY,
     )
 
     const hasUndefinedTimestamp = tokensWithRanges.some(
@@ -207,7 +209,7 @@ export function initTvsModule(
       [...tokensWithRanges]
         .sort((a, b) => a.id.localeCompare(b.id))
         .flatMap((t) => [
-          t.id,
+          TokenValueIndexer.idToConfigurationId(t),
           t.sinceTimestamp.toString(),
           t.untilTimestamp?.toString() ?? 'undefined',
         ]),
@@ -238,7 +240,7 @@ export function initTvsModule(
     await hourlyIndexer.start()
     await priceIndexer.start()
 
-    for (const indexer of blockTimestampIndexers) {
+    for (const indexer of Array.from(blockTimestampIndexers.values())) {
       await indexer.start()
     }
 

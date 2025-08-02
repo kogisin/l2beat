@@ -1,4 +1,10 @@
-import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
+import {
+  ChainSpecificAddress,
+  EthereumAddress,
+  formatSeconds,
+  ProjectId,
+  UnixTime,
+} from '@l2beat/shared-pure'
 
 import {
   CONTRACTS,
@@ -8,15 +14,30 @@ import {
   EXITS,
   FORCE_TRANSACTIONS,
   FRONTRUNNING_RISK,
+  REASON_FOR_BEING_OTHER,
   RISK_VIEW,
+  TECHNOLOGY_DATA_AVAILABILITY,
 } from '../../common'
-import { REASON_FOR_BEING_OTHER } from '../../common'
 import { BADGES } from '../../common/badges'
 import { formatChallengePeriod } from '../../common/formatDelays'
+import { getStage } from '../../common/stages/getStage'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('metis')
+
+const blobBatcher = discovery.getContractValue<string>(
+  'Lib_AddressManager',
+  'blobBatcher',
+)
+
+const inboxAddress = discovery.getContractValue<string>(
+  'Lib_AddressManager',
+  'inboxAddress',
+)
+
+const stateCommitmentChain = discovery.getContract('StateCommitmentChain')
 
 const upgradeDelay = 0
 
@@ -25,28 +46,30 @@ const CHALLENGE_PERIOD_SECONDS = discovery.getContractValue<number>(
   'FRAUD_PROOF_WINDOW',
 )
 
+const DISPUTE_TIMEOUT_PERIOD = discovery.getContractValue<number>(
+  'DisputeGameFactory',
+  'DISPUTE_TIMEOUT_PERIOD',
+)
+
 export const metis: ScalingProject = {
   type: 'layer2',
   id: ProjectId('metis'),
   capability: 'universal',
   addedAt: UnixTime(1637945259), // 2021-11-26T16:47:39Z
-  badges: [BADGES.VM.EVM, BADGES.DA.CustomDA, BADGES.Fork.OVM],
-  reasonsForBeingOther: [
-    REASON_FOR_BEING_OTHER.NO_PROOFS,
-    REASON_FOR_BEING_OTHER.NO_DA_ORACLE,
-  ],
+  badges: [BADGES.VM.EVM, BADGES.Fork.OVM, BADGES.DA.EthereumBlobs],
+  reasonsForBeingOther: [REASON_FOR_BEING_OTHER.NO_PROOFS],
   display: {
     name: 'Metis Andromeda',
     shortName: 'Metis',
     slug: 'metis',
     description:
-      'Metis Andromeda is an EVM-equivalent solution originally forked from Optimism OVM. Since April 2024 hashes of data blobs are posted to EOA similarly to OPStack chains. It uses a decentralized Sequencer pool running Tendermint consensus and MPC module to sign transaction batches.',
+      'Metis Andromeda is an EVM-equivalent solution originally forked from Optimism OVM. It uses a decentralized Sequencer pool running Tendermint consensus and MPC module to sign transaction batches.',
     purposes: ['Universal'],
-    stack: 'OVM',
-    category: 'Optimium',
+    stacks: ['OVM'],
+    category: 'Other',
     links: {
       websites: ['https://metis.io'],
-      apps: ['https://bridge.metis.io'],
+      bridges: ['https://bridge.metis.io'],
       documentation: ['https://docs.metis.io'],
       explorers: [
         'https://andromeda-explorer.metis.io',
@@ -63,9 +86,32 @@ export const metis: ScalingProject = {
       ],
     },
   },
-  stage: {
-    stage: 'NotApplicable',
-  },
+  stage: getStage(
+    {
+      stage0: {
+        callsItselfRollup: true,
+        stateRootsPostedToL1: true,
+        dataAvailabilityOnL1: true,
+        rollupNodeSourceAvailable: 'UnderReview',
+        stateVerificationOnL1: false,
+        fraudProofSystemAtLeast5Outsiders: null,
+      },
+      stage1: {
+        principle: false,
+        usersHave7DaysToExit: false,
+        usersCanExitWithoutCooperation: false,
+        securityCouncilProperlySetUp: false,
+      },
+      stage2: {
+        proofSystemOverriddenOnlyInCaseOfABug: false,
+        fraudProofSystemIsPermissionless: null,
+        delayWith30DExitWindow: false,
+      },
+    },
+    {
+      rollupNodeLink: 'https://github.com/MetisProtocol/mvm',
+    },
+  ),
   chainConfig: {
     name: 'metis',
     chainId: 1088,
@@ -90,7 +136,7 @@ export const metis: ScalingProject = {
         callsPerMinute: 1500,
       },
       {
-        type: 'etherscan',
+        type: 'routescan',
         url: 'https://api.routescan.io/v2/network/mainnet/evm/1088/etherscan/api',
       },
     ],
@@ -110,57 +156,125 @@ export const metis: ScalingProject = {
       type: 'block',
       startBlock: 1,
     },
+    daTracking: [
+      {
+        type: 'ethereum',
+        daLayer: ProjectId('ethereum'),
+        sinceBlock: 22472728,
+        inbox: EthereumAddress('0xFf00000000000000000000000000000000001088'),
+        sequencers: [
+          EthereumAddress('0xae4d46bd9117cb017c5185844699c51107cb28a9'),
+        ],
+      },
+    ],
+    trackedTxs: [
+      {
+        uses: [
+          { type: 'liveness', subtype: 'batchSubmissions' },
+          { type: 'l2costs', subtype: 'batchSubmissions' },
+        ],
+        query: {
+          formula: 'transfer',
+          from: ChainSpecificAddress.address(ChainSpecificAddress(blobBatcher)),
+          to: ChainSpecificAddress.address(ChainSpecificAddress(inboxAddress)),
+          sinceTimestamp: UnixTime(1747234799),
+        },
+      },
+      {
+        uses: [
+          { type: 'liveness', subtype: 'stateUpdates' },
+          { type: 'l2costs', subtype: 'stateUpdates' },
+        ],
+        query: {
+          formula: 'functionCall',
+          address: ChainSpecificAddress.address(stateCommitmentChain.address),
+          selector: '0x5b297172',
+          functionSignature:
+            'function appendStateBatch(bytes32[] _batch, uint256 _shouldStartAtElement, bytes32 _lastBatchBlockHash, uint256 _lastBatchBlockNumber)',
+          sinceTimestamp: UnixTime(1710992939),
+        },
+      },
+      {
+        uses: [
+          { type: 'liveness', subtype: 'stateUpdates' },
+          { type: 'l2costs', subtype: 'stateUpdates' },
+        ],
+        query: {
+          // this query assumes that the chain id used is always metis' chain id (1088)
+          formula: 'functionCall',
+          address: ChainSpecificAddress.address(stateCommitmentChain.address),
+          selector: '0x0a17d699',
+          functionSignature:
+            'function appendStateBatchByChainId(uint256 _chainId, bytes32[] _batch, uint256 _shouldStartAtElement, string _proposer, bytes32 _lastBatchBlockHash, uint256 _lastBatchBlockNumber)',
+          sinceTimestamp: UnixTime(1710992939),
+        },
+      },
+    ],
   },
   dataAvailability: {
-    layer: DA_LAYERS.MEMO,
-    bridge: DA_BRIDGES.NONE,
+    layer: DA_LAYERS.ETH_BLOBS_OR_CALLDATA,
+    bridge: DA_BRIDGES.ENSHRINED,
     mode: DA_MODES.TRANSACTION_DATA,
   },
   riskView: {
     stateValidation: {
-      ...RISK_VIEW.STATE_NONE,
+      ...RISK_VIEW.STATE_FP_INT,
+      description:
+        RISK_VIEW.STATE_FP_INT.description +
+        ' Only one entity is currently allowed to propose and submit challenges, as only permissioned games are currently allowed.',
+      sentiment: 'bad',
       secondLine: formatChallengePeriod(CHALLENGE_PERIOD_SECONDS),
     },
-    dataAvailability: RISK_VIEW.DATA_EXTERNAL_MEMO,
+    dataAvailability: RISK_VIEW.DATA_ON_CHAIN,
     exitWindow: RISK_VIEW.EXIT_WINDOW(upgradeDelay, 0),
     sequencerFailure: RISK_VIEW.SEQUENCER_ENQUEUE_VIA('L1'),
     proposerFailure: RISK_VIEW.PROPOSER_CANNOT_WITHDRAW,
   },
+  stateValidation: {
+    categories: [
+      {
+        title: 'State root proposals',
+        description:
+          'Dispute game contracts for state validation are deployed but not used to propose state roots as in standard OP Stack chains. Instead, proposers submit state roots through the appendStateBatch function in the `StateCommitmentChain` contract. A state root gets confirmed if the challenge period has passed and the state batch is not disputed.',
+        references: [
+          {
+            title: 'StateCommitmentChain - Etherscan source code',
+            url: 'https://etherscan.io/address/0x49A4D7ae835eA21c919B363fa88614b61d7985E7#code',
+          },
+        ],
+      },
+      {
+        title: 'Challenges',
+        description: `Games are created on demand by the permissioned GameCreator should a dispute arise. Users can signal the need for a dispute through the dispute() function of the \`DisputeGameFactory\`. If a game is not created by the \`GameCreator\` within the dispute timeout period of ${formatSeconds(
+          DISPUTE_TIMEOUT_PERIOD,
+        )}, anyone can call \`disputeTimeout()\`. This function calls \`saveDisputedBatchTimeout()\` on the \`StateCommitmentChain\`, which marks the batch as disputed. This blocks L2->L1 messaging and withdrawals for the disputed batch and any subsequent batches until the dispute is deleted. Should a game be created and resolved, disputed state batches can be marked as such in the \`StateCommitmentChain\`. Then, these flagged batches can be deleted (within the fraud proof window). Batches can only be deleted from the MVM_Verifier contract address, which currently corresponds to the \`Metis Multisig\`.`,
+        risks: [
+          {
+            category: 'Funds can be frozen if',
+            text: 'an invalid state root is successfully disputed but it is not deleted by the permissioned MVM_Verifier.',
+            isCritical: true,
+          },
+        ],
+        references: [
+          {
+            title:
+              'DisputeGameFactory - No games are created to propose state roots',
+            url: 'https://etherscan.io/address/0x1C2f0A08762f0aD4598fB5de8f9D6626a4e4aeE3',
+          },
+        ],
+      },
+    ],
+  },
   technology: {
-    stateCorrectness: {
-      name: 'No automatic onchain fraud proof system',
-      description:
-        'For additional security, any staked Validator can challenge invalid state root submitted by the Sequencer. Other Validators will then act as referees in an interactive challenge game. Dishonest Validator majority can push invalid state root onchain, and potentially slash honest Sequencer.',
-      risks: [
-        {
-          category: 'Funds can be stolen if',
-          text: 'an invalid state root is submitted to the system.',
-          isCritical: true,
-        },
-      ],
-      references: [
-        {
-          title: 'MVM_Verifier.sol#L133 - Metis source code',
-          url: 'https://github.com/MetisProtocol/mvm/blob/develop/packages/contracts/contracts/MVM/MVM_Verifier.sol#L133',
-        },
-      ],
-    },
     dataAvailability: {
-      name: 'Data is recorded off-chain in MEMO',
+      ...TECHNOLOGY_DATA_AVAILABILITY.ON_CHAIN_BLOB_OR_CALLDATA,
       description:
-        'Transaction data is not stored onchain, rather it is recorded in off-chain decentralized storage \
-        MEMO from MemoLabs. Data hashes are posted to an EOA address.',
-      risks: [
-        {
-          category: 'Funds can be stolen if',
-          text: 'sequencer withholds data for more than seven days while at the same time submits fraudulent state root.',
-          isCritical: true,
-        },
-      ],
+        'Transaction data is posted to Ethereum using blobs. Initially, data was posted to the CanonicalTransactionChain contract, then it moved to just posting hashes to an EOA address, and as of May 2025, the system uses blobs for data availability.',
+      risks: [],
       references: [
         {
-          title: 'The Tech Journey: Lower Gas Costs & Storage Layer on Metis',
-          url: 'https://metisdao.medium.com/the-tech-journey-lower-gas-costs-storage-layer-on-metis-867ddcf6d381',
+          title: 'Blobs batcher - Metis source code',
+          url: 'https://github.com/MetisProtocol/mvm/blob/e816c6c461a8e91db3a9ccaa33d2d0f6a60633d5/go/op-program/chainconfig/rollupcfg.go#L85',
         },
       ],
     },
@@ -172,7 +286,7 @@ export const metis: ScalingProject = {
       references: [
         {
           title: 'Decentralized Sequencer - Metis documentation',
-          url: 'https://docs.metis.io/dev/decentralized-sequencer/overview',
+          url: 'https://docs.metis.io/andromeda/sequencer/architecture/mpc',
         },
       ],
     },
@@ -190,8 +304,8 @@ export const metis: ScalingProject = {
         ...EXITS.REGULAR_MESSAGING('optimistic'),
         references: [
           {
-            title: 'Withdrawing from Metis - Metis documentation',
-            url: 'https://docs.metis.io/building-on-metis/metis-bridge#withdrawing-from-metis',
+            title: 'Transaction finality - Metis documentation',
+            url: 'https://docs.metis.io/andromeda/sequencer/architecture/transaction',
           },
         ],
         risks: [EXITS.RISK_CENTRALIZED_VALIDATOR],
@@ -218,96 +332,14 @@ export const metis: ScalingProject = {
       },
     ],
   },
-  permissions: {
-    [discovery.chain]: {
-      actors: [
-        discovery.getPermissionDetails(
-          'Sequencer',
-          discovery.formatPermissionedAccounts([
-            EthereumAddress('0x1A9da0aedA630dDf2748a453BF6d92560762D914'),
-          ]),
-          'Central actor allowed to commit transactions to L1.',
-        ),
-        discovery.getMultisigPermission(
-          'Metis Multisig',
-          'This address is the owner of all the upgradable contracts of the system. This allows it to censor messages or pause message bridge altogether, upgrade bridge implementation potentially gaining access to all funds stored in a bridge and change the sequencer, state root proposer or any other system component (unlimited upgrade power). Can challenge the state roots submitted by the state root proposer.',
-        ),
-        discovery.getPermissionDetails(
-          'State Root Proposer',
-          discovery.getPermissionedAccounts(
-            'Lib_AddressManager',
-            '_1088_MVM_Proposer',
-          ),
-          'Central actor to post new state roots to L1.',
-        ),
-      ],
-    },
-  },
+  permissions: discovery.getDiscoveredPermissions(),
   contracts: {
-    addresses: {
-      [discovery.chain]: [
-        // note: these three contracts are not used anymore - transaction batch hashes are posted to EOA. Note that these contracts are still being discovered
-        /*discovery.getContractDetails(
-        'MVM_CanonicalTransaction',
-        'MVM CanonicalTransaction is a wrapper of Canonical Transaction Chain that implements optimistic data availability scheme L1. If Sequencer is not malicious, it simply forwards appendSequencerBatch() calls to CanonicalTransactionChain.',
-      ),
-      */
-        discovery.getContractDetails(
-          'MVM_Verifier',
-          'This contract implements a voting scheme with which the majority of Verifiers can challenge malicious state roots proposed. There are no whitelisted verifiers, hence this contract is not used in practice.',
-        ),
-
-        discovery.getContractDetails(
-          'CanonicalTransactionChain',
-          'The Canonical Transaction Chain (CTC) contract is an append-only log of transactions which must be applied to the OVM state. Given that transactions batch hashes are sent to an EOA address, it allows any account to enqueue() a transaction, which the Sequencer must eventually append to the rollup state.',
-        ),
-        discovery.getContractDetails(
-          'StateCommitmentChain',
-          'The State Commitment Chain (SCC) stores a list of proposed state roots in a linked ChainStorageContainer contract. Only a permissioned state root proposer (MVM_Proposer) can submit new state roots.',
-        ),
-        discovery.getContractDetails('ChainStorageContainer-CTC-batches'),
-        discovery.getContractDetails('ChainStorageContainer-CTC-queue'),
-        discovery.getContractDetails('ChainStorageContainer-SCC-batches'),
-        discovery.getContractDetails(
-          'BondManager',
-          "The Bond Manager contract will handle deposits in the form of an ERC20 token from bonded Proposers. It will also handle the accounting of gas costs spent by a Verifier during the course of a challenge. In the event of a successful challenge, the faulty Proposer's bond will be slashed, and the Verifier's gas costs will be refunded. Current mock implementation allows only OVM_Proposer to propose new state roots. No slashing is implemented.",
-        ),
-        discovery.getContractDetails(
-          'L1CrossDomainMessenger',
-          "The L1 Cross Domain Messenger (L1xDM) contract sends messages from L1 to Metis, and relays messages from Metis onto L1. In the event that a message sent from L1 to Metis is rejected for exceeding the Metis epoch gas limit, it can be resubmitted via this contract's replay function.",
-        ),
-        discovery.getContractDetails(
-          'MVM_DiscountOracle',
-          'Oracle specifying user fees for sending L1 -> Metis messages and other parameters for cross-chain communication.',
-        ),
-        discovery.getContractDetails(
-          'Lib_AddressManager',
-          'This is a library that stores the mappings between names such as OVM_Sequencer, OVM_Proposer and other contracts and their addresses.',
-        ),
-
-        discovery.getContractDetails(
-          'MVM_L2ChainManagerOnL1',
-          'Contract that allows METIS_MANAGER to switch Sequencer.',
-        ),
-        discovery.getContractDetails(
-          'L1StandardBridge',
-          'Main entry point for users depositing ERC20 tokens and ETH that do not require custom gateway.',
-        ),
-        discovery.getContractDetails(
-          'LockingPool',
-          'Contract allowing users to lock tokens to apply to become a sequencer, receive rewards, unlock tokens to exit the sequencer, reward distribution.',
-        ),
-        discovery.getContractDetails(
-          'LockingInfo',
-          'Contract acting as an escrow for METIS tokens managed by LockingPool.',
-        ),
-      ],
-    },
+    addresses: discovery.getDiscoveredContracts(),
     risks: [CONTRACTS.UPGRADE_NO_DELAY_RISK],
   },
   milestones: [
     {
-      title: 'Mainnet launch',
+      title: 'Mainnet Launch',
       url: 'https://metisdao.medium.com/metis-to-launch-andromeda-honoring-our-commitment-to-decentralization-fa2d03394398',
       date: '2021-11-19T00:00:00Z',
       description:
@@ -323,11 +355,19 @@ export const metis: ScalingProject = {
     },
     {
       title: 'Data hashes posted to EOA',
-      url: 'https://etherscan.io/address/0xFf00000000000000000000000000000000001088',
+      url: 'https://etherscan.io/tx/0x4dbb3a65f411b2319dc5c824804a6593d6bf6b482a76493e9089e1e055267123',
       date: '2023-03-15T00:00:00Z',
       description:
         'Hashes to data blobs are now posted to EOA address instead of CanonicalTransactionChain contract.',
       type: 'general',
     },
+    {
+      title: 'Metis starts using blobs',
+      url: 'https://etherscan.io/tx/0x1c28c8e7b89c5da880a52c3e4e4ca6da332816e72c0600d55c18479be897c8b7',
+      date: '2025-05-13T00:00:00Z',
+      description: 'Permissioned batcher is posting blobs to the inbox.',
+      type: 'general',
+    },
   ],
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

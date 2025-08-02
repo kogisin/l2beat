@@ -2,6 +2,7 @@ import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
 import { BRIDGE_RISK_VIEW } from '../../common'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { Bridge } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('connext')
 
@@ -9,14 +10,14 @@ export const connext: Bridge = {
   type: 'bridge',
   id: ProjectId('connext'),
   addedAt: UnixTime(1662628329), // 2022-09-08T09:12:09Z
-  isArchived: true,
+  archivedAt: UnixTime(1682553600), // 2023-04-27T00:00:00.000Z,
   display: {
     name: 'Connext (Legacy)',
     slug: 'connext-legacy',
     category: 'Liquidity Network',
     links: {
       websites: ['https://bridge.connext.network/', 'https://connext.network/'],
-      apps: ['https://bridge.connext.network/'],
+      bridges: ['https://bridge.connext.network/'],
       explorers: ['https://connextscan.io/'],
       socialMedia: [
         'https://twitter.com/connextnetwork',
@@ -84,7 +85,6 @@ export const connext: Bridge = {
       description: 'Transfer is done via peer-to-peer atomic swap',
       sentiment: 'good',
     },
-    sourceUpgradeability: BRIDGE_RISK_VIEW.UPGRADABLE_NO,
     destinationToken: {
       ...BRIDGE_RISK_VIEW.CANONICAL,
       description: BRIDGE_RISK_VIEW.CANONICAL.description,
@@ -92,7 +92,7 @@ export const connext: Bridge = {
   },
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails(
           'TransactionManager',
           'Escrow and logic for cross-chain transactions.',
@@ -106,7 +106,7 @@ export const connext: Bridge = {
     risks: [],
   },
   permissions: {
-    [discovery.chain]: {
+    ethereum: {
       actors: [
         discovery.getPermissionDetails(
           'Owner of TransactionManager',
@@ -116,4 +116,5 @@ export const connext: Bridge = {
       ],
     },
   },
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

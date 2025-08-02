@@ -1,12 +1,12 @@
-import { UnixTime, formatSeconds } from '@l2beat/shared-pure'
-import { DA_LAYERS } from '../../common'
-import { REASON_FOR_BEING_OTHER } from '../../common'
+import { formatSeconds, UnixTime } from '@l2beat/shared-pure'
 import {
+  DA_LAYERS,
   DaCommitteeSecurityRisk,
   DaEconomicSecurityRisk,
   DaFraudDetectionRisk,
   DaRelayerFailureRisk,
   DaUpgradeabilityRisk,
+  REASON_FOR_BEING_OTHER,
 } from '../../common'
 import { BADGES } from '../../common/badges'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
@@ -31,6 +31,7 @@ const daResolveWindow = formatSeconds(
 
 export const gmnetwork: ScalingProject = opStackL2({
   addedAt: UnixTime(1732028588), // 2024-11-19T15:03:08
+  archivedAt: UnixTime(1743465600), // 2025-04-01T00:00:00.000Z,
   discovery,
   additionalBadges: [BADGES.RaaS.AltLayer],
   additionalPurposes: ['AI'],
@@ -46,7 +47,7 @@ export const gmnetwork: ScalingProject = opStackL2({
       'GM Network is an OP stack L2 in alt-DA mode aiming to deepen the integration of smart, connected devices within everyday human activities by blending Artificial Intelligence and the Internet of Things.',
     links: {
       websites: ['https://gmnetwork.ai/'],
-      apps: ['https://bridge.gmnetwork.ai/'],
+      bridges: ['https://bridge.gmnetwork.ai/'],
       documentation: ['https://docs.gmnetwork.ai/docs'],
       explorers: ['https://scan.gmnetwork.ai/'],
       socialMedia: [
@@ -60,6 +61,15 @@ export const gmnetwork: ScalingProject = opStackL2({
       ],
     },
   },
+  milestones: [
+    {
+      title: 'GM Network sunsets',
+      url: 'https://x.com/GMNetwork_AI/status/1894592894893527317',
+      date: '2025-03-31',
+      description: 'GM Network has officially sunset.',
+      type: 'general',
+    },
+  ],
   daProvider: DACHALLENGES_DA_PROVIDER(
     daChallengeWindow,
     daResolveWindow,
@@ -116,11 +126,11 @@ However, there is a mechanism that allows users to challenge unavailability of d
       risks: [
         {
           category: 'Funds can be lost if',
-          text: `the sequencer posts an invalid data availability certificate and there are no challengers.`,
+          text: 'the sequencer posts an invalid data availability certificate and there are no challengers.',
         },
         {
           category: 'Funds can be lost if',
-          text: `the sequencer posts an invalid data availability certificate, and he is able to outspend the challengers.`,
+          text: 'the sequencer posts an invalid data availability certificate, and he is able to outspend the challengers.',
         },
       ],
     },

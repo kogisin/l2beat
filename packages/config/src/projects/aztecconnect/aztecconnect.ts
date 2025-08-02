@@ -5,34 +5,35 @@ import {
   DA_LAYERS,
   DA_MODES,
   FORCE_TRANSACTIONS,
-  NEW_CRYPTOGRAPHY,
   RISK_VIEW,
-  STATE_CORRECTNESS,
+  STATE_VALIDATION,
   TECHNOLOGY_DATA_AVAILABILITY,
 } from '../../common'
 import { getStage } from '../../common/stages/getStage'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('aztecconnect')
 
 export const aztecconnect: ScalingProject = {
-  isArchived: true,
   type: 'layer2',
   id: ProjectId('aztecconnect'),
   addedAt: UnixTime(1623153328), // 2021-06-08T11:55:28Z
+  archivedAt: UnixTime(1698278400), // 2023-10-26T00:00:00.000Z,
   capability: 'universal',
   display: {
     name: 'Zk.Money v2 (Aztec Connect)',
     slug: 'aztecconnect',
-    warning: `EOL: Aztec team shut down their offchain rollup infrastructure on March 31st, 2024. Onchain deposits are disabled and ownership of the rollup contract is irrevocably renounced. Assets in the escrow can be manually withdrawn with the [Aztec Connect Ejector](https://github.com/AztecProtocol/aztec-connect-ejector).`,
+    warning:
+      'EOL: Aztec team shut down their offchain rollup infrastructure on March 31st, 2024. Onchain deposits are disabled and ownership of the rollup contract is irrevocably renounced. Assets in the escrow can be manually withdrawn with the [Aztec Connect Ejector](https://github.com/AztecProtocol/aztec-connect-ejector).',
     description:
       'Aztec Connect is an open source layer 2 network that aims to enable affordable, private crypto payments via zero-knowledge proofs.',
     purposes: ['Payments', 'Privacy'],
     category: 'ZK Rollup',
     links: {
       websites: ['https://aztec.network/'],
-      apps: ['https://zk.money'],
+      bridges: ['https://zk.money'],
       documentation: ['https://developers.aztec.network/'],
       explorers: ['https://aztec-connect-prod-explorer.aztec.network/'],
       repositories: ['https://github.com/AztecProtocol/aztec-connect'],
@@ -91,11 +92,11 @@ export const aztecconnect: ScalingProject = {
         stateRootsPostedToL1: true,
         dataAvailabilityOnL1: true,
         rollupNodeSourceAvailable: true,
+        stateVerificationOnL1: true,
+        fraudProofSystemAtLeast5Outsiders: null,
       },
       stage1: {
         principle: true,
-        stateVerificationOnL1: true,
-        fraudProofSystemAtLeast5Outsiders: null,
         usersHave7DaysToExit: true,
         usersCanExitWithoutCooperation: true,
         securityCouncilProperlySetUp: null,
@@ -116,25 +117,20 @@ export const aztecconnect: ScalingProject = {
         'https://github.com/AztecProtocol/aztec-connect/tree/v2.1',
     },
   ),
+  stateValidation: {
+    categories: [
+      {
+        ...STATE_VALIDATION.VALIDITY_PROOFS,
+        references: [
+          {
+            title: 'RollupProcessorV3.sol#L706 - Etherscan source code',
+            url: 'https://etherscan.io/address/0x7d657Ddcf7e2A5fD118dC8A6dDc3dC308AdC2728#code#F1#L706',
+          },
+        ],
+      },
+    ],
+  },
   technology: {
-    stateCorrectness: {
-      ...STATE_CORRECTNESS.VALIDITY_PROOFS,
-      references: [
-        {
-          title: 'RollupProcessorV3.sol#L706 - Etherscan source code',
-          url: 'https://etherscan.io/address/0x7d657Ddcf7e2A5fD118dC8A6dDc3dC308AdC2728#code#F1#L706',
-        },
-      ],
-    },
-    newCryptography: {
-      ...NEW_CRYPTOGRAPHY.ZK_SNARKS,
-      references: [
-        {
-          title: 'Verifier28x32.sol#L150 - Etherscan source code',
-          url: 'https://etherscan.io/address/0xb7baA1420f88b7758E341c93463426A2b7651CFB#code#F3#L150',
-        },
-      ],
-    },
     dataAvailability: {
       ...TECHNOLOGY_DATA_AVAILABILITY.ON_CHAIN_CALLDATA,
       description:
@@ -149,7 +145,8 @@ export const aztecconnect: ScalingProject = {
     operator: {
       name: 'No operator',
       risks: [],
-      description: `Only specific addresses appointed by the owner were permitted to propose new blocks during regular rollup operation. Now that the system is EOL, the rollup can only be processed locally by volunteers.`,
+      description:
+        'Only specific addresses appointed by the owner were permitted to propose new blocks during regular rollup operation. Now that the system is EOL, the rollup can only be processed locally by volunteers.',
       references: [
         {
           title: 'RollupProcessorV3.sol#L692 - Etherscan source code',
@@ -170,7 +167,8 @@ export const aztecconnect: ScalingProject = {
     exitMechanisms: [
       {
         name: 'EOL: Manual withdrawal using Aztec Connect Ejector',
-        description: `EOL: Aztec team announced they are going to shut down the rollup infrastructure on March 31st, 2024. Deposits are disabled and ownership of the rollup contract is irrevocably renounced. Assets in the escrow can be manually withdrawn with the [Aztec Connect Ejector](https://github.com/AztecProtocol/aztec-connect-ejector).`,
+        description:
+          'EOL: Aztec team announced they are going to shut down the rollup infrastructure on March 31st, 2024. Deposits are disabled and ownership of the rollup contract is irrevocably renounced. Assets in the escrow can be manually withdrawn with the [Aztec Connect Ejector](https://github.com/AztecProtocol/aztec-connect-ejector).',
         risks: [],
         references: [
           {
@@ -214,9 +212,10 @@ export const aztecconnect: ScalingProject = {
   },
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails('RollupProcessorV3', {
-          description: `Main Rollup contract (immutable) responsible for withdrawals and accepting transaction batches alongside a ZK proof.`,
+          description:
+            'Main Rollup contract (immutable) responsible for withdrawals and accepting transaction batches alongside a ZK proof.',
         }),
         // rollupBeneficiary is encoded in proofData. Can be set arbitrarily for each rollup.
         // https://etherscan.io/address/0x7d657Ddcf7e2A5fD118dC8A6dDc3dC308AdC2728#code#F1#L704
@@ -269,4 +268,5 @@ export const aztecconnect: ScalingProject = {
       type: 'general',
     },
   ],
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

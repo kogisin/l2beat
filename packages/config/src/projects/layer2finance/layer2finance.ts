@@ -3,27 +3,28 @@ import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
 import { TECHNOLOGY, UNDER_REVIEW_RISK_VIEW } from '../../common'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('layer2finance')
 
 export const layer2finance: ScalingProject = {
-  isArchived: true,
   type: 'layer2',
   id: ProjectId('layer2finance'),
-  capability: 'universal',
   addedAt: UnixTime(1623153328), // 2021-06-08T11:55:28Z
+  archivedAt: UnixTime(1695686400), // 2023-09-26T00:00:00.000Z,
+  capability: 'universal',
   display: {
-    name: 'ScalingProject.Finance',
+    name: 'Layer2.Finance',
     slug: 'layer2finance',
     warning:
       'Currently the TVS is calculated incorrectly, because it does not take assets locked in DeFi into account.',
     description:
-      'ScalingProject.Finance aims to democratize access to DeFi protocols for everyone. Users can aggregate their DeFi usage and save on Ethereum fees.',
+      'Layer2.Finance aims to democratize access to DeFi protocols for everyone. Users can aggregate their DeFi usage and save on Ethereum fees.',
     purposes: ['Exchange'],
     category: 'Optimistic Rollup',
     links: {
       websites: ['https://layer2.finance/'],
-      apps: ['https://app.l2.finance/'],
+      bridges: ['https://app.l2.finance/'],
       documentation: ['https://docs.l2.finance/'],
       repositories: [
         'https://github.com/celer-network/layer2-finance-contracts',
@@ -52,12 +53,11 @@ export const layer2finance: ScalingProject = {
   technology: TECHNOLOGY.UNDER_REVIEW,
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails('RollupChain', {
           references: [
             {
-              title:
-                'RollupChain.sol#L460-L496 - ScalingProject.Finance source code',
+              title: 'RollupChain.sol#L460-L496 - Layer2.Finance source code',
               url: 'https://github.com/celer-network/layer2-finance-contracts/blob/61ed0f17a15e8ba06778776ade1a82956a9de842/contracts/RollupChain.sol#L460-L496',
             },
           ],
@@ -74,4 +74,5 @@ export const layer2finance: ScalingProject = {
       },
     ],
   },
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

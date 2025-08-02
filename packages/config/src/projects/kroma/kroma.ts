@@ -1,9 +1,10 @@
 import {
   assert,
+  ChainSpecificAddress,
   EthereumAddress,
+  formatSeconds,
   ProjectId,
   UnixTime,
-  formatSeconds,
 } from '@l2beat/shared-pure'
 import {
   CONTRACTS,
@@ -13,10 +14,9 @@ import {
   EXITS,
   FORCE_TRANSACTIONS,
   OPERATOR,
+  REASON_FOR_BEING_OTHER,
   TECHNOLOGY_DATA_AVAILABILITY,
 } from '../../common'
-import { REASON_FOR_BEING_OTHER } from '../../common'
-import { ESCROW } from '../../common'
 import { BADGES } from '../../common/badges'
 import { formatChallengePeriod } from '../../common/formatDelays'
 import { OPTIMISTIC_ROLLUP_STATE_UPDATES_WARNING } from '../../common/liveness'
@@ -29,6 +29,7 @@ import {
   generateDiscoveryDrivenContracts,
   generateDiscoveryDrivenPermissions,
 } from '../../templates/generateDiscoveryDrivenSections'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('kroma')
 
@@ -47,7 +48,10 @@ const finalizationPeriod = discovery.getContractValue<number>(
   'FINALIZATION_PERIOD_SECONDS',
 )
 
+const chainId = 255
+
 export const kroma: ScalingProject = {
+  archivedAt: UnixTime(1752041971), // Wednesday, July 9, 2025 6:19:31 AM UTC
   type: 'layer2',
   id: ProjectId('kroma'),
   addedAt: UnixTime(1686820004), // 2023-06-15T09:06:44Z
@@ -60,16 +64,18 @@ export const kroma: ScalingProject = {
   ],
   reasonsForBeingOther: [REASON_FOR_BEING_OTHER.NO_PROOFS],
   display: {
+    redWarning:
+      'Kroma will shut down on June 30, 2025. Users must withdraw their funds before that date. After this date, funds retrieval is not guaranteed. See [announcement](https://x.com/kroma_network/status/1936692354603520198) for details.',
     name: 'Kroma',
     slug: 'kroma',
     description:
       'Kroma aims to develop a universal ZK Rollup based on the Optimism Bedrock architecture. Currently, Kroma operates as an Optimistic Rollup with ZK fault proofs, utilizing a zkEVM based on Scroll and a zkVM based proven with SP1.',
     purposes: ['Universal'],
-    category: 'Optimistic Rollup',
-    stack: 'OP Stack',
+    category: 'Other',
+    stacks: ['OP Stack'],
     links: {
       websites: ['https://kroma.network/'],
-      apps: ['https://kroma.network/bridge/'],
+      bridges: ['https://kroma.network/bridge/'],
       documentation: [
         'https://docs.kroma.network/',
         'https://specs.kroma.network/',
@@ -95,50 +101,48 @@ export const kroma: ScalingProject = {
         finalizationPeriod,
       )} after it has been posted.`,
     },
-    finality: {
-      warnings: {
-        timeToInclusion: {
-          sentiment: 'neutral',
-          value:
-            "It's assumed that transaction data batches are submitted sequentially.",
-        },
-      },
-      finalizationPeriod,
-    },
+  },
+  ecosystemInfo: {
+    id: ProjectId('superchain'),
   },
   chainConfig: {
     name: 'kroma',
-    chainId: 255,
+    chainId,
     coingeckoPlatform: 'kroma',
     explorerUrl: 'https://kromascan.com',
     multicallContracts: [],
     sinceTimestamp: UnixTime.fromDate(new Date('2023-09-05T03:00:00Z')),
     apis: [
       { type: 'rpc', url: 'https://api.kroma.network', callsPerMinute: 1500 },
-      { type: 'etherscan', url: 'https://api.kromascan.com/api' },
+      { type: 'etherscan', chainId },
     ],
   },
   config: {
     associatedTokens: ['KRO'],
     escrows: [
       discovery.getEscrowDetails({
-        address: EthereumAddress('0x31F648572b67e60Ec6eb8E197E1848CC5F5558de'),
+        address: ChainSpecificAddress(
+          'eth:0x31F648572b67e60Ec6eb8E197E1848CC5F5558de',
+        ),
         sinceTimestamp: UnixTime(1693880555),
         tokens: ['ETH'],
         description: 'Main entry point for users depositing ETH.',
       }),
       discovery.getEscrowDetails({
-        address: EthereumAddress('0x827962404D7104202C5aaa6b929115C8211d9596'),
+        address: ChainSpecificAddress(
+          'eth:0x827962404D7104202C5aaa6b929115C8211d9596',
+        ),
         sinceTimestamp: UnixTime(1693880555),
         tokens: '*',
         description:
           'Main entry point for users depositing ERC20 token that do not require custom gateway.',
       }),
       discovery.getEscrowDetails({
-        address: EthereumAddress('0x7e1Bdb9ee75B6ef1BCAAE3B1De1c616C7B11ef6e'),
+        address: ChainSpecificAddress(
+          'eth:0x7e1Bdb9ee75B6ef1BCAAE3B1De1c616C7B11ef6e',
+        ),
         sinceTimestamp: UnixTime(1700122827),
         tokens: ['USDC'],
-        ...ESCROW.CANONICAL_EXTERNAL,
         description: 'Main entry point for users depositing USDC.',
       }),
     ],
@@ -152,8 +156,10 @@ export const kroma: ScalingProject = {
         type: 'ethereum',
         daLayer: ProjectId('ethereum'),
         sinceBlock: 0, // Edge Case: config added @ DA Module start
-        inbox: '0xfF00000000000000000000000000000000000255',
-        sequencers: ['0x41b8cD6791De4D8f9E0eaF7861aC506822AdcE12'],
+        inbox: EthereumAddress('0xfF00000000000000000000000000000000000255'),
+        sequencers: [
+          EthereumAddress('0x41b8cD6791De4D8f9E0eaF7861aC506822AdcE12'),
+        ],
       },
     ],
     trackedTxs: [
@@ -164,11 +170,15 @@ export const kroma: ScalingProject = {
         ],
         query: {
           formula: 'transfer',
-          from: EthereumAddress(
-            discovery.getContractValue('SystemConfig', 'batcherHash'),
+          from: ChainSpecificAddress.address(
+            ChainSpecificAddress(
+              discovery.getContractValue('SystemConfig', 'batcherHash'),
+            ),
           ),
-          to: EthereumAddress(
-            discovery.getContractValue('SystemConfig', 'sequencerInbox'),
+          to: ChainSpecificAddress.address(
+            ChainSpecificAddress(
+              discovery.getContractValue('SystemConfig', 'sequencerInbox'),
+            ),
           ),
           sinceTimestamp: UnixTime(1693883663),
         },
@@ -190,15 +200,6 @@ export const kroma: ScalingProject = {
         },
       },
     ],
-    finality: {
-      type: 'OPStack',
-      // timestamp of the first blob tx
-      minTimestamp: UnixTime(1714032407),
-      l2BlockTimeSeconds: 2,
-      genesisTimestamp: UnixTime(1693880387),
-      lag: 0,
-      stateUpdate: 'disabled',
-    },
   },
   dataAvailability: {
     layer: DA_LAYERS.ETH_BLOBS_OR_CALLDATA,
@@ -228,11 +229,11 @@ export const kroma: ScalingProject = {
         stateRootsPostedToL1: true,
         dataAvailabilityOnL1: true,
         rollupNodeSourceAvailable: true,
+        stateVerificationOnL1: false,
+        fraudProofSystemAtLeast5Outsiders: true,
       },
       stage1: {
         principle: false,
-        stateVerificationOnL1: false,
-        fraudProofSystemAtLeast5Outsiders: true,
         usersHave7DaysToExit: false,
         usersCanExitWithoutCooperation: true,
         securityCouncilProperlySetUp: true,
@@ -247,44 +248,48 @@ export const kroma: ScalingProject = {
       rollupNodeLink: 'https://github.com/kroma-network/kroma',
     },
   ),
+  stateValidation: {
+    categories: [
+      {
+        title: 'Fraud proofs',
+        description:
+          'Kroma uses an interactive fraud proof system to find a single block of disagreement, which is then ZK proven. Once the single block of disagreement\
+    is found, the challenger is required to present a ZK proof of the fraud. This can be either a proof verified in a zkEVM verifier base on Scroll, or in a\
+    zkVM verifier built by Succinct SP1. If the proof is validated, the incorrect state output is deleted. The Security Council can always override the\
+    result of the challenge, it can also delete any L2 state root at any time. The protocol\
+    can fail under certain conditions.',
+        references: [
+          {
+            title:
+              'Colosseum.sol#L300 - Etherscan source code, createChallenge() function',
+            url: 'https://etherscan.io/address/0xBFcA810D1c26a3aC6F81a32Ab5C023F24bE93dAC#code#F1#L374',
+          },
+          {
+            title:
+              'Colosseum.sol#L378 - Etherscan source code, bisect() function',
+            url: 'https://etherscan.io/address/0xBFcA810D1c26a3aC6F81a32Ab5C023F24bE93dAC#code#F1#L452',
+          },
+          {
+            title:
+              'Colosseum.sol#L434 - Etherscan source code, proveFaultWithZkEvm() function',
+            url: 'https://etherscan.io/address/0xBFcA810D1c26a3aC6F81a32Ab5C023F24bE93dAC#code#F1#L505',
+          },
+          {
+            title:
+              'KROMA-020: lack of validation segments and proofs in Colosseum.sol - ChainLight security audit',
+            url: 'https://drive.google.com/file/d/13TUxZ9KPyvUXNZGddALcJLin-xmp_Fkj/view',
+          },
+        ],
+        risks: [
+          {
+            category: 'Funds can be lost if',
+            text: 'the cryptography is broken or implemented incorrectly.',
+          },
+        ],
+      },
+    ],
+  },
   technology: {
-    stateCorrectness: {
-      name: 'Fraud Proofs ensure state correctness',
-      description:
-        'Kroma uses an interactive fraud proof system to find a single block of disagreement, which is then ZK proven. Once the single block of disagreement\
-        is found, the challenger is required to present a ZK proof of the fraud. This can be either a proof verified in a zkEVM verifier base on Scroll, or in a\
-        zkVM verifier built by Succinct SP1. If the proof is validated, the incorrect state output is deleted. The Security Council can always override the\
-        result of the challenge, it can also delete any L2 state root at any time. The protocol\
-        can fail under certain conditions.',
-      references: [
-        {
-          title:
-            'Colosseum.sol#L300 - Etherscan source code, createChallenge() function',
-          url: 'https://etherscan.io/address/0xBFcA810D1c26a3aC6F81a32Ab5C023F24bE93dAC#code#F1#L374',
-        },
-        {
-          title:
-            'Colosseum.sol#L378 - Etherscan source code, bisect() function',
-          url: 'https://etherscan.io/address/0xBFcA810D1c26a3aC6F81a32Ab5C023F24bE93dAC#code#F1#L452',
-        },
-        {
-          title:
-            'Colosseum.sol#L434 - Etherscan source code, proveFaultWithZkEvm() function',
-          url: 'https://etherscan.io/address/0xBFcA810D1c26a3aC6F81a32Ab5C023F24bE93dAC#code#F1#L505',
-        },
-        {
-          title:
-            'KROMA-020: lack of validation segments and proofs in Colosseum.sol - ChainLight security audit',
-          url: 'https://drive.google.com/file/d/13TUxZ9KPyvUXNZGddALcJLin-xmp_Fkj/view',
-        },
-      ],
-      risks: [
-        {
-          category: 'Funds can be lost if',
-          text: 'the cryptography is broken or implemented incorrectly.',
-        },
-      ],
-    },
     dataAvailability: {
       ...TECHNOLOGY_DATA_AVAILABILITY.ON_CHAIN_CANONICAL,
       references: [
@@ -378,6 +383,22 @@ export const kroma: ScalingProject = {
   },
   milestones: [
     {
+      title: 'Kroma shutdown announcement',
+      url: 'https://x.com/kroma_network/status/1936692354603520198',
+      date: '2025-06-20T00:00:00.00Z',
+      description:
+        'Kroma announces its shutdown on June 30, 2025. Users must withdraw their funds before that date.',
+      type: 'incident',
+    },
+    {
+      title: 'Plonky3 vulnerability patch',
+      url: 'https://x.com/SuccinctLabs/status/1929773028034204121',
+      date: '2025-06-04T00:00:00.00Z',
+      description:
+        'SP1 verifier is patched to fix critical vulnerability in Plonky3 proof system (SP1 dependency).',
+      type: 'incident',
+    },
+    {
       title: 'SP1 fault proofs upgrade',
       url: 'https://blog.kroma.network/kromas-transition-to-zkvm-fault-proof-b8c8d2dc39c6',
       date: '2025-02-11T00:00:00Z',
@@ -410,11 +431,12 @@ export const kroma: ScalingProject = {
       type: 'general',
     },
     {
-      title: 'Kroma Mainnet Launch',
+      title: 'Mainnet Launch',
       url: 'https://twitter.com/kroma_network/status/1699267271968055305?s=20',
       date: '2023-09-06T00:00:00Z',
       description: 'Kroma is live on mainnet.',
       type: 'general',
     },
   ],
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

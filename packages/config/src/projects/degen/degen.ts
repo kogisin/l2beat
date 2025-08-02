@@ -1,16 +1,16 @@
 import { EthereumAddress, UnixTime } from '@l2beat/shared-pure'
-import { CONTRACTS } from '../../common'
-import { REASON_FOR_BEING_OTHER } from '../../common'
+import { CONTRACTS, REASON_FOR_BEING_OTHER } from '../../common'
 import { BADGES } from '../../common/badges'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
 import { AnytrustDAC } from '../../templates/anytrust-template'
 import { orbitStackL3 } from '../../templates/orbitStack'
 
-const discovery = new ProjectDiscovery('degen', 'base')
+const discovery = new ProjectDiscovery('degen')
 
 export const degen: ScalingProject = orbitStackL3({
-  addedAt: UnixTime(1712135735), // 2024-04-03T09:15:35Z
+  addedAt: UnixTime(1711584000), // 2024-03-28T00:00:00Z
+  hostChain: 'base',
   discovery,
   additionalBadges: [BADGES.L3ParentChain.Base, BADGES.RaaS.Alchemy],
   additionalPurposes: ['Social'],
@@ -25,7 +25,7 @@ export const degen: ScalingProject = orbitStackL3({
       'Degen Chain is an ultra-low-cost L3 for the Degen community built with Arbitrum Orbit, Base for settlement, and AnyTrust for data availability. DEGEN is the native gas token.',
     links: {
       websites: ['https://syndicate.io/blog/degen-chain'],
-      apps: ['https://bridge.degen.tips/', 'https://degen.tips/'],
+      bridges: ['https://bridge.degen.tips/', 'https://degen.tips/'],
       documentation: ['https://docs.syndicate.io/get-started/introduction'],
       explorers: ['https://explorer.degen.tips/'],
       socialMedia: [
@@ -80,6 +80,13 @@ export const degen: ScalingProject = orbitStackL3({
         'Degen Chain halts for two days due to a chain misconfiguration.',
       type: 'incident',
     },
+    {
+      title: 'Degen Chain launches Mainnet',
+      date: '2024-03-28T00:00:00Z',
+      url: 'https://x.com/syndicateio/status/1773351144858750990',
+      description: 'Degen Chain launches its mainnet.',
+      type: 'general',
+    },
   ],
-  customDa: AnytrustDAC({ discovery }),
+  customDa: AnytrustDAC({ discovery, hostChain: 'base' }),
 })

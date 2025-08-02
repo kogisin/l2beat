@@ -1,28 +1,27 @@
-import { EthereumAddress } from '@l2beat/shared-pure'
+import { ChainSpecificAddress } from '@l2beat/shared-pure'
+import { v } from '@l2beat/validate'
 import { utils } from 'ethers'
-import * as z from 'zod'
 import type { ContractValue } from '../../output/types'
 
 import type { IProvider } from '../../provider/IProvider'
 import type { Handler, HandlerResult } from '../Handler'
 import {
-  type ReferenceInput,
   generateReferenceInput,
   getReferencedName,
+  type ReferenceInput,
   resolveReference,
 } from '../reference'
-import { EXEC_REVERT_MSG, callMethod } from '../utils/callMethod'
+import { callMethod, EXEC_REVERT_MSG } from '../utils/callMethod'
 import { getFunctionFragment } from '../utils/getFunctionFragment'
 
-export type CallHandlerDefinition = z.infer<typeof CallHandlerDefinition>
-export const CallHandlerDefinition = z.strictObject({
-  type: z.literal('call'),
-  method: z.optional(z.string()),
-  args: z.array(z.union([z.string(), z.number()])),
-  ignoreRelative: z.optional(z.boolean()),
-  pickFields: z.optional(z.array(z.string())),
-  expectRevert: z.optional(z.boolean()),
-  address: z.optional(z.string()),
+export type CallHandlerDefinition = v.infer<typeof CallHandlerDefinition>
+export const CallHandlerDefinition = v.strictObject({
+  type: v.literal('call'),
+  method: v.string().optional(),
+  args: v.array(v.union([v.string(), v.number()])),
+  ignoreRelative: v.boolean().optional(),
+  expectRevert: v.boolean().optional(),
+  address: v.string().optional(),
 })
 
 export class CallHandler implements Handler {
@@ -58,7 +57,7 @@ export class CallHandler implements Handler {
 
   async execute(
     provider: IProvider,
-    currentContractAddress: EthereumAddress,
+    currentContractAddress: ChainSpecificAddress,
     previousResults: Record<string, HandlerResult | undefined>,
   ): Promise<HandlerResult> {
     const referenceInput = generateReferenceInput(
@@ -72,7 +71,6 @@ export class CallHandler implements Handler {
       resolved.address ?? currentContractAddress,
       this.fragment,
       resolved.args,
-      this.definition.pickFields,
     )
 
     if (this.definition.expectRevert && callResult.error === EXEC_REVERT_MSG) {
@@ -86,6 +84,7 @@ export class CallHandler implements Handler {
     return {
       field: this.field,
       ...callResult,
+      fragment: this.fragment,
       ignoreRelative: this.definition.ignoreRelative,
     }
   }
@@ -97,7 +96,7 @@ function resolveDependencies(
 ): {
   method: string | undefined
   args: ContractValue[]
-  address: EthereumAddress | undefined
+  address: ChainSpecificAddress | undefined
 } {
   const args = definition.args.map((x) => resolveReference(x, referenceInput))
   const address = resolveReference(definition.address, referenceInput)
@@ -105,7 +104,9 @@ function resolveDependencies(
     method: definition.method,
     args,
     address:
-      address !== undefined ? EthereumAddress(address.toString()) : undefined,
+      address !== undefined
+        ? ChainSpecificAddress(address.toString())
+        : undefined,
   }
 }
 

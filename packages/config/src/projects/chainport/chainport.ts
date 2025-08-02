@@ -1,7 +1,13 @@
-import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
+import {
+  ChainSpecificAddress,
+  EthereumAddress,
+  ProjectId,
+  UnixTime,
+} from '@l2beat/shared-pure'
 
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { Bridge } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('chainport')
 const congressSize = discovery.getContractValue<number>(
@@ -31,11 +37,15 @@ export const chainport: Bridge = {
   config: {
     escrows: [
       discovery.getEscrowDetails({
-        address: EthereumAddress('0x7B8FDfCf79E72a9a8e656958647D139C0e16EA19'), // Vault 1
+        address: ChainSpecificAddress(
+          'eth:0x7B8FDfCf79E72a9a8e656958647D139C0e16EA19',
+        ), // Vault 1
         tokens: '*',
       }),
       discovery.getEscrowDetails({
-        address: EthereumAddress('0x450aD18B4442ce2972Af2a7A12439984db4Afaf9'), // Vault 2
+        address: ChainSpecificAddress(
+          'eth:0x450aD18B4442ce2972Af2a7A12439984db4Afaf9',
+        ), // Vault 2
         tokens: '*',
       }),
       {
@@ -51,7 +61,9 @@ export const chainport: Bridge = {
         chain: 'ethereum',
       },
       discovery.getEscrowDetails({
-        address: EthereumAddress('0x763A0CA93AF05adE98A52dc1E5B936b89bF8b89a'), // Vault 6
+        address: ChainSpecificAddress(
+          'eth:0x763A0CA93AF05adE98A52dc1E5B936b89bF8b89a',
+        ), // Vault 6
         tokens: '*',
       }),
       {
@@ -72,12 +84,6 @@ export const chainport: Bridge = {
     validatedBy: {
       value: 'Third Party',
       description: 'Transfers are controlled by the Chainport Congress.',
-      sentiment: 'bad',
-    },
-    sourceUpgradeability: {
-      value: 'Yes',
-      description:
-        'The code that secures the system can be changed arbitrarily and without notice.',
       sentiment: 'bad',
     },
   },
@@ -121,7 +127,7 @@ export const chainport: Bridge = {
   },
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails(
           'Vault6',
           'Escrow controlled by the Chainport Congress.',
@@ -139,7 +145,7 @@ export const chainport: Bridge = {
     risks: [],
   },
   permissions: {
-    [discovery.chain]: {
+    ethereum: {
       actors: [
         discovery.getPermissionDetails(
           'Congress members',
@@ -154,4 +160,5 @@ export const chainport: Bridge = {
       ],
     },
   },
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

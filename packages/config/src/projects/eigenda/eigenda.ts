@@ -1,4 +1,4 @@
-import { ProjectId, UnixTime, formatSeconds } from '@l2beat/shared-pure'
+import { formatSeconds, ProjectId, UnixTime } from '@l2beat/shared-pure'
 import {
   DaCommitteeSecurityRisk,
   DaEconomicSecurityRisk,
@@ -8,6 +8,7 @@ import {
 } from '../../common'
 import { linkByDA } from '../../common/linkByDA'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 import type { BaseProject } from '../../types'
 
 const discovery = new ProjectDiscovery('eigenda')
@@ -22,19 +23,19 @@ const quorumThresholds = discovery.getContractValue<string>(
   'quorumConfirmationThresholdPercentages',
 )
 
-const quorum1Threshold = parseInt(quorumThresholds.substring(2, 4), 16)
-const quorum2Threshold = parseInt(quorumThresholds.substring(4, 6), 16)
+const quorum1Threshold = Number.parseInt(quorumThresholds.substring(2, 4), 16)
+const quorum2Threshold = Number.parseInt(quorumThresholds.substring(4, 6), 16)
 
 const quorumAdversaryThresholds = discovery.getContractValue<string>(
   'EigenDAServiceManager',
   'quorumAdversaryThresholdPercentages',
 )
 
-const quorum1AdversaryThreshold = parseInt(
+const quorum1AdversaryThreshold = Number.parseInt(
   quorumAdversaryThresholds.substring(2, 4),
   16,
 )
-const quorum2AdversaryThreshold = parseInt(
+const quorum2AdversaryThreshold = Number.parseInt(
   quorumAdversaryThresholds.substring(4, 6),
   16,
 )
@@ -53,17 +54,20 @@ const ejectableStakePercentParam = discovery.getContractValue<string>(
   'EjectionManager',
   'ejectableStakePercent',
 )
-const ejectableStakePercent = parseFloat(ejectableStakePercentParam) / 100
+const ejectableStakePercent =
+  Number.parseFloat(ejectableStakePercentParam) / 100
 
-const operatorSetParamsQuorum1 = discovery.getContractValue<number[]>(
-  'RegistryCoordinator',
-  'operatorSetParamsQuorum1',
-)
+const operatorSetParamsQuorum1 = discovery.getContractValue<{
+  maxOperatorCount: number
+  kickBIPsOfOperatorStake: number
+  kickBIPsOfTotalStake: number
+}>('RegistryCoordinator', 'operatorSetParamsQuorum1')
 
-const operatorSetParamsQuorum2 = discovery.getContractValue<number[]>(
-  'RegistryCoordinator',
-  'operatorSetParamsQuorum2',
-)
+const operatorSetParamsQuorum2 = discovery.getContractValue<{
+  maxOperatorCount: number
+  kickBIPsOfOperatorStake: number
+  kickBIPsOfTotalStake: number
+}>('RegistryCoordinator', 'operatorSetParamsQuorum2')
 
 const totalNumberOfRegisteredOperators = discovery.getContractValue<string[]>(
   'RegistryCoordinator',
@@ -82,8 +86,9 @@ export const eigenda: BaseProject = {
   statuses: {
     yellowWarning: undefined,
     redWarning: undefined,
-    isUnderReview: false,
-    isUnverified: false,
+    emergencyWarning: undefined,
+    reviewStatus: undefined,
+    unverifiedContracts: [],
   },
   display: {
     description:
@@ -96,6 +101,10 @@ export const eigenda: BaseProject = {
       socialMedia: ['https://x.com/eigen_da'],
     },
     badges: [],
+  },
+  colors: {
+    primary: '#6258FF',
+    secondary: '#6258FF',
   },
   daLayer: {
     type: 'DA Service',
@@ -166,6 +175,101 @@ export const eigenda: BaseProject = {
       economicSecurity: DaEconomicSecurityRisk.OnChainNotSlashable('EIGEN'),
       fraudDetection: DaFraudDetectionRisk.NoFraudDetection,
     },
+    pruningWindow: 86400 * 14, // 14 days in seconds
+    throughput: [
+      {
+        size: 15728640, // 15 MB
+        frequency: 1, // x second
+        sinceTimestamp: 1719187200, // 2024-06-24
+      },
+    ],
+    finality: 600, // ~10 minutes
+    sovereignProjectsTrackingConfig: [
+      {
+        projectId: ProjectId('mantle-testnet'),
+        name: 'Mantle-testnet',
+        daTrackingConfig: [
+          {
+            type: 'eigen-da',
+            sinceTimestamp: 0,
+            customerId: '0xc16267ecb2297f8a98fce214686e80697da91198',
+          },
+        ],
+      },
+      {
+        projectId: ProjectId('matter-labs-wonderfi'),
+        name: 'Matter Labs - WonderFi',
+        daTrackingConfig: [
+          {
+            type: 'eigen-da',
+            sinceTimestamp: 0,
+            customerId: '0xdaf4b26d608d58f53ab6f0758a12de01296ce5bf',
+          },
+        ],
+      },
+      {
+        projectId: ProjectId('altlayer'),
+        name: 'AltLayer',
+        daTrackingConfig: [
+          {
+            type: 'eigen-da',
+            sinceTimestamp: 0,
+            customerId: '0x4fdbd273b8d2c1c429a7e3078063c49528aa8264',
+          },
+        ],
+      },
+      {
+        projectId: ProjectId('altlayer-2'),
+        name: 'AltLayer-2',
+        daTrackingConfig: [
+          {
+            type: 'eigen-da',
+            sinceTimestamp: 0,
+            customerId: '0x1359fbd4b9bc9441a90436719426157526742c9a',
+          },
+        ],
+      },
+      {
+        projectId: ProjectId('altlayer-cyber'),
+        name: 'Altlayer Cyber',
+        daTrackingConfig: [
+          { type: 'eigen-da', sinceTimestamp: 0, customerId: '35.167.254.127' },
+        ],
+      },
+      {
+        projectId: ProjectId('conduit'),
+        name: 'Conduit',
+        daTrackingConfig: [
+          {
+            type: 'eigen-da',
+            sinceTimestamp: 0,
+            customerId: '0x8dc6f0bd2ce3c40d633f5541e21e7574598f7c75',
+          },
+        ],
+      },
+      {
+        projectId: ProjectId('layer-n'),
+        name: 'Layer N',
+        daTrackingConfig: [
+          {
+            type: 'eigen-da',
+            sinceTimestamp: 0,
+            customerId: '0xd697219f32129f4544a554be015386fac9445507',
+          },
+        ],
+      },
+      {
+        projectId: ProjectId('treasure'),
+        name: 'Treasure',
+        daTrackingConfig: [
+          {
+            type: 'eigen-da',
+            sinceTimestamp: 0,
+            customerId: '0x96561d11f55f99f7cda780b77e524195bde1dcde',
+          },
+        ],
+      },
+    ],
   },
   daBridge: {
     name: 'Service Manager',
@@ -186,7 +290,7 @@ Finally, it checks that the signed stake over the total stake is more than the r
 
 Although thresholds are not enforced onchain by the confirmBatch method, the minimum thresholds that the disperser would need to reach before relaying the batch commitment to Ethereum are set to ${quorum1Threshold}% of the registered stake for the ETH quorum and ${quorum2Threshold}% for the EIGEN token quorum. Meeting these dispersal thresholds allows the system to tolerate up to ${quorum1AdversaryThreshold}% (quorum 1) and ${quorum2AdversaryThreshold}% (quorum 2) of the total stake being adversarial, achieving this with approximately 4.5 data redundancy.  
 The quorum thresholds are set on the EigenDAServiceManager contract and can be changed by the contract owner.
-There is a maximum of ${operatorSetParamsQuorum1[0]} operators that can register for the ETH quorum and ${operatorSetParamsQuorum2[0]} for the EIGEN token quorum. Once the cap is reached, new operators must have 10% more weight than the lowest-weighted operator to join the active set. Entering the quorum is subject to the approval of the churn approver. Operators can be ejected from a quorum by the ejectors without delay should they violate the Service Legal Agreement (SLA). \n
+There is a maximum of ${operatorSetParamsQuorum1.maxOperatorCount} operators that can register for the ETH quorum and ${operatorSetParamsQuorum2.maxOperatorCount} for the EIGEN token quorum. Once the cap is reached, new operators must have 10% more weight than the lowest-weighted operator to join the active set. Entering the quorum is subject to the approval of the churn approver. Operators can be ejected from a quorum by the ejectors without delay should they violate the Service Legal Agreement (SLA). \n
 
 Ejectors can eject maximum ${ejectableStakePercent}% of the total stake in a ${formatSeconds(ejectionRateLimitWindow[0])} window for the ETH quorum, and the same stake percentage over a ${formatSeconds(ejectionRateLimitWindow[1])} window for the EIGEN quorum.
 An ejected operator can rejoin the quorum after ${formatSeconds(ejectionCooldown)}. 
@@ -235,9 +339,7 @@ An ejected operator can rejoin the quorum after ${formatSeconds(ejectionCooldown
     },
   },
   contracts: {
-    addresses: {
-      ethereum: discovery.getDiscoveredContracts(),
-    },
+    addresses: discovery.getDiscoveredContracts(),
     risks: [
       {
         category: 'Funds can be lost if',
@@ -261,9 +363,7 @@ An ejected operator can rejoin the quorum after ${formatSeconds(ejectionCooldown
       },
     ],
   },
-  permissions: {
-    ethereum: discovery.getDiscoveredPermissions(),
-  },
+  permissions: discovery.getDiscoveredPermissions(),
   milestones: [
     {
       title: 'EigenDA launch on mainnet',
@@ -280,4 +380,5 @@ An ejected operator can rejoin the quorum after ${formatSeconds(ejectionCooldown
       type: 'general',
     },
   ],
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

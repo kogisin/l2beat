@@ -3,10 +3,14 @@
   "extends": ["//"],
   "tasks": {
     "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist"],
       "env": [
         "CI",
         "CRON_SECRET",
         "DATABASE_URL",
+        "DATABASE_LOG_ENABLED",
+        "DISABLE_CACHE",
         "EXCLUDED_TVS_PROJECTS",
         "EXCLUDED_ACTIVITY_PROJECTS",
         "ETHEREUM_RPC_URL",
@@ -14,10 +18,13 @@
         "FEATURE_FLAG_HIRING",
         "MOCK",
         "NODE_ENV",
+        "DEPLOYMENT_ENV",
         "NEXT_RUNTIME",
         "PORT",
+        "REWRITE",
         "SENTRY_AUTH_TOKEN",
         "SKIP_ENV_VALIDATION",
+        "TINIFY_API_KEY",
         "VERCEL_GIT_COMMIT_REF",
         "VERCEL_GIT_COMMIT_SHA",
         "VERCEL_ENV",

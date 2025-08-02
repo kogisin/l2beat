@@ -1,5 +1,9 @@
-import { assert, EthereumAddress } from '@l2beat/shared-pure'
-import * as z from 'zod'
+import {
+  assert,
+  ChainSpecificAddress,
+  EthereumAddress,
+} from '@l2beat/shared-pure'
+import { v } from '@l2beat/validate'
 
 import type { Transaction } from '../../../utils/IEtherscanClient'
 import type { IProvider } from '../../provider/IProvider'
@@ -11,12 +15,12 @@ import {
 } from '../reference'
 import { valueToAddress } from '../utils/valueToAddress'
 
-export type OpStackSequencerInboxHandlerDefinition = z.infer<
+export type OpStackSequencerInboxHandlerDefinition = v.infer<
   typeof OpStackSequencerInboxHandlerDefinition
 >
-export const OpStackSequencerInboxHandlerDefinition = z.strictObject({
-  type: z.literal('opStackSequencerInbox'),
-  sequencerAddress: z.string(),
+export const OpStackSequencerInboxHandlerDefinition = v.strictObject({
+  type: v.literal('opStackSequencerInbox'),
+  sequencerAddress: v.string(),
 })
 
 export class OpStackSequencerInboxHandler implements Handler {
@@ -40,7 +44,7 @@ export class OpStackSequencerInboxHandler implements Handler {
 
   async execute(
     provider: IProvider,
-    currentContractAddress: EthereumAddress,
+    currentContractAddress: ChainSpecificAddress,
     previousResults: Record<string, HandlerResult | undefined>,
   ): Promise<HandlerResult> {
     const referenceInput = generateReferenceInput(
@@ -65,13 +69,13 @@ export class OpStackSequencerInboxHandler implements Handler {
 
     return {
       field: this.field,
-      value: this.getInboxAddress(lastTxs),
+      value: this.getInboxAddress(provider, lastTxs),
     }
   }
 
-  getInboxAddress(lastTxs: Transaction[]): string {
+  getInboxAddress(provider: IProvider, lastTxs: Transaction[]): string {
     if (lastTxs.length === 0) {
-      return EthereumAddress.ZERO
+      return ChainSpecificAddress.fromLong(provider.chain, EthereumAddress.ZERO)
     }
 
     const toAddresses = lastTxs.map((tx) => tx.to)

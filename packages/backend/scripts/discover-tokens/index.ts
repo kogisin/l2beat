@@ -1,19 +1,21 @@
-import { writeFileSync } from 'fs'
-import { Logger, RateLimiter, getEnv } from '@l2beat/backend-tools'
+import { getEnv, Logger, RateLimiter } from '@l2beat/backend-tools'
 import { type ChainConfig, ProjectService } from '@l2beat/config'
 import { RateLimitedProvider } from '@l2beat/discovery'
 import { BlockIndexerClient, CoingeckoClient, HttpClient } from '@l2beat/shared'
 import { assert, ChainConverter } from '@l2beat/shared-pure'
 import chalk from 'chalk'
 import { providers, utils } from 'ethers'
-import { chunk, groupBy } from 'lodash'
+import { writeFileSync } from 'fs'
+import chunk from 'lodash/chunk'
+import groupBy from 'lodash/groupBy'
+import { getLegacyConfig } from '../../src/modules/tvs/tools/legacyConfig/getLegacyConfig'
 import {
-  OUTPUT_PATH,
-  PROCESSED_ESCROWS_PATH,
   formatNumberWithCommas,
   getEscrowKey,
   loadExistingTokens,
   loadProcessedEscrows,
+  OUTPUT_PATH,
+  PROCESSED_ESCROWS_PATH,
 } from './utils'
 
 const MIN_MARKET_CAP = 10_000_000
@@ -22,15 +24,16 @@ const MIN_MISSING_VALUE = 10_000
 async function main() {
   const ps = new ProjectService()
   const projects = await ps.getProjects({
-    select: ['tvlConfig'],
+    select: ['escrows', 'tvsInfo', 'chainConfig'],
   })
   const tokenList = await ps.getTokens()
 
   const escrowsByChain = groupBy(
     projects
-      .flatMap((p) =>
-        p.tvlConfig.escrows.flatMap((e) => ({ ...e, projectId: p.id })),
-      )
+      .flatMap((p) => {
+        const legacyConfig = getLegacyConfig(p, tokenList)
+        return legacyConfig.escrows.flatMap((e) => ({ ...e, projectId: p.id }))
+      })
       .filter((e) => e.chain !== 'mantle' && e.chain !== 'nova'),
     'chain',
   )
@@ -381,24 +384,31 @@ function getEtherscanClient(chain: string, chains: ChainConfig[]) {
   const config = chains.find((c) => c.name === chain)
 
   const api = config?.apis.find(
-    (x) => x.type === 'etherscan' || x.type === 'blockscout',
+    (x) =>
+      x.type === 'etherscan' ||
+      x.type === 'routescan' ||
+      x.type === 'blockscout',
   )
+
   assert(api)
-  const chainConfig =
-    api.type === 'etherscan'
-      ? {
-          type: api.type,
-          apiKey: env.string([
-            `${config?.name.toUpperCase()}_ETHERSCAN_API_KEY`,
-          ]),
-          url: api.url,
-        }
-      : { type: api.type, url: api.url }
+
+  let clientOptions
+  if (api.type === 'etherscan') {
+    clientOptions = {
+      chain,
+      chainId: api.chainId,
+      type: api.type,
+      url: env.string('ETHERSCAN_API_URL'),
+      apiKey: env.string('ETHERSCAN_API_KEY'),
+    }
+  } else {
+    clientOptions = { chain, type: api.type, url: api.url }
+  }
 
   return new BlockIndexerClient(
     new HttpClient(),
     new RateLimiter({ callsPerMinute: 120 }),
-    { chain, ...chainConfig },
+    clientOptions,
   )
 }
 
@@ -435,8 +445,7 @@ async function getAllLogs(
         getAllLogs(provider, topics, midPoint + 1, toBlock),
       ])
       return a.concat(b)
-    } else {
-      throw e
     }
+    throw e
   }
 }

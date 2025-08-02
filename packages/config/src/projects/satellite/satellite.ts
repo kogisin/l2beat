@@ -2,6 +2,7 @@ import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
 
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { Bridge } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('satellite')
 
@@ -48,7 +49,7 @@ export const satellite: Bridge = {
           'USDT',
           'DAI',
           'LINK',
-          'FRAX',
+          'FRAX.legacy',
           'MKR',
           'UNI', //TODO: Add more tokens
         ],
@@ -106,15 +107,9 @@ export const satellite: Bridge = {
       description: "2/3 Validators' Stake",
       sentiment: 'bad',
     },
-    sourceUpgradeability: {
-      value: "2/3 Validators' Stake",
-      description:
-        'Contracts are upgradable by the same Validators that validate message transfers.',
-      sentiment: 'warning',
-    },
   },
   permissions: {
-    [discovery.chain]: {
+    ethereum: {
       actors: [
         discovery.getPermissionDetails(
           'MintLimiter Multisig',
@@ -139,7 +134,7 @@ export const satellite: Bridge = {
   },
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails(
           'Gateway',
           'Main Gateway contract acting also as an escrow for bridged tokens.',
@@ -167,4 +162,5 @@ export const satellite: Bridge = {
     },
     risks: [],
   },
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

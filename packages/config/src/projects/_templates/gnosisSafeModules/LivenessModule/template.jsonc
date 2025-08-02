@@ -5,14 +5,14 @@
   "ignoreMethods": ["getRequiredThreshold"],
   "fields": {
     "livenessInterval": {
-      "returnType": "(FormatSeconds)"
+      "edit": ["format", "FormatSeconds"]
     },
     "fallbackOwner": {
       "permissions": [
         {
           "type": "act",
           "description": "takes ownership of {{ safe }}",
-          "condition": "the number of {{ safe }} members falls below {{ minOwners }}."
+          "condition": "if the number of {{ safe }} members falls below {{ minOwners }}."
         }
       ]
     },

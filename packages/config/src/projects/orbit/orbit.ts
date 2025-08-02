@@ -1,9 +1,8 @@
 import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
-
-import { CONTRACTS } from '../../common'
-import { BRIDGE_RISK_VIEW } from '../../common'
+import { BRIDGE_RISK_VIEW, CONTRACTS } from '../../common'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { Bridge } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('orbit')
 
@@ -28,7 +27,7 @@ export const orbit: Bridge = {
         'https://bridge.orbitchain.io/',
         'https://orbitchain.io/about',
       ],
-      apps: ['https://bridge.orbitchain.io/'],
+      bridges: ['https://bridge.orbitchain.io/'],
       socialMedia: [
         'https://twitter.com/Orbit_Chain',
         'https://t.me/OrbitChainGlobal',
@@ -156,11 +155,6 @@ export const orbit: Bridge = {
       description: 'MultiSig, quorum depends on destination',
       sentiment: 'bad',
     },
-    sourceUpgradeability: {
-      value: 'Yes',
-      description: `Contract can be upgraded by the ${orbitMultisigThreshold} Orbit MultiSig.`,
-      sentiment: 'bad',
-    },
     destinationToken: {
       ...BRIDGE_RISK_VIEW.WRAPPED,
       description:
@@ -170,7 +164,7 @@ export const orbit: Bridge = {
   },
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails(
           'ETH Vault',
           'Bridge contract, Proxy, Escrow, Governance.',
@@ -184,7 +178,7 @@ export const orbit: Bridge = {
     risks: [CONTRACTS.UPGRADE_NO_DELAY_RISK],
   },
   permissions: {
-    [discovery.chain]: {
+    ethereum: {
       actors: [
         discovery.getPermissionDetails(
           'Bridge contract Governance',
@@ -207,4 +201,5 @@ export const orbit: Bridge = {
       type: 'incident',
     },
   ],
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

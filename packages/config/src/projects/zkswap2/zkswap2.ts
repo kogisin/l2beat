@@ -5,11 +5,11 @@ import {
   DA_BRIDGES,
   DA_LAYERS,
   DA_MODES,
-  NEW_CRYPTOGRAPHY,
   RISK_VIEW,
 } from '../../common'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 import { zkswap } from '../zkswap/zkswap'
 
 const discovery = new ProjectDiscovery('zkswap2')
@@ -19,7 +19,7 @@ export const zkswap2: ScalingProject = {
   id: ProjectId('zkswap2'),
   capability: 'universal',
   addedAt: UnixTime(1629199654), // 2021-08-17T11:27:34Z
-  isArchived: true,
+  archivedAt: UnixTime(1677196800), // 2023-02-24T00:00:00.000Z,
   display: {
     name: 'ZKSwap 2.0',
     slug: 'zkswap2',
@@ -28,12 +28,12 @@ export const zkswap2: ScalingProject = {
     description:
       'ZKSwap is a fork of ZKsync with added AMM functionality. Based on ZK Rollup technology, ZKSwap aims to execute the full functionality of Uniswap on Layer 2, but increase the TPS, and make transaction processing cheaper.',
     purposes: ['Payments', 'Exchange'],
-    stack: 'ZKsync Lite',
+    stacks: ['ZKsync Lite'],
     category: 'ZK Rollup',
 
     links: {
       websites: ['https://zks.org/'],
-      apps: ['https://zks.app'],
+      bridges: ['https://zks.app'],
       documentation: ['https://en.wiki.zks.org/'],
       explorers: ['https://zkswap.info'],
       repositories: ['https://github.com/l2labs/zkswap-contracts'],
@@ -72,25 +72,16 @@ export const zkswap2: ScalingProject = {
     sequencerFailure: RISK_VIEW.SEQUENCER_FORCE_VIA_L1(),
     proposerFailure: RISK_VIEW.PROPOSER_USE_ESCAPE_HATCH_ZK,
   },
+  stateValidation: zkswap.stateValidation,
   technology: {
-    stateCorrectness: zkswap.technology.stateCorrectness,
-    newCryptography: {
-      ...NEW_CRYPTOGRAPHY.ZK_SNARKS,
-      references: [
-        {
-          title: 'ZKSpace Whitepaper',
-          url: 'https://github.com/l2labs/zkspace-whitepaper',
-        },
-      ],
-    },
-    dataAvailability: zkswap.technology.dataAvailability,
-    operator: zkswap.technology.operator,
-    forceTransactions: zkswap.technology.forceTransactions,
-    exitMechanisms: zkswap.technology.exitMechanisms,
+    dataAvailability: zkswap.technology?.dataAvailability,
+    operator: zkswap.technology?.operator,
+    forceTransactions: zkswap.technology?.forceTransactions,
+    exitMechanisms: zkswap.technology?.exitMechanisms,
   },
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails(
           'ZkSync',
           'The main Rollup contract. Operator commits blocks, provides ZK proof which is validated by the Verifier contract and process withdrawals (executes blocks). Users deposit ETH and ERC20 tokens. This contract defines the upgrade delay in the UPGRADE_NOTICE_PERIOD constant that is currently set to 8 days.',
@@ -116,7 +107,7 @@ export const zkswap2: ScalingProject = {
     risks: [CONTRACTS.UPGRADE_WITH_DELAY_RISK('8 days')],
   },
   permissions: {
-    [discovery.chain]: {
+    ethereum: {
       actors: [
         discovery.getPermissionDetails(
           'zkSwap 2.0 Admin',
@@ -131,4 +122,5 @@ export const zkswap2: ScalingProject = {
       ],
     },
   },
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

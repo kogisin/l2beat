@@ -1,20 +1,23 @@
-import { assert, EthereumAddress } from '@l2beat/shared-pure'
+import { assert, ChainSpecificAddress } from '@l2beat/shared-pure'
+import { v } from '@l2beat/validate'
 import { type providers, utils } from 'ethers'
-import * as z from 'zod'
 
 import type { IProvider } from '../../provider/IProvider'
 import { FunctionSelectorDecoder } from '../../utils/FunctionSelectorDecoder'
 import type { Handler, HandlerResult } from '../Handler'
 
-export type KintoAccessControlHandlerDefinition = z.infer<
+export type KintoAccessControlHandlerDefinition = v.infer<
   typeof KintoAccessControlHandlerDefinition
 >
-export const KintoAccessControlHandlerDefinition = z.strictObject({
-  type: z.literal('kintoAccessControl'),
-  roleNames: z.optional(
-    z.record(z.string().regex(/^0x[a-f\d]*$/i), z.string()),
-  ),
-  ignoreRelative: z.optional(z.boolean()),
+export const KintoAccessControlHandlerDefinition = v.strictObject({
+  type: v.literal('kintoAccessControl'),
+  roleNames: v
+    .record(
+      v.string().check((v) => /^0x[a-f\d]*$/i.test(v)),
+      v.string(),
+    )
+    .optional(),
+  ignoreRelative: v.boolean().optional(),
 })
 
 const abi = new utils.Interface([
@@ -41,7 +44,7 @@ export class KintoAccessControlHandler implements Handler {
 
   async execute(
     provider: IProvider,
-    address: EthereumAddress,
+    address: ChainSpecificAddress,
   ): Promise<HandlerResult> {
     const labels = await this.fetchLabels(
       provider,
@@ -75,7 +78,7 @@ export class KintoAccessControlHandler implements Handler {
 
   private async fetchLabels(
     provider: IProvider,
-    address: EthereumAddress,
+    address: ChainSpecificAddress,
     userLabels: Record<string, string>,
   ) {
     const rawLogs = await provider.getLogs(address, [
@@ -86,7 +89,7 @@ export class KintoAccessControlHandler implements Handler {
       '0x00': 'ADMIN_ROLE',
     }
     const logs = rawLogs
-      .map((l) => parseRoleLog(l))
+      .map((l) => parseRoleLog(provider.chain, l))
       .filter((l) => l.type === 'RoleLabel')
 
     for (const { role, label } of logs) {
@@ -104,7 +107,7 @@ export class KintoAccessControlHandler implements Handler {
 
   private async fetchRoles(
     provider: IProvider,
-    address: EthereumAddress,
+    address: ChainSpecificAddress,
     labels: Record<string, string>,
   ) {
     const rawLogs = await provider.getLogs(address, [
@@ -117,13 +120,13 @@ export class KintoAccessControlHandler implements Handler {
       ],
     ])
 
-    const logs = rawLogs.map((l) => parseRoleLog(l))
+    const logs = rawLogs.map((l) => parseRoleLog(provider.chain, l))
 
     const roles: Record<
       string,
       {
-        admin?: EthereumAddress
-        guardian?: EthereumAddress
+        admin?: ChainSpecificAddress
+        guardian?: ChainSpecificAddress
         grantDelay?: number
         members: Map<string, { executionDelay: number; since: number }>
       }
@@ -150,11 +153,17 @@ export class KintoAccessControlHandler implements Handler {
           break
         }
         case 'RoleAdminChanged': {
-          roles[key].admin = EthereumAddress(log.account)
+          roles[key].admin = ChainSpecificAddress.fromLong(
+            provider.chain,
+            log.account,
+          )
           break
         }
         case 'RoleGuardianChanged': {
-          roles[key].guardian = EthereumAddress(log.account)
+          roles[key].guardian = ChainSpecificAddress.fromLong(
+            provider.chain,
+            log.account,
+          )
           break
         }
         case 'RoleGrantDelayChanged': {
@@ -169,7 +178,7 @@ export class KintoAccessControlHandler implements Handler {
 
   private async fetchTargets(
     provider: IProvider,
-    address: EthereumAddress,
+    address: ChainSpecificAddress,
     labels: Record<string, string>,
   ) {
     const rawLogs = await provider.getLogs(address, [
@@ -180,7 +189,7 @@ export class KintoAccessControlHandler implements Handler {
       ],
     ])
 
-    const logs = rawLogs.map((l) => parseTargetLog(l))
+    const logs = rawLogs.map((l) => parseTargetLog(provider.chain, l))
 
     const targets: Record<
       string,
@@ -191,7 +200,7 @@ export class KintoAccessControlHandler implements Handler {
       }
     > = {}
 
-    const contracts = new Set<EthereumAddress>(logs.map((l) => l.target))
+    const contracts = new Set<ChainSpecificAddress>(logs.map((l) => l.target))
     const decoder = new FunctionSelectorDecoder(provider)
     await decoder.fetchTargets([...contracts])
 
@@ -236,14 +245,14 @@ interface RoleLabelLog {
 interface RoleGrantedLog {
   readonly type: 'RoleGranted'
   readonly role: string
-  readonly account: EthereumAddress
+  readonly account: ChainSpecificAddress
   readonly delay: number
   readonly since: number
 }
 interface RoleRevokedLog {
   readonly type: 'RoleRevoked'
   readonly role: string
-  readonly account: EthereumAddress
+  readonly account: ChainSpecificAddress
 }
 interface RoleAdminChangeLog {
   readonly type: 'RoleAdminChanged'
@@ -263,6 +272,7 @@ interface RoleGrantDelayChangeLog {
 }
 
 function parseRoleLog(
+  longChain: string,
   log: providers.Log,
 ):
   | RoleLabelLog
@@ -283,7 +293,10 @@ function parseRoleLog(
       return {
         type: event.name,
         role: event.args.roleId.toHexString(),
-        account: EthereumAddress(event.args.account as string),
+        account: ChainSpecificAddress.fromLong(
+          longChain,
+          event.args.account as string,
+        ),
         delay: event.args.delay,
         since: event.args.since,
       } as const
@@ -291,19 +304,28 @@ function parseRoleLog(
       return {
         type: event.name,
         role: event.args.roleId.toHexString(),
-        account: EthereumAddress(event.args.account as string),
+        account: ChainSpecificAddress.fromLong(
+          longChain,
+          event.args.account as string,
+        ),
       } as const
     case 'RoleAdminChanged':
       return {
         type: event.name,
         role: event.args.roleId.toString(16),
-        account: EthereumAddress(event.args.admin as string),
+        account: ChainSpecificAddress.fromLong(
+          longChain,
+          event.args.admin as string,
+        ),
       } as const
     case 'RoleGuardianChanged':
       return {
         type: event.name,
         role: event.args.roleId.toHexString(),
-        account: EthereumAddress(event.args.guardian as string),
+        account: ChainSpecificAddress.fromLong(
+          longChain,
+          event.args.guardian as string,
+        ),
       } as const
     default:
       return {
@@ -317,23 +339,24 @@ function parseRoleLog(
 
 interface TargetClosedLog {
   readonly type: 'TargetClosed'
-  readonly target: EthereumAddress
+  readonly target: ChainSpecificAddress
   readonly closed: boolean
 }
 interface TargetFunctionRoleUpdatedLog {
   readonly type: 'TargetFunctionRoleUpdated'
-  readonly target: EthereumAddress
+  readonly target: ChainSpecificAddress
   readonly selector: string
   readonly role: string
 }
 interface TargetAdminDelayUpdatedLog {
   readonly type: 'TargetAdminDelayUpdated'
-  readonly target: EthereumAddress
+  readonly target: ChainSpecificAddress
   readonly delay: number
   readonly since: number
 }
 
 function parseTargetLog(
+  longChain: string,
   log: providers.Log,
 ): TargetClosedLog | TargetFunctionRoleUpdatedLog | TargetAdminDelayUpdatedLog {
   const event = abi.parseLog(log)
@@ -341,20 +364,20 @@ function parseTargetLog(
     case 'TargetClosed':
       return {
         type: event.name,
-        target: EthereumAddress(event.args.target),
+        target: ChainSpecificAddress.fromLong(longChain, event.args.target),
         closed: event.args.closed,
       } as const
     case 'TargetFunctionRoleUpdated':
       return {
         type: event.name,
-        target: EthereumAddress(event.args.target),
+        target: ChainSpecificAddress.fromLong(longChain, event.args.target),
         selector: event.args.selector,
         role: event.args.roleId.toHexString(),
       } as const
     default:
       return {
         type: 'TargetAdminDelayUpdated',
-        target: EthereumAddress(event.args.target),
+        target: ChainSpecificAddress.fromLong(longChain, event.args.target),
         delay: event.args.delay as number,
         since: event.args.since as number,
       } as const

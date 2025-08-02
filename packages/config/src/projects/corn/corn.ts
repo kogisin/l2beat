@@ -1,4 +1,8 @@
-import { EthereumAddress, UnixTime } from '@l2beat/shared-pure'
+import {
+  ChainSpecificAddress,
+  EthereumAddress,
+  UnixTime,
+} from '@l2beat/shared-pure'
 import { REASON_FOR_BEING_OTHER } from '../../common'
 import { BADGES } from '../../common/badges'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
@@ -9,7 +13,7 @@ import { orbitStackL2 } from '../../templates/orbitStack'
 const discovery = new ProjectDiscovery('corn')
 
 export const corn: ScalingProject = orbitStackL2({
-  addedAt: UnixTime(1733880840),
+  addedAt: UnixTime(1724284800), //2024-08-22
   additionalPurposes: ['Bitcoin DApps'],
   additionalBadges: [BADGES.RaaS.Conduit],
   reasonsForBeingOther: [
@@ -19,12 +23,11 @@ export const corn: ScalingProject = orbitStackL2({
   display: {
     name: 'Corn',
     slug: 'corn',
-    category: 'Optimium',
     description:
       'Corn is an Orbit Stack-based Layer 2 focused on Bitcoin-centric DeFi applications. Corn uses Bitcorn (BTCN) as its gas token, the popCORN System for long-term incentives, and LayerZero for cross-chain asset transfers.',
     links: {
       websites: ['https://usecorn.com/'],
-      apps: ['https://usecorn.com/app'],
+      bridges: ['https://usecorn.com/app'],
       documentation: ['https://docs.usecorn.com/'],
       explorers: [
         'https://maizenet-explorer.usecorn.com/',
@@ -41,7 +44,9 @@ export const corn: ScalingProject = orbitStackL2({
   nonTemplateEscrows: [
     discovery.getEscrowDetails({
       // wbtc vault backing the BTCN in the canonical bridge
-      address: EthereumAddress('0x00943b11764176C3a8323aEFCBd6fE70CFb6272d'),
+      address: ChainSpecificAddress(
+        'eth:0x00943b11764176C3a8323aEFCBd6fE70CFb6272d',
+      ),
       tokens: ['WBTC'],
       bridgedUsing: {
         bridges: [
@@ -57,7 +62,9 @@ export const corn: ScalingProject = orbitStackL2({
     }),
     discovery.getEscrowDetails({
       // cbBTC vault backing the BTCN in the canonical bridge
-      address: EthereumAddress('0x957c9dc25de6b8e46a7fa0d081ba749dd005b54f'),
+      address: ChainSpecificAddress(
+        'eth:0x957c9dc25de6b8e46a7fa0d081ba749dd005b54f',
+      ),
       tokens: ['cbBTC'],
       bridgedUsing: {
         bridges: [
@@ -73,7 +80,7 @@ export const corn: ScalingProject = orbitStackL2({
     }),
   ],
   untrackedGasTokens: ['BTCN'],
-  // associatedTokens: ['BTCN'],
+  associatedTokens: ['CORN'],
   discovery,
   bridge: discovery.getContract('Bridge'),
   rollupProxy: discovery.getContract('RollupProxy'),
@@ -103,12 +110,12 @@ export const corn: ScalingProject = orbitStackL2({
   },
   milestones: [
     {
-      title: 'Mainnet launch',
+      title: 'Mainnet Launch',
       url: 'https://blog.usecorn.com/corn-the-genesis-of-the-super-yield-network-f52170ffbe84',
       date: '2024-08-22T00:00:00Z',
       description: 'Corn launches its super yield network.',
       type: 'general',
     },
   ],
-  customDa: AnytrustDAC({ discovery }),
+  customDa: AnytrustDAC({ discovery, hostChain: 'ethereum' }),
 })

@@ -1,7 +1,5 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-
-import type { State } from './State'
 import type { Actions } from './actions/Actions'
 import { loadNodes } from './actions/loadNodes'
 import { onKeyDown } from './actions/onKeyDown'
@@ -19,7 +17,10 @@ import {
   setPreferences,
   showHidden,
 } from './actions/other'
+import { registerViewportContainer } from './actions/registerViewportContainer'
 import { selectAndFocus } from './actions/selectAndFocus'
+import { setNodes } from './actions/setNodes'
+import type { State } from './State'
 import { persistNodeLayout } from './utils/storage'
 
 const INITIAL_STATE: State = {
@@ -27,6 +28,7 @@ const INITIAL_STATE: State = {
   hidden: [],
   nodes: [],
   transform: { offsetX: 0, offsetY: 0, scale: 1 },
+  viewportContainer: undefined,
   input: {
     shiftPressed: false,
     spacePressed: false,
@@ -45,6 +47,8 @@ const INITIAL_STATE: State = {
   projectId: '',
   userPreferences: {
     hideUnknownOnLoad: true,
+    enableDimming: true,
+    hideLargeArrays: true,
   },
 }
 
@@ -53,6 +57,7 @@ export const useStore = create<State & Actions>()(
     (set) => ({
       ...INITIAL_STATE,
       loadNodes: wrapAction(set, loadNodes),
+      setNodes: wrapAction(set, setNodes),
       colorSelected: wrapAction(set, colorSelected),
       hideSelected: wrapAction(set, hideSelected),
       hideUnknowns: wrapAction(set, hideUnknowns),
@@ -60,7 +65,7 @@ export const useStore = create<State & Actions>()(
       clear: wrapAction(set, clear),
       layout: wrapAction(set, layout),
       selectAndFocus: wrapAction(set, selectAndFocus),
-
+      registerViewportContainer: wrapAction(set, registerViewportContainer),
       setPreferences: wrapAction(set, setPreferences),
 
       onKeyDown: wrapAction(set, onKeyDown),
@@ -72,7 +77,7 @@ export const useStore = create<State & Actions>()(
     }),
     {
       // You can update the key if changes are backwards incompatible
-      name: 'store-v3',
+      name: 'store-v4',
       partialize: (state) => {
         return {
           projectId: state.projectId,

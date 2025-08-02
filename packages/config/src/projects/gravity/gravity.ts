@@ -3,6 +3,7 @@ import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
 import { BRIDGE_RISK_VIEW } from '../../common'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { Bridge } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('gravity')
 
@@ -13,11 +14,11 @@ export const gravity: Bridge = {
   display: {
     name: 'Gravity',
     slug: 'gravity',
-    category: 'Token Bridge',
+    category: 'Single-chain',
     links: {
       websites: ['https://gravitybridge.net/'],
       explorers: ['https://mintscan.io/gravity-bridge'],
-      apps: [
+      bridges: [
         'https://spacestation.zone/',
         'https://bridge.blockscape.network/',
       ],
@@ -46,12 +47,31 @@ export const gravity: Bridge = {
   },
   riskView: {
     validatedBy: {
-      value: 'Third Party',
+      value: 'Gravity Validator Set (2/3)',
       description:
-        'Transfers need to be approved by 2/3 of the validator set operating in Cosmos Gravity Bridge blockchain.',
+        '2/3 of the validator set operating the Gravity Bridge blockchain (Cosmos). ',
+      sentiment: 'warning',
+    },
+    governance: {
+      upgrade: {
+        value: 'Not upgradable',
+        description:
+          'The smart contract code on Ethereum that secures the system cannot change.',
+        sentiment: 'good',
+      },
+      pause: {
+        value: 'Not pausable',
+        sentiment: 'good',
+        description:
+          "There is no pause function in the bridge's smart contract.",
+      },
+    },
+    livenessFailure: {
+      value: 'No mechanism',
+      description:
+        'If the operators do not service the bridge, deposited funds do not arrive at the destination chain and are stuck.',
       sentiment: 'bad',
     },
-    sourceUpgradeability: BRIDGE_RISK_VIEW.UPGRADABLE_NO,
     destinationToken: BRIDGE_RISK_VIEW.WRAPPED,
   },
   technology: {
@@ -81,7 +101,7 @@ export const gravity: Bridge = {
   },
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails(
           'Gravity',
           'Contract holding locked assets and handling user interactions for transfers and withdrawals.',
@@ -91,7 +111,7 @@ export const gravity: Bridge = {
     risks: [],
   },
   permissions: {
-    [discovery.chain]: {
+    ethereum: {
       actors: [
         discovery.getPermissionDetails(
           'Cosmos Validators',
@@ -101,4 +121,5 @@ export const gravity: Bridge = {
       ],
     },
   },
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

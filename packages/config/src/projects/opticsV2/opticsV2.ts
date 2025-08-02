@@ -1,14 +1,13 @@
 import {
-  EthereumAddress,
+  ChainSpecificAddress,
+  formatSeconds,
   ProjectId,
   UnixTime,
-  formatSeconds,
 } from '@l2beat/shared-pure'
-
-import { CONTRACTS } from '../../common'
-import { BRIDGE_RISK_VIEW } from '../../common'
+import { BRIDGE_RISK_VIEW, CONTRACTS } from '../../common'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { Bridge } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('opticsV2')
 const challengeWindowSeconds = discovery.getContractValue<number>(
@@ -37,7 +36,9 @@ export const opticsV2: Bridge = {
   config: {
     escrows: [
       discovery.getEscrowDetails({
-        address: EthereumAddress('0x4fc16De11deAc71E8b2Db539d82d93BE4b486892'),
+        address: ChainSpecificAddress(
+          'eth:0x4fc16De11deAc71E8b2Db539d82d93BE4b486892',
+        ),
         tokens: '*',
       }),
     ],
@@ -68,7 +69,7 @@ export const opticsV2: Bridge = {
         },
         {
           category: 'Funds can be stolen if',
-          text: `updater manages to relay a fraudulent message batch.`,
+          text: 'updater manages to relay a fraudulent message batch.',
           isCritical: false,
         },
         {
@@ -100,16 +101,11 @@ export const opticsV2: Bridge = {
       )} fraud proof window, but the slashing mechanism is not implemented yet.`,
       sentiment: 'bad',
     },
-    sourceUpgradeability: {
-      value: 'Yes',
-      description: 'Bridge can be upgraded by the Governor MultiSig.',
-      sentiment: 'bad',
-    },
     destinationToken: BRIDGE_RISK_VIEW.WRAPPED,
   },
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails('HomeBeaconProxy', {
           description:
             'Optics Home. This contract is used to send x-chain messages, such as deposit requests. Messages are regularly signed by the Updater.',
@@ -142,7 +138,7 @@ export const opticsV2: Bridge = {
     risks: [CONTRACTS.UPGRADE_NO_DELAY_RISK],
   },
   permissions: {
-    [discovery.chain]: {
+    ethereum: {
       actors: [
         discovery.getPermissionDetails(
           'Governor',
@@ -169,4 +165,5 @@ export const opticsV2: Bridge = {
       ],
     },
   },
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

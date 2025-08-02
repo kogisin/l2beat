@@ -1,12 +1,13 @@
 import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
 
 import type { Bridge } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 export const davos: Bridge = {
   type: 'bridge',
   id: ProjectId('davos'),
   addedAt: UnixTime(1710858245), // 2024-03-19T14:24:05Z
-  isUnderReview: true,
+  reviewStatus: 'inReview',
   display: {
     name: 'Davos',
     slug: 'davos',
@@ -56,4 +57,5 @@ export const davos: Bridge = {
       'Polygon zkEVM',
     ],
   },
+  discoveryInfo: getDiscoveryInfo([]),
 }

@@ -1,14 +1,14 @@
-import { posix } from 'path'
+import type { Logger } from '@l2beat/backend-tools'
 import { timed } from '@l2beat/shared'
 import { assert } from '@l2beat/shared-pure'
-import type { FileContent } from '../../flatten/ParsedFilesManager'
+import { posix } from 'path'
 import { flattenStartingFrom } from '../../flatten/flatten'
-import type { DiscoveryLogger } from '../DiscoveryLogger'
+import type { FileContent } from '../../flatten/ParsedFilesManager'
 import type { Analysis } from '../analysis/AddressAnalyzer'
 
 export function flattenDiscoveredSources(
   results: Analysis[],
-  logger: DiscoveryLogger,
+  logger: Logger,
 ): Record<string, string> {
   const nameCounts = new Map<string, number>()
   for (const contract of results) {
@@ -90,8 +90,9 @@ export function flattenDiscoveredSources(
       }
     } catch (e) {
       assert(analyzedContract.type !== 'EOA', 'This should never happen')
-      const contractName = analyzedContract.derivedName ?? analyzedContract.name
-      logger.error(`Flattener error at ${contractName}:\n${stringifyError(e)}`)
+      logger.error(
+        `Flattener error at ${analyzedContract.name}:\n${stringifyError(e)}`,
+      )
     }
   }
 
@@ -104,14 +105,15 @@ function addSolidityVersionComment(
 ): string {
   // v1.2.3+commit.1234
   const version = solidityVersion.slice(1).split('+')[0]
-  const license = `// SPDX-License-Identifier: Unknown\n`
+  const license = '// SPDX-License-Identifier: Unknown\n'
   return `${license}pragma solidity ${version};\n\n${flatSource}`
 }
 
 function stringifyError(e: unknown): string {
   if (e instanceof Error) {
     return e.message
-  } else if (typeof e === 'string') {
+  }
+  if (typeof e === 'string') {
     return e
   }
 

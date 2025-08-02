@@ -2,12 +2,13 @@ import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
 
 import { BRIDGE_RISK_VIEW } from '../../common'
 import type { Bridge } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 export const wormholeV1: Bridge = {
   type: 'bridge',
   id: ProjectId('wormholeV1'),
   addedAt: UnixTime(1663149233), // 2022-09-14T09:53:53Z
-  isArchived: true,
+  archivedAt: UnixTime(1677196800), // 2023-02-24T00:00:00.000Z,
   display: {
     name: 'Wormhole V1',
     slug: 'wormholev1',
@@ -30,7 +31,7 @@ export const wormholeV1: Bridge = {
           'DAI',
           'SRM',
           'WETH',
-          'FRAX',
+          'FRAX.legacy',
           'WBTC',
         ],
         chain: 'ethereum',
@@ -48,7 +49,7 @@ export const wormholeV1: Bridge = {
         'Transfers need to be signed offchain by a set of 2/3 of Guardians and then in a permissionless way relayed to the destination chain.',
       sentiment: 'bad',
     },
-    sourceUpgradeability: BRIDGE_RISK_VIEW.UPGRADABLE_NO,
     destinationToken: BRIDGE_RISK_VIEW.WRAPPED,
   },
+  discoveryInfo: getDiscoveryInfo([]),
 }

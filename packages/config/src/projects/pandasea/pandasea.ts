@@ -1,4 +1,4 @@
-import { UnixTime } from '@l2beat/shared-pure'
+import { ProjectId, UnixTime } from '@l2beat/shared-pure'
 import { BADGES } from '../../common/badges'
 import type { ScalingProject } from '../../internalTypes'
 import { underReviewL2 } from '../../templates/underReview'
@@ -6,8 +6,8 @@ import { underReviewL2 } from '../../templates/underReview'
 export const pandasea: ScalingProject = underReviewL2({
   id: 'pandasea',
   capability: 'universal',
-  isArchived: true,
   addedAt: UnixTime(1729797861), // 2024-10-24T21:24:21Z
+  archivedAt: UnixTime(1741651200), // 2025-03-11T00:00:00.000Z,
   badges: [BADGES.Stack.OPStack, BADGES.VM.EVM, BADGES.RaaS.Zeeve],
   display: {
     name: 'PandaSea',
@@ -16,12 +16,15 @@ export const pandasea: ScalingProject = underReviewL2({
       'PandaSea.io is a Layer 2 Web3 platform focused on integrating social finance and sports engagement.',
     purposes: ['Universal'],
     category: 'Optimistic Rollup',
-    stack: 'OP Stack',
+    stacks: ['OP Stack'],
     links: {
       websites: ['https://pandasea.io/'],
       explorers: ['https://pandaseascan.com/'],
-      apps: ['https://bridge.pandasea.io/'],
+      bridges: ['https://bridge.pandasea.io/'],
     },
+  },
+  ecosystemInfo: {
+    id: ProjectId('superchain'),
   },
   chainConfig: {
     name: 'pandasea',

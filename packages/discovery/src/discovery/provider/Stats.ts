@@ -1,6 +1,6 @@
+import type { Logger } from '@l2beat/backend-tools'
 import { formatSI } from '@l2beat/shared'
 import { assert, formatAsAsciiTable } from '@l2beat/shared-pure'
-import type { DiscoveryLogger } from '../DiscoveryLogger'
 
 export const ProviderMeasurement = {
   CALL: 0,
@@ -13,6 +13,7 @@ export const ProviderMeasurement = {
   GET_DEPLOYMENT: 7,
   GET_BLOCK: 8,
   GET_BLOCKNUMBER: 9,
+  GET_BLOCK_NUMBER_AT_OR_BEFORE: 10,
 } as const
 
 export const ProviderMeasurementCount = Object.keys(ProviderMeasurement).length
@@ -32,11 +33,11 @@ export class ProviderStats {
       }) satisfies ProviderMark,
   )
 
-  mark(key: number, durations: number, count: number = 1): void {
+  mark(key: number, durations: number, count = 1): void {
     assert(key >= 0 && key < this.measurements.length, 'key out of bounds')
     assert(
       this.measurements[key] !== undefined,
-      `entry should not be undefined`,
+      'entry should not be undefined',
     )
     this.measurements[key].count += count
     const partDuration = durations / count
@@ -49,7 +50,7 @@ export class ProviderStats {
     assert(key >= 0 && key < this.measurements.length, 'key out of bounds')
     assert(
       this.measurements[key] !== undefined,
-      `entry should not be undefined`,
+      'entry should not be undefined',
     )
     return this.measurements[key]
   }
@@ -76,7 +77,7 @@ export interface AllProviderStats {
 }
 
 export function printProviderStats(
-  logger: DiscoveryLogger,
+  logger: Logger,
   {
     highLevelMeasurements,
     cacheMeasurements,
@@ -120,7 +121,7 @@ export function printProviderStats(
     )
   }
 
-  logger.log(formatAsAsciiTable(headers, rows))
+  logger.info(formatAsAsciiTable(headers, rows))
 }
 
 function formatDurations(durations: number[]): string {

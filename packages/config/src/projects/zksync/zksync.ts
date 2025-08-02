@@ -1,8 +1,9 @@
 import {
+  ChainSpecificAddress,
   EthereumAddress,
+  formatSeconds,
   ProjectId,
   UnixTime,
-  formatSeconds,
 } from '@l2beat/shared-pure'
 
 import {
@@ -12,10 +13,9 @@ import {
   DA_MODES,
   EXITS,
   FORCE_TRANSACTIONS,
-  NEW_CRYPTOGRAPHY,
   OPERATOR,
   RISK_VIEW,
-  STATE_CORRECTNESS,
+  STATE_VALIDATION,
   TECHNOLOGY_DATA_AVAILABILITY,
 } from '../../common'
 import { BADGES } from '../../common/badges'
@@ -24,6 +24,7 @@ import { getStage } from '../../common/stages/getStage'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import { HARDCODED } from '../../discovery/values/hardcoded'
 import type { ScalingProject } from '../../internalTypes'
+import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('zksync')
 
@@ -71,11 +72,11 @@ export const zksync: ScalingProject = {
     description:
       'ZKsync Lite (formerly ZKsync) is a ZK Rollup platform that supports payments, token swaps and NFT minting.',
     purposes: ['Payments', 'Exchange', 'NFT'],
-    stack: 'ZKsync Lite',
+    stacks: ['ZKsync Lite'],
     category: 'ZK Rollup',
     links: {
       websites: ['https://zksync.io/'],
-      apps: ['https://lite.zksync.io/'],
+      bridges: ['https://lite.zksync.io/'],
       documentation: ['https://docs.lite.zksync.io/dev/'],
       explorers: ['https://zkscan.io/'],
       repositories: ['https://github.com/matter-labs/zksync'],
@@ -90,9 +91,6 @@ export const zksync: ScalingProject = {
     liveness: {
       explanation:
         'ZKsync Lite is a ZK rollup that posts state diffs to the L1. Transactions within a state diff can be considered final when proven on L1 using a ZK proof, except that an operator can revert them if not executed yet.',
-    },
-    finality: {
-      finalizationPeriod,
     },
   },
   chainConfig: {
@@ -109,7 +107,9 @@ export const zksync: ScalingProject = {
   config: {
     escrows: [
       discovery.getEscrowDetails({
-        address: EthereumAddress('0xaBEA9132b05A70803a4E85094fD0e1800777fBEF'),
+        address: ChainSpecificAddress(
+          'eth:0xaBEA9132b05A70803a4E85094fD0e1800777fBEF',
+        ),
         sinceTimestamp: UnixTime(1592218707),
         tokens: '*',
       }),
@@ -164,12 +164,6 @@ export const zksync: ScalingProject = {
         },
       },
     ],
-    finality: {
-      lag: 0,
-      type: 'zkSyncLite',
-      minTimestamp: UnixTime(1592218708),
-      stateUpdate: 'disabled',
-    },
   },
   dataAvailability: {
     layer: DA_LAYERS.ETH_CALLDATA,
@@ -207,11 +201,11 @@ export const zksync: ScalingProject = {
         stateRootsPostedToL1: true,
         dataAvailabilityOnL1: true,
         rollupNodeSourceAvailable: true,
+        stateVerificationOnL1: true,
+        fraudProofSystemAtLeast5Outsiders: null,
       },
       stage1: {
         principle: false,
-        stateVerificationOnL1: true,
-        fraudProofSystemAtLeast5Outsiders: null,
         usersHave7DaysToExit: true,
         usersCanExitWithoutCooperation: true,
         securityCouncilProperlySetUp: false,
@@ -224,36 +218,32 @@ export const zksync: ScalingProject = {
     },
     {
       rollupNodeLink: 'https://github.com/matter-labs/zksync',
+      additionalConsiderations: {
+        short:
+          'ZKsync Lite provides the infrastructure for token transfer, swaps and NFT minting. Arbitrary contracts are not supported.',
+        long: 'ZKsync Lite provides the infrastructure for token transfer, swaps and NFT minting. Arbitrary contracts are not supported.',
+      },
     },
   ),
+  stateValidation: {
+    categories: [
+      {
+        ...STATE_VALIDATION.VALIDITY_PROOFS,
+        references: [
+          {
+            title: 'Validity proofs - ZKsync FAQ',
+            url: 'https://docs.lite.zksync.io/userdocs/security/#validity-proofs',
+          },
+          {
+            title:
+              'ZkSync.sol#L549 - Etherscan source code, proveBlocks function',
+            url: 'https://etherscan.io/address/0x8e972b354e6933275513c355ee14d44a832ad2d9#code#F1#L549',
+          },
+        ],
+      },
+    ],
+  },
   technology: {
-    stateCorrectness: {
-      ...STATE_CORRECTNESS.VALIDITY_PROOFS,
-      references: [
-        {
-          title: 'Validity proofs - ZKsync FAQ',
-          url: 'https://docs.lite.zksync.io/userdocs/security/#validity-proofs',
-        },
-        {
-          title:
-            'ZkSync.sol#L549 - Etherscan source code, proveBlocks function',
-          url: 'https://etherscan.io/address/0x8e972b354e6933275513c355ee14d44a832ad2d9#code#F1#L549',
-        },
-      ],
-    },
-    newCryptography: {
-      ...NEW_CRYPTOGRAPHY.ZK_SNARKS,
-      references: [
-        {
-          title: 'Cryptography used - ZKsync FAQ',
-          url: 'https://docs.lite.zksync.io/userdocs/security/#cryptography-used',
-        },
-        {
-          title: 'PlonkCore.sol#L1193 - Etherscan source code',
-          url: 'https://etherscan.io/address/0x8e972b354e6933275513c355ee14d44a832ad2d9#code#F21#L1193',
-        },
-      ],
-    },
     dataAvailability: {
       ...TECHNOLOGY_DATA_AVAILABILITY.ON_CHAIN_CALLDATA,
       references: [
@@ -353,7 +343,7 @@ export const zksync: ScalingProject = {
   },
   contracts: {
     addresses: {
-      [discovery.chain]: [
+      ethereum: [
         discovery.getContractDetails('ZkSync', {
           description:
             'The main Rollup contract. Allows the operator to commit blocks, provide ZK proofs (validated by the Verifier) and processes withdrawals by executing blocks. Users can deposit ETH and ERC20 tokens. This contract also defines the upgrade process for all the other contracts by enforcing an upgrade delay and employing the Security Council which can shorten upgrade times.',
@@ -398,14 +388,16 @@ export const zksync: ScalingProject = {
     risks: [CONTRACTS.UPGRADE_NO_DELAY_RISK],
   },
   stateDerivation: {
-    nodeSoftware: `The node software is open-sourced and the source can be found [here](https://github.com/matter-labs/zksync).`,
+    nodeSoftware:
+      'The node software is open-sourced and the source can be found [here](https://github.com/matter-labs/zksync).',
     compressionScheme: 'No compression, transactions are always the same size.',
     genesisState:
       'There is no genesis file nor regenesis for ZKsync Lite. By default, all accounts were empty at the beginning.',
-    dataFormat: `The data format documentations can be found [here](https://github.com/matter-labs/zksync/blob/master/docs/protocol.md#data-format).`,
+    dataFormat:
+      'The data format documentations can be found [here](https://github.com/matter-labs/zksync/blob/master/docs/protocol.md#data-format).',
   },
   permissions: {
-    [discovery.chain]: {
+    ethereum: {
       actors: [
         discovery.getMultisigPermission(
           'ZkSync Multisig',
@@ -458,4 +450,5 @@ export const zksync: ScalingProject = {
       type: 'general',
     },
   ],
+  discoveryInfo: getDiscoveryInfo([discovery]),
 }

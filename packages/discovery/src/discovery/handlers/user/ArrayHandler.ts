@@ -1,31 +1,38 @@
-import type { EthereumAddress } from '@l2beat/shared-pure'
+import type { ChainSpecificAddress } from '@l2beat/shared-pure'
+import { v } from '@l2beat/validate'
 import { utils } from 'ethers'
-import * as z from 'zod'
 import type { ContractValue } from '../../output/types'
 
 import type { IProvider } from '../../provider/IProvider'
 import type { Handler, HandlerResult } from '../Handler'
 import {
-  Reference,
-  type ReferenceInput,
   generateReferenceInput,
   getReferencedName,
+  Reference,
+  type ReferenceInput,
   resolveReference,
 } from '../reference'
 import { callMethod } from '../utils/callMethod'
 import { getFunctionFragment } from '../utils/getFunctionFragment'
 import { valueToNumber } from '../utils/valueToNumber'
 
-export type ArrayHandlerDefinition = z.infer<typeof ArrayHandlerDefinition>
-export const ArrayHandlerDefinition = z.strictObject({
-  type: z.literal('array'),
-  indices: z.optional(z.union([z.array(z.number()), z.string()])),
-  method: z.optional(z.string()),
-  length: z.optional(z.union([z.number().int().nonnegative(), Reference])),
-  maxLength: z.optional(z.number().int().nonnegative()),
-  startIndex: z.optional(z.number().int().nonnegative()),
-  pickFields: z.optional(z.array(z.string())),
-  ignoreRelative: z.optional(z.boolean()),
+export type ArrayHandlerDefinition = v.infer<typeof ArrayHandlerDefinition>
+export const ArrayHandlerDefinition = v.strictObject({
+  type: v.literal('array'),
+  indices: v.union([v.array(v.number()), v.string()]).optional(),
+  method: v.string().optional(),
+  length: v
+    .union([v.number().check((v) => Number.isInteger(v) && v >= 0), Reference])
+    .optional(),
+  maxLength: v
+    .number()
+    .check((v) => Number.isInteger(v) && v >= 0)
+    .optional(),
+  startIndex: v
+    .number()
+    .check((v) => Number.isInteger(v) && v >= 0)
+    .optional(),
+  ignoreRelative: v.boolean().optional(),
 })
 
 const DEFAULT_MAX_LENGTH = 100
@@ -60,7 +67,7 @@ export class ArrayHandler implements Handler {
 
   async execute(
     provider: IProvider,
-    address: EthereumAddress,
+    address: ChainSpecificAddress,
     previousResults: Record<string, HandlerResult | undefined>,
   ): Promise<HandlerResult> {
     const referenceInput = generateReferenceInput(
@@ -72,13 +79,13 @@ export class ArrayHandler implements Handler {
 
     const value: ContractValue[] = []
     const startIndex = resolved.startIndex
-    const maxLength = Math.min(resolved.maxLength, resolved.length ?? Infinity)
-    const callIndex = createCallIndex(
-      provider,
-      address,
-      this.fragment,
-      this.definition.pickFields,
+    const maxLength = Math.min(
+      resolved.maxLength,
+      resolved.length ?? Number.POSITIVE_INFINITY,
     )
+    const callIndex = createCallIndex(provider, address, this.fragment)
+    const arrayFragment = getArrayFragment(this.fragment)
+
     if (resolved.indices) {
       const results = await Promise.all(
         resolved.indices.map(async (index) => {
@@ -91,8 +98,12 @@ export class ArrayHandler implements Handler {
               return { field: this.field, error: current.error }
             }
           }
-          // biome-ignore lint/style/noNonNullAssertion: we know it's there
-          return { field: this.field, value: current.value! }
+          return {
+            field: this.field,
+            // biome-ignore lint/style/noNonNullAssertion: we know it's there
+            value: current.value!,
+            fragment: arrayFragment,
+          }
         }),
       )
       if (results.some((r) => r.error)) {
@@ -128,19 +139,24 @@ export class ArrayHandler implements Handler {
         field: this.field,
         value,
         error: 'Too many values. Provide a higher maxLength value',
+        fragment: arrayFragment,
       }
     }
-    return { field: this.field, value, ignoreRelative: resolved.ignoreRelative }
+    return {
+      field: this.field,
+      value,
+      ignoreRelative: resolved.ignoreRelative,
+      fragment: arrayFragment,
+    }
   }
 }
 function createCallIndex(
   provider: IProvider,
-  address: EthereumAddress,
+  address: ChainSpecificAddress,
   fragment: utils.FunctionFragment,
-  pickFields?: string[],
 ) {
   return async (index: number) => {
-    return await callMethod(provider, address, fragment, [index], pickFields)
+    return await callMethod(provider, address, fragment, [index])
   }
 }
 
@@ -198,4 +214,26 @@ function isArrayFragment(fragment: utils.FunctionFragment): boolean {
       fragment.inputs[0]?.type ?? '',
     )
   )
+}
+
+export function getArrayFragment(
+  fragment: utils.FunctionFragment,
+): utils.FunctionFragment {
+  const { ParamType, FunctionFragment, FormatTypes } = utils
+
+  const original = fragment.outputs ?? []
+  const core: utils.ParamType =
+    original.length === 1
+      ? // biome-ignore lint/style/noNonNullAssertion: We know it's there
+        original[0]!
+      : ParamType.from({ type: 'tuple', components: original })
+
+  const wrapped = ParamType.from({
+    type: core.baseType === 'tuple' ? 'tuple[]' : `${core.type}[]`,
+    ...(core.components ? { components: core.components } : {}),
+  })
+
+  const json = JSON.parse(fragment.format(FormatTypes.json))
+  json.outputs = [JSON.parse(wrapped.format(FormatTypes.json))]
+  return FunctionFragment.from(json)
 }

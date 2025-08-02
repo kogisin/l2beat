@@ -1,15 +1,15 @@
-import { assert, type EthereumAddress } from '@l2beat/shared-pure'
-import * as z from 'zod'
-
-import { isDeepStrictEqual } from 'util'
+import { assert, type ChainSpecificAddress, unique } from '@l2beat/shared-pure'
+import { type Parser, type Validator, v } from '@l2beat/validate'
 import { type providers, utils } from 'ethers'
-import { groupBy } from 'lodash'
+import groupBy from 'lodash/groupBy'
+import { isDeepStrictEqual } from 'util'
 import { executeBlip } from '../../../blip/executeBlip'
 import type { BlipSexp } from '../../../blip/type'
 import { validateBlip } from '../../../blip/validateBlip'
 import type { ContractValue } from '../../output/types'
 import { orderLogs } from '../../provider/BatchingAndCachingProvider'
 import type { IProvider } from '../../provider/IProvider'
+import { prefixAddresses } from '../../utils/prefixAddresses'
 import type { Handler, HandlerResult } from '../Handler'
 import { getEventFragment } from '../utils/getEventFragment'
 import { toContractValue } from '../utils/toContractValue'
@@ -20,42 +20,45 @@ interface LogRow {
   value: ContractValue
 }
 
-const oneOrMany = <T extends z.ZodTypeAny>(schema: T) =>
-  z.union([schema, z.array(schema)])
-
-export const EventHandlerAction = z.object({
-  event: oneOrMany(z.string()),
-  where: z
-    .unknown()
-    .refine(validateBlip)
-    .transform((v): BlipSexp => v as BlipSexp)
-    .optional(),
-})
-export type EventHandlerAction = z.infer<typeof EventHandlerAction>
-
-const common = {
-  type: z.literal('event'),
-  select: z.string().or(z.array(z.string())).optional(),
-  groupBy: z.string().optional(),
-  ignoreRelative: z.boolean().optional(),
+function oneOrMany<T>(schema: Validator<T>): Validator<T | T[]>
+// @ts-ignore We allow this error for simplicity of use
+function oneOrMany<T>(schema: Parser<T>): Parser<T | T[]>
+function oneOrMany<T>(schema: Validator<T>): Validator<T | T[]> {
+  return v.union([schema, v.array(schema)])
 }
 
-const setOnlySchema = z.object({
+export const EventHandlerAction = v.object({
+  event: oneOrMany(v.string()),
+  where: v
+    .unknown()
+    .check((v): v is BlipSexp => validateBlip(v))
+    .optional(),
+})
+export type EventHandlerAction = v.infer<typeof EventHandlerAction>
+
+const common = {
+  type: v.literal('event'),
+  select: oneOrMany(v.string()).optional(),
+  groupBy: v.string().optional(),
+  ignoreRelative: v.boolean().optional(),
+}
+
+const setOnlySchema = v.object({
   ...common,
   set: oneOrMany(EventHandlerAction),
-  add: z.undefined(),
-  remove: z.undefined(),
+  add: v.undefined().optional(),
+  remove: v.undefined().optional(),
 })
 
-const addAndRemoveSchema = z.object({
+const addAndRemoveSchema = v.object({
   ...common,
-  set: z.undefined(),
+  set: v.undefined().optional(),
   add: oneOrMany(EventHandlerAction),
   remove: oneOrMany(EventHandlerAction).optional(),
 })
 
-export type EventHandlerDefinition = z.infer<typeof EventHandlerDefinition>
-export const EventHandlerDefinition = z.union([
+export type EventHandlerDefinition = v.infer<typeof EventHandlerDefinition>
+export const EventHandlerDefinition = v.union([
   setOnlySchema,
   addAndRemoveSchema,
 ])
@@ -86,26 +89,29 @@ export class EventHandler implements Handler {
       const abiCompatible = eventsAreCompatible(action, stringAbi)
       if (!abiCompatible) {
         throw new Error(
-          `ABI compatibility error: The following events have incompatible parameter structures:\n` +
+          'ABI compatibility error: The following events have incompatible parameter structures:\n' +
             `• Received events:\n${actionEvents.map((e) => `  - ${e}`).join('\n')}\n\n` +
-            `All events in an action must contain compatible parameter names and types. ` +
-            `Check that these fields match across all event ABIs:\n` +
-            `  1. Parameter names\n` +
-            `  2. Parameter types`,
+            'All events in an action must contain compatible parameter names and types. ' +
+            'Check that these fields match across all event ABIs:\n' +
+            '  1. Parameter names\n' +
+            '  2. Parameter types',
         )
       }
 
       events.push(...actionEvents)
     }
 
-    const fragments = events.map((e) => getEventFragment(e, stringAbi))
-    this.abi = new utils.Interface(fragments)
-    this.topic0s = [...new Set(fragments.map((f) => this.abi.getEventTopic(f)))]
+    const fragments = events.map((e) => getEventFragment(e, unique(stringAbi)))
+    const uniqueFragments = unique(fragments, (f) => f.format())
+    this.abi = new utils.Interface(uniqueFragments)
+    this.topic0s = [
+      ...new Set(uniqueFragments.map((f) => this.abi.getEventTopic(f))),
+    ]
   }
 
   async execute(
     provider: IProvider,
-    address: EthereumAddress,
+    address: ChainSpecificAddress,
   ): Promise<HandlerResult> {
     const logs = await fetchLogs(provider, address, this.topic0s)
 
@@ -114,7 +120,7 @@ export class EventHandler implements Handler {
       const log = this.abi.parseLog(rawLog)
       const value: Record<string, ContractValue> = {}
 
-      for (const key in log.args) {
+      for (const key of Object.keys(log.args).filter((k) => !isNumber(k))) {
         value[key] = toContractValue(log.args[key])
       }
 
@@ -128,10 +134,10 @@ export class EventHandler implements Handler {
       value = {}
       for (const key in grouped) {
         // biome-ignore lint/style/noNonNullAssertion: we know it's there
-        value[key] = this.processLogs(grouped[key]!)
+        value[key] = this.processLogs(provider.chain, grouped[key]!)
       }
     } else {
-      value = this.processLogs(logRows)
+      value = this.processLogs(provider.chain, logRows)
     }
 
     return {
@@ -141,18 +147,22 @@ export class EventHandler implements Handler {
     }
   }
 
-  processLogs(logRows: LogRow[]): ContractValue | ContractValue[] | undefined {
+  processLogs(
+    longChain: string,
+    logRows: LogRow[],
+  ): ContractValue | ContractValue[] | undefined {
     const select = ensureArray(this.definition.select ?? [])
 
     const extractArray = this.definition.set !== undefined
     if (this.definition.set !== undefined) {
       const setActions = ensureArray(this.definition.set)
-      logRows = this.executeSets(logRows, setActions)
+      logRows = this.executeSets(longChain, logRows, setActions)
     } else if (this.definition.add !== undefined) {
       const addActions = ensureArray(this.definition.add)
       const removeActions = ensureArray(this.definition.remove ?? [])
 
       logRows = this.executeAddRemove(
+        longChain,
         logRows,
         addActions,
         removeActions,
@@ -174,11 +184,17 @@ export class EventHandler implements Handler {
     return extractArray ? values[0] : values
   }
 
-  executeSets(logs: LogRow[], setActions: EventHandlerAction[]): LogRow[] {
+  executeSets(
+    longChain: string,
+    logs: LogRow[],
+    setActions: EventHandlerAction[],
+  ): LogRow[] {
     let result: LogRow | undefined = undefined
 
     for (const entry of logs) {
-      const keep = setActions.some((action) => evaluateAction(entry, action))
+      const keep = setActions.some((action) =>
+        evaluateAction(longChain, entry, action),
+      )
       if (!keep) {
         continue
       }
@@ -190,6 +206,7 @@ export class EventHandler implements Handler {
   }
 
   executeAddRemove(
+    longChain: string,
     logs: LogRow[],
     addActions: EventHandlerAction[],
     removeActions: EventHandlerAction[],
@@ -198,19 +215,21 @@ export class EventHandler implements Handler {
     const result: Map<string, LogRow> = new Map()
 
     for (const entry of logs) {
-      const add = addActions.some((action) => evaluateAction(entry, action))
+      const add = addActions.some((action) =>
+        evaluateAction(longChain, entry, action),
+      )
       const remove = removeActions.some((action) =>
-        evaluateAction(entry, action),
+        evaluateAction(longChain, entry, action),
       )
 
       assert(
         !(add && remove),
-        `Conflict detected in log processing:\n` +
-          `  A log entry cannot trigger both add AND remove actions simultaneously\n` +
-          `Potential resolutions:\n` +
-          `  1. Check event handler conditions for overlaps\n` +
-          `  2. Verify mutually exclusive filters in add/remove actions\n` +
-          `  3. Make sure that remove where clause is opposite to add one`,
+        'Conflict detected in log processing:\n' +
+          '  A log entry cannot trigger both add AND remove actions simultaneously\n' +
+          'Potential resolutions:\n' +
+          '  1. Check event handler conditions for overlaps\n' +
+          '  2. Verify mutually exclusive filters in add/remove actions\n' +
+          '  3. Make sure that remove where clause is opposite to add one',
       )
 
       const value =
@@ -230,7 +249,7 @@ export class EventHandler implements Handler {
 
 async function fetchLogs(
   provider: IProvider,
-  address: EthereumAddress,
+  address: ChainSpecificAddress,
   topic0s: string[],
 ): Promise<providers.Log[]> {
   const logs = await Promise.all(
@@ -240,12 +259,19 @@ async function fetchLogs(
   return logs.flat().sort(orderLogs)
 }
 
-function evaluateAction(log: LogRow, { event, where }: EventHandlerAction) {
+function evaluateAction(
+  longChain: string,
+  log: LogRow,
+  { event, where }: EventHandlerAction,
+) {
   const eventMatch = ensureArray(event).some(
     (e) => getEventName(e) === log.log.name,
   )
 
-  return eventMatch && executeBlip(log.value, where ?? true)
+  return (
+    eventMatch &&
+    executeBlip(prefixAddresses(longChain, log.value), where ?? true)
+  )
 }
 
 function extractKeys(
@@ -277,9 +303,8 @@ function getEventName(eventString: string): string {
   if (eventString.includes(' ')) {
     const fragment = toEventFragment(eventString)
     return fragment.name
-  } else {
-    return eventString
   }
+  return eventString
 }
 
 function eventsAreCompatible(
@@ -298,10 +323,17 @@ function eventsAreCompatible(
       return smallest.every((elem) =>
         inputs.some((i) => isDeepStrictEqual(i, elem)),
       )
-    } else {
-      return false
     }
+    return false
   })
 
   return abiCompatible
+}
+
+function isNumber(str: string): boolean {
+  const trimmed = str.trim()
+  if (trimmed === '') return false
+
+  const num = Number(trimmed)
+  return !isNaN(num) && isFinite(num)
 }

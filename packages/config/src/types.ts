@@ -1,14 +1,17 @@
 import type { TrackedTxConfigEntry } from '@l2beat/shared'
-import type {
-  ChainId,
+import {
+  type ChainId,
+  type ChainSpecificAddress,
   EthereumAddress,
-  ProjectId,
-  StringWithAutocomplete,
-  Token,
-  TokenBridgedUsing,
-  TrackedTxsConfigSubtype,
-  UnixTime,
+  type ProjectId,
+  type StringWithAutocomplete,
+  TokenId,
+  type TrackedTxsConfigSubtype,
+  type UnixTime,
 } from '@l2beat/shared-pure'
+import { type Parser, v } from '@l2beat/validate'
+import type { ZkCatalogAttester } from './common/zkCatalogAttesters'
+import type { ZkCatalogTagType } from './common/zkCatalogTags'
 
 // #region shared types
 export type Sentiment = 'bad' | 'warning' | 'good' | 'neutral' | 'UnderReview'
@@ -59,6 +62,8 @@ export type ProjectRiskCategory =
   | 'Withdrawals can be delayed if'
 // #endregion
 
+export type ProjectReviewStatus = 'initialReview' | 'inReview'
+
 export interface BaseProject {
   id: ProjectId
   slug: string
@@ -70,8 +75,11 @@ export interface BaseProject {
   // common data
   statuses?: ProjectStatuses
   display?: ProjectDisplay
+  colors?: ProjectCustomColors
+  ecosystemColors?: ProjectCustomColors
   milestones?: Milestone[]
   chainConfig?: ChainConfig
+  escrows?: ProjectEscrow[]
 
   // bridge data
   bridgeInfo?: ProjectBridgeInfo
@@ -94,16 +102,17 @@ export interface BaseProject {
   proofVerification?: ProjectProofVerification
 
   // feature configs
-  tvlInfo?: ProjectTvlInfo
-  tvlConfig?: ProjectTvlConfig
+  tvsInfo?: ProjectTvsInfo
+  tvsConfig?: TvsToken[]
   activityConfig?: ProjectActivityConfig
   livenessInfo?: ProjectLivenessInfo
   livenessConfig?: ProjectLivenessConfig
   costsInfo?: ProjectCostsInfo
   trackedTxsConfig?: Omit<TrackedTxConfigEntry, 'id'>[]
-  finalityInfo?: ProjectFinalityInfo
-  finalityConfig?: ProjectFinalityConfig
   daTrackingConfig?: ProjectDaTrackingConfig[]
+  ecosystemInfo?: ProjectEcosystemInfo
+  ecosystemConfig?: ProjectEcosystemConfig
+  zkCatalogInfo?: ProjectZkCatalogInfo
 
   // discovery data
   permissions?: Record<string, ProjectPermissions>
@@ -116,23 +125,22 @@ export interface BaseProject {
   isZkCatalog?: true
   isDaLayer?: true
   isUpcoming?: true
-  isArchived?: true
+  archivedAt?: UnixTime
   hasActivity?: true
 }
 
 // #region common data
+export interface ProjectCustomColors {
+  primary: string
+  secondary: string
+}
 
 export interface ProjectStatuses {
   yellowWarning: string | undefined
   redWarning: string | undefined
-  isUnderReview: boolean
-  isUnverified: boolean
-  // countdowns
-  otherMigration?: {
-    expiresAt: number
-    pretendingToBe: ProjectScalingCategory
-    reasons: ReasonForBeingInOther[]
-  }
+  emergencyWarning: string | undefined
+  reviewStatus: ProjectReviewStatus | undefined
+  unverifiedContracts: ChainSpecificAddress[]
 }
 
 export interface ProjectDisplay {
@@ -144,8 +152,8 @@ export interface ProjectDisplay {
 export interface ProjectLinks {
   /** Links to marketing landing pages. */
   websites?: string[]
-  /** Links to web apps. */
-  apps?: string[]
+  /** Links to bridges. */
+  bridges?: string[]
   documentation?: string[]
   explorers?: string[]
   repositories?: string[]
@@ -197,6 +205,7 @@ export type BadgeFilterId =
   | 'raas'
   | 'infrastructure'
   | 'vm'
+  | 'other'
 
 export interface Milestone {
   title: string
@@ -244,15 +253,19 @@ export type ChainApiConfig =
   | ChainBasicApi<'loopring'>
   | ChainBasicApi<'degate3'>
   | ChainBasicApi<'fuel'>
-  | ChainExplorerApi<'etherscan'>
+  | ChainBasicApi<'svm-rpc'>
   | ChainExplorerApi<'blockscout'>
   | ChainExplorerApi<'blockscoutV2'>
-  | ChainStarkexApi
+  | ChainExplorerApi<'routescan'>
+  | SourcifyApi
+  | StarkexApi
+  | EtherscanApi
 
 export interface ChainBasicApi<T extends string> {
   type: T
   url: string
   callsPerMinute?: number
+  retryStrategy?: 'UNRELIABLE' | 'RELIABLE'
 }
 
 export interface ChainExplorerApi<T extends string> {
@@ -261,9 +274,20 @@ export interface ChainExplorerApi<T extends string> {
   contractCreationUnsupported?: boolean
 }
 
-export interface ChainStarkexApi {
+export interface StarkexApi {
   type: 'starkex'
   product: string[]
+}
+
+export interface EtherscanApi {
+  type: 'etherscan'
+  chainId: number
+  contractCreationUnsupported?: boolean
+}
+
+export interface SourcifyApi {
+  type: 'sourcify'
+  chainId: number
 }
 
 // #endregion
@@ -272,15 +296,22 @@ export interface ChainStarkexApi {
 export interface ProjectBridgeInfo {
   category: BridgeCategory
   destination: string[]
-  validatedBy: string
 }
 
-export type BridgeCategory = 'Token Bridge' | 'Liquidity Network' | 'Hybrid'
+export type BridgeCategory =
+  | 'Token Bridge'
+  | 'Liquidity Network'
+  | 'Hybrid'
+  | 'Single-chain'
 
 export interface ProjectBridgeRisks {
-  validatedBy: TableReadyValue
-  sourceUpgradeability?: TableReadyValue
+  validatedBy?: TableReadyValue
   destinationToken?: TableReadyValue
+  livenessFailure?: TableReadyValue
+  governance?: {
+    upgrade?: Pick<TableReadyValue, 'value' | 'description' | 'sentiment'>
+    pause?: Pick<TableReadyValue, 'value' | 'description' | 'sentiment'>
+  }
 }
 
 export interface ProjectBridgeTechnology {
@@ -291,6 +322,9 @@ export interface ProjectBridgeTechnology {
   destinationToken?: ProjectTechnologyChoice
   isUnderReview?: boolean
   detailedDescription?: string
+  upgradesAndGovernance?: string
+  upgradesAndGovernanceImage?: string
+  otherConsiderations?: ProjectTechnologyChoice[]
 }
 // #endregion
 
@@ -299,8 +333,6 @@ export interface ProjectScalingInfo {
   layer: 'layer2' | 'layer3'
   type: ProjectScalingCategory
   capability: ProjectScalingCapability
-  /** In the future this will be reflected as `type === 'Other'` */
-  isOther: boolean
   reasonsForBeingOther: ReasonForBeingInOther[] | undefined
   hostChain: {
     id: ProjectId
@@ -308,11 +340,11 @@ export interface ProjectScalingInfo {
     name: string
     shortName: string | undefined
   }
-  stack: ProjectScalingStack | undefined
+  stacks: ProjectScalingStack[] | undefined
   raas: string | undefined
   infrastructure: string | undefined
   vm: string[]
-  daLayer: string
+  daLayer: string | undefined
   stage: ProjectStageName
   purposes: ProjectScalingPurpose[]
   scopeOfAssessment: ProjectScalingScopeOfAssessment | undefined
@@ -346,7 +378,7 @@ export type ProjectScalingStack =
   | 'ZKsync Lite'
   | 'ZK Stack'
   | 'Loopring'
-  | 'Polygon'
+  | 'Agglayer CDK'
   | 'OVM'
   | 'SN Stack'
   | 'Taiko'
@@ -396,6 +428,7 @@ export interface StageConfigured {
   missing?: MissingStageDetails
   message: StageConfiguredMessage | undefined
   summary: StageSummary[]
+  stage1PrincipleDescription?: string
   additionalConsiderations?: {
     short: string
     long: string
@@ -466,8 +499,6 @@ export interface ProjectScalingTechnology {
   warning?: string
   detailedDescription?: string
   architectureImage?: string
-  stateCorrectness?: ProjectTechnologyChoice
-  newCryptography?: ProjectTechnologyChoice
   dataAvailability?: ProjectTechnologyChoice
   operator?: ProjectTechnologyChoice
   sequencing?: ProjectTechnologyChoice
@@ -481,6 +512,7 @@ export interface ProjectScalingTechnology {
   stateDerivation?: ProjectScalingStateDerivation
   stateValidation?: ProjectScalingStateValidation
   stateValidationImage?: string
+  isUnderReview?: boolean
 }
 
 export interface ProjectScalingStateDerivation {
@@ -492,7 +524,7 @@ export interface ProjectScalingStateDerivation {
 }
 
 export interface ProjectScalingStateValidation {
-  description: string
+  description?: string
   categories: ProjectScalingStateValidationCategory[]
   proofVerification?: ProjectProofVerification
   isUnderReview?: boolean
@@ -504,13 +536,19 @@ export interface ProjectScalingStateValidationCategory {
     | 'Prover Architecture'
     | 'Verification Keys Generation'
     | 'Proven Program'
+    | 'Validity proofs'
+    | 'Pessimistic Proofs'
     // Optimistic
     | 'State root proposals'
     | 'Challenges'
     | 'Fast confirmations'
+    | 'Fraud proofs'
+    // Other
+    | 'No state validation'
   description: string
   risks?: ProjectRisk[]
   references?: ReferenceLink[]
+  isIncomplete?: boolean
 }
 // #endregion
 
@@ -532,6 +570,7 @@ export interface ProjectDaLayer {
   finality?: number
   dataAvailabilitySampling?: DataAvailabilitySampling
   economicSecurity?: DaEconomicSecurity
+  sovereignProjectsTrackingConfig?: SovereignProjectDaTrackingConfig[]
 }
 
 export interface AdjustableEconomicSecurityRisk {
@@ -697,30 +736,49 @@ export interface RequiredTool {
 }
 // #endregion
 
+// #region zk catalog v2 data
+export interface ProjectZkCatalogInfo {
+  creator?: string
+  techStack: {
+    zkVM?: ZkCatalogTag[]
+    finalWrap?: ZkCatalogTag[]
+  }
+  proofSystemInfo: string
+  trustedSetups: (TrustedSetup & {
+    proofSystem: ZkCatalogTag
+  })[]
+  verifierHashes: {
+    hash: string
+    proofSystem: ZkCatalogTag
+    knownDeployments: string[]
+    verificationStatus: 'successful' | 'unsuccessful' | 'notVerified'
+    usedBy: ProjectId[]
+    verificationSteps?: string
+    attesters?: ZkCatalogAttester[]
+    description?: string
+  }[]
+}
+
+export interface ZkCatalogTag {
+  id: string
+  type: ZkCatalogTagType
+  name: string
+  description: string
+}
+
+export interface TrustedSetup {
+  id: string
+  risk: 'green' | 'yellow' | 'red' | 'N/A'
+  shortDescription: string
+  longDescription: string
+}
+
+// #endregion
+
 // #region feature configs
-export interface ProjectTvlInfo {
+export interface ProjectTvsInfo {
   associatedTokens: string[]
   warnings: WarningWithSentiment[]
-}
-
-/** This is the config used for the old (current) version of TVL. Don't use it for the new tvs implementation. */
-export interface ProjectTvlConfig {
-  escrows: ProjectTvlEscrow[]
-  tokens: Token[]
-  associatedTokens: string[]
-}
-
-/** This is the escrow used for the old (current) version of TVL. Don't use it for the new tvs implementation. */
-export interface ProjectTvlEscrow {
-  address: EthereumAddress
-  sinceTimestamp: UnixTime
-  untilTimestamp?: UnixTime
-  tokens: (Token & { isPreminted: boolean })[]
-  chain: string
-  includeInTotal?: boolean
-  source?: ProjectEscrowSource
-  bridgedUsing?: TokenBridgedUsing
-  sharedEscrow?: SharedEscrow
 }
 
 export type ProjectEscrowSource = 'canonical' | 'external' | 'native'
@@ -754,12 +812,24 @@ export interface ElasticChainEscrow {
   tokensToAssignFromL1?: string[]
 }
 
-export type ProjectActivityConfig = BlockActivityConfig | DayActivityConfig
+export type ProjectActivityConfig =
+  | BlockActivityConfig
+  | DayActivityConfig
+  | SlotActivityConfig
 
 export interface BlockActivityConfig {
   type: 'block'
   adjustCount?: AdjustCount
   startBlock?: number
+  // how many blocks to fetch in single indexer tick
+  batchSize?: number
+}
+
+export interface SlotActivityConfig {
+  type: 'slot'
+  startSlot: number
+  // how many slots to fetch in single indexer tick
+  batchSize?: number
 }
 
 export type AdjustCount =
@@ -792,66 +862,34 @@ export interface ProjectCostsInfo {
   warning?: WarningWithSentiment
 }
 
-export interface ProjectFinalityInfo {
-  /** Warning tooltip content for finality tab for given project */
-  warnings?: {
-    timeToInclusion?: WarningWithSentiment
-    stateUpdateDelay?: WarningWithSentiment
-  }
-  /** Finalization period displayed in table for given project (time in seconds) */
-  finalizationPeriod?: number
+export interface SovereignProjectDaTrackingConfig {
+  projectId: ProjectId
+  name: string
+  daTrackingConfig: (
+    | Omit<EthereumDaTrackingConfig, 'daLayer'>
+    | Omit<CelestiaDaTrackingConfig, 'daLayer'>
+    | Omit<AvailDaTrackingConfig, 'daLayer'>
+    | Omit<EigenDaTrackingConfig, 'daLayer'>
+  )[]
 }
 
-export type ProjectFinalityConfig =
-  // We require the minTimestamp to be set for all types that will be processed in FinalityIndexer
-  | {
-      type:
-        | 'Linea'
-        | 'zkSyncEra'
-        | 'Scroll'
-        | 'zkSyncLite'
-        | 'Starknet'
-        | 'Arbitrum'
-        | 'Loopring'
-        | 'Degate'
-        | 'PolygonZkEvm'
-
-      minTimestamp: UnixTime
-      lag: number
-      stateUpdate: StateUpdateMode
-    }
-  | {
-      type: 'OPStack'
-      minTimestamp: UnixTime
-      lag: number
-      // https://specs.optimism.io/protocol/holocene/derivation.html#span-batches
-      // you can get this values by calling the RPC method optimism_rollupConfig
-      // rollup config: curl -X POST -H "Content-Type: application/json" --data \
-      // '{"jsonrpc":"2.0","method":"optimism_rollupConfig","params":[],"id":1}'  \
-      // <rpc-url> | jq
-      genesisTimestamp: UnixTime
-      l2BlockTimeSeconds: number
-      stateUpdate: StateUpdateMode
-    }
-
-/**
- * Determines how the state update should be handled.
- * - `analyze`: The state update delay should be analyzed as a part of the update.
- * - `zeroed`: The state update delay should be zeroed, analyzer will not be run.
- * - `disabled`: The state update analyzer will not be run.
- */
-export type StateUpdateMode = 'analyze' | 'zeroed' | 'disabled'
-
 export type ProjectDaTrackingConfig =
+  | BlockDaTrackingConfig
+  | TimestampDaTrackingConfig
+
+export type BlockDaTrackingConfig =
   | EthereumDaTrackingConfig
   | CelestiaDaTrackingConfig
   | AvailDaTrackingConfig
+
+export type TimestampDaTrackingConfig = EigenDaTrackingConfig
 
 export interface EthereumDaTrackingConfig {
   type: 'ethereum'
   daLayer: ProjectId
   inbox: string
   sequencers?: string[]
+  topics?: string[]
   sinceBlock: number
   untilBlock?: number
 }
@@ -870,6 +908,36 @@ export interface AvailDaTrackingConfig {
   appId: string
   sinceBlock: number
   untilBlock?: number
+}
+
+export interface EigenDaTrackingConfig {
+  type: 'eigen-da'
+  daLayer: ProjectId
+  customerId: string
+  sinceTimestamp: UnixTime
+  untilTimestamp?: UnixTime
+}
+
+export interface ProjectEcosystemInfo {
+  id: ProjectId
+  sinceTimestamp?: UnixTime
+  untilTimestamp?: UnixTime
+}
+
+export interface ProjectEcosystemConfig {
+  token: {
+    tokenId: string
+    projectId: ProjectId
+    description: string
+  }
+  links: {
+    buildOn: string
+    learnMore: string
+    governanceDelegateToL2BEAT: string
+    governanceProposals: string
+    tools?: string[]
+    grants?: string
+  }
 }
 // #endregion
 
@@ -901,7 +969,7 @@ export interface ProjectPermission {
 export interface ProjectPermissionedAccount {
   name: string
   url: string
-  address: EthereumAddress
+  address: ChainSpecificAddress
   isVerified: boolean
   type: 'EOA' | 'Contract'
 }
@@ -916,7 +984,7 @@ export interface ProjectContracts {
 
 export interface ProjectContract {
   /** Address of the contract */
-  address: EthereumAddress
+  address: ChainSpecificAddress
   /** Verification status of the contract */
   isVerified: boolean
   /** Name of the chain of this address. Optional for backwards compatibility */
@@ -949,8 +1017,8 @@ export interface ProjectContract {
 export interface ProjectContractUpgradeability {
   proxyType: string
   immutable?: boolean
-  admins: EthereumAddress[]
-  implementations: EthereumAddress[]
+  admins: ChainSpecificAddress[]
+  implementations: ChainSpecificAddress[]
 }
 
 export interface ProjectUpgradeableActor {
@@ -1001,5 +1069,185 @@ export interface ProjectDiscoveryInfo {
   isDiscoDriven: boolean
   permissionsDiscoDriven: boolean
   contractsDiscoDriven: boolean
+  timestampPerChain: Record<string, number>
+  hasDiscoUi: boolean
 }
 // #endregion
+
+// #region TVS
+const CalculationOperator = ['sum', 'diff', 'max', 'min'] as const
+const _BaseCalculationFormulaSchema = {
+  type: v.literal('calculation'),
+  operator: v.enum(CalculationOperator),
+}
+export const BaseCalculationFormulaSchema = v.object(
+  _BaseCalculationFormulaSchema,
+)
+
+export type CalculationFormula = {
+  type: 'calculation'
+  operator: (typeof CalculationOperator)[number]
+  arguments: (CalculationFormula | ValueFormula | AmountFormula)[]
+}
+
+export const CalculationFormulaSchema: Parser<CalculationFormula> = v.object({
+  ..._BaseCalculationFormulaSchema,
+  arguments: v.array(
+    v.union([
+      v.lazy(() => CalculationFormulaSchema),
+      v.lazy(() => ValueFormulaSchema),
+      v.lazy(() => AmountFormulaSchema),
+    ]),
+  ),
+})
+
+export type ValueFormula = {
+  type: 'value'
+  amount: AmountFormula | CalculationFormula
+  priceId: string
+}
+
+export const ValueFormulaSchema: Parser<ValueFormula> = v.object({
+  type: v.literal('value'),
+  amount: v.union([
+    v.lazy(() => AmountFormulaSchema),
+    v.lazy(() => CalculationFormulaSchema),
+  ]),
+  priceId: v.string(),
+})
+
+export type BalanceOfEscrowAmountFormula = v.infer<
+  typeof BalanceOfEscrowAmountFormulaSchema
+>
+export const BalanceOfEscrowAmountFormulaSchema = v.object({
+  type: v.literal('balanceOfEscrow'),
+  chain: v.string(),
+  sinceTimestamp: v.number(),
+  untilTimestamp: v.number().optional(),
+  address: v.union([
+    v.string().transform(EthereumAddress),
+    v.literal('native'),
+  ]),
+  decimals: v.number(),
+  escrowAddress: v.string().transform(EthereumAddress),
+})
+
+export type TotalSupplyAmountFormula = v.infer<
+  typeof TotalSupplyAmountFormulaSchema
+>
+export const TotalSupplyAmountFormulaSchema = v.object({
+  type: v.literal('totalSupply'),
+  chain: v.string(),
+  sinceTimestamp: v.number(),
+  untilTimestamp: v.number().optional(),
+  address: v.string().transform(EthereumAddress),
+  decimals: v.number(),
+})
+
+export type StarknetTotalSupplyAmountFormula = v.infer<
+  typeof StarknetTotalSupplyAmountFormulaSchema
+>
+export const StarknetTotalSupplyAmountFormulaSchema = v.object({
+  type: v.literal('starknetTotalSupply'),
+  chain: v.string(),
+  sinceTimestamp: v.number(),
+  untilTimestamp: v.number().optional(),
+  address: v.string(),
+  decimals: v.number(),
+})
+
+export type CirculatingSupplyAmountFormula = v.infer<
+  typeof CirculatingSupplyAmountFormulaSchema
+>
+export const CirculatingSupplyAmountFormulaSchema = v.object({
+  type: v.literal('circulatingSupply'),
+  sinceTimestamp: v.number(),
+  untilTimestamp: v.number().optional(),
+  apiId: v.string(),
+  decimals: v.number(),
+  address: v.string().transform(EthereumAddress), // for frontend only
+  chain: v.string(), // for frontend only
+})
+
+export type ConstAmountFormula = v.infer<typeof ConstAmountFormulaSchema>
+export const ConstAmountFormulaSchema = v.object({
+  type: v.literal('const'),
+  sinceTimestamp: v.number(),
+  untilTimestamp: v.number().optional(),
+  value: v.string(),
+  decimals: v.number(),
+})
+
+export type AmountFormula = v.infer<typeof AmountFormulaSchema>
+export const AmountFormulaSchema = v.union([
+  BalanceOfEscrowAmountFormulaSchema,
+  TotalSupplyAmountFormulaSchema,
+  CirculatingSupplyAmountFormulaSchema,
+  ConstAmountFormulaSchema,
+  StarknetTotalSupplyAmountFormulaSchema,
+])
+
+export type Formula = CalculationFormula | ValueFormula | AmountFormula
+export function isAmountFormula(formula: Formula): boolean {
+  return formula.type !== 'calculation' && formula.type !== 'value'
+}
+
+export type OnchainAmountFormula =
+  | BalanceOfEscrowAmountFormula
+  | TotalSupplyAmountFormula
+  | StarknetTotalSupplyAmountFormula
+
+export function isOnchainAmountFormula(
+  formula: Formula,
+): formula is OnchainAmountFormula {
+  return (
+    formula.type === 'totalSupply' ||
+    formula.type === 'balanceOfEscrow' ||
+    formula.type === 'starknetTotalSupply'
+  )
+}
+
+// token deployed to single chain
+export type TvsToken = v.infer<typeof TvsTokenSchema>
+export const TvsTokenSchema = v.object({
+  mode: v.enum(['auto', 'custom']),
+  id: v.string().transform(TokenId),
+  priceId: v.string(),
+  symbol: v.string(),
+  displaySymbol: v.string().optional(),
+  name: v.string(),
+  iconUrl: v.string().optional(),
+  amount: v.union([CalculationFormulaSchema, AmountFormulaSchema]),
+  valueForProject: v
+    .union([CalculationFormulaSchema, ValueFormulaSchema])
+    .optional(),
+  valueForSummary: v
+    .union([CalculationFormulaSchema, ValueFormulaSchema])
+    .optional(),
+  category: v.enum([
+    'ether',
+    'stablecoin',
+    'btc',
+    'rwaRestricted',
+    'rwaPublic',
+    'other',
+  ]),
+  source: v.enum(['canonical', 'external', 'native']),
+  isAssociated: v.boolean(),
+  bridgedUsing: v
+    .object({
+      bridges: v.array(
+        v.object({
+          name: v.string(),
+          slug: v.string().optional(),
+        }),
+      ),
+      warning: v.string().optional(),
+    })
+    .optional(),
+})
+
+export const ProjectTvsConfigSchema = v.object({
+  projectId: v.string(),
+  tokens: v.array(TvsTokenSchema),
+})

@@ -46,6 +46,16 @@ export function Layout() {
                   className={({ isActive }) =>
                     clsx('font-mono underline', isActive && 'text-orange-500')
                   }
+                  to="/decoder-new"
+                >
+                  /decoder-new
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
+                  className={({ isActive }) =>
+                    clsx('font-mono underline', isActive && 'text-orange-500')
+                  }
                   to="/simulator"
                 >
                   /simulator
@@ -74,9 +84,17 @@ export function Layout() {
               <li>
                 <Link
                   className="font-mono underline"
-                  to="https://protocolbeat.l2beat.com/"
+                  to="https://disco.l2beat.com/ui"
                 >
-                  /protocol-beat
+                  /disco-ui
+                </Link>
+              </li>
+              <li>
+                <Link
+                  className="font-mono underline"
+                  to="https://disco.l2beat.com/diff"
+                >
+                  /diffovery
                 </Link>
               </li>
               <li>
