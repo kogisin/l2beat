@@ -2,10 +2,18 @@ import type { Milestone } from '@l2beat/config'
 import {
   assertUnreachable,
   type TrackedTxsConfigSubtype,
+  UnixTime,
 } from '@l2beat/shared-pure'
+import { useMemo } from 'react'
 import type { TooltipProps } from 'recharts'
-import { Area, AreaChart, ReferenceArea } from 'recharts'
-import type { ChartMeta } from '~/components/core/chart/Chart'
+import {
+  Area,
+  ComposedChart,
+  Line,
+  ReferenceArea,
+  ReferenceDot,
+} from 'recharts'
+import type { ChartMeta, ChartProject } from '~/components/core/chart/Chart'
 import {
   ChartContainer,
   ChartLegend,
@@ -20,49 +28,67 @@ import {
 } from '~/components/core/chart/defs/PinkGradientDef'
 import { getCommonChartComponents } from '~/components/core/chart/utils/getCommonChartComponents'
 import { HorizontalSeparator } from '~/components/core/HorizontalSeparator'
-import { formatTimestamp } from '~/utils/dates'
+import type { LivenessChartResolution } from '~/server/features/scaling/liveness/utils/chartRange'
+import { formatRange } from '~/utils/dates'
 
 interface LivenessChartDataPoint {
   timestamp: number
-  range: readonly [number | null, number | null] | null
+  range: readonly [number, number] | null
   avg: number | null
 }
 
 interface Props {
   data: LivenessChartDataPoint[] | undefined
   isLoading: boolean
+  project?: ChartProject
   className?: string
   subtype: TrackedTxsConfigSubtype
   milestones: Milestone[]
   tickCount?: number
   lastValidTimestamp: number | undefined
   anyAnomalyLive: boolean
+  resolution: LivenessChartResolution
 }
+
+const chartMeta = {
+  range: {
+    label: 'Min&max submission interval',
+    color: 'var(--chart-pink-stroke-gradient-1)',
+    indicatorType: {
+      shape: 'line',
+    },
+  },
+  avg: {
+    label: 'Average interval',
+    color: 'var(--chart-pink)',
+    indicatorType: { shape: 'line', strokeDasharray: '3 3' },
+  },
+} satisfies ChartMeta
 
 export function LivenessChart({
   data,
   isLoading,
+  project,
   className,
   subtype,
   milestones,
   tickCount,
   lastValidTimestamp,
   anyAnomalyLive,
+  resolution,
 }: Props) {
-  const chartMeta = {
-    range: {
-      label: 'Min&max submission interval',
-      color: 'var(--chart-pink-stroke-gradient-1)',
-      indicatorType: {
-        shape: 'line',
-      },
-    },
-    avg: {
-      label: 'Average interval',
-      color: 'var(--chart-pink)',
-      indicatorType: { shape: 'line', strokeDasharray: '3 3' },
-    },
-  } satisfies ChartMeta
+  const singleDataPoints = useMemo(() => {
+    return data?.filter((point, i, arr) => {
+      const prevPoint = arr.at(i - 1)
+      const nextPoint = arr.at(i + 1)
+
+      return (
+        prevPoint?.range === null &&
+        nextPoint?.range === null &&
+        point.range !== null
+      )
+    })
+  }, [data])
 
   return (
     <ChartContainer
@@ -71,9 +97,60 @@ export function LivenessChart({
       meta={chartMeta}
       isLoading={isLoading}
       milestones={milestones}
+      project={project}
     >
-      <AreaChart accessibilityLayer data={data} margin={{ top: 20 }}>
+      <ComposedChart accessibilityLayer data={data} margin={{ top: 20 }}>
         <ChartLegend content={<ChartLegendContent />} />
+        <Area
+          dataKey="range"
+          isAnimationActive={false}
+          stroke="var(--secondary)"
+          legendType="none"
+          strokeWidth={2}
+          strokeOpacity={0.15}
+          fill="none"
+          connectNulls
+        />
+        <Line
+          dataKey="avg"
+          legendType="none"
+          isAnimationActive={false}
+          stroke="var(--secondary)"
+          strokeWidth={2}
+          strokeOpacity={0.15}
+          strokeDasharray="5 5"
+          dot={false}
+          connectNulls
+        />
+        {singleDataPoints?.map((point) => [
+          <ReferenceDot
+            key={`${point.timestamp}-bottom-range`}
+            x={point.timestamp}
+            y={point.range?.[0] ?? 0}
+            fill={chartMeta.range.color}
+            stroke={chartMeta.range.color}
+            r={3}
+          />,
+          <ReferenceDot
+            key={`${point.timestamp}-top-range`}
+            x={point.timestamp}
+            y={point.range?.[1] ?? 0}
+            fill={chartMeta.range.color}
+            stroke={chartMeta.range.color}
+            r={3}
+          />,
+          <ReferenceDot
+            key={`${point.timestamp}-avg`}
+            x={point.timestamp}
+            y={point.avg ?? 0}
+            fill={chartMeta.avg.color}
+            fillOpacity={0.25}
+            stroke={chartMeta.avg.color}
+            strokeDasharray="1 1"
+            r={3}
+          />,
+        ])}
+
         <Area
           dataKey="range"
           isAnimationActive={false}
@@ -81,7 +158,6 @@ export function LivenessChart({
           strokeWidth={2}
           fill="var(--chart-pink-fill-gradient)"
           fillOpacity={0.4}
-          connectNulls
         />
         <Area
           dataKey="avg"
@@ -90,8 +166,8 @@ export function LivenessChart({
           stroke="var(--chart-pink)"
           fill="none"
           strokeDasharray="5 5"
-          connectNulls
         />
+
         {getCommonChartComponents({
           data,
           isLoading,
@@ -110,12 +186,15 @@ export function LivenessChart({
             fillOpacity={anyAnomalyLive ? 0.2 : undefined}
           />
         )}
+
         <ChartTooltip
           filterNull={false}
           content={
             <LivenessCustomTooltip
               subtype={subtype}
               anyAnomalyLive={anyAnomalyLive}
+              resolution={resolution}
+              lastValidTimestamp={lastValidTimestamp}
             />
           }
         />
@@ -123,21 +202,39 @@ export function LivenessChart({
           <PinkFillGradientDef id="fillRange" />
           <PinkStrokeGradientDef id="strokeRange" />
           <NoDataPatternDef />
+          <pattern
+            id="noDataLiveness"
+            patternUnits="userSpaceOnUse"
+            width="20"
+            height="20"
+            patternTransform="rotate(45)"
+          >
+            <rect
+              width="10"
+              height="20"
+              fill="var(--chart-pink)"
+              fillOpacity={0.25}
+            />
+          </pattern>
         </defs>
-      </AreaChart>
+      </ComposedChart>
     </ChartContainer>
   )
 }
 
-export function LivenessCustomTooltip({
+function LivenessCustomTooltip({
   active,
   payload,
   label: timestamp,
   subtype,
   anyAnomalyLive,
+  resolution,
+  lastValidTimestamp,
 }: TooltipProps<number, string> & {
   subtype: TrackedTxsConfigSubtype
   anyAnomalyLive: boolean
+  resolution: LivenessChartResolution
+  lastValidTimestamp: number | undefined
 }) {
   if (!active || !payload || typeof timestamp !== 'number') return null
 
@@ -151,7 +248,10 @@ export function LivenessCustomTooltip({
   if (!range?.value || !avg?.value) {
     content = (
       <div className="mt-2 font-medium text-label-value-16">
-        {anyAnomalyLive ? getTooltipContent(subtype) : 'No data'}
+        {anyAnomalyLive ||
+        (lastValidTimestamp && timestamp <= lastValidTimestamp)
+          ? getTooltipContent(subtype)
+          : 'No data'}
       </div>
     )
   } else {
@@ -168,10 +268,15 @@ export function LivenessCustomTooltip({
     <ChartTooltipWrapper>
       <div className="flex w-fit flex-col">
         <div className="mb-1 whitespace-nowrap font-medium text-label-value-14 text-secondary">
-          {formatTimestamp(timestamp, {
-            longMonthName: true,
-            mode: 'datetime',
-          })}
+          {formatRange(
+            timestamp,
+            timestamp +
+              (resolution === 'hourly'
+                ? UnixTime.HOUR
+                : resolution === 'sixHourly'
+                  ? UnixTime.SIX_HOURS
+                  : UnixTime.DAY),
+          )}
         </div>
         <HorizontalSeparator className="mt-1.5" />
         {content}
@@ -182,7 +287,7 @@ export function LivenessCustomTooltip({
 
 function Stat({ name, seconds }: { name: string; seconds: number }) {
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between gap-1.5">
       <span className="font-medium text-label-value-14">{name}</span>
       <span className="text-heading-16">{formatDuration(seconds)}</span>
     </div>

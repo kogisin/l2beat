@@ -25,8 +25,10 @@ export async function getEcosystemProjectData(
       manifest,
       metadata: getMetadata(manifest, {
         title: `${ecosystem.name} - L2BEAT`,
+        description: `Get an overview of the scaling projects in the ${ecosystem.name} ecosystem.`,
         openGraph: {
           url,
+          image: `/meta-images/ecosystems/${ecosystem.id}/opengraph-image.png`,
         },
       }),
     },

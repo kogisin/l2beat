@@ -1,67 +1,44 @@
-import { ChainSpecificAddress } from '@l2beat/shared-pure'
-import { v } from '@l2beat/validate'
 import { RLP } from 'ethers/lib/utils'
 import type { Transaction } from '../../../../utils/IEtherscanClient'
 import type { IProvider } from '../../../provider/IProvider'
-
-/**
- * https://specs.optimism.io/experimental/alt-da.html#input-commitment-submission
- * These versioning prefixes are super weird.
- */
-const EIGEN_DA_CONSTANTS = {
-  COMMITMENT_FIRST_BYTE: '01',
-  COMMITMENT_THIRD_BYTE: '00',
-  EIGEN_AVS: ChainSpecificAddress(
-    'eth:0x870679e138bcdf293b7ff14dd44b70fc97e12fc0',
-  ),
-} as const
+import {
+  EIGEN_DA_CONSTANTS,
+  type EigenCommitment,
+  EigenV1BlobInfo,
+  EigenV2BlobInfo,
+  EigenV3BlobInfo,
+} from './eigen-types'
 
 export async function checkForEigenDA(
   provider: IProvider,
   sequencerTxs: Transaction[],
 ) {
-  const possibleCommitments = sequencerTxs.map(({ input }) =>
-    reduceUntil(input),
-  )
+  const possibleCommitments = sequencerTxs
+    .map(({ input }) => decodeCommitment(input))
+    .filter((c) => c !== null)
 
-  // Byte-check step + RLP decode attempt
-  const eigenBlobInfos =
-    possibleCommitments.length > 0 &&
-    possibleCommitments.flatMap((input) => {
-      if (!input) {
-        return []
-      }
-
-      const eigenBlobInfo = tryParsingEigenDaBlobInfo(input)
-
-      if (!eigenBlobInfo) {
-        return []
-      }
-
-      return { eigenBlobInfo }
-    })
-
-  // If we have no Eigen-like transactions, we can return false immediately
-  if (!eigenBlobInfos || eigenBlobInfos.length === 0) {
+  if (
+    possibleCommitments.length === 0 ||
+    possibleCommitments.length !== sequencerTxs.length
+  ) {
     return false
   }
 
-  // Decode step - decode the commitment from the transaction input
-  const outgoingBatchHeaderHashes = eigenBlobInfos.map(({ eigenBlobInfo }) =>
-    extractBlobBatchHeaderHash(eigenBlobInfo),
-  )
+  const v3Commitments = possibleCommitments.filter((c) => c.version === 'v3')
+  const v2Commitments = possibleCommitments.filter((c) => c.version === 'v2')
+  const v1Commitments = possibleCommitments.filter((c) => c.version === 'v1')
 
-  // Get step - get the confirmed batch header hashes from ethereum
-  const confirmedBatchHeaderHashes =
-    await getConfirmedBatchHeaderHashes(provider)
+  if (verifyV3Commitments(v3Commitments)) {
+    return 'v3'
+  }
+  if (verifyV2Commitments(v2Commitments)) {
+    return 'v2'
+  }
+  if (await verifyV1Commitments(provider, v1Commitments)) {
+    return 'v1'
+  }
 
-  // Filter step - filter out the confirmed batch header hashes that are not in the list of outgoing batch header hashes
-  const successfulVerificationsCount = outgoingBatchHeaderHashes.filter(
-    (hash) => confirmedBatchHeaderHashes.includes(hash),
-  ).length
-
-  // require 100% success rate
-  return successfulVerificationsCount === sequencerTxs.length
+  return false
 }
 
 async function getConfirmedBatchHeaderHashes(
@@ -78,7 +55,7 @@ async function getConfirmedBatchHeaderHashes(
   return logs.map((log) => log.event.batchHeaderHash.toLowerCase())
 }
 
-function extractBlobBatchHeaderHash(decoded: EigenDaBlobInfo): string {
+function extractBlobBatchHeaderHash(decoded: EigenV1BlobInfo): string {
   /**
    * @see https://github.com/Layr-Labs/eigenda/blob/master/api/proto/disperser/disperser.proto
    * @commit 733bcbe
@@ -99,83 +76,143 @@ function extractBlobBatchHeaderHash(decoded: EigenDaBlobInfo): string {
   return blobBatchHeaderHash.toLowerCase()
 }
 
-// Some projects (yghm Mantle) prefixes commitment with some data
-// So we reduce until we find the commitment start point.
-function reduceUntil(input: string) {
-  for (let i = 0; i < input.length; i++) {
-    const slice = input.slice(i, input.length)
+async function verifyV1Commitments(
+  provider: IProvider,
+  v1Commitments: EigenCommitment[],
+) {
+  const eigenBlobInfos = v1Commitments.flatMap((input) => {
+    const eigenBlobInfo = parseEigenV1(input.body)
 
-    const firstByte = slice.slice(0, 2)
-    const thirdByte = slice.slice(4, 6)
-
-    if (
-      firstByte === EIGEN_DA_CONSTANTS.COMMITMENT_FIRST_BYTE &&
-      thirdByte === EIGEN_DA_CONSTANTS.COMMITMENT_THIRD_BYTE
-    ) {
-      const commitment = slice.slice(6)
-      // sometimes we still have 00 remaining
-      return commitment.startsWith('00') ? commitment.slice(2) : commitment
+    if (!eigenBlobInfo) {
+      return []
     }
+
+    return { eigenBlobInfo }
+  })
+
+  if (eigenBlobInfos.length === 0) {
+    return false
   }
+
+  const outgoingBatchHeaderHashes = eigenBlobInfos.map(({ eigenBlobInfo }) =>
+    extractBlobBatchHeaderHash(eigenBlobInfo),
+  )
+
+  const confirmedBatchHeaderHashes =
+    await getConfirmedBatchHeaderHashes(provider)
+
+  return (
+    outgoingBatchHeaderHashes.filter((hash) =>
+      confirmedBatchHeaderHashes.includes(hash),
+    ).length === v1Commitments.length
+  )
 }
 
-function tryParsingEigenDaBlobInfo(
-  possibleCommitment: string,
-): EigenDaBlobInfo | null {
+function verifyV2Commitments(v2Commitments: EigenCommitment[]) {
+  return (
+    v2Commitments.length > 0 &&
+    v2Commitments.every((input) => parseEigenV2(input.body) !== null)
+  )
+}
+
+function verifyV3Commitments(v3Commitments: EigenCommitment[]) {
+  return (
+    v3Commitments.length > 0 &&
+    v3Commitments.every((input) => parseEigenV3(input.body) !== null)
+  )
+}
+
+function parseEigenV1(possibleCommitment: string): EigenV1BlobInfo | null {
   try {
     const rlp = RLP.decode('0x' + possibleCommitment)
-
-    return EigenDaBlobInfo.parse(rlp)
+    return EigenV1BlobInfo.parse(rlp)
   } catch {
     return null
   }
 }
 
-/**
- * @see https://github.com/Layr-Labs/eigenda/blob/master/api/proto/disperser/disperser.proto
- * @commit 733bcbe
- */
-type EigenDaBlobInfo = v.infer<typeof EigenDaBlobInfo>
-const EigenDaBlobInfo = v.tuple([
-  // Blob header
-  v.tuple([
-    // KZG commitment
-    v.tuple([
-      v.string(), // x
-      v.string(), // y
-    ]),
-    v.string(), // data length
-    // repeated BlobQuorumParams
-    v.array(
-      v.tuple([
-        v.string(), // quorum number
-        v.string(), // adversary threshold percentage
-        v.string(), // confirmation threshold percentage
-        v.string(), // chunk length
-      ]),
-    ),
-  ]),
-  // Blob verification proof
-  v.tuple([
-    v.string(), // batch id
-    v.string(), // blob index
-    // Batch metadata
-    v.tuple([
-      // Batch header
-      v.tuple([
-        v.string(), // batch root
-        v.string(), // quorum numbers
-        v.string(), // quorum signed
-        v.string(), // reference block number
-      ]),
-      v.string(), // signatory record hash
-      v.string(), // fee
-      v.string(), // confirmation height
-      v
-        .string()
-        .check((v) => v.length === 64 + 2), // batch header hash <---
-    ]),
-    v.string(), // inclusion proof
-    v.string(), // quorum index
-  ]),
-])
+function parseEigenV2(possibleCommitment: string): EigenV2BlobInfo | null {
+  try {
+    const rlp = RLP.decode('0x' + possibleCommitment)
+    return EigenV2BlobInfo.parse(rlp)
+  } catch {
+    return null
+  }
+}
+
+function parseEigenV3(possibleCommitment: string): EigenV3BlobInfo | null {
+  try {
+    const rlp = RLP.decode('0x' + possibleCommitment)
+    return EigenV3BlobInfo.parse(rlp)
+  } catch {
+    return null
+  }
+}
+
+function classicExtractCommitment(input: string) {
+  const regex = /01[0-9a-f]{2}00(?:00|01|02)/
+
+  const match = regex.exec(input)
+
+  if (!match) {
+    return null
+  }
+
+  const idx = match.index + '00000000'.length
+
+  return input.slice(idx)
+}
+
+function customExtractCommitment(input: string) {
+  // pattern: 01 ?? (00|01|02) -- no version byte
+  const regex = /01[0-9a-f]{2}(?:00|01|02)/
+
+  const match = regex.exec(input)
+
+  if (!match) {
+    return null
+  }
+
+  const idx = match.index + '000000'.length
+
+  return input.slice(idx)
+}
+
+function decodeCommitment(input: string): EigenCommitment | null {
+  const clean = input.startsWith('0x') ? input.slice(2) : input
+  const commitment =
+    classicExtractCommitment(clean) ?? customExtractCommitment(clean)
+
+  if (!commitment) {
+    return null
+  }
+
+  const maybeV3 = parseEigenV3(commitment)
+
+  if (maybeV3) {
+    return {
+      version: 'v3',
+      body: commitment,
+    }
+  }
+
+  const maybeV2 = parseEigenV2(commitment)
+
+  if (maybeV2) {
+    return {
+      version: 'v2',
+      body: commitment,
+    }
+  }
+
+  const maybeV1 = parseEigenV1(commitment)
+
+  if (maybeV1) {
+    return {
+      version: 'v1',
+      body: commitment,
+    }
+  }
+
+  return null
+}

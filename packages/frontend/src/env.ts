@@ -16,14 +16,12 @@ const CLIENT_CONFIG = {
   NODE_ENV: z
     .enum(['development', 'test', 'production'])
     .default('development'),
-  DEPLOYMENT_ENV: z.enum(['preview', 'production']).optional(),
-  CLIENT_SIDE_FEATURE_FLAG_STAGE_SORTING: featureFlag.default(false),
+  DEPLOYMENT_ENV: z.enum(['preview', 'staging', 'production']).optional(),
   CLIENT_SIDE_GITCOIN_ROUND_LIVE: featureFlag.default(false),
   CLIENT_SIDE_PLAUSIBLE_DOMAIN: z.string().default('localhost'),
   CLIENT_SIDE_PLAUSIBLE_ENABLED: coerceBoolean.optional(),
   CLIENT_SIDE_SHOW_HIRING_BADGE: featureFlag.default(false),
-  CLIENT_SIDE_PARTNERS: coerceBoolean.default(false),
-  CLIENT_SIDE_ZK_CATALOG_V2: featureFlag.default(false),
+  CLIENT_SIDE_PROGRAM_HASHES: featureFlag.default(false),
 }
 const ClientEnv = z.object(CLIENT_CONFIG)
 
@@ -40,12 +38,17 @@ const SERVER_CONFIG = {
     .check((v) => !!new URL(v))
     .default('https://cloudflare-eth.com'),
   MOCK: coerceBoolean.default(false),
+  REDIS_URL: z.string().optional(),
   CRON_SECRET: z.string().optional(),
   EXCLUDED_ACTIVITY_PROJECTS: stringArray.optional(),
   EXCLUDED_TVS_PROJECTS: stringArray.optional(),
 
   // Heroku specific (available only on previews)
   HEROKU_APP_NAME: z.string().optional(),
+
+  LOG_LEVEL: z
+    .enum(['NONE', 'CRITICAL', 'ERROR', 'WARN', 'INFO', 'DEBUG', 'TRACE'])
+    .default('INFO'),
 
   // Elastic Search
   ES_ENABLED: coerceBoolean.default(false),
@@ -62,7 +65,7 @@ const SERVER_CONFIG = {
 }
 const ServerEnv = z.object(SERVER_CONFIG)
 
-export type Env = z.infer<typeof ServerEnv>
+type Env = z.infer<typeof ServerEnv>
 
 export const env = createEnv()
 
@@ -79,7 +82,7 @@ function createEnv(): Env {
   const parsed = isClient ? ClientEnv.parse(env) : ServerEnv.parse(env)
   return new Proxy<Env>(parsed as Env, {
     get(target, key, receiver) {
-      if (!Reflect.has(SERVER_CONFIG, key)) {
+      if (!Reflect.has(SERVER_CONFIG, key) && key !== 'toJSON') {
         throw new Error(`Accessing invalid env: ${key.toString()}`)
       }
 
@@ -106,6 +109,7 @@ function getEnv(): Record<keyof z.infer<typeof ServerEnv>, string | undefined> {
     HEROKU_APP_NAME: process.env.HEROKU_APP_NAME,
     DEPLOYMENT_ENV: process.env.DEPLOYMENT_ENV,
     CRON_SECRET: process.env.CRON_SECRET,
+    REDIS_URL: process.env.REDIS_URL,
     EXCLUDED_ACTIVITY_PROJECTS: process.env.EXCLUDED_ACTIVITY_PROJECTS,
     EXCLUDED_TVS_PROJECTS: process.env.EXCLUDED_TVS_PROJECTS,
     ES_ENABLED: process.env.ES_ENABLED,
@@ -113,15 +117,12 @@ function getEnv(): Record<keyof z.infer<typeof ServerEnv>, string | undefined> {
     ES_API_KEY: process.env.ES_API_KEY,
     ES_INDEX_PREFIX: process.env.ES_INDEX_PREFIX,
     ES_FLUSH_INTERVAL: process.env.ES_FLUSH_INTERVAL,
-
+    LOG_LEVEL: process.env.LOG_LEVEL,
     // Client
-    CLIENT_SIDE_FEATURE_FLAG_STAGE_SORTING:
-      process.env.CLIENT_SIDE_FEATURE_FLAG_STAGE_SORTING,
     CLIENT_SIDE_GITCOIN_ROUND_LIVE: process.env.FEATURE_FLAG_GITCOIN_OPTION,
     CLIENT_SIDE_PLAUSIBLE_DOMAIN: process.env.CLIENT_SIDE_PLAUSIBLE_DOMAIN,
     CLIENT_SIDE_PLAUSIBLE_ENABLED: process.env.CLIENT_SIDE_PLAUSIBLE_ENABLED,
     CLIENT_SIDE_SHOW_HIRING_BADGE: process.env.FEATURE_FLAG_HIRING,
-    CLIENT_SIDE_PARTNERS: process.env.CLIENT_SIDE_PARTNERS,
-    CLIENT_SIDE_ZK_CATALOG_V2: process.env.CLIENT_SIDE_ZK_CATALOG_V2,
+    CLIENT_SIDE_PROGRAM_HASHES: process.env.CLIENT_SIDE_PROGRAM_HASHES,
   }
 }

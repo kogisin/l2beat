@@ -145,6 +145,18 @@ export const badges = [
       value: 'Zeeve',
     },
   },
+  {
+    id: 'Nodeinfra',
+    type: BadgeType.RaaS,
+    name: 'Nodeinfra',
+    description:
+      'This project was deployed via the rollup-as-a-service provider Nodeinfra',
+    action: {
+      type: 'scalingFilter',
+      id: 'raas',
+      value: 'Nodeinfra',
+    },
+  },
   // DA
   {
     id: 'Avail',
@@ -503,6 +515,13 @@ export const badges = [
     action: undefined,
   },
   {
+    id: 'OPSuccinct',
+    type: BadgeType.Stack,
+    name: 'Built on the OP Succinct stack',
+    description: 'The project is built on the OP Succinct stack',
+    action: undefined,
+  },
+  {
     id: 'SNStack',
     type: BadgeType.Stack,
     name: 'Built on the SN Stack',
@@ -613,6 +632,17 @@ export const badges = [
       value: 'OP Mainnet',
     },
   },
+  {
+    id: 'Scroll',
+    type: BadgeType.L3ParentChain,
+    name: 'Built on top of Scroll',
+    description: 'The project has Scroll as its host chain',
+    action: {
+      type: 'scalingFilter',
+      id: 'hostChain',
+      value: 'Scroll',
+    },
+  },
   // Other
   {
     id: 'AccountAbstraction',
@@ -691,6 +721,27 @@ export const badges = [
       type: 'scalingFilter',
       id: 'other',
       value: 'Shared Bridge',
+    },
+  },
+  {
+    id: 'Espresso',
+    type: BadgeType.DA,
+    name: 'Espresso',
+    description: 'This project is posting its data to Espresso',
+    action: {
+      type: 'publicDaHighlight',
+      slug: 'espresso',
+    },
+  },
+  {
+    id: 'EspressoHotShotLightClient',
+    type: BadgeType.DA,
+    name: 'Espresso with HotShot Light Client',
+    description:
+      'This project utilizes Espresso and has HotShot Light Client enabled, facilitating the bridging of data availability attestations between Espresso and Ethereum.',
+    action: {
+      type: 'publicDaHighlight',
+      slug: 'espresso',
     },
   },
 ] as const satisfies Badge[]

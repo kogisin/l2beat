@@ -7,11 +7,7 @@ import {
   diffDiscovery,
   type EntryParameters,
 } from '@l2beat/discovery'
-import {
-  assert,
-  ChainSpecificAddress,
-  type UnixTime,
-} from '@l2beat/shared-pure'
+import type { UnixTime } from '@l2beat/shared-pure'
 import type { DiscoveryOutputCache } from './DiscoveryOutputCache'
 
 export class UpdateDiffer {
@@ -24,40 +20,13 @@ export class UpdateDiffer {
     this.logger = this.logger.for(this)
   }
 
-  async runForChain(chain: string, timestamp: UnixTime) {
-    const projectConfigs =
-      this.configReader.readAllDiscoveredConfigsForChain(chain)
-
-    for (const projectConfig of projectConfigs) {
-      assert(
-        projectConfig.chain === chain,
-        `Discovery runner and project config chain mismatch in project ${projectConfig.name}. Update the config.json file or config.discovery.`,
-      )
-
-      try {
-        await this.runForProject(projectConfig.name, chain, timestamp)
-      } catch (error) {
-        this.logger.error(
-          `[chain: ${chain}] Failed to update project [${projectConfig.name}]`,
-          error,
-        )
-      }
-    }
-  }
-
-  async runForProject(projectId: string, chain: string, timestamp: UnixTime) {
-    const onDiskDiscovery = this.getOnDiskDiscovery({
-      name: projectId,
-      chain,
-    })
-    const latestDiscovery = this.discoveryOutputCache.get(projectId, chain)
+  async runForProject(projectId: string, timestamp: UnixTime) {
+    const onDiskDiscovery = this.getOnDiskDiscovery(projectId)
+    const latestDiscovery = this.discoveryOutputCache.get(projectId)
     if (!latestDiscovery) {
       this.logger.error(
         'No latest discovery found. This should never happen.',
-        {
-          projectId,
-          chain,
-        },
+        { projectId },
       )
       return
     }
@@ -65,10 +34,7 @@ export class UpdateDiffer {
     if (onDiskDiscovery.timestamp > latestDiscovery.timestamp) {
       this.logger.info(
         'On disk discovery is newer than latest discovery. Skipping.',
-        {
-          projectId,
-          chain,
-        },
+        { projectId },
       )
       return
     }
@@ -76,18 +42,14 @@ export class UpdateDiffer {
     const onDiskContracts = [
       ...onDiskDiscovery.entries,
       ...(onDiskDiscovery.sharedModules ?? []).flatMap(
-        (module) =>
-          this.getOnDiskDiscovery({
-            name: module,
-            chain,
-          }).entries,
+        (module) => this.getOnDiskDiscovery(module).entries,
       ),
     ]
 
     const latestContracts = [
       ...latestDiscovery.entries,
       ...(latestDiscovery.sharedModules ?? []).flatMap(
-        (module) => this.discoveryOutputCache.get(module, chain)?.entries ?? [],
+        (module) => this.discoveryOutputCache.get(module)?.entries ?? [],
       ),
     ]
 
@@ -99,7 +61,6 @@ export class UpdateDiffer {
       diff,
       latestContracts,
       projectId,
-      chain,
       timestamp,
       diffBaseTimestamp,
       diffHeadTimestamp,
@@ -108,19 +69,17 @@ export class UpdateDiffer {
     if (updateDiffs.length === 0) {
       this.logger.info('No changes in project', {
         projectId,
-        chain,
       })
-      await this.db.updateDiff.deleteByProjectAndChain(projectId, chain)
+      await this.db.updateDiff.deleteByProjectAndChain(projectId)
       return
     }
 
     await this.db.transaction(async () => {
-      await this.db.updateDiff.deleteByProjectAndChain(projectId, chain)
+      await this.db.updateDiff.deleteByProjectAndChain(projectId)
       await this.db.updateDiff.insertMany(updateDiffs)
 
       this.logger.info('Inserted update diffs', {
         projectId,
-        chain,
         updateDiffs: updateDiffs.length,
       })
     })
@@ -130,14 +89,13 @@ export class UpdateDiffer {
     diff: DiscoveryDiff[],
     latestContracts: EntryParameters[],
     projectId: string,
-    chain: string,
     timestamp: UnixTime,
     diffBaseTimestamp: number,
     diffHeadTimestamp: number,
   ) {
     const implementationChanges = diff.filter((discoveryDiff) =>
       discoveryDiff.diff?.some(
-        (f) => f.key && f.key === 'values.$implementation',
+        (f) => f.key && f.key.startsWith('values.$implementation'),
       ),
     )
     const fieldHighSeverityChanges = diff.filter((discoveryDiff) =>
@@ -157,8 +115,7 @@ export class UpdateDiffer {
         const index = Number.parseInt(indexString)
 
         const entry = latestContracts.find(
-          (e) =>
-            ChainSpecificAddress.address(e.address) === discoveryDiff.address,
+          (e) => e.address === discoveryDiff.address,
         )
 
         return entry?.receivedPermissions?.[index]?.permission === 'upgrade'
@@ -180,8 +137,7 @@ export class UpdateDiffer {
       updateDiffs.push({
         projectId,
         type: 'implementationChange',
-        address: address,
-        chain,
+        address,
         timestamp,
         diffBaseTimestamp,
         diffHeadTimestamp,
@@ -192,8 +148,7 @@ export class UpdateDiffer {
       updateDiffs.push({
         projectId,
         type: 'highSeverityFieldChange',
-        address: address,
-        chain,
+        address,
         timestamp,
         diffBaseTimestamp,
         diffHeadTimestamp,
@@ -204,8 +159,7 @@ export class UpdateDiffer {
       updateDiffs.push({
         projectId,
         type: 'ultimateUpgraderChange',
-        address: address,
-        chain,
+        address,
         timestamp,
         diffBaseTimestamp,
         diffHeadTimestamp,
@@ -217,7 +171,6 @@ export class UpdateDiffer {
         projectId,
         type: 'becameVerified',
         address,
-        chain,
         timestamp,
         diffBaseTimestamp,
         diffHeadTimestamp,
@@ -227,13 +180,7 @@ export class UpdateDiffer {
     return updateDiffs
   }
 
-  getOnDiskDiscovery({
-    name,
-    chain,
-  }: {
-    name: string
-    chain: string
-  }): DiscoveryOutput {
-    return this.configReader.readDiscovery(name, chain)
+  getOnDiskDiscovery(name: string): DiscoveryOutput {
+    return this.configReader.readDiscovery(name)
   }
 }

@@ -49,6 +49,29 @@ const VECTOR: DaProjectTableValue = {
   projectId: ProjectId('vector'),
 }
 
+const PLASMA: DaProjectTableValue = {
+  value: 'Plasma',
+  sentiment: 'good',
+  description:
+    'Data is not posted to Ethereum but to a plasma chain. There is a guarantee that if data is unavailable you can still exit using latest available state root.',
+}
+
+const TEE_BRIDGE: DaProjectTableValue = {
+  value: 'TEE Bridge',
+  sentiment: 'bad',
+  description:
+    'The TEE Bridge is used to attest to the data availability on the DA layer by using a program running in a Trusted Execution Environment (TEE).',
+  projectId: ProjectId('tee-bridge'),
+}
+
+const HOTSHOT_LIGHT_CLIENT: DaProjectTableValue = {
+  value: 'HotShot Light Client',
+  sentiment: 'warning',
+  description:
+    'The HotShot Light Client is used to attest to the data availability on Espresso.',
+  projectId: ProjectId('espresso'),
+}
+
 function DAC_MEMBERS({
   requiredSignatures,
   membersCount,
@@ -86,6 +109,13 @@ function STAKED_OPERATORS({
   }
 }
 
+const SELF_ATTESTED_INTMAX: DaProjectTableValue = {
+  value: 'Self-attested',
+  sentiment: 'good',
+  description:
+    'Users self attest the collection of data to the aggregator when depositing or transferring funds, and the protocol verifies the signatures before accepting the deposit. When funds are received, users will need to confirm the collection of data from the sender before accepting the payment.',
+}
+
 export const DA_BRIDGES = {
   NONE,
   NONE_WITH_DA_CHALLENGES,
@@ -95,4 +125,8 @@ export const DA_BRIDGES = {
   VECTOR,
   DAC_MEMBERS,
   STAKED_OPERATORS,
+  SELF_ATTESTED_INTMAX,
+  PLASMA,
+  TEE_BRIDGE,
+  HOTSHOT_LIGHT_CLIENT,
 }

@@ -4,12 +4,8 @@ import compact from 'lodash/compact'
 import { NoDataBadge } from '~/components/badge/NoDataBadge'
 import { PizzaRosetteCell } from '~/components/rosette/pizza/PizzaRosetteCell'
 import { SyncStatusWrapper } from '~/components/SyncStatusWrapper'
+import { ProofSystemCell } from '~/components/table/cells/ProofSystemCell'
 import { StageCell } from '~/components/table/cells/stage/StageCell'
-import { TwoRowCell } from '~/components/table/cells/TwoRowCell'
-import {
-  TypeExplanationTooltip,
-  TypeInfo,
-} from '~/components/table/cells/TypeInfo'
 import { ValueWithPercentageChange } from '~/components/table/cells/ValueWithPercentageChange'
 import { sortStages } from '~/components/table/sorting/sortStages'
 import { TableLink } from '~/components/table/TableLink'
@@ -39,26 +35,15 @@ export function getEcosystemProjectsColumns(ecosystemId: ProjectId) {
         align: 'center',
       },
     }),
-    columnHelper.accessor('category', {
-      header: 'Type',
-      cell: (ctx) => (
-        <TwoRowCell>
-          <TwoRowCell.First>
-            <TypeInfo stacks={ctx.row.original.stacks}>
-              {ctx.getValue()}
-            </TypeInfo>
-          </TwoRowCell.First>
-          {ctx.row.original.capability === 'appchain' && (
-            <TwoRowCell.Second>
-              {ctx.row.original.purposes.sort().join(', ')}
-            </TwoRowCell.Second>
-          )}
-        </TwoRowCell>
-      ),
+    columnHelper.accessor('proofSystem', {
+      header: 'Proof system',
+      cell: (ctx) => <ProofSystemCell {...ctx.row.original} />,
       meta: {
-        tooltip: <TypeExplanationTooltip />,
+        tooltip:
+          'The type of proof system that the project uses to prove its state: either Optimistic (assumed valid unless challenged) or Validity (cryptographically proven upfront)',
       },
     }),
+    ,
     columnHelper.accessor(
       (e) => {
         if (
@@ -96,28 +81,29 @@ export function getEcosystemProjectsColumns(ecosystemId: ProjectId) {
       }),
     columnHelper.accessor(
       (e) => {
-        return e.tvs?.breakdown?.total ?? 0
+        return e.tvsData?.breakdown.total ?? 0
       },
       {
         id: 'total',
         header: 'Total value secured',
         cell: (ctx) => {
           const value = ctx.row.original.tvs
+          const tvsData = ctx.row.original.tvsData
 
           return (
             <TotalCellWithTvsBreakdown
               href={`/scaling/tvs?tab=${ctx.row.original.tab}&highlight=${ctx.row.original.slug}`}
-              associatedTokenSymbols={value.associatedTokens}
+              associatedTokens={value.associatedTokens}
               tvsWarnings={value.warnings}
-              breakdown={value.breakdown}
-              change={value.change}
+              breakdown={tvsData?.breakdown}
+              change={tvsData?.change.total}
             />
           )
         },
         meta: {
           align: 'right',
           tooltip:
-            'Total value secured is calculated as the sum of canonically bridged tokens, externally bridged tokens, and native tokens.',
+            'Total value secured is calculated as the sum of canonically bridged tokens, externally bridged tokens, and native tokens, shown together with a percentage change compared to 7D ago.',
         },
       },
     ),
@@ -144,7 +130,8 @@ export function getEcosystemProjectsColumns(ecosystemId: ProjectId) {
       sortUndefined: 'last',
       meta: {
         align: 'right',
-        tooltip: 'User operations per second averaged over the past day.',
+        tooltip:
+          'User operations per second averaged over the past day, shown together with a percentage changed compared to 7D ago.',
       },
     }),
   ])

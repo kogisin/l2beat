@@ -7,6 +7,7 @@ import {
   CelestiaDaProvider,
   CirculatingSupplyProvider,
   CoingeckoQueryService,
+  DaBeatStatsProvider,
   type DaBlobProvider,
   DaProvider,
   EthereumDaProvider,
@@ -20,7 +21,7 @@ import { assert } from '@l2beat/shared-pure'
 import type { Config } from '../config'
 import { BlockProviders } from './BlockProviders'
 import { type Clients, initClients } from './Clients'
-import { DayProviders } from './DayProviders'
+import { DayProviders } from './day/DayProviders'
 import { LogsProviders } from './LogsProviders'
 import { SvmBlockProviders } from './SvmBlockProviders'
 import { UopsAnalyzers } from './UopsAnalyzers'
@@ -40,6 +41,7 @@ export class Providers {
   balance: BalanceProvider
   svmBlock: SvmBlockProviders
   slotTimestamp: SlotTimestampProvider
+  daBeatStats: DaBeatStatsProvider
 
   constructor(
     readonly config: Config,
@@ -62,7 +64,10 @@ export class Providers {
       ),
     )
     this.uops = new UopsAnalyzers(config.chainConfig)
-    this.day = new DayProviders(config.chainConfig, this.clients.starkex)
+    this.day = new DayProviders(config.chainConfig, {
+      starkex: this.clients.starkex,
+      voyager: this.clients.voyager,
+    })
 
     const blobProviders: DaBlobProvider[] = []
     if (this.clients.beacon) {
@@ -100,6 +105,12 @@ export class Providers {
       logger,
     )
     this.balance = new BalanceProvider(this.clients.rpcClients, logger)
+    this.daBeatStats = new DaBeatStatsProvider(
+      this.clients.beacon,
+      this.clients.near,
+      this.clients.celestiaDaBeat,
+      this.clients.availWs,
+    )
   }
 
   getPriceProviders() {

@@ -2,6 +2,7 @@ import {
   ChainSpecificAddress,
   EthereumAddress,
   formatSeconds,
+  ProjectId,
   UnixTime,
 } from '@l2beat/shared-pure'
 import {
@@ -43,6 +44,10 @@ const daResolveWindow = formatSeconds(
 )
 
 export const funki: ScalingProject = opStackL2({
+  ecosystemInfo: {
+    id: ProjectId('superchain'),
+    isPartOfSuperchain: false,
+  },
   capability: 'universal',
   addedAt: UnixTime(1728289959), // 2024-10-07T08:32:39Z
   additionalBadges: [BADGES.RaaS.AltLayer],
@@ -60,9 +65,9 @@ export const funki: ScalingProject = opStackL2({
     stacks: ['OP Stack'],
     links: {
       websites: ['https://funkichain.com'],
-      bridges: ['https://funkichain.com/bridge', 'https://swap.funkichain.com'],
+      bridges: ['https://funkichain.com/bridge', 'https://funkichain.com/swap'],
       documentation: ['https://docs.funkichain.com/'],
-      explorers: ['https://funkiscan.io/'],
+      explorers: ['https://explorer.funkichain.com/'],
       repositories: ['https://github.com/funkichain'],
       socialMedia: [
         'https://x.com/funkichain',
@@ -82,13 +87,13 @@ export const funki: ScalingProject = opStackL2({
   chainConfig: {
     name: 'funki',
     chainId: 33979,
-    explorerUrl: 'https://funkiscan.io',
+    explorerUrl: 'https://explorer.funkichain.com',
     sinceTimestamp: genesisTimestamp,
     apis: [
       {
         type: 'rpc',
         url: 'https://rpc-mainnet.funkichain.com',
-        callsPerMinute: 1500,
+        callsPerMinute: 300,
       },
     ],
   },

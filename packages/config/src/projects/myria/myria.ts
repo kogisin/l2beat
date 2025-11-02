@@ -14,6 +14,7 @@ import {
 } from '../../common'
 import { BADGES } from '../../common/badges'
 import { formatDelay } from '../../common/formatDelays'
+import { ZK_PROGRAM_HASHES } from '../../common/zkProgramHashes'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import {
   getCommittee,
@@ -45,6 +46,11 @@ const freezeGracePeriod = discovery.getContractValue<number>(
 
 const { committeePermission, minSigners } = getCommittee(discovery)
 
+const myriaProgramHash = discovery.getContractValue<string>(
+  'GpsFactRegistryAdapter',
+  'programHash',
+)
+
 export const myria: ScalingProject = {
   type: 'layer2',
   id: ProjectId('myria'),
@@ -67,7 +73,6 @@ export const myria: ScalingProject = {
       'Myria is an expansive blockchain gaming ecosystem, comprised of a blockchain gaming hub and Myriaverse metaverse.',
     purposes: ['NFT', 'Exchange', 'Gaming'],
     stacks: ['StarkEx'],
-    category: 'Other',
     links: {
       websites: ['https://myria.com/'],
       bridges: ['https://hub.immutable.com/'],
@@ -81,6 +86,10 @@ export const myria: ScalingProject = {
         'https://instagram.com/myriagames',
       ],
     },
+  },
+  proofSystem: {
+    type: 'Validity',
+    zkCatalogId: ProjectId('stone'),
   },
   stage: {
     stage: 'NotApplicable',
@@ -105,6 +114,8 @@ export const myria: ScalingProject = {
       type: 'day',
       sinceTimestamp: UnixTime(1659542607),
       resyncLastDays: 7,
+      batchSize: 10,
+      dataSource: 'StarkEx Aggregations API',
     },
   },
   dataAvailability: {
@@ -147,6 +158,7 @@ export const myria: ScalingProject = {
         includingSHARPUpgradeDelaySeconds,
       ),
     ],
+    zkProgramHashes: [ZK_PROGRAM_HASHES(myriaProgramHash)],
   },
   permissions: generateDiscoveryDrivenPermissions([discovery]),
   milestones: [
@@ -155,7 +167,7 @@ export const myria: ScalingProject = {
       date: '2022-08-26T00:00:00Z',
       url: 'https://medium.com/myria-official/myrias-layer-2-launch-has-arrived-6a3c3da9561f',
       description:
-        'Layer 2 scaling solution powered by Starware is live on Ethereum.',
+        'Layer 2 scaling solution powered by StarkWare is live on Ethereum.',
       type: 'general',
     },
     {

@@ -19,12 +19,6 @@
             "args": []
           }
         },
-        "opStackDA": {
-          "handler": {
-            "type": "opStackDA",
-            "sequencerAddress": "{{ batcherHash }}"
-          }
-        },
         "sequencerInbox": {
           "handler": {
             "type": "opStackSequencerInbox",

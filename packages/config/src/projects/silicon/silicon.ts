@@ -12,7 +12,7 @@ import { polygonCDKStack } from '../../templates/polygonCDKStack'
 import { PolygoncdkDAC } from '../../templates/polygoncdk-template'
 
 const discovery = new ProjectDiscovery('silicon')
-const bridge = discovery.getContract('PolygonSharedBridge')
+const bridge = discovery.getContract('AgglayerBridge')
 
 const membersCountDAC = discovery.getContractValue<number>(
   'PolygonDataCommittee',
@@ -32,7 +32,7 @@ const rollupModuleContract = discovery.getContract('Validium')
 
 export const silicon: ScalingProject = polygonCDKStack({
   addedAt: UnixTime(1725027256), // 2024-08-30T14:14:16Z
-  additionalBadges: [BADGES.DA.DAC],
+  additionalBadges: [BADGES.DA.DAC, BADGES.RaaS.Nodeinfra],
   discovery,
   reasonsForBeingOther: [REASON_FOR_BEING_OTHER.SMALL_DAC],
   display: {
@@ -45,6 +45,7 @@ export const silicon: ScalingProject = polygonCDKStack({
       bridges: ['https://bridge.silicon.network/'],
       documentation: ['https://docs.silicon.network/'],
       explorers: ['https://scope.silicon.network'],
+      repositories: ['https://github.com/0xSilicon'],
       socialMedia: ['https://x.com/0xSilicon'],
     },
   },
@@ -87,7 +88,7 @@ export const silicon: ScalingProject = polygonCDKStack({
     explorerUrl: 'https://scope.silicon.network',
     sinceTimestamp: UnixTime(1724183531),
     apis: [
-      { type: 'rpc', url: 'https://rpc.silicon.network', callsPerMinute: 1500 },
+      { type: 'rpc', url: 'https://rpc.silicon.network', callsPerMinute: 300 },
     ],
   },
   nonTemplateEscrows: [
@@ -104,11 +105,10 @@ export const silicon: ScalingProject = polygonCDKStack({
   ],
   milestones: [
     {
-      title: 'Mainnet Launch',
+      title: 'Silicon Mainnet Launch',
       url: 'https://x.com/0xSilicon/status/1828704079687917908',
       date: '2024-08-28',
-      description:
-        'Silicon Mainnet launches officially, integrated with Polygon Agglayer.',
+      description: 'Silicon is live on mainnet, integrated with Agglayer.',
       type: 'general',
     },
   ],

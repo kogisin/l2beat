@@ -8,6 +8,7 @@ export const pmon: ScalingProject = underReviewL3({
   id: ProjectId('pmon'),
   capability: 'universal',
   addedAt: UnixTime(1722587021), // 2024-08-02T08:23:41Z
+  archivedAt: UnixTime(1759983088),
   badges: [
     BADGES.L3ParentChain.Arbitrum,
     BADGES.DA.Celestia,
@@ -16,7 +17,6 @@ export const pmon: ScalingProject = underReviewL3({
     BADGES.RaaS.AltLayer,
   ],
   display: {
-    category: 'Optimium',
     stacks: ['Arbitrum'],
     name: 'PMON Chain',
     slug: 'pmon',
@@ -36,6 +36,10 @@ export const pmon: ScalingProject = underReviewL3({
       ],
     },
   },
+  proofSystem: {
+    type: 'Optimistic',
+  },
+  dataAvailability: undefined,
   ecosystemInfo: {
     id: ProjectId('arbitrum-orbit'),
   },

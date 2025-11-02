@@ -73,7 +73,14 @@ export class EigenDaProjectsIndexer extends ManagedMultiIndexer<TimestampDaIndex
     }
 
     return async () => {
-      await this.$.db.dataAvailability.upsertMany(projectData)
+      await this.$.db.transaction(async () => {
+        await this.$.db.dataAvailability.upsertMany(projectData)
+        await this.$.db.syncMetadata.updateSyncedUntil(
+          'dataAvailability',
+          this.$.configurations.map((c) => c.properties.projectId),
+          adjustedTo,
+        )
+      })
       this.logger.info('Saved DA metrics into DB', {
         from,
         to: adjustedTo,
@@ -86,13 +93,13 @@ export class EigenDaProjectsIndexer extends ManagedMultiIndexer<TimestampDaIndex
   }
 
   async getByProjectData(to: number): Promise<DataAvailabilityRecord[]> {
-    const startOfLastDay = UnixTime.toStartOf(to, 'day') - UnixTime.DAY
-    // this is date of first file that is somehow parsable, all before is a joke
+    const startOfTheDay = UnixTime.toStartOf(to, 'day')
+    // this is date of first file that is accessible after migration to v2 API
     const firstFileDate = UnixTime.fromDate(
-      new Date('2025-05-30T00:00:00.000Z'),
+      new Date('2025-08-01T00:00:00.000Z'),
     )
     const adjustedDay =
-      startOfLastDay < firstFileDate ? firstFileDate : startOfLastDay
+      startOfTheDay < firstFileDate ? firstFileDate : startOfTheDay
     const data = await this.$.eigenClient.getByProjectData(adjustedDay)
 
     const projectsConfigurations = this.$.configurations.filter(
@@ -101,11 +108,12 @@ export class EigenDaProjectsIndexer extends ManagedMultiIndexer<TimestampDaIndex
       Extract<TimestampDaIndexedConfig, { type: 'eigen-da' }>
     >[]
 
-    const records: DataAvailabilityRecord[] = []
+    const recordsMap = new Map<string, DataAvailabilityRecord>()
+
     for (const d of data) {
       if (
-        d.datetime < startOfLastDay ||
-        d.datetime >= startOfLastDay + UnixTime.DAY
+        d.datetime < startOfTheDay - UnixTime.DAY ||
+        d.datetime >= startOfTheDay
       ) {
         continue
       }
@@ -116,15 +124,25 @@ export class EigenDaProjectsIndexer extends ManagedMultiIndexer<TimestampDaIndex
       if (!configuration) {
         continue
       }
-      records.push({
-        timestamp: d.datetime,
-        totalSize: BigInt(Math.round(d.total_size_mb * 1024 * 1024)),
-        projectId: configuration.properties.projectId,
-        daLayer: this.daLayer,
-        configurationId: configuration.id,
-      })
+      const key = `${d.datetime}-${configuration.id}`
+
+      const totalSize = BigInt(Math.round(d.total_size_mb * 1024 * 1024))
+
+      const existing = recordsMap.get(key)
+      if (!existing) {
+        recordsMap.set(key, {
+          timestamp: d.datetime,
+          totalSize,
+          projectId: configuration.properties.projectId,
+          daLayer: this.daLayer,
+          configurationId: configuration.id,
+        })
+      } else {
+        existing.totalSize += totalSize
+      }
     }
-    return records
+
+    return Array.from(recordsMap.values())
   }
 
   override async removeData(

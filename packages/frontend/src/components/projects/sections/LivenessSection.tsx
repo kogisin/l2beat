@@ -2,6 +2,7 @@ import type { Milestone } from '@l2beat/config'
 import { pluralize, type TrackedTxsConfigSubtype } from '@l2beat/shared-pure'
 import React from 'react'
 import { ProjectLivenessChart } from '~/components/chart/liveness/ProjectLivenessChart'
+import type { ChartProject } from '~/components/core/chart/Chart'
 import { HorizontalSeparator } from '~/components/core/HorizontalSeparator'
 import { LiveIndicator } from '~/components/LiveIndicator'
 import { AnomalyText } from '~/pages/scaling/liveness/components/AnomalyText'
@@ -14,7 +15,7 @@ import { ProjectSection } from './ProjectSection'
 import type { ProjectSectionProps } from './types'
 
 export interface LivenessSectionProps extends ProjectSectionProps {
-  projectId: string
+  project: ChartProject
   configuredSubtypes: TrackedTxsConfigSubtype[]
   anomalies: LivenessAnomaly[]
   hasTrackedContractsChanged: boolean
@@ -22,10 +23,12 @@ export interface LivenessSectionProps extends ProjectSectionProps {
   milestones: Milestone[]
   defaultRange: LivenessChartTimeRange
   isArchived: boolean
+  hideSubtypeSwitch?: boolean
+  isForDaBridge?: boolean
 }
 
 export function LivenessSection({
-  projectId,
+  project,
   configuredSubtypes,
   anomalies,
   hasTrackedContractsChanged,
@@ -33,28 +36,30 @@ export function LivenessSection({
   milestones,
   defaultRange,
   isArchived,
+  hideSubtypeSwitch,
+  isForDaBridge,
   ...sectionProps
 }: LivenessSectionProps) {
   const ongoingAnomalies = anomalies.filter((a) => a.end === undefined)
   return (
     <ProjectSection {...sectionProps}>
       <p className="mb-4 text-paragraph-15 md:text-paragraph-16">
-        This section shows how &quot;live&quot; the project&apos;s operators are
-        by displaying how frequently they submit transactions of the selected
-        type. It also highlights anomalies - significant deviations from their
-        typical schedule.
+        {!isForDaBridge
+          ? 'This section shows how "live" the project\'s operators are by displaying how frequently they submit transactions of the selected type. It also highlights anomalies - significant deviations from their typical schedule.'
+          : 'This section shows how frequently DA attestations are submitted. It also highlights anomalies - significant deviations from the typical schedule.'}
       </p>
       {!isArchived && <OngoingAnomalies anomalies={ongoingAnomalies} />}
 
       <HorizontalSeparator className="my-4" />
       <ProjectLivenessChart
-        projectId={projectId}
+        project={project}
         configuredSubtypes={configuredSubtypes}
         anomalies={anomalies}
         hasTrackedContractsChanged={hasTrackedContractsChanged}
         milestones={milestones}
         defaultRange={defaultRange}
         isArchived={isArchived}
+        hideSubtypeSwitch={hideSubtypeSwitch}
       />
       <div className="mt-4">
         <TrackedTransactions {...trackedTransactions} />
@@ -63,11 +68,7 @@ export function LivenessSection({
   )
 }
 
-export function OngoingAnomalies({
-  anomalies,
-}: {
-  anomalies: LivenessAnomaly[]
-}) {
+function OngoingAnomalies({ anomalies }: { anomalies: LivenessAnomaly[] }) {
   if (anomalies.length === 0) {
     return <NoAnomaliesState className="rounded-lg!" type="ongoing" />
   }

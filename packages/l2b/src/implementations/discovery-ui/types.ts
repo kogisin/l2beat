@@ -8,7 +8,6 @@ export interface ApiProjectEntry {
   name: string
   addresses: string[]
   contractNames: string[]
-  chains: string[]
 }
 
 export interface ApiProjectResponse {
@@ -41,11 +40,10 @@ export interface ApiPreviewContract {
 
 export interface ApiProjectChain {
   project: string
-  chain: string
   initialContracts: ApiProjectContract[]
   discoveredContracts: ApiProjectContract[]
   eoas: ApiAddressEntry[]
-  blockNumber: number
+  blockNumbers: Record<string, number>
 }
 
 export type ApiAddressType =
@@ -56,6 +54,7 @@ export type ApiAddressType =
   | 'Multisig'
   | 'Diamond'
   | 'Timelock'
+  | 'Untemplatized'
   | 'Contract'
   | 'Unknown'
 
@@ -66,6 +65,8 @@ export interface ApiAddressEntry {
   type: ApiAddressType
   referencedBy: ApiAddressReference[]
   address: ChainSpecificAddress
+  chain: string
+  isReachable: boolean
 }
 
 export interface ApiAddressReference extends AddressFieldValue {

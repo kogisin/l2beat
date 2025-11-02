@@ -5,7 +5,7 @@
     {
       "mode": "auto",
       "id": "katana-AUSD",
-      "priceId": "agora-ausd-katana",
+      "priceId": "agora-dollar",
       "symbol": "AUSD",
       "name": "AUSD",
       "iconUrl": "https://coin-images.coingecko.com/coins/images/67047/large/ausd.png?1751587801",
@@ -35,6 +35,42 @@
         "address": "0x8276D71cb96910578b510D5b3d919E0607Adad8D",
         "chain": "katana",
         "decimals": 18,
+        "sinceTimestamp": 1746742811
+      }
+    },
+    {
+      "mode": "auto",
+      "id": "katana-BTCK",
+      "priceId": "bitcoin-on-katana",
+      "symbol": "BTCK",
+      "name": "Bitcoin on Katana",
+      "iconUrl": "https://coin-images.coingecko.com/coins/images/68287/large/btc.png?1755248096",
+      "amount": {
+        "type": "totalSupply",
+        "address": "0xB0F70C0bD6FD87dbEb7C10dC692a2a6106817072",
+        "chain": "katana",
+        "decimals": 8,
+        "sinceTimestamp": 1755216000
+      },
+      "category": "btc",
+      "source": "native",
+      "isAssociated": false
+    },
+    {
+      "mode": "auto",
+      "id": "katana-cbBTC",
+      "priceId": "coinbase-wrapped-btc",
+      "symbol": "cbBTC",
+      "name": "Coinbase Wrapped BTC",
+      "iconUrl": "https://coin-images.coingecko.com/coins/images/40143/large/cbbtc.webp?1726136727",
+      "category": "btc",
+      "source": "canonical",
+      "isAssociated": false,
+      "amount": {
+        "type": "totalSupply",
+        "address": "0x4f4E170C129758A71572EBB3Aa69A8E75ca8b79C",
+        "chain": "katana",
+        "decimals": 8,
         "sinceTimestamp": 1746742811
       }
     },
@@ -127,7 +163,7 @@
         "decimals": 8,
         "sinceTimestamp": 1750956642
       },
-      "category": "other",
+      "category": "btc",
       "source": "external",
       "isAssociated": false,
       "bridgedUsing": {
@@ -146,7 +182,7 @@
       "symbol": "LBTC",
       "name": "Lombard Staked Bitcoin",
       "iconUrl": "https://coin-images.coingecko.com/coins/images/39969/large/LBTC_Logo.png?1724959872",
-      "category": "other",
+      "category": "btc",
       "source": "canonical",
       "isAssociated": false,
       "amount": {
@@ -172,8 +208,7 @@
         "address": "0x4DA795EDcd1bb95d6Cc8FD2CC01E57E211510f8f",
         "chain": "katana",
         "decimals": 18,
-        "sinceTimestamp": 1746742811,
-        "untilTimestamp": 1753794000
+        "sinceTimestamp": 1746742811
       }
     },
     {
@@ -196,11 +231,29 @@
     },
     {
       "mode": "auto",
+      "id": "katana-PAXG",
+      "priceId": "pax-gold",
+      "symbol": "PAXG",
+      "name": "Paxos Gold",
+      "iconUrl": "https://assets.coingecko.com/coins/images/9519/large/paxgold.png?1696509604",
+      "category": "rwaPublic",
+      "source": "canonical",
+      "isAssociated": false,
+      "amount": {
+        "type": "totalSupply",
+        "address": "0xB62f7FC2d804Ec32CfF70ce9bC8638892Cd2740C",
+        "chain": "katana",
+        "decimals": 18,
+        "sinceTimestamp": 1746742811
+      }
+    },
+    {
+      "mode": "auto",
       "id": "katana-POL",
       "priceId": "polygon-ecosystem-token",
       "symbol": "POL",
       "name": "Polygon Ecosystem Token",
-      "iconUrl": "https://assets.coingecko.com/coins/images/32440/large/polygon.png?1698233684",
+      "iconUrl": "/images/custom-tokens/polygon-ecosystem-token.png",
       "category": "other",
       "source": "canonical",
       "isAssociated": false,
@@ -225,6 +278,24 @@
       "amount": {
         "type": "totalSupply",
         "address": "0x17BFF452dae47e07CeA877Ff0E1aba17eB62b0aB",
+        "chain": "katana",
+        "decimals": 18,
+        "sinceTimestamp": 1746742811
+      }
+    },
+    {
+      "mode": "auto",
+      "id": "katana-UNI",
+      "priceId": "uniswap",
+      "symbol": "UNI",
+      "name": "Uniswap",
+      "iconUrl": "https://assets.coingecko.com/coins/images/12504/large/uni.jpg?1696512319",
+      "category": "other",
+      "source": "canonical",
+      "isAssociated": false,
+      "amount": {
+        "type": "totalSupply",
+        "address": "0x8B2cD634401fF42cFBdAfAbbb555F2A6C4889351",
         "chain": "katana",
         "decimals": 18,
         "sinceTimestamp": 1746742811
@@ -369,7 +440,7 @@
       "bridgedUsing": {
         "bridges": [
           {
-            "name": "Agglayer shared bridge (custom L2 contract)"
+            "name": "Agglayer shared bridge (vault bridge)"
           }
         ]
       }
@@ -423,7 +494,7 @@
       "bridgedUsing": {
         "bridges": [
           {
-            "name": "Agglayer shared bridge (custom L2 contract)"
+            "name": "Agglayer shared bridge (vault bridge)"
           }
         ]
       }
@@ -477,7 +548,7 @@
       "bridgedUsing": {
         "bridges": [
           {
-            "name": "Agglayer shared bridge (custom L2 contract)"
+            "name": "Agglayer shared bridge (vault bridge)"
           }
         ]
       }
@@ -531,7 +602,7 @@
       "bridgedUsing": {
         "bridges": [
           {
-            "name": "Agglayer shared bridge (custom L2 contract)"
+            "name": "Agglayer shared bridge (vault bridge)"
           }
         ]
       }
@@ -585,7 +656,7 @@
       "bridgedUsing": {
         "bridges": [
           {
-            "name": "Agglayer shared bridge (custom L2 contract)"
+            "name": "Agglayer shared bridge (vault bridge)"
           }
         ]
       }
@@ -597,7 +668,7 @@
       "symbol": "WBTC",
       "name": "Wrapped BTC",
       "iconUrl": "https://assets.coingecko.com/coins/images/7598/large/wrapped_bitcoin_wbtc.png?1696507857",
-      "category": "other",
+      "category": "btc",
       "source": "canonical",
       "isAssociated": false,
       "amount": {

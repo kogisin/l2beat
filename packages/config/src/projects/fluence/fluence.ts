@@ -23,13 +23,13 @@ export const fluence: ScalingProject = orbitStackL2({
       'Fluence is an Optimium on Ethereum, built on the Orbit stack. It enables a decentralized serverless platform & computing marketplace powered by blockchain economics.',
     links: {
       websites: ['https://fluence.network/'],
-      bridges: ['https://bridge.fluence.network/bridge/fluence'],
+      bridges: ['https://bridge.fluence.network/'],
       documentation: ['https://fluence.dev/docs/learn/overview'],
       explorers: ['https://blockscout.mainnet.fluence.dev/'],
       repositories: ['https://github.com/fluencelabs'],
       socialMedia: [
         'https://x.com/fluence_project',
-        'https://discord.com/invite/5qSnPZKh7u',
+        'https://discord.com/invite/EFHYR6nZrD',
         'https://t.me/fluence_project',
         'https://youtube.com/channel/UC3b5eFyKRFlEMwSJ1BTjpbw',
       ],
@@ -52,7 +52,7 @@ export const fluence: ScalingProject = orbitStackL2({
       {
         type: 'rpc',
         url: 'https://rpc.mainnet.fluence.dev',
-        callsPerMinute: 1500,
+        callsPerMinute: 300,
       },
     ],
     gasTokens: ['FLT'],

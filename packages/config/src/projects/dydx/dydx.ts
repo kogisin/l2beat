@@ -18,7 +18,7 @@ import {
   TECHNOLOGY_DATA_AVAILABILITY,
 } from '../../common'
 import { BADGES } from '../../common/badges'
-import { formatDelay, formatExecutionDelay } from '../../common/formatDelays'
+import { formatDelay } from '../../common/formatDelays'
 import { getStage } from '../../common/stages/getStage'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
@@ -100,7 +100,6 @@ export const dydx: ScalingProject = {
       'dYdX v3 aims to build a powerful and professional exchange for trading crypto assets where users can truly own their trades and, eventually, the exchange itself.',
     purposes: ['Exchange'],
     stacks: ['StarkEx'],
-    category: 'ZK Rollup',
     links: {
       websites: ['https://dydx.exchange/'],
       bridges: [
@@ -132,6 +131,10 @@ export const dydx: ScalingProject = {
         'dYdX is a ZK rollup that posts state diffs to the L1. For a transaction to be considered final, the state diffs have to be submitted and validity proof should be generated, submitted, and verified. The verification is done as part of the state update.',
     },
   },
+  proofSystem: {
+    type: 'Validity',
+    zkCatalogId: ProjectId('stone'),
+  },
   chainConfig: {
     name: 'dydx',
     chainId: undefined,
@@ -153,6 +156,8 @@ export const dydx: ScalingProject = {
       type: 'day',
       sinceTimestamp: UnixTime(1613033682),
       resyncLastDays: 7,
+      batchSize: 10,
+      dataSource: 'StarkEx Aggregations API',
     },
     trackedTxs: [
       {
@@ -197,7 +202,7 @@ export const dydx: ScalingProject = {
   riskView: {
     stateValidation: {
       ...RISK_VIEW.STATE_ZKP_ST,
-      secondLine: formatExecutionDelay(finalizationPeriod),
+      executionDelay: finalizationPeriod,
     },
     dataAvailability: {
       ...RISK_VIEW.DATA_ON_CHAIN,

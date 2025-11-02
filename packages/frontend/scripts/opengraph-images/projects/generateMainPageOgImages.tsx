@@ -67,6 +67,10 @@ const mainPages: MainPage[] = [
     title: 'Throughput',
   },
   {
+    type: 'data-availability',
+    title: 'Liveness',
+  },
+  {
     title: 'ZK Catalog',
   },
   {
@@ -114,7 +118,7 @@ export async function generateMainPageOgImages(
   }
 }
 
-export async function generateMainPageOgImage(
+async function generateMainPageOgImage(
   mainPage: MainPage,
   size: { width: number; height: number },
   fonts: {

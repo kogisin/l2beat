@@ -30,6 +30,7 @@ export const UltimatePermissionToPrefix: {
   hotValidatorHyperliquid: 'A Hot Validator',
   coldValidatorHyperliquid: 'A Cold Validator',
   acrossPropose: 'A Proposer',
+  validateLighter: 'A Validator',
 }
 
 export const RoleDescriptions: {
@@ -84,12 +85,12 @@ export const RoleDescriptions: {
   validateBridge: {
     name: 'Validator',
     description:
-      'Permissoned to sign messages (state roots) encoding transfer information or governance actions such as updates to a new validator set, which are decoded onchain with signature checks.',
+      'Permissioned to sign messages (state roots) encoding transfer information or governance actions such as updates to a new validator set, which are decoded onchain with signature checks.',
   },
   validateBridge2: {
     name: 'Validator',
     description:
-      'Permissoned to sign crosschain messages encoding transfer information, which are decoded onchain with signature checks. The validators listed here are the default validators for Ethereum and can be overridden by a custom configuration.',
+      'Permissioned to sign crosschain messages encoding transfer information, which are decoded onchain with signature checks. The validators listed here are the default validators for Ethereum and can be overridden by a custom configuration.',
   },
   validateBridge3: {
     name: 'Validator',
@@ -153,5 +154,10 @@ export const RoleDescriptions: {
     name: 'Proposer',
     description:
       'Can propose new root bundles (containing settlement info to refund relayers), which are validated optimistically by the UMA oracle.',
+  },
+  validateLighter: {
+    name: 'Validator',
+    description:
+      'Permissioned to call the functions to commit, prove or revert unproven L2 transaction batches on L1.',
   },
 }

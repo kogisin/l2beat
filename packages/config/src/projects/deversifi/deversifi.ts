@@ -67,7 +67,6 @@ export const deversifi: ScalingProject = {
     description: 'rhino.fi is a Validium based on the StarkEx technology.',
     purposes: ['Exchange'],
     stacks: ['StarkEx'],
-    category: 'Other',
     links: {
       websites: ['https://rhino.fi/'],
       bridges: ['https://app.rhino.fi/'],
@@ -88,6 +87,10 @@ export const deversifi: ScalingProject = {
         'https://discord.com/invite/26sXx2KAhy',
       ],
     },
+  },
+  proofSystem: {
+    type: 'Validity',
+    zkCatalogId: ProjectId('stone'),
   },
   stage: {
     stage: 'NotApplicable',
@@ -110,6 +113,8 @@ export const deversifi: ScalingProject = {
       type: 'day',
       sinceTimestamp: UnixTime(1590491810),
       resyncLastDays: 7,
+      batchSize: 10,
+      dataSource: 'StarkEx Aggregations API',
     },
     // trackedTxs: [
     //   {

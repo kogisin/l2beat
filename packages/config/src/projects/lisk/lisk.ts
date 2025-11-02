@@ -1,4 +1,4 @@
-import { ChainSpecificAddress, UnixTime } from '@l2beat/shared-pure'
+import { ChainSpecificAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
 import { ESCROW, REASON_FOR_BEING_OTHER } from '../../common'
 import { BADGES } from '../../common/badges'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
@@ -8,12 +8,16 @@ import { opStackL2 } from '../../templates/opStack'
 const discovery = new ProjectDiscovery('lisk')
 
 export const lisk: ScalingProject = opStackL2({
+  ecosystemInfo: {
+    id: ProjectId('superchain'),
+    isPartOfSuperchain: true,
+  },
   addedAt: UnixTime(1731369600), // 2024-11-12T00:00:00Z
   discovery,
   genesisTimestamp: UnixTime(1714728793),
   associatedTokens: ['LSK'],
   additionalBadges: [BADGES.RaaS.Gelato, BADGES.Other.MigratedFromL1],
-  reasonsForBeingOther: [REASON_FOR_BEING_OTHER.NO_PROOFS],
+  reasonsForBeingOther: [REASON_FOR_BEING_OTHER.CLOSED_PROOFS],
   display: {
     name: 'Lisk',
     slug: 'lisk',
@@ -21,10 +25,7 @@ export const lisk: ScalingProject = opStackL2({
       'Lisk is an OP stack rollup on Ethereum that migrated from the L1 blockchain of the same name.',
     links: {
       websites: ['https://lisk.com/'],
-      bridges: [
-        'https://bridge.lisk.com/bridge/lisk',
-        'https://portal.lisk.com/',
-      ],
+      bridges: ['https://bridge.lisk.com/', 'https://portal.lisk.com/'],
       documentation: ['https://docs.lisk.com/'],
       explorers: ['https://blockscout.lisk.com/'],
       repositories: ['https://github.com/LiskHQ/lisk-node'],
@@ -63,7 +64,7 @@ export const lisk: ScalingProject = opStackL2({
       {
         type: 'rpc',
         url: 'https://rpc.api.lisk.com',
-        callsPerMinute: 1500,
+        callsPerMinute: 300,
       },
     ],
   },

@@ -9,12 +9,13 @@ Discovery also includes a user interface. See below for instructions on how to r
 # To run discovery
 
 To run discovery, first you need to have `l2b` installed, to do so:
+
 - Navigate to the `l2beat/packages/l2b` directory
 - `pnpm l2bup` # Will build the l2b command
 - In the future, if you want to get the newest changes it is enough to run `pnpm build:dependencies`.
 
 Running discovery requires you to be in the `l2beat/packages/config` directory.
-You also MUST install an environment file called `.env` in the `packages/config` directory for discovery to work. See the *RPC configuration* section below for information about the environment file.
+You also MUST install an environment file called `.env` in the `packages/config` directory for discovery to work. See the _RPC configuration_ section below for information about the environment file.
 
 - `l2b discover [chain] [project]` run discovery for the project (e.g., `pnpm discover ethereum optimism`)
 - `l2b discover --help` print out all the possible switches for discovery
@@ -26,6 +27,7 @@ It's possible to discover all projects that contain a given address by running `
 # To run the discovery UI
 
 To run the discovery UI locally:
+
 - Ensure you have `l2b` installed, check the installation instructions above if you don't have it installed.
 - `l2b ui` # Will run the discovery UI on http://localhost:2021/ui
 
@@ -60,6 +62,7 @@ ARBITRUM_RPC_URL_FOR_DISCOVERY=<RPC_URL>
 ```
 
 Tips:
+
 - DO NOT commit your RPC keys to GitHub :)
 - The tooling team is open to help you with any issues you encounter.
 
@@ -602,9 +605,9 @@ The event handler allows you to query and process blockchain events to track sta
 - `groupBy` - (optional) groups results by the specified event parameter. Returns an object with grouped keys when used.
 - `ignoreRelative` - (optional, default: `false`) if set to `true`, the method's result will not be considered a relative. This is useful when the method returns a value that a contract address, but it's not a contract that should be discovered.
 - `add` - (optional) configuration for events that add entries:
-    - `event` - event name(s) to listen to (string or array).
-    - `where` - (optional) conditional filter using a LISP like format `[OPERATOR, ...args]`.
-        Supports #-prefixed event parameters (e.g., `"#chainId"`), literals like `42`, `"abc"` or `true`, and logical operators (`"not"`, `"="`, `"!="`, `"and"`, etc.).
+  - `event` - event name(s) to listen to (string or array).
+  - `where` - (optional) conditional filter using a LISP like format `[OPERATOR, ...args]`.
+    Supports #-prefixed event parameters (e.g., `"#chainId"`), literals like `42`, `"abc"` or `true`, and logical operators (`"not"`, `"="`, `"!="`, `"and"`, etc.).
 - `remove` - (optional) configuration for events that remove entries (same structure as add).
 - `set` - (optional) configuration for events that set/update values (same structure as add). Returns the latest value per group.
 
@@ -620,10 +623,10 @@ Your configuration directly determines how events are interpreted and what outpu
 
 **If you use just add**
 
-You get: *A list of all values from matching events*
+You get: _A list of all values from matching events_
 
 **What happens**:
-Every matching event appends its value(s) to the result  .
+Every matching event appends its value(s) to the result .
 Output preserves emission order (oldest → newest)
 
 Example: Track all registered users:
@@ -703,6 +706,7 @@ Example: Track latest batch per chain
   "groupBy": "chainId"
 }
 ```
+
 If events are:
 `CurrentBatchMultichain(1, 10) → CurrentBatchMultichain(2, 20) → CurrentBatchMultichain(3, 10)`.
 Output becomes:
@@ -730,10 +734,11 @@ Example: Track only EVM chains
   "select": ["batchIndex"],
   "set": {
     "event": "CurrentBatchMultichain",
-    "where": ["=", "#chainId", 1]  // ChainID 1 = Ethereum
+    "where": ["=", "#chainId", 1] // ChainID 1 = Ethereum
   }
 }
 ```
+
 Events: `CurrentBatchMultichain(batch=5, chain=1) → CurrentBatchMultichain(batch=6, chain=2)`.
 Output: `5` (chain=2 event ignored)
 
@@ -756,6 +761,7 @@ Example: Track version from two upgrade events
   }
 }
 ```
+
 Works if both events have a version uint256 parameter
 
 **KEEP IN MIND**
@@ -911,6 +917,39 @@ Extract the address of the place where the sequencer is going to be posting call
 },
 ```
 
+### Event trace handler
+
+The event trace handler allows you to trace function calls that occur within transactions where specific events were emitted.
+
+The handler works by:
+
+1. Finding all transactions where a specified event was emitted from the contract
+2. Getting the debug trace for each of those transactions
+3. Traversing the trace to find calls to a specified function
+4. Decoding and returning the call data for those function calls
+
+**Parameters:**
+
+- `type` - always the literal: `"eventTrace"`
+- `event` - the name of the event to search for in transactions (must be a part of the ABI)
+- `function` - the name of the function whose calls should be traced and decoded (must be a part of the ABI)
+
+**Examples:**
+
+Track function calls that occur in transactions where a specific event was emitted:
+
+```json
+{
+  "tracedCalls": {
+    "type": "eventTrace",
+    "event": "ProposalCreated",
+    "function": "executeProposal"
+  }
+}
+```
+
+This example would find all transactions where the `ProposalCreated` event was emitted, then extract and decode all calls to the `executeProposal` function within those transactions.
+
 ## Cache
 
 Discovery caches the responses of RPC and Etherscan calls, discovering on the same block is going to use the cache, thus speeding it up.
@@ -1000,6 +1039,7 @@ In the first example, `["get", "systemConfig"]` is a filter that extracts the sy
 - `delete`, deletes removes keys/indices from objects/arrays.
 - `shape`, creates a new object from input values using specified keys.
 - `to_entries`, converts an object to an array of key-value pairs.
+- `length`, returns the number of elements in arrays, objects, or strings.
 
 #### `pipe`
 
@@ -1114,7 +1154,7 @@ Only a single argument is allowed, it has to be a string.
 Takes three filters, the first is the condition, the second is the value if the condition is true, and the third is the value if the condition is false.
 The condition has to be a boolean.
 Filters producing the true and false values are lazily evaluated.
-If the true condition value is only a valid program when the condition is true it wont be evaluated if the condition doesn't pass.
+If the true condition value is only a valid program when the condition is true it won't be evaluated if the condition doesn't pass.
 
 - Input: `{ hasA: true, a: 1 }`
 - Program: `["if", ["get", "hasA"], ["pick", "a"], ["pick", "b"]]`
@@ -1165,6 +1205,25 @@ The order of entries follows the object's key insertion order.
 - Input: `[1, 23]`
 - Program: `["to_entries"]`
 - Output: `[[ "0", 1 ], [ "1", 23 ]]`
+
+### `length`
+
+Returns the number of elements in arrays, objects, or strings.
+For arrays, returns the array length.
+For objects, returns the number of properties.
+For strings, returns the string length.
+
+- Input: `[1, 2, 3]`
+- Program: `["length"]`
+- Output: `3`
+
+- Input: `{ a: 1, b: 2 }`
+- Program: `["length"]`
+- Output: `2`
+
+- Input: `"hello"`
+- Program: `["length"]`
+- Output: `5`
 
 ### Copy feature
 
@@ -1237,7 +1296,6 @@ Let's look at examples using common built-in casters:
 
 The Undecimal caster is used to divide a large integer (like a token amount) by 10 raised to the power of a specified number of decimals.
 To create a configuration that parses a value where decimals is 9:
-
 
 ```json
 {

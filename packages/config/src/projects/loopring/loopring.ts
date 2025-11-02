@@ -18,7 +18,6 @@ import {
   TECHNOLOGY_DATA_AVAILABILITY,
 } from '../../common'
 import { BADGES } from '../../common/badges'
-import { formatExecutionDelay } from '../../common/formatDelays'
 import { PROOFS } from '../../common/proofSystems'
 import { getStage } from '../../common/stages/getStage'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
@@ -58,7 +57,6 @@ export const loopring: ScalingProject = {
       'Loopring is a ZK Rollup exchange protocol for trading and payments.',
     purposes: ['NFT', 'Exchange'],
     stacks: ['Loopring'],
-    category: 'ZK Rollup',
     links: {
       websites: ['https://loopring.org'],
       bridges: ['https://loopring.io/#/trade'],
@@ -83,6 +81,10 @@ export const loopring: ScalingProject = {
       explanation:
         'Loopring is a ZK rollup that posts state diffs to the L1. For a transaction to be considered final, the state diffs have to be submitted and validity proof should be generated, submitted, and verified. ',
     },
+  },
+  proofSystem: {
+    type: 'Validity',
+    zkCatalogId: ProjectId('loopringprover'),
   },
   chainConfig: {
     name: 'loopring',
@@ -186,7 +188,7 @@ export const loopring: ScalingProject = {
   riskView: {
     stateValidation: {
       ...RISK_VIEW.STATE_ZKP_SN,
-      secondLine: formatExecutionDelay(finalizationPeriod),
+      executionDelay: finalizationPeriod,
     },
     dataAvailability: RISK_VIEW.DATA_ON_CHAIN,
     exitWindow: RISK_VIEW.EXIT_WINDOW(upgradeDelay, forcedWithdrawalDelay),
@@ -436,6 +438,13 @@ export const loopring: ScalingProject = {
     },
   },
   milestones: [
+    {
+      title: 'DeFi Closure Announcement',
+      url: 'https://medium.com/loopring-protocol/loopring-defi-closure-announcement-e9270cccba4d',
+      date: '2025-07-31T00:00:00Z',
+      description: 'Loopring sunsets DeFi features to focus on the L2.',
+      type: 'general',
+    },
     {
       title: 'Loopring ZK Rollup is live',
       url: 'https://medium.com/loopring-protocol/loopring-protocol-3-0-zksnarks-for-scalability-845b35a8b75b',

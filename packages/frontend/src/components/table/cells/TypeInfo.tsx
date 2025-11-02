@@ -18,7 +18,7 @@ import {
   TooltipTrigger,
 } from '../../core/tooltip/Tooltip'
 
-export interface TypeInfoProps {
+interface TypeInfoProps {
   children: string | undefined
   stacks?: ProjectScalingStack[]
 }
@@ -51,10 +51,7 @@ interface ProviderProps {
   text: string
 }
 
-export const providerMap: Record<
-  ProjectScalingStack,
-  ProviderProps | undefined
-> = {
+const providerMap: Record<ProjectScalingStack, ProviderProps | undefined> = {
   StarkEx: {
     Icon: StarkWareIcon,
     text: 'This project is built using StarkEx.',
@@ -116,31 +113,5 @@ function TypeTooltip({ Icon, text }: TypeTooltipProps) {
       </TooltipTrigger>
       <TooltipContent>{text}</TooltipContent>
     </Tooltip>
-  )
-}
-
-export function TypeExplanationTooltip({
-  showOnlyRollupsDefinitions,
-}: {
-  showOnlyRollupsDefinitions?: boolean
-}) {
-  return (
-    <div>
-      <div className="mb-1">
-        Type of this project. Determines data availability and proof system
-        used.
-      </div>
-      ZK Rollups = Validity Proofs + onchain data
-      <br />
-      Optimistic Rollups = Fraud Proofs + onchain data
-      {!showOnlyRollupsDefinitions && (
-        <>
-          <br />
-          Validiums = Validity Proofs + offchain data
-          <br />
-          Optimiums = Fraud Proofs + offchain data
-        </>
-      )}
-    </div>
   )
 }

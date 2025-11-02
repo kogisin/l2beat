@@ -1,5 +1,6 @@
 import type { Env } from '@l2beat/backend-tools'
 import type { ProjectService } from '@l2beat/config'
+import uniq from 'lodash/uniq'
 import type { DaBeatConfig } from '../Config'
 
 export async function getDaBeatConfig(
@@ -16,25 +17,19 @@ export async function getDaBeatConfig(
     .filter((x) => x !== undefined)
     .filter((x, i, a) => a.indexOf(x) === i) // unique
 
-  const types = projects
-    .map((x) => x.daLayer.economicSecurity?.name)
-    .filter((x) => x !== undefined)
-    .filter((x, i, a) => a.indexOf(x) === i) // unique
+  const projectsForDaBeatStats = uniq(
+    projects
+      .filter(
+        (x) =>
+          x.daLayer.economicSecurity ||
+          x.daLayer.validators?.type === 'dynamic',
+      )
+      .map((x) => x.id),
+  )
 
   return {
+    projectsForDaBeatStats,
     coingeckoIds,
-    types,
-    quicknodeApiUrl: env.string([
-      'QUICKNODE_API_URL_FOR_DA_BEAT',
-      'QUICKNODE_API_URL',
-    ]),
-    quicknodeCallsPerMinute: env.integer(
-      [
-        'QUICKNODE_API_CALLS_PER_MINUTE_FOR_DA_BEAT',
-        'QUICKNODE_API_CALLS_PER_MINUTE',
-      ],
-      600,
-    ),
     celestiaApiUrl: env.string([
       'CELESTIA_API_URL_FOR_DA_BEAT',
       'CELESTIA_API_URL',
@@ -52,7 +47,7 @@ export async function getDaBeatConfig(
     ),
     availWsUrl: env.string(
       ['AVAIL_WS_URL_FOR_DA_BEAT', 'AVAIL_WS_URL'],
-      'wss://avail-mainnet.public.blastapi.io/',
+      'wss://avail-rpc.publicnode.com',
     ),
   }
 }

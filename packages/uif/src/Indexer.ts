@@ -24,6 +24,11 @@ export interface IndexerOptions {
 export abstract class Indexer {
   private readonly children: Indexer[] = []
 
+  static metricsEnabled = true
+  static setMetricsEnabled(value: boolean) {
+    Indexer.metricsEnabled = value
+  }
+
   /**
    * This can be overridden to provide a custom retry strategy. It will be
    * used for all indexers that don't specify their own strategy.
@@ -41,7 +46,7 @@ export abstract class Indexer {
       initialTimeoutMs: 1000,
       maxAttempts: Number.POSITIVE_INFINITY,
       // WARNING: Change only if you know what you are doing
-      // Alerting system in Kibana requires Indexer to log sth once an hour
+      // Alerting system in Kibana requires Indexer to log something once an hour
       maxTimeoutMs: 1 * 60 * 60_000,
     })
 
@@ -426,11 +431,13 @@ export abstract class Indexer {
   }
 
   private logMetrics(current: number, target: number): void {
-    this.logger.metric('Metrics', {
-      delay: target - current,
-      current,
-      target,
-    })
+    if (Indexer.metricsEnabled) {
+      this.logger.info('Metrics', {
+        delay: target - current,
+        current,
+        target,
+      })
+    }
   }
 
   // #endregion

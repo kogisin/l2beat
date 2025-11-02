@@ -1,5 +1,5 @@
 import type { Logger } from '@l2beat/backend-tools'
-import { ChainSpecificAddress } from '@l2beat/shared-pure'
+import { ChainSpecificAddress, type UnixTime } from '@l2beat/shared-pure'
 import chalk from 'chalk'
 import type {
   AddressAnalyzer,
@@ -11,26 +11,26 @@ import {
   buildSharedModuleIndex,
   makeEntryStructureConfig,
 } from '../config/structureUtils'
-import type { IProvider } from '../provider/IProvider'
+import type { AllProviders } from '../provider/AllProviders'
+import {
+  type DiscoveryCounter,
+  SimpleDiscoveryCounter,
+} from './DiscoveryCounter'
 import { gatherReachableAddresses } from './gatherReachableAddresses'
 import { removeAlreadyAnalyzed } from './removeAlreadyAnalyzed'
 import { shouldSkip } from './shouldSkip'
 
 export class DiscoveryEngine {
-  private objectCount = 0
-
   constructor(
     private readonly addressAnalyzer: AddressAnalyzer,
     private readonly logger: Logger,
   ) {}
 
-  reset() {
-    this.objectCount = 0
-  }
-
   async discover(
-    provider: IProvider,
+    allProviders: AllProviders,
     config: StructureConfig,
+    timestamp: UnixTime,
+    counter: DiscoveryCounter = new SimpleDiscoveryCounter(),
   ): Promise<Analysis[]> {
     const sharedModuleIndex = buildSharedModuleIndex(config)
     const resolved: Record<string, Analysis> = {}
@@ -85,18 +85,43 @@ export class DiscoveryEngine {
         }))
       toAnalyze = {}
 
-      const total = this.objectCount + leftToAnalyze.length
+      const total = counter.getCount() + leftToAnalyze.length
+
       await Promise.all(
         leftToAnalyze.map(async ({ address, templates }) => {
+          const sharedItem = sharedModuleIndex[address]
+          if (sharedItem) {
+            resolved[address.toString()] = {
+              name: sharedItem.name,
+              type: 'Reference',
+              address: sharedItem.address,
+              targetType: sharedItem.type,
+              targetProject: sharedItem.project,
+            }
+            return
+          }
+          if (config.entrypoints?.[address] !== undefined) {
+            const entrypoint = config.entrypoints[address]
+            if (entrypoint.project !== config.name) {
+              resolved[address] = {
+                name: entrypoint.name,
+                type: 'Reference',
+                address: address,
+                targetType: entrypoint.type,
+                targetProject: entrypoint.project,
+              }
+              return
+            }
+          }
           const skipReason = shouldSkip(
             address,
             config,
             sharedModuleIndex,
             depth,
-            this.objectCount,
+            counter.getCount(),
           )
           if (skipReason !== undefined) {
-            const info = `${++this.objectCount}/${total}`
+            const info = `${counter.increment()}/${total}`
             const entries = [
               chalk.gray(info),
               chalk.gray(address),
@@ -107,26 +132,34 @@ export class DiscoveryEngine {
             return
           }
 
-          const analysis = await this.addressAnalyzer.analyze(
-            provider,
-            address,
-            makeEntryStructureConfig(config, address),
-            templates,
-          )
-          resolved[address.toString()] = analysis
-          if (analysis.type === 'Contract') {
-            for (const [address, suggestedTemplates] of Object.entries(
-              analysis.relatives,
-            )) {
-              toAnalyze[address] = new Set([
-                ...(toAnalyze[address] ?? []),
-                ...suggestedTemplates,
-              ])
+          const chain = ChainSpecificAddress.longChain(address)
+          const provider = await allProviders.get(chain, timestamp)
+          try {
+            const analysis = await this.addressAnalyzer.analyze(
+              provider,
+              address,
+              makeEntryStructureConfig(config, address),
+              config.entrypoints,
+              templates,
+            )
+            resolved[address.toString()] = analysis
+            if (analysis.type === 'Contract') {
+              for (const [address, suggestedTemplates] of Object.entries(
+                analysis.relatives,
+              )) {
+                toAnalyze[address] = new Set([
+                  ...(toAnalyze[address] ?? []),
+                  ...suggestedTemplates,
+                ])
+              }
             }
-          }
 
-          this.objectCount += 1
-          this.logObject(analysis, total)
+            counter.increment()
+            this.logObject(analysis, total, counter)
+          } catch (error) {
+            this.logAnalysisError(address, error)
+            throw error
+          }
         }),
       )
 
@@ -135,13 +168,16 @@ export class DiscoveryEngine {
 
     const result = Object.values(resolved)
     this.checkErrors(result)
-    this.reset()
 
     return result
   }
 
-  private logObject(analysis: Analysis, total: number) {
-    const info = `${this.objectCount}/${total}`
+  private logObject(
+    analysis: Analysis,
+    total: number,
+    counter: DiscoveryCounter,
+  ) {
+    const info = `${counter.getCount()}/${total}`
     if (analysis.type === 'EOA') {
       const entries = [chalk.gray(info), analysis.address, chalk.blue('EOA')]
       this.logger.info(entries.join(' '))
@@ -202,5 +238,15 @@ export class DiscoveryEngine {
         this.logger.error(error)
       }
     }
+  }
+
+  private logAnalysisError(
+    address: ChainSpecificAddress,
+    error: unknown,
+  ): void {
+    this.logger.error(`Error during entry analysis - ${address}`, {
+      address,
+      error,
+    })
   }
 }

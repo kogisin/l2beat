@@ -5,7 +5,13 @@ import type * as React from 'react'
 import { SearchIcon } from '~/icons/Search'
 import { cn } from '~/utils/cn'
 import { linkVariants } from '../link/CustomLink'
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from './Dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from './Dialog'
 
 const Command = ({
   ref,
@@ -38,10 +44,15 @@ const CommandDialog = ({
 }) => {
   return (
     <Dialog {...props}>
-      <DialogTitle className="sr-only">{title}</DialogTitle>
-      <DialogDescription className="sr-only">{description}</DialogDescription>
+      <DialogHeader className="sr-only">
+        <DialogTitle>{title}</DialogTitle>
+        <DialogDescription>{description}</DialogDescription>
+      </DialogHeader>
       <DialogContent
-        className="overflow-hidden p-0 max-md:border-none"
+        className={cn(
+          'overflow-hidden p-0 max-md:border-none md:top-1/4 md:max-w-lg',
+          !fullScreenMobile && 'max-md:top-1/3',
+        )}
         onEscapeKeyDown={onEscapeKeyDown}
         fullScreenMobile={fullScreenMobile}
       >

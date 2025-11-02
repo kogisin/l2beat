@@ -7,7 +7,7 @@
 // WARNING: currently shortName is not verified against the list of chains
 
 import { validateAddress } from '@mradomski/tinyerc55'
-import { EthereumAddress } from './EthereumAddress'
+import { EthereumAddress } from './EthereumAddress.js'
 
 // NOTE(radomski): This is a little stupid. Ideally we would have a centralized
 // list of all chains with their short names. But currently I don't know how to achieve that.
@@ -40,7 +40,10 @@ const SHORT_TO_LONG_CHAIN_NAMES = {
   everclear: 'everclear',
   zircuit: 'zircuit',
   katana: 'katana',
+  taiko: 'taiko',
+  facet: 'facet',
   gateway: 'gateway',
+  ethereal: 'ethereal',
 } as const
 
 const LONG_TO_SHORT_CHAIN_NAMES = Object.fromEntries(
@@ -96,7 +99,8 @@ ChainSpecificAddress.from = function from(
   shortChainName: string,
   pureAddress: string | EthereumAddress,
 ) {
-  return ChainSpecificAddress(`${shortChainName}:${pureAddress}`)
+  const pureAddressPadded = EthereumAddress.from(pureAddress)
+  return ChainSpecificAddress(`${shortChainName}:${pureAddressPadded}`)
 }
 
 ChainSpecificAddress.fromLong = function from(

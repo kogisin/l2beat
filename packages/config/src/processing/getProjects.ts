@@ -7,12 +7,25 @@ import { ProjectId } from '@l2beat/shared-pure'
 import { existsSync, readFileSync } from 'fs'
 import { join } from 'path'
 import { badgesCompareFn } from '../common/badges'
-import type { Bridge, Layer2TxConfig, ScalingProject } from '../internalTypes'
+import {
+  formatChallengeAndExecutionDelay,
+  formatChallengePeriod,
+  formatExecutionDelay,
+} from '../common/formatDelays'
+import type {
+  Bridge,
+  Layer2TxConfig,
+  ProjectScalingRiskView,
+  ScalingProject,
+} from '../internalTypes'
+import { asArray, emptyArrayToUndefined } from '../templates/utils'
 import {
   type BaseProject,
   type ProjectCostsInfo,
   type ProjectDiscoveryInfo,
   type ProjectLivenessInfo,
+  type ProjectRiskView,
+  type ProjectScalingCategory,
   ProjectTvsConfigSchema,
   type TvsToken,
 } from '../types'
@@ -45,6 +58,15 @@ export function getProjects(): BaseProject[] {
 }
 
 function layer2Or3ToProject(p: ScalingProject): BaseProject {
+  const tvsConfig = getTvsConfig(p)
+
+  const associatedTokens = p.config.associatedTokens?.map((associated) => ({
+    symbol: associated,
+    icon: tvsConfig?.find((t) => t.symbol === associated)?.iconUrl,
+  }))
+
+  const hostChain = layer2s.find((x) => x.id === p.hostChain)
+
   return {
     id: p.id,
     name: p.display.name,
@@ -73,7 +95,7 @@ function layer2Or3ToProject(p: ScalingProject): BaseProject {
     discoveryInfo: adjustDiscoveryInfo(p),
     scalingInfo: {
       layer: p.type,
-      type: p.display.category,
+      type: getType(p),
       capability: p.capability,
       hostChain: getHostChain(p.hostChain ?? ProjectId.ETHEREUM),
       reasonsForBeingOther: p.reasonsForBeingOther,
@@ -81,26 +103,35 @@ function layer2Or3ToProject(p: ScalingProject): BaseProject {
       raas: getRaas(p.badges),
       infrastructure: getInfrastructure(p.badges),
       vm: getVM(p.badges),
-      daLayer: p.dataAvailability?.layer.value ?? undefined,
+      daLayer: emptyArrayToUndefined(
+        asArray(p.dataAvailability).map((d) => d.layer.value),
+      ),
       stage: getStage(p.stage),
       purposes: p.display.purposes,
       scopeOfAssessment: p.scopeOfAssessment,
+      proofSystem: p.proofSystem,
     },
     scalingStage: p.stage,
     scalingRisks: {
-      self: p.riskView,
+      self: getProcessedRiskView(p.riskView),
       host:
-        p.type === 'layer3'
-          ? layer2s.find((x) => x.id === p.hostChain)?.riskView
+        p.type === 'layer3' && hostChain
+          ? getProcessedRiskView(hostChain.riskView)
           : undefined,
-      stacked: p.type === 'layer3' ? p.stackedRiskView : undefined,
+      stacked:
+        p.type === 'layer3' && p.stackedRiskView
+          ? getProcessedRiskView(p.stackedRiskView)
+          : undefined,
     },
-    scalingDa: p.dataAvailability,
+    scalingDa: emptyArrayToUndefined(asArray(p.dataAvailability)),
     scalingTechnology: {
       warning: p.display.warning,
       detailedDescription: p.display.detailedDescription,
       architectureImage: p.display.architectureImage,
       ...p.technology,
+      dataAvailability: emptyArrayToUndefined(
+        asArray(p.technology?.dataAvailability),
+      ),
       sequencingImage: p.display.sequencingImage,
       stateDerivation: p.stateDerivation,
       stateValidation: p.stateValidation,
@@ -111,10 +142,10 @@ function layer2Or3ToProject(p: ScalingProject): BaseProject {
     },
     customDa: p.customDa,
     tvsInfo: {
-      associatedTokens: p.config.associatedTokens ?? [],
+      associatedTokens: associatedTokens ?? [],
       warnings: [p.display.tvsWarning].filter((x) => x !== undefined),
     },
-    tvsConfig: getTvsConfig(p),
+    tvsConfig,
     activityConfig: p.config.activityConfig,
     livenessInfo: getLivenessInfo(p),
     livenessConfig: p.type === 'layer2' ? p.config.liveness : undefined,
@@ -133,8 +164,70 @@ function layer2Or3ToProject(p: ScalingProject): BaseProject {
     isZkCatalog: p.stateValidation?.proofVerification ? true : undefined,
     archivedAt: p.archivedAt,
     isUpcoming: p.isUpcoming ? true : undefined,
-    hasActivity: p.config.activityConfig ? true : undefined,
+    hasTestnet: p.hasTestnet,
     escrows: p.config.escrows,
+  }
+}
+
+function getType(p: ScalingProject): ProjectScalingCategory | undefined {
+  if (p.reasonsForBeingOther && p.reasonsForBeingOther.length > 0)
+    return 'Other'
+
+  const typesPerDA = new Set(
+    asArray(p.dataAvailability).map((da) => {
+      // If there's a bridge in DA
+      if (da.bridge.value === 'Plasma') return 'Plasma'
+
+      if (p.isUpcoming || !p.proofSystem || !p.dataAvailability)
+        return undefined
+
+      const isEthereumBridge =
+        da.bridge.value === 'Enshrined' || da.bridge.value === 'Self-attested' // Intmax case
+      const proofType = p.proofSystem?.type
+
+      // If there's
+      if (proofType === 'Optimistic') {
+        return isEthereumBridge ? 'Optimistic Rollup' : 'Optimium'
+      }
+
+      if (proofType === 'Validity') {
+        return isEthereumBridge ? 'ZK Rollup' : 'Validium'
+      }
+    }),
+  )
+
+  if (typesPerDA.size > 1) {
+    throw new Error(
+      `Multiple DAs assigned to project ${p.id} lead to different scaling types. Update the logic to support this case.`,
+    )
+  }
+  return Array.from(typesPerDA)[0]
+}
+
+function getProcessedRiskView(
+  riskView: ProjectScalingRiskView,
+): ProjectRiskView {
+  const {
+    stateValidation: { challengeDelay, executionDelay },
+  } = riskView
+
+  let secondLine: string | undefined
+  if (challengeDelay !== undefined && executionDelay !== undefined) {
+    secondLine = formatChallengeAndExecutionDelay(
+      challengeDelay + executionDelay,
+    )
+  } else if (challengeDelay !== undefined) {
+    secondLine = formatChallengePeriod(challengeDelay)
+  } else if (executionDelay !== undefined) {
+    secondLine = formatExecutionDelay(executionDelay)
+  }
+
+  return {
+    ...riskView,
+    stateValidation: {
+      ...riskView.stateValidation,
+      secondLine,
+    },
   }
 }
 
@@ -145,11 +238,7 @@ function getLivenessInfo(p: ScalingProject): ProjectLivenessInfo | undefined {
 }
 
 function getCostsInfo(p: ScalingProject): ProjectCostsInfo | undefined {
-  if (
-    p.type === 'layer2' &&
-    p.dataAvailability?.layer.projectId === 'ethereum' &&
-    p.config.trackedTxs !== undefined
-  ) {
+  if (p.type === 'layer2' && p.config.trackedTxs !== undefined) {
     return {
       warning: p.display.costsWarning,
     }
@@ -157,6 +246,12 @@ function getCostsInfo(p: ScalingProject): ProjectCostsInfo | undefined {
 }
 
 function bridgeToProject(p: Bridge): BaseProject {
+  const tvsConfig = getTvsConfig(p)
+  const associatedTokens = p.config.associatedTokens?.map((associated) => ({
+    symbol: associated,
+    icon: tvsConfig?.find((t) => t.symbol === associated)?.iconUrl,
+  }))
+
   return {
     id: p.id,
     name: p.display.name,
@@ -192,10 +287,10 @@ function bridgeToProject(p: Bridge): BaseProject {
     discoveryInfo: adjustDiscoveryInfo(p),
     bridgeRisks: p.riskView,
     tvsInfo: {
-      associatedTokens: p.config.associatedTokens ?? [],
+      associatedTokens: associatedTokens ?? [],
       warnings: [],
     },
-    tvsConfig: getTvsConfig(p),
+    tvsConfig,
     chainConfig: p.chainConfig,
     milestones: p.milestones,
     // tags
@@ -266,7 +361,7 @@ function toBackendTrackedTxsConfig(
               address: config.query.address,
               signature: config.query.functionSignature,
               selector: config.query.selector,
-              chainId: config.query.chainId,
+              firstParameter: config.query.firstParameter,
             },
           }
         }
@@ -287,11 +382,11 @@ export function adjustDiscoveryInfo(
     contractsDiscoDriven,
     permissionsDiscoDriven,
     isDiscoDriven: contractsDiscoDriven && permissionsDiscoDriven,
-    timestampPerChain: project.discoveryInfo.timestampPerChain,
+    baseTimestamp: project.discoveryInfo.baseTimestamp,
     // This is implicit assumption that if there are timestamps per chain, then
     // the project has disco ui. It's cause if there are some keys it means
     // that the project has discovered.json file.
-    hasDiscoUi: Object.keys(project.discoveryInfo.timestampPerChain).length > 0,
+    hasDiscoUi: project.discoveryInfo.baseTimestamp !== undefined,
   }
 }
 

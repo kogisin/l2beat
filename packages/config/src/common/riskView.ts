@@ -1,16 +1,12 @@
 import { assert, formatSeconds, type ProjectId } from '@l2beat/shared-pure'
 import { utils } from 'ethers'
-import type {
-  ProjectScalingRiskView,
-  Sentiment,
-  TableReadyValue,
-  WarningWithSentiment,
-} from '../types'
+import type { ProjectScalingRiskView } from '../internalTypes'
+import type { Sentiment, TableReadyValue, WarningWithSentiment } from '../types'
 import { getDacSentiment } from './dataAvailability'
 
 // State validation
 
-export const STATE_NONE: TableReadyValue = {
+export const STATE_NONE: ProjectScalingRiskView['stateValidation'] = {
   value: 'None',
   description:
     'Currently the system permits invalid state roots. More details in project overview.',
@@ -18,7 +14,7 @@ export const STATE_NONE: TableReadyValue = {
   orderHint: Number.NEGATIVE_INFINITY,
 }
 
-export const STATE_FP: TableReadyValue = {
+export const STATE_FP: ProjectScalingRiskView['stateValidation'] = {
   value: 'Fraud proofs',
   description:
     'Fraud proofs allow actors watching the chain to prove that the state is incorrect.',
@@ -26,7 +22,7 @@ export const STATE_FP: TableReadyValue = {
   orderHint: Number.POSITIVE_INFINITY,
 }
 
-export const STATE_FP_1R: TableReadyValue = {
+export const STATE_FP_1R: ProjectScalingRiskView['stateValidation'] = {
   value: 'Fraud proofs (1R)',
   description:
     'Fraud proofs allow actors watching the chain to prove that the state is incorrect. Single round proofs (1R) only require a single transaction to resolve.',
@@ -34,15 +30,22 @@ export const STATE_FP_1R: TableReadyValue = {
   orderHint: Number.POSITIVE_INFINITY,
 }
 
-export const STATE_FP_INT: TableReadyValue = {
-  value: 'Fraud proofs (INT)',
-  description:
-    'Fraud proofs allow actors watching the chain to prove that the state is incorrect. Interactive proofs (INT) require multiple transactions over time to resolve.',
-  sentiment: 'good',
-  orderHint: Number.POSITIVE_INFINITY,
+export function STATE_FP_INT(
+  challengePeriodSeconds?: number,
+  executionDelaySeconds?: number,
+): ProjectScalingRiskView['stateValidation'] {
+  return {
+    value: 'Fraud proofs (INT)',
+    description:
+      'Fraud proofs allow actors watching the chain to prove that the state is incorrect. Interactive proofs (INT) require multiple transactions over time to resolve.',
+    executionDelay: executionDelaySeconds,
+    challengeDelay: challengePeriodSeconds,
+    sentiment: 'good',
+    orderHint: Number.POSITIVE_INFINITY,
+  }
 }
 
-export const STATE_FP_INT_ZK: TableReadyValue = {
+export const STATE_FP_INT_ZK: ProjectScalingRiskView['stateValidation'] = {
   value: 'Fraud proofs (INT, ZK)',
   description:
     'Fraud proofs allow actors watching the chain to prove that the state is incorrect. Interactive proofs (INT) require multiple transactions over time to resolve. ZK proofs are used to adjudicate the correctness of the last step.',
@@ -50,7 +53,7 @@ export const STATE_FP_INT_ZK: TableReadyValue = {
   orderHint: Number.POSITIVE_INFINITY,
 }
 
-export const STATE_FP_1R_ZK: TableReadyValue = {
+export const STATE_FP_1R_ZK: ProjectScalingRiskView['stateValidation'] = {
   value: 'Fraud proofs (1R, ZK)',
   description:
     'Fraud proofs allow actors watching the chain to prove that the state is incorrect. Single round proofs (1R) only require a single transaction to resolve. ZK proofs are used to prove the correctness of the state transition.',
@@ -58,7 +61,7 @@ export const STATE_FP_1R_ZK: TableReadyValue = {
   orderHint: Number.POSITIVE_INFINITY,
 }
 
-export const STATE_FP_HYBRID_ZK: TableReadyValue = {
+export const STATE_FP_HYBRID_ZK: ProjectScalingRiskView['stateValidation'] = {
   value: 'Fraud proofs (1R, ZK)',
   description:
     'Fraud proofs allow actors watching the chain to prove that the state is incorrect. Single round proofs (1R) prove the validity of a state proposal, only requiring a single transaction to resolve. A fault proof eliminates a state proposal by proving that any intermediate state transition in the proposal results in a different state root. For either, a ZK proof is used.',
@@ -66,40 +69,50 @@ export const STATE_FP_HYBRID_ZK: TableReadyValue = {
   orderHint: Number.POSITIVE_INFINITY,
 }
 
-export const STATE_ZKP_SN: TableReadyValue = {
-  value: 'ZK proofs (SN)',
+export const STATE_ZKP_OPTIMISTIC: ProjectScalingRiskView['stateValidation'] = {
+  value: 'Fraud proofs (1R, ZK)',
   description:
-    'SNARKs are zero knowledge proofs that ensure state correctness, but require trusted setup.',
+    'Actors watching the chain can challenge state proposals, and challenged proposals must provide ZK proofs. SNARKs are zero knowledge proofs that ensure state correctness, but require trusted setup.',
   sentiment: 'good',
   orderHint: Number.POSITIVE_INFINITY,
 }
 
-export const STATE_ZKP_ST: TableReadyValue = {
-  value: 'ZK proofs (ST)',
+export const STATE_ZKP_SN: ProjectScalingRiskView['stateValidation'] = {
+  value: 'Validity proofs (SN)',
+  description:
+    'SNARKs are succinct zero knowledge proofs that ensure state correctness, but require trusted setup.',
+  sentiment: 'good',
+  orderHint: Number.POSITIVE_INFINITY,
+}
+
+export const STATE_ZKP_ST: ProjectScalingRiskView['stateValidation'] = {
+  value: 'Validity proofs (ST)',
   description:
     'STARKs are zero knowledge proofs that ensure state correctness.',
   sentiment: 'good',
   orderHint: Number.POSITIVE_INFINITY,
 }
 
-export const STATE_ZKP_ST_SN_WRAP: TableReadyValue = {
-  value: 'ZK proofs (ST, SN)',
+export const STATE_ZKP_ST_SN_WRAP: ProjectScalingRiskView['stateValidation'] = {
+  value: 'Validity proofs (ST, SN)',
   description:
     'STARKs and SNARKs are zero knowledge proofs that ensure state correctness. STARKs proofs are wrapped in SNARKs proofs for efficiency. SNARKs require a trusted setup.',
   sentiment: 'good',
   orderHint: Number.POSITIVE_INFINITY,
 }
 
-export function STATE_ZKP_L3(L2: string): TableReadyValue {
+export function STATE_ZKP_L3(
+  L2: string,
+): ProjectScalingRiskView['stateValidation'] {
   return {
-    value: 'ZK proofs',
+    value: 'Validity proofs',
     description: `Zero knowledge cryptography is used to ensure state correctness. Proofs are first verified on ${L2} and finally on Ethereum.`,
     sentiment: 'good',
     orderHint: Number.POSITIVE_INFINITY,
   }
 }
 
-export const STATE_EXITS_ONLY: TableReadyValue = {
+export const STATE_EXITS_ONLY: ProjectScalingRiskView['stateValidation'] = {
   value: 'Exits only',
   description:
     'Exits from the network are subject to a period when they can be challenged. The internal network state is left unchecked.',
@@ -111,7 +124,8 @@ export function STATE_ARBITRUM_PERMISSIONED_FRAUD_PROOFS(
   nOfChallengers: number,
   hasAtLeastFiveExternalChallengers?: boolean,
   challengeWindowSeconds?: number,
-): TableReadyValue {
+  executionDelaySeconds?: number,
+): ProjectScalingRiskView['stateValidation'] {
   const challengePeriod = challengeWindowSeconds
     ? ` There is a ${formatSeconds(challengeWindowSeconds)} challenge period.`
     : ''
@@ -146,6 +160,8 @@ export function STATE_ARBITRUM_PERMISSIONED_FRAUD_PROOFS(
   return {
     value: 'Fraud proofs (INT)',
     description: descriptionBase + challengePeriod,
+    executionDelay: executionDelaySeconds,
+    challengeDelay: challengeWindowSeconds,
     sentiment: sentiment,
     orderHint: nOfChallengers,
   }
@@ -258,10 +274,23 @@ export function DATA_AVAIL(isUsingVector: boolean): TableReadyValue {
   }
 }
 
-export function DATA_EIGENDA(isUsingServiceManager: boolean): TableReadyValue {
-  const additional = isUsingServiceManager
-    ? ' Sequencer transaction data roots are checked against the ServiceManager DA bridge data roots, signed off by EigenDA operators.'
-    : ' Sequencer transaction data roots are not checked against the ServiceManager DA bridge data roots onchain.'
+export function DATA_EIGENDA(
+  isUsingDACertVerifier: boolean,
+  eigenDACertVersion: string,
+): TableReadyValue {
+  let additional: string
+
+  if (eigenDACertVersion === 'v1') {
+    additional = isUsingDACertVerifier
+      ? ' Sequencer transaction data roots are checked against the ServiceManager DA bridge data roots, signed off by EigenDA operators.'
+      : ' Sequencer transaction data roots are not checked against the ServiceManager DA bridge data roots onchain.'
+  } else {
+    // v2 and v3 both use EigenDA v2
+    additional = isUsingDACertVerifier
+      ? ' The sequencer is publishing data to EigenDA v2. Sequencer transaction data roots are checked against the DACert Verifier data roots, signed off by EigenDA operators.'
+      : ' The sequencer is publishing data to EigenDA v2. Sequencer transaction data roots are not checked against the DACert Verifier onchain.'
+  }
+
   return {
     value: 'External',
     description:
@@ -276,6 +305,20 @@ export const DATA_POS: TableReadyValue = {
   description:
     'Data is guaranteed to be available by an external proof of stake network of validators. On Ethereum, DA is attested via signed block headers.',
   sentiment: 'warning',
+}
+
+export function DATA_ESPRESSO(isUsingLightClient: boolean): TableReadyValue {
+  const additional = isUsingLightClient
+    ? ' Sequencer tx roots are checked against the HotShot light client bridge data roots, signed off by Espresso validators.'
+    : ' Sequencer tx roots are not checked against the HotShot light client bridge data roots onchain, but L2 nodes can verify data availability by running an Espresso node.'
+  return {
+    value: 'External',
+    description:
+      'Proof construction and state derivation fully rely on data that is posted on Espresso.' +
+      additional,
+    sentiment: isUsingLightClient ? 'warning' : 'bad',
+    orderHint: isUsingLightClient ? 0 : Number.NEGATIVE_INFINITY,
+  }
 }
 
 // bridges
@@ -391,7 +434,7 @@ export function SEQUENCER_FORCE_VIA_L1(delay?: number): TableReadyValue {
     delay !== undefined ? ' for more than ' + formatSeconds(delay) : ''
   return {
     value: 'Force via L1',
-    description: `Users can force the sequencer to include a withdrawal transaction by submitting a request through L1. If the sequencer censors or is down for ${delayString}, users can use the exit hatch to withdraw their funds.`,
+    description: `Users can force the sequencer to include a transaction by submitting a request through L1. If the sequencer censors or is down for ${delayString}, users can use the exit hatch to withdraw their funds.`,
     sentiment: 'good',
     orderHint: delay,
   }
@@ -479,12 +522,20 @@ export const PROPOSER_WHITELIST_GOVERNANCE: TableReadyValue = {
   orderHint: Number.NEGATIVE_INFINITY,
 }
 
-export const PROPOSER_WHITELIST_SECURITY_COUNCIL: TableReadyValue = {
-  value: 'Security Council minority',
-  description:
-    'Only the whitelisted proposer can update state roots on L1, so in the event of failure the withdrawals are frozen. The Security Council minority can be alerted to enforce censorship resistance because they are a permissioned Operator.',
-  sentiment: 'warning',
-  orderHint: Number.NEGATIVE_INFINITY,
+export function PROPOSER_WHITELIST_SECURITY_COUNCIL(
+  config?: 'METIS',
+): TableReadyValue {
+  const description =
+    config === 'METIS'
+      ? 'Only the whitelisted proposer can update state roots on L1, so in the event of failure the withdrawals are frozen. The Security Council minority can be alerted to enforce censorship resistance because they own the proposer registry, controlling the active whitelisted proposer.'
+      : 'Only the whitelisted proposer can update state roots on L1, so in the event of failure the withdrawals are frozen. The Security Council minority can be alerted to enforce censorship resistance because they are a permissioned Operator.'
+
+  return {
+    value: 'Security Council minority',
+    description,
+    sentiment: 'warning',
+    orderHint: Number.NEGATIVE_INFINITY,
+  }
 }
 
 export const PROPOSER_USE_ESCAPE_HATCH_ZK: TableReadyValue = {
@@ -538,6 +589,18 @@ export function PROPOSER_SELF_PROPOSE_WHITELIST_DROPPED_ZK(
   return {
     value: 'Self propose',
     description: `The primary whitelisted proposer has an optimistic advantage, letting them win by default if no conflicting proposals are made. This privilege is dropped after ${delayString} of inactivity, and anyone can leverage the source available zk prover to prove a fault or a conflicting valid proposal to win against the privileged proposer and/or supply a bond and make a counter proposal at any time.`,
+    sentiment: 'good',
+    orderHint: delay,
+  }
+}
+
+export function PROPOSER_SELF_PROPOSE_WHITELIST_MAX_DELAY(
+  delay: number,
+): TableReadyValue {
+  const delayString = formatSeconds(delay)
+  return {
+    value: 'Self propose',
+    description: `Anyone can propose blocks if accompanied by a validity proof. Only the whitelisted proposers can propose state roots for recent blocks optimistically. Anyone can propose optimistically for L2 blocks that are older than ${delayString}.`,
     sentiment: 'good',
     orderHint: delay,
   }
@@ -721,6 +784,7 @@ export const RISK_VIEW = {
   STATE_FP_1R_ZK,
   STATE_FP_HYBRID_ZK,
   STATE_ZKP_SN,
+  STATE_ZKP_OPTIMISTIC,
   STATE_ZKP_ST,
   STATE_ZKP_ST_SN_WRAP,
   STATE_ZKP_L3,
@@ -741,6 +805,7 @@ export const RISK_VIEW = {
   DATA_AVAIL,
   DATA_EIGENDA,
   DATA_POS,
+  DATA_ESPRESSO,
 
   // validatedBy
   VALIDATED_BY_ETHEREUM,
@@ -772,6 +837,7 @@ export const RISK_VIEW = {
   PROPOSER_USE_ESCAPE_HATCH_MP_AVGPRICE,
   PROPOSER_SELF_PROPOSE_WHITELIST_DROPPED,
   PROPOSER_SELF_PROPOSE_WHITELIST_DROPPED_ZK,
+  PROPOSER_SELF_PROPOSE_WHITELIST_MAX_DELAY,
   PROPOSER_SELF_PROPOSE_ZK,
   PROPOSER_SELF_PROPOSE_ROOTS,
   PROPOSER_POS,
@@ -788,33 +854,35 @@ export const RISK_VIEW = {
   UNDER_REVIEW_RISK,
 }
 
-export function pickWorseRisk(
-  a: TableReadyValue,
-  b: TableReadyValue,
-): TableReadyValue {
-  const sentimentValue: Record<Sentiment, number> = {
-    good: 0,
-    neutral: 1,
-    warning: 2,
-    bad: 3,
-    UnderReview: 4,
-  }
+const SENTIMENT_VALUE: Record<Sentiment, number> = {
+  good: 0,
+  neutral: 1,
+  warning: 2,
+  bad: 3,
+  UnderReview: 4,
+}
 
-  const aVal = sentimentValue[a.sentiment ?? 'neutral']
-  const bVal = sentimentValue[b.sentiment ?? 'neutral']
+// This is a comparison function to be used in "sort"
+// -1 means `a` is *more* risky
+// 1 means `b` is *more* risky`
+export function compareRisk(a: TableReadyValue, b: TableReadyValue): -1 | 1 {
+  const aVal = SENTIMENT_VALUE[a.sentiment ?? 'neutral']
+  const bVal = SENTIMENT_VALUE[b.sentiment ?? 'neutral']
+  const RESULT_A = -1
+  const RESULT_B = 1
+
   if (aVal === bVal) {
     assert(
       a.orderHint !== undefined && b.orderHint !== undefined,
       'Unable to pick worse risk without a defining metric',
     )
-    return a.orderHint < b.orderHint ? a : b
+    return a.orderHint < b.orderHint ? RESULT_A : RESULT_B
   }
-  if (aVal > bVal) {
-    return a
-  }
-
-  return b
+  return aVal > bVal ? RESULT_A : RESULT_B
 }
+
+export const pickWorseRisk = (a: TableReadyValue, b: TableReadyValue) =>
+  compareRisk(a, b) === -1 ? a : b
 
 export function sumRisk(
   a: TableReadyValue,

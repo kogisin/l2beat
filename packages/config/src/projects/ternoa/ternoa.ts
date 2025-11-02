@@ -12,7 +12,7 @@ import { polygonCDKStack } from '../../templates/polygonCDKStack'
 import { PolygoncdkDAC } from '../../templates/polygoncdk-template'
 
 const discovery = new ProjectDiscovery('ternoa')
-const bridge = discovery.getContract('PolygonSharedBridge')
+const bridge = discovery.getContract('AgglayerBridge')
 
 const membersCountDAC = discovery.getContractValue<number>(
   'PolygonDataCommittee',
@@ -101,7 +101,7 @@ export const ternoa: ScalingProject = polygonCDKStack({
         type: 'rpc',
         // successfully tested at 5k/min
         url: 'https://rpc-mainnet.zkevm.ternoa.network',
-        callsPerMinute: 1500,
+        callsPerMinute: 300,
       },
     ],
   },
@@ -139,10 +139,10 @@ export const ternoa: ScalingProject = polygonCDKStack({
   // ],
   milestones: [
     {
-      title: 'Mainnet Launch',
+      title: 'Ternoa Mainnet Launch',
       url: 'https://x.com/Ternoa_/status/1884519126812487828',
       date: '2025-01-29',
-      description: 'Ternoa 2.0 mainnet is live.',
+      description: 'Ternoa is live on mainnet, integrated with Agglayer.',
       type: 'general',
     },
   ],

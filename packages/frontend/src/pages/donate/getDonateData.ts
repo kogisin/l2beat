@@ -2,7 +2,6 @@ import { assert } from '@l2beat/shared-pure'
 import { getAppLayoutProps } from '~/common/getAppLayoutProps'
 import { PARTNERS_ORDER } from '~/consts/partnersOrder'
 import { getCollection } from '~/content/getCollection'
-import { env } from '~/env'
 import { getEcosystemLogo } from '~/server/features/ecosystems/getEcosystemLogo'
 import { ps } from '~/server/projects'
 import { getMetadata } from '~/ssr/head/getMetadata'
@@ -24,6 +23,8 @@ export async function getDonateData(
       manifest,
       metadata: getMetadata(manifest, {
         title: 'Donate - L2BEAT',
+        description:
+          "Support L2BEAT's independent research & development with a donation.",
         openGraph: {
           url,
           image: '/meta-images/donate/opengraph-image.png',
@@ -34,7 +35,7 @@ export async function getDonateData(
       page: 'DonatePage',
       props: {
         ...appLayoutProps,
-        partners: env.CLIENT_SIDE_PARTNERS ? partners : undefined,
+        partners,
         gitcoinOption: false,
         qrCodeUrl: manifest.getUrl('/images/qr-codes/donate.png'),
       },

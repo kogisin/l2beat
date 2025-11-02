@@ -25,8 +25,9 @@ export type EVMTransaction = z.infer<typeof EVMTransaction>
 export const EVMTransaction = z
   .object({
     hash: z.string(),
+    value: z.string().transform(BigInt),
     from: z.string(),
-    /** Address of the receiver, null when its a contract creation transaction. */
+    /** Address of the receiver, null when it's a contract creation transaction. */
     to: z
       .union([z.string(), z.null()])
       .transform((to) => (to === null ? undefined : to))
@@ -41,6 +42,7 @@ export const EVMTransaction = z
   })
   .transform((tx) => ({
     hash: tx.hash,
+    value: tx.value,
     from: tx.from,
     to: tx.to,
     data: tx.input,
@@ -69,6 +71,7 @@ export const EVMTransactionReceiptResponse = z.object({
 const _EVMBlock = {
   timestamp: Quantity.decode.transform((n) => Number(n)),
   hash: z.string(),
+  logsBloom: z.string(),
   number: Quantity.decode.transform((n) => Number(n)),
   parentBeaconBlockRoot: z.string().optional(),
 }
@@ -115,8 +118,10 @@ export const EVMLog = z.object({
   address: z.string(),
   topics: z.array(z.string()),
   blockNumber: Quantity.decode.transform((n) => Number(n)),
+  blockHash: z.string(),
   transactionHash: z.string(),
   data: z.string(),
+  logIndex: Quantity.decode.transform((n) => Number(n)),
 })
 
 export type EVMLogsResponse = z.infer<typeof EVMLogsResponse>

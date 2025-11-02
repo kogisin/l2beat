@@ -1,10 +1,10 @@
 import {
   type ConfigReader,
-  type ConfigRegistry,
   type ContractConfig,
   type DiscoveryOutput,
   type EntryParameters,
   get$Implementations,
+  getReachableEntries,
   getShapeFromOutputEntry,
   makeEntryColorConfig,
   makeEntryStructureConfig,
@@ -29,50 +29,31 @@ import type {
   FieldValue,
 } from './types'
 
-interface ProjectData {
-  config: ConfigRegistry
-  discovery: DiscoveryOutput
-}
-
-function readProject(
-  chain: string,
-  project: string,
-  configReader: ConfigReader,
-): ProjectData[] {
-  try {
-    const discovery = configReader.readDiscovery(project, chain)
-    const sharedModules = discovery.sharedModules ?? []
-
-    return [
-      {
-        config: configReader.readConfig(project, chain),
-        discovery,
-      },
-      ...sharedModules.flatMap((sharedModule) =>
-        readProject(chain, sharedModule, configReader),
-      ),
-    ]
-  } catch {
-    return []
-  }
-}
-
 export function getProject(
   configReader: ConfigReader,
   templateService: TemplateService,
   project: string,
 ): ApiProjectResponse {
-  const chains = configReader.readAllDiscoveredChainsForProject(project)
-  const data = chains.flatMap((chain) =>
-    readProject(chain, project, configReader),
-  )
+  const discoveries = configReader.readDiscoveryWithReferences(project)
+  const discovery = discoveries[0]
+  const data = discoveries.map((discovery) => ({
+    discovery,
+    config: configReader.readConfig(discovery.name),
+  }))
+
+  const reachableEntries = getReachableEntries(
+    data
+      .flatMap((x) => x.discovery.entries)
+      .filter((e) => e.type !== 'Reference'),
+    discovery.entries.map((e) => e.address),
+  ).map((x) => x.address)
 
   const response: ApiProjectResponse = { entries: [] }
   const meta = getMeta(data.map((x) => x.discovery))
   for (const { config, discovery } of data) {
-    const chain = config.chain
     const contracts = discovery.entries
       .filter((e) => e.type === 'Contract')
+      // .filter((e) => referencedEntries.includes(e.address))
       .map((entry) => {
         const contractConfig = makeEntryStructureConfig(
           config.structure,
@@ -95,20 +76,20 @@ export function getProject(
         const template = getTemplate(templateService, entry)
 
         return contractFromDiscovery(
-          chain,
           meta,
           entry,
           contractConfig,
           contractColorConfig,
           discovery.abis,
           template,
+          reachableEntries,
         )
       })
       .sort(orderAddressEntries)
+
     const initialAddresses = config.structure.initialAddresses
     const chainInfo = {
       project: config.name,
-      chain: chain,
       initialContracts: contracts.filter((x) =>
         initialAddresses.includes(x.address),
       ),
@@ -130,11 +111,14 @@ export function getProject(
             description: x.description,
             referencedBy: [],
             address: x.address,
+            chain: ChainSpecificAddress.longChain(x.address),
+            isReachable: reachableEntries.includes(x.address),
           }
         })
         .sort(orderAddressEntries),
-      blockNumber: discovery.usedBlockNumbers[chain],
+      blockNumbers: discovery.usedBlockNumbers,
     } satisfies ApiProjectChain
+
     response.entries.push(chainInfo)
   }
   populateReferencedBy(response.entries)
@@ -187,13 +171,13 @@ function orderAddressEntries(a: ApiAddressEntry, b: ApiAddressEntry) {
 }
 
 function contractFromDiscovery(
-  chain: string,
   meta: Record<string, { name?: string; type: ApiAddressType }>,
   contract: EntryParameters,
   contractConfig: ContractConfig,
   contractColorConfig: ColorContract,
   abis: DiscoveryOutput['abis'],
   template: ApiProjectContract['template'],
+  reachableEntries: ChainSpecificAddress[],
 ): ApiProjectContract {
   const getFieldInfo = (name: string): Omit<Field, 'name' | 'value'> => {
     const field = contractConfig.fields[name]
@@ -211,7 +195,7 @@ function contractFromDiscovery(
     .map(
       ([name, value]): Field => ({
         name,
-        value: parseFieldValue(value, meta, chain),
+        value: parseFieldValue(value, meta),
         ...getFieldInfo(name),
       }),
     )
@@ -236,12 +220,14 @@ function contractFromDiscovery(
     description: contract.description,
     referencedBy: [],
     address: contract.address,
+    chain: ChainSpecificAddress.longChain(contract.address),
     fields,
     abis: [contract.address, ...implementations].map((address) => ({
       address: address,
       entries: (abis[address] ?? []).map((e) => abiEntry(e)),
     })),
     implementationNames: contract.implementationNames,
+    isReachable: reachableEntries.includes(contract.address),
   }
 }
 

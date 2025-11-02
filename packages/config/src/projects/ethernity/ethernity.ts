@@ -1,4 +1,4 @@
-import { UnixTime } from '@l2beat/shared-pure'
+import { ProjectId, UnixTime } from '@l2beat/shared-pure'
 import { REASON_FOR_BEING_OTHER } from '../../common'
 import { BADGES } from '../../common/badges'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
@@ -8,24 +8,30 @@ import { opStackL2 } from '../../templates/opStack'
 const discovery = new ProjectDiscovery('ethernity')
 
 export const ethernity: ScalingProject = opStackL2({
+  ecosystemInfo: {
+    id: ProjectId('superchain'),
+    isPartOfSuperchain: true,
+  },
   addedAt: UnixTime(1718182472), // 2024-06-12T08:54:32Z
   additionalBadges: [BADGES.RaaS.Gelato],
   additionalPurposes: ['AI'],
   discovery,
   reasonsForBeingOther: [REASON_FOR_BEING_OTHER.NO_PROOFS],
+  isPartOfSuperchain: true,
   display: {
     name: 'Epic Chain',
     slug: 'epicchain',
     description:
-      'Epic chain, previously Ehternity, is a low-cost Layer 2 solution on the Superchain, designed to bring global entertainment franchises onto the blockchain.',
+      'Epic chain, previously Ethernity, is a low-cost Layer 2 solution on the Superchain, designed to bring global entertainment franchises onto the blockchain.',
     links: {
       websites: ['https://epicchain.io/'],
       bridges: [
         'https://swap.epicchain.io/',
         'https://bridge.gelato.network/bridge/ethernity-mainnet',
       ],
-      explorers: ['https://ernscan.io/'],
+      explorers: ['https://explorer.epicchain.io/'],
       documentation: [],
+      repositories: ['https://github.com/epiconchain'],
       socialMedia: [
         'https://x.com/EpicOnChain',
         'https://t.me/epiconchain',
@@ -43,7 +49,7 @@ export const ethernity: ScalingProject = opStackL2({
       {
         type: 'rpc',
         url: 'https://mainnet.ethernitychain.io',
-        callsPerMinute: 1500,
+        callsPerMinute: 300,
       },
     ],
   },

@@ -3,12 +3,12 @@ import { alphadune } from '../projects/alphadune/alphadune'
 import { animechain } from '../projects/animechain/animechain'
 import { anomaly } from '../projects/anomaly/anomaly'
 import { apechain } from '../projects/apechain/apechain'
-import { aviveworld } from '../projects/aviveworld/aviveworld'
 import { b3 } from '../projects/b3/b3'
 import { bitlazer } from '../projects/bitlazer/bitlazer'
 import { blessnet } from '../projects/blessnet/blessnet'
 import { blockfit } from '../projects/blockfit/blockfit'
 import { bugbuster } from '../projects/bugbuster/bugbuster'
+import { chainbounty } from '../projects/chainbounty/chainbounty'
 import { cheese } from '../projects/cheese/cheese'
 import { clique } from '../projects/clique/clique'
 import { conwai } from '../projects/conwai/conwai'
@@ -17,10 +17,11 @@ import { degen } from '../projects/degen/degen'
 import { deri } from '../projects/deri/deri'
 import { dodochain } from '../projects/dodochain/dodochain'
 import { donatuz } from '../projects/donatuz/donatuz'
+import { earnm } from '../projects/earnm/earnm'
 import { educhain } from '../projects/educhain/educhain'
 import { ethereal } from '../projects/ethereal/ethereal'
 import { evedex } from '../projects/evedex/evedex'
-import { fiefdom } from '../projects/fiefdom/fiefdom'
+import { flynet } from '../projects/flynet/flynet'
 import { forta } from '../projects/forta/forta'
 import { game7 } from '../projects/game7/game7'
 import { geist } from '../projects/geist/geist'
@@ -31,6 +32,9 @@ import { hook } from '../projects/hook/hook'
 import { huddle01 } from '../projects/huddle01/huddle01'
 import { hyperagi } from '../projects/hyperagi/hyperagi'
 import { inevm } from '../projects/inevm/inevm'
+import { intmax } from '../projects/intmax/intmax'
+import { intuition } from '../projects/intuition/intuition'
+import { jetstreamchain } from '../projects/jetstreamchain/jetstreamchain'
 import { l3x } from '../projects/l3x/l3x'
 import { lumiterra } from '../projects/lumiterra/lumiterra'
 import { mindchain } from '../projects/mindchain/mindchain'
@@ -39,10 +43,10 @@ import { moonchain } from '../projects/moonchain/moonchain'
 import { muster } from '../projects/muster/muster'
 import { mvchain } from '../projects/mvchain/mvchain'
 import { novastro } from '../projects/novastro/novastro'
-import { nums } from '../projects/nums/nums'
+import { oceanum } from '../projects/oceanum/oceanum'
 import { onchain } from '../projects/onchain/onchain'
 import { onyx } from '../projects/onyx/onyx'
-import { oursong } from '../projects/oursong/oursong'
+import { perennial } from '../projects/perennial/perennial'
 import { playblock } from '../projects/playblock/playblock'
 import { pmon } from '../projects/pmon/pmon'
 import { popapex } from '../projects/popapex/popapex'
@@ -57,9 +61,10 @@ import { stack } from '../projects/stack/stack'
 import { superposition } from '../projects/superposition/superposition'
 import { syndicateframe } from '../projects/syndicateframe/syndicateframe'
 import { syndr } from '../projects/syndr/syndr'
-import { ungaii } from '../projects/ungaii/ungaii'
+import { t3rn } from '../projects/t3rn/t3rn'
+import { toy } from '../projects/toy/toy'
 import { unite } from '../projects/unite/unite'
-import { vessel } from '../projects/vessel/vessel'
+import { vemphorizon } from '../projects/vemphorizon/vemphorizon'
 import { winr } from '../projects/winr/winr'
 import { xai } from '../projects/xai/xai'
 import { xrone } from '../projects/xrone/xrone'
@@ -71,12 +76,12 @@ export const layer3s: ScalingProject[] = [
   animechain,
   alphadune,
   apechain,
-  aviveworld,
   bitlazer,
   blessnet,
   blockfit,
   bugbuster,
   b3,
+  chainbounty,
   cheese,
   clique,
   conwai,
@@ -85,15 +90,19 @@ export const layer3s: ScalingProject[] = [
   deri,
   dodochain,
   donatuz,
+  earnm,
   educhain,
   ethereal,
   evedex,
-  fiefdom,
+  flynet,
   forta,
   game7,
   geist,
   gridy,
   inevm,
+  jetstreamchain,
+  intmax,
+  intuition,
   ham,
   henez,
   huddle01,
@@ -102,10 +111,11 @@ export const layer3s: ScalingProject[] = [
   rari,
   rivalz,
   zklinknova,
-  ungaii,
   xai,
+  oceanum,
   onchain,
   onyx,
+  perennial,
   popapex,
   popboss,
   pmon,
@@ -120,16 +130,16 @@ export const layer3s: ScalingProject[] = [
   mvchain,
   moonchain,
   novastro,
-  nums,
   unite,
-  vessel,
+  vemphorizon,
   l3x,
   lumiterra,
-  oursong,
   playblock,
   spheron,
   superposition,
   syndr,
+  t3rn,
+  toy,
   winr,
   xrone,
   yellowstone,

@@ -2,6 +2,7 @@ import {
   ChainSpecificAddress,
   EthereumAddress,
   formatSeconds,
+  ProjectId,
   UnixTime,
 } from '@l2beat/shared-pure'
 import {
@@ -49,6 +50,10 @@ const daResolveWindow = formatSeconds(
 )
 
 export const cyber: ScalingProject = opStackL2({
+  ecosystemInfo: {
+    id: ProjectId('superchain'),
+    isPartOfSuperchain: false,
+  },
   addedAt: UnixTime(1713364684), // 2024-04-17T14:38:04Z
   associatedTokens: ['CYBER'],
   discovery,
@@ -105,7 +110,7 @@ export const cyber: ScalingProject = opStackL2({
       {
         type: 'rpc',
         url: 'https://cyber.alt.technology/',
-        callsPerMinute: 1500,
+        callsPerMinute: 300,
       },
       {
         type: 'routescan',
@@ -198,7 +203,7 @@ However, there is a mechanism that allows users to challenge unavailability of d
         },
         {
           category: 'Funds can be lost if',
-          text: 'the sequencer posts an invalid data availability commitment, and he is able to outspend the challengers.',
+          text: 'the sequencer posts an invalid data availability commitment, and they are able to outspend the challengers.',
         },
       ],
     },

@@ -1,4 +1,4 @@
-import { EthereumAddress, UnixTime } from '@l2beat/shared-pure'
+import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
 import {
   DA_BRIDGES,
   DA_LAYERS,
@@ -25,7 +25,6 @@ export const lens: ScalingProject = zkStackL2({
     slug: 'lens',
     description:
       "Lens Network is the main social networking hub for the user base of Lens Protocol, built on a Validium using ZKsync's ZK Stack technology.",
-    stacks: ['ZK Stack'],
     architectureImage: 'zkstack-validium-vector',
     links: {
       websites: ['https://lens.xyz'],
@@ -34,7 +33,11 @@ export const lens: ScalingProject = zkStackL2({
         'https://onboarding.lens.xyz/explore',
       ],
       documentation: ['https://lens.xyz/docs'],
-      explorers: ['https://momoka.lens.xyz', 'https://explorer.lens.xyz/'],
+      explorers: [
+        'https://momoka.lens.xyz',
+        'https://explorer.lens.xyz/',
+        'https://lenscan.io/',
+      ],
       repositories: ['https://github.com/lens-protocol'],
       socialMedia: [
         'https://hey.xyz/u/lens',
@@ -54,7 +57,7 @@ export const lens: ScalingProject = zkStackL2({
       {
         type: 'rpc',
         url: 'https://rpc.lens.xyz',
-        callsPerMinute: 1500,
+        callsPerMinute: 300,
       },
     ],
     gasTokens: ['LGHO'],
@@ -93,14 +96,14 @@ export const lens: ScalingProject = zkStackL2({
   },
   availDa: {
     sinceBlock: 1180000, // avail block number, roughly 04/03 right before mainnet launch (chain was active before)
-    appId: '26',
+    appIds: ['26'],
   },
   nonTemplateTrackedTxs: [
     {
       uses: [{ type: 'l2costs', subtype: 'batchSubmissions' }],
       query: {
         formula: 'sharedBridge',
-        chainId,
+        firstParameter: chainId,
         address: EthereumAddress('0x8c0bfc04ada21fd496c55b8c50331f904306f564'),
         selector: '0x98f81962',
         functionSignature:
@@ -115,7 +118,7 @@ export const lens: ScalingProject = zkStackL2({
       ],
       query: {
         formula: 'sharedBridge',
-        chainId,
+        firstParameter: chainId,
         address: EthereumAddress('0x8c0bfc04ada21fd496c55b8c50331f904306f564'),
         selector: '0xe12a6137',
         functionSignature:
@@ -130,7 +133,7 @@ export const lens: ScalingProject = zkStackL2({
       ],
       query: {
         formula: 'sharedBridge',
-        chainId,
+        firstParameter: chainId,
         address: EthereumAddress('0x8c0bfc04ada21fd496c55b8c50331f904306f564'),
         selector: '0xcf02827d',
         functionSignature:
@@ -139,6 +142,9 @@ export const lens: ScalingProject = zkStackL2({
       },
     },
   ],
+  ecosystemInfo: {
+    id: ProjectId('the-elastic-network'),
+  },
   milestones: [
     {
       title: 'Upgrade to Vector DA Bridge',

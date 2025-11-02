@@ -5,7 +5,7 @@ import {
   flatteningHash,
   get$Implementations,
 } from '@l2beat/discovery'
-import { ChainSpecificAddress } from '@l2beat/shared-pure'
+import type { ChainSpecificAddress } from '@l2beat/shared-pure'
 import { existsSync, readdirSync, readFileSync } from 'fs'
 import { join } from 'path'
 import { isDeepStrictEqual } from 'util'
@@ -14,6 +14,7 @@ import {
   getProjectDiscoveries,
 } from './getDiscoveries'
 import type { ApiCodeResponse } from './types'
+import { getReferencedProjects } from './utils'
 
 export function addFlattenerNote(code: string): string {
   const note = [
@@ -45,18 +46,20 @@ function isFlatCodeCurrent(
   address: ChainSpecificAddress,
   codePaths: CodePathResult['codePaths'],
 ): boolean {
-  const chain = ChainSpecificAddress.longChain(address)
+  const discovery = configReader.readDiscovery(project)
+  const discoveries = [discovery]
+  const referencedProjects = getReferencedProjects(discovery)
 
-  const discovery = configReader.readDiscovery(project, chain)
-  const discoveries = [
-    discovery,
-    ...(discovery.sharedModules ?? []).map((module) =>
-      configReader.readDiscovery(module, chain),
-    ),
-  ]
+  for (const refProj of referencedProjects) {
+    const refDiscovery = configReader.readDiscovery(refProj)
+    discoveries.push(refDiscovery)
+  }
+
   const discoHashes =
-    discoveries.flatMap((d) => d.entries).find((e) => e.address === address)
-      ?.sourceHashes ?? []
+    discoveries
+      .flatMap((d) => d.entries)
+      .filter((e) => e.type !== 'Reference')
+      .find((e) => e.address === address)?.sourceHashes ?? []
 
   const flatHashes = codePaths.map(({ path }) =>
     flatteningHash(readFileSync(path, 'utf-8')),
@@ -154,12 +157,12 @@ export function getCodePaths(
   project: string,
   address: ChainSpecificAddress,
 ): CodePathResult {
-  const chain = ChainSpecificAddress.longChain(address)
-  const discoveries = getProjectDiscoveries(configReader, project, chain)
+  const discoveries = getProjectDiscoveries(configReader, project)
 
   for (const discovery of discoveries) {
     const entry = discovery.entries.find((x) => x.address === address)
-    if (!entry) {
+
+    if (!entry || entry.type === 'Reference') {
       continue
     }
 
@@ -168,10 +171,7 @@ export function getCodePaths(
 
     const name =
       similar.length > 1 ? `${entry.name}-${entry.address}` : `${entry.name}`
-    const root = join(
-      configReader.getProjectChainPath(discovery.name, chain),
-      '.flat',
-    )
+    const root = join(configReader.getProjectPath(discovery.name), '.flat')
 
     if (!hasImplementations) {
       return {

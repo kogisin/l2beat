@@ -6,6 +6,7 @@ import {
   getDiscoveryPaths,
   getMulticall3Config,
 } from '@l2beat/discovery'
+import { ChainSpecificAddress } from '@l2beat/shared-pure'
 import type { DiscordConfig, UpdateMonitorConfig } from '../Config'
 import type { FeatureFlags } from '../FeatureFlags'
 
@@ -20,15 +21,24 @@ export function getUpdateMonitorConfig(
 
   const allChains = [
     ...new Set(
-      configReader.readAllDiscoveredProjects().flatMap((x) => x.chains),
+      configReader
+        .readAllDiscoveredProjects()
+        .flatMap((project) => configReader.readDiscovery(project).entries)
+        .map((entry) => ChainSpecificAddress.longChain(entry.address)),
     ),
   ]
   const enabledChains = allChains.filter((chain) =>
-    flags.isEnabled('updateMonitor', chain),
+    flags.isEnabled('updateMonitor', 'chain', chain),
   )
   const disabledChains = allChains.filter(
-    (chain) => !flags.isEnabled('updateMonitor', chain),
+    (chain) => !flags.isEnabled('updateMonitor', 'chain', chain),
   )
+
+  const allProjects = configReader.readAllDiscoveredProjects()
+  const disabledProjects = allProjects.filter(
+    (project) => !flags.isEnabled('updateMonitor', 'project', project),
+  )
+
   return {
     configReader,
     paths,
@@ -41,12 +51,24 @@ export function getUpdateMonitorConfig(
       getChainDiscoveryConfig(env, chain, chains),
     ),
     disabledChains,
+    disabledProjects,
     cacheEnabled: env.optionalBoolean(['DISCOVERY_CACHE_ENABLED']),
     cacheUri: env.string(['DISCOVERY_CACHE_URI'], 'postgres'),
     updateMessagesRetentionPeriodDays: env.integer(
       ['UPDATE_MESSAGES_RETENTION_PERIOD_DAYS'],
       30,
     ),
+    workerPool: {
+      workerCount: env.integer(['UPDATE_MONITOR_WORKER_POOL_COUNT'], 3),
+      timeoutPerTaskMs: env.integer(
+        ['UPDATE_MONITOR_WORKER_POOL_TIMEOUT_PER_TASK_MS'],
+        20 * 60 * 1000, // 10 minutes
+      ),
+      timeoutPerRunMs: env.integer(
+        ['UPDATE_MONITOR_WORKER_POOL_TIMEOUT_PER_RUN_MS'],
+        60 * 60 * 1000, // 1 hour
+      ),
+    },
   }
 }
 
@@ -123,6 +145,10 @@ function getChainDiscoveryConfig(
     celestiaApiUrl: env.optionalString([
       'CELESTIA_API_URL_FOR_DISCOVERY',
       'CELESTIA_API_URL',
+    ]),
+    coingeckoApiKey: env.optionalString([
+      'COINGECKO_API_KEY_FOR_DISCOVERY',
+      'COINGECKO_API_KEY',
     ]),
     multicall: multicallConfig,
     explorer:

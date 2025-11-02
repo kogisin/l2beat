@@ -20,9 +20,9 @@ import {
   TECHNOLOGY_DATA_AVAILABILITY,
 } from '../../common'
 import { BADGES } from '../../common/badges'
-import { formatExecutionDelay } from '../../common/formatDelays'
 import { PROOFS } from '../../common/proofSystems'
 import { getStage } from '../../common/stages/getStage'
+import { ZK_PROGRAM_HASHES } from '../../common/zkProgramHashes'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import { getSHARPVerifierUpgradeDelay } from '../../discovery/starkware'
 import type { ScalingProject } from '../../internalTypes'
@@ -59,6 +59,8 @@ const ESCROW_LORDS_ADDRESS = 'eth:0x023A2aAc5d0fa69E3243994672822BA43E34E5C9'
 const ESCROW_STRK_ADDRESS = 'eth:0xcE5485Cfb26914C5dcE00B9BAF0580364daFC7a4'
 const ESCROW_MULTIBRIDGE_ADDRESS =
   'eth:0xF5b6Ee2CAEb6769659f6C091D209DfdCaF3F69Eb'
+const ESCROW_SOLVBTC_ADDRESS = 'eth:0xA86b9b9c58d4f786F8ea89356c9c9Dde9432Ab10'
+const ESCROW_LBTC_ADDRESS = 'eth:0x96C8AE2AC9A5cd5fC354e375dB4d0ca75fc0685e'
 
 const escrowETHDelaySeconds = discovery.getContractValue<number>(
   ESCROW_ETH_ADDRESS,
@@ -179,6 +181,14 @@ const finalizationPeriod = 0
 const scThreshold = discovery.getMultisigStats('Starkware Security Council')
 const sharpMsThreshold = discovery.getMultisigStats('SHARP Multisig')
 
+const starknetProgramHashes = []
+starknetProgramHashes.push(
+  discovery.getContractValue<string>('Starknet', 'programHash'),
+)
+starknetProgramHashes.push(
+  discovery.getContractValue<string>('Starknet', 'aggregatorProgramHash'),
+)
+
 export const starknet: ScalingProject = {
   type: 'layer2',
   id: ProjectId('starknet'),
@@ -196,10 +206,8 @@ export const starknet: ScalingProject = {
     slug: 'starknet',
     stacks: ['SN Stack'],
     description:
-      'Starknet is a general purpose ZK Rollup based on STARKs and the Cairo VM.',
+      'Starknet is a ZK rollup that uses STARK proofs to securely scale Ethereum and Ethereum blobs for data availability. Starknet is also actively engaged in bringing Bitcoin users the same scale, UX, and liquidity through a variety of products and programs.',
     purposes: ['Universal'],
-    category: 'ZK Rollup',
-
     links: {
       bridges: ['https://starkgate.starknet.io/'],
       websites: [
@@ -221,13 +229,17 @@ export const starknet: ScalingProject = {
     },
     liveness: {
       explanation:
-        'Starknet is a ZK rollup that posts state diffs to the L1. For a transaction to be considered final, the state diffs have to be submitted and validity proof should be generated, submitted, and verified. Proofs are aggregated with other projects using SHARP and state updates have to refer to proved claims.',
+        'Starknet is a ZK rollup that posts state diffs to the L1. For a transaction to be considered final, the state diffs have to be submitted and a validity proof should be generated, submitted, and verified. Proofs are aggregated with other projects using SHARP and state updates have to refer to proved claims.',
     },
     costsWarning: {
       sentiment: 'warning',
       value:
         "The proof verification costs are shared among all projects that use the Starkware SHARP verifier. Due to this complexity, Starknet's SHARP costs represent an estimate based on self-reported costs by the Starkware team.",
     },
+  },
+  proofSystem: {
+    type: 'Validity',
+    zkCatalogId: ProjectId('stone'),
   },
   chainConfig: {
     name: 'starknet',
@@ -237,7 +249,7 @@ export const starknet: ScalingProject = {
     apis: [
       {
         type: 'starknet',
-        url: 'https://starknet-mainnet.public.blastapi.io',
+        url: 'https://starknet-rpc.publicnode.com',
         callsPerMinute: 120,
       },
     ],
@@ -250,14 +262,14 @@ export const starknet: ScalingProject = {
   riskView: {
     stateValidation: {
       ...RISK_VIEW.STATE_ZKP_ST,
-      secondLine: formatExecutionDelay(finalizationPeriod),
+      executionDelay: finalizationPeriod,
     },
     dataAvailability: {
       ...RISK_VIEW.DATA_ON_CHAIN_STATE_DIFFS,
     },
     exitWindow: RISK_VIEW.EXIT_WINDOW_STARKNET(minNonScDelay),
     sequencerFailure: RISK_VIEW.SEQUENCER_CAN_SKIP('L1'),
-    proposerFailure: RISK_VIEW.PROPOSER_WHITELIST_SECURITY_COUNCIL,
+    proposerFailure: RISK_VIEW.PROPOSER_WHITELIST_SECURITY_COUNCIL(),
   },
   stage: getStage(
     {
@@ -285,6 +297,8 @@ export const starknet: ScalingProject = {
       rollupNodeLink: 'https://github.com/eqlabs/pathfinder',
       securityCouncilReference:
         'https://governance.starknet.io/learn/security_council',
+      stage1PrincipleDescription:
+        'While Starknet is considered Stage 1, the Security Council minority is employed to enforce censorship resistance in case the permissioned operator fails to include transactions. The process through which a censored user can contact the Security Council is not defined and currently unclear.',
     },
   ),
   technology: {
@@ -310,10 +324,10 @@ export const starknet: ScalingProject = {
     nodeSoftware:
       'The [Juno](https://github.com/NethermindEth/juno) node software can be used to reconstruct the L2 state entirely from L1. The feature has not been released yet, but can be found in this [PR](https://github.com/NethermindEth/juno/pull/1335).',
     compressionScheme:
-      'Starknet uses [stateful compression since v0.13.4](https://docs.starknet.io/architecture-and-concepts/network-architecture/data-availability/#v0_13_4).',
+      'Starknet uses [stateful compression since v0.13.4](https://docs.starknet.io/architecture/data-availability/#v0_13_4).',
     genesisState: 'There is no non-empty genesis state.',
     dataFormat:
-      'The data format has been updated with different versions, and the full specification can be found [here](https://docs.starknet.io/architecture-and-concepts/network-architecture/data-availability/).',
+      'The data format has been updated with different versions, and the full specification can be found [here](https://docs.starknet.io/architecture/data-availability/).',
   },
   stateValidation: {
     description:
@@ -388,6 +402,7 @@ export const starknet: ScalingProject = {
   contracts: {
     addresses: generateDiscoveryDrivenContracts([discovery]),
     risks: [CONTRACTS.UPGRADE_WITH_DELAY_SECONDS_RISK(minDelay)],
+    zkProgramHashes: starknetProgramHashes.map((el) => ZK_PROGRAM_HASHES(el)),
   },
   upgradesAndGovernance: `
 The Starknet zk Rollup shares its SHARP verifier with other StarkEx and SN Stack Layer 2s. Governance of the main Starknet rollup contract and its core bridge escrows (ETHBridge, STRKBridge) is currently split between the ${scThreshold} Security Council with instant upgrade capability and the ${discovery.getMultisigStats('Starkware Multisig 2')} Starkware Multisig 2 who can upgrade with a ${discovery.getContractValue('DelayedExecutor', 'executionDelayFmt')} delay. The former Multisig also governs most other bridge escrows with instant upgradeability. The shared SHARP verifier used for state validation can be changed by the ${sharpMsThreshold} SHARP Multisig with and a ${discovery.getContractValue('SHARPVerifierCallProxy', 'upgradeActivationDelayFmt')} delay, affecting all rollups like Starknet that are sharing it. 
@@ -398,12 +413,35 @@ All bridge escrows allow enabling a withdrawal throttle of 5% of the locked fund
 `,
   milestones: [
     {
+      title: 'Starknet is down for several hours',
+      url: 'https://x.com/Starknet/status/1962740091937317247',
+      date: '2025-09-02T00:00:00.00Z',
+      description:
+        'Starknet experiences a reorg caused by a bug on the sequencing side.',
+      type: 'incident',
+    },
+    {
+      title: 'Grinta upgrade is deployed',
+      url: 'https://x.com/Starknet/status/1962457868277305357',
+      date: '2025-09-02T00:00:00.00Z',
+      description:
+        'Starknet activates the grinta upgrade with several improvements.',
+      type: 'general',
+    },
+    {
       title: 'Stage 1',
       url: 'https://x.com/Starknet/status/1922990242035814424',
       date: '2025-05-15T00:00:00.00Z',
       description:
         'Starknet is now Stage 1 by introducing a Security Council, upgrade delays and censorship resistance.',
       type: 'general',
+    },
+    {
+      title: 'Starknet 4h outage',
+      url: 'https://cointelegraph.com/news/starknet-details-bug-reorganization-blockss',
+      date: '2024-04-04T00:00:00Z',
+      description: 'A rounding error causes a 4-hour outage on Starknet.',
+      type: 'incident',
     },
     {
       title: 'Starknet starts using blobs',
@@ -546,9 +584,21 @@ All bridge escrows allow enabling a withdrawal throttle of 5% of the locked fund
         description:
           'StarkGate bridge for EKUBO, ZEND, NSTR (and potentially other tokens listed via StarkgateManager).',
       }),
+      discovery.getEscrowDetails({
+        address: ChainSpecificAddress(ESCROW_SOLVBTC_ADDRESS),
+        tokens: ['SolvBTC'],
+        description: 'StarkGate bridge for SolvBTC.',
+      }),
+      discovery.getEscrowDetails({
+        address: ChainSpecificAddress(ESCROW_LBTC_ADDRESS),
+        tokens: ['LBTC'],
+        description: 'StarkGate bridge for LBTC.',
+      }),
     ],
     activityConfig: {
-      type: 'block',
+      type: 'day',
+      sinceTimestamp: UnixTime(1637020800),
+      dataSource: 'Voyager API',
     },
     daTracking: [
       {
@@ -721,6 +771,7 @@ All bridge escrows allow enabling a withdrawal throttle of 5% of the locked fund
         query: {
           formula: 'sharpSubmission',
           sinceTimestamp: UnixTime(1742967335),
+          untilTimestamp: UnixTime(1756730495), // Sep-01-2025 02:41:35 PM UTC
           programHashes: [
             '2534935718742676028234156221136000178296467523045214874259117268197132196876', // Starknet OS
           ],
@@ -734,8 +785,22 @@ All bridge escrows allow enabling a withdrawal throttle of 5% of the locked fund
         ],
         query: {
           formula: 'sharpSubmission',
+          sinceTimestamp: UnixTime(1756737695), // Sep-01-2025 02:41:35 PM UTC
+          programHashes: [
+            '793595346346724189681221050719974054861327641387231526786912662354259445535', // Starknet OS (since Starknet v0.14.0)
+          ],
+        },
+        _hackCostMultiplier: 0.17,
+      },
+      {
+        uses: [
+          { type: 'liveness', subtype: 'proofSubmissions' },
+          { type: 'l2costs', subtype: 'proofSubmissions' },
+        ],
+        query: {
+          formula: 'sharpSubmission',
           sinceTimestamp: UnixTime(1732747391),
-          untilTimestamp: UnixTime(1742836319), // 2025/03/24 17:11 UTC
+          untilTimestamp: UnixTime(1756737695), // 2025/03/24 17:11 UTC
           programHashes: [
             '15787695375210609250491147414005894154890873413229882671403677761527504080', // Aggregator (since Starknet v0.13.3)
           ],
@@ -750,8 +815,23 @@ All bridge escrows allow enabling a withdrawal throttle of 5% of the locked fund
         query: {
           formula: 'sharpSubmission',
           sinceTimestamp: UnixTime(1742836319),
+          untilTimestamp: UnixTime(1756737695), // Sep-01-2025 02:41:35 PM UTC
           programHashes: [
             '273279642033703284306509103355536170486431195329675679055627933497997642494', // Aggregator (since Starknet v0.13.4)
+          ],
+        },
+        _hackCostMultiplier: 0.17,
+      },
+      {
+        uses: [
+          { type: 'liveness', subtype: 'proofSubmissions' },
+          { type: 'l2costs', subtype: 'proofSubmissions' },
+        ],
+        query: {
+          formula: 'sharpSubmission',
+          sinceTimestamp: UnixTime(1756737695), // Sep-01-2025 02:41:35 PM UTC
+          programHashes: [
+            '760308386675154762009993173725077399730170358078020153308029499928875469870', // Aggregator (since Starknet v0.14.0)
           ],
         },
         _hackCostMultiplier: 0.17,

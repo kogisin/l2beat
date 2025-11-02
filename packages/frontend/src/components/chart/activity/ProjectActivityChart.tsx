@@ -1,14 +1,18 @@
 import type { Milestone, ProjectScalingCategory } from '@l2beat/config'
 import { UnixTime } from '@l2beat/shared-pure'
 import { useMemo, useState } from 'react'
+import type { ChartProject } from '~/components/core/chart/Chart'
+import { ChartStats, ChartStatsItem } from '~/components/core/chart/ChartStats'
 import { RadioGroup, RadioGroupItem } from '~/components/core/RadioGroup'
-import { EthereumLineIcon } from '~/icons/EthereumLineIcon'
 import type { ActivityMetric } from '~/pages/scaling/activity/components/ActivityMetricContext'
 import { ActivityMetricControls } from '~/pages/scaling/activity/components/ActivityMetricControls'
 import { ActivityTimeRangeControls } from '~/pages/scaling/activity/components/ActivityTimeRangeControls'
 import type { ActivityTimeRange } from '~/server/features/scaling/activity/utils/range'
 import { api } from '~/trpc/React'
-import { Checkbox } from '../../core/Checkbox'
+import { formatTimestamp } from '~/utils/dates'
+import { formatActivityCount } from '~/utils/number-format/formatActivityCount'
+import { formatInteger } from '~/utils/number-format/formatInteger'
+import { formatUopsRatio } from '~/utils/number-format/formatUopsRatio'
 import { ChartControlsWrapper } from '../../core/chart/ChartControlsWrapper'
 import { ProjectChartTimeRange } from '../../core/chart/ChartTimeRange'
 import { getChartRange } from '../../core/chart/utils/getChartRangeFromColumns'
@@ -19,29 +23,26 @@ import { getChartType } from './utils/getChartType'
 
 interface Props {
   milestones: Milestone[]
-  projectId: string
+  project: ChartProject
   category?: ProjectScalingCategory
-  projectName?: string
   defaultRange: ActivityTimeRange
 }
 
 export function ProjectActivityChart({
   milestones,
-  projectId,
+  project,
   category,
-  projectName,
   defaultRange,
 }: Props) {
   const [timeRange, setTimeRange] = useState<ActivityTimeRange>(defaultRange)
   const [metric, setMetric] = useState<ActivityMetric>('uops')
   const [scale, setScale] = useState<ChartScale>('lin')
-  const [showMainnet, setShowMainnet] = useState(true)
 
   const { data: chart, isLoading } = api.activity.chart.useQuery({
     range: { type: timeRange },
     filter: {
       type: 'projects',
-      projectIds: [projectId],
+      projectIds: [project.id],
     },
   })
 
@@ -78,7 +79,7 @@ export function ProjectActivityChart({
   }, [chart?.data])
 
   const chartRange = getChartRange(chartData)
-
+  const lastRatio = ratioData?.at(-1)?.ratio
   return (
     <div className="flex flex-col">
       <ChartControlsWrapper>
@@ -92,14 +93,13 @@ export function ProjectActivityChart({
       <ActivityChart
         data={chartData}
         milestones={milestones}
-        showMainnet={showMainnet}
         scale={scale}
         metric={metric}
         isLoading={isLoading}
         syncedUntil={chart?.syncedUntil}
-        className="mt-4 mb-2"
+        className="mt-4 mb-3"
         type={type}
-        projectName={projectName}
+        project={project}
         tickCount={4}
       />
       <ActivityRatioChart
@@ -110,24 +110,11 @@ export function ProjectActivityChart({
       />
 
       <div className="flex justify-between gap-4">
-        <div className="flex gap-1">
-          <ActivityMetricControls
-            value={metric}
-            onValueChange={setMetric}
-            projectChart
-          />
-          <Checkbox
-            name="showMainnetActivity"
-            checked={showMainnet}
-            onCheckedChange={(state) => setShowMainnet(!!state)}
-          >
-            <div className="flex flex-row items-center gap-2">
-              <EthereumLineIcon className="hidden h-1.5 w-2.5 sm:inline-block" />
-              <span className="max-lg:hidden">{`ETH Mainnet ${metric === 'uops' ? 'Operations' : 'Transactions'}`}</span>
-              <span className="lg:hidden">{`ETH ${metric === 'uops' ? 'UOPS' : 'TPS'}`}</span>
-            </div>
-          </Checkbox>
-        </div>
+        <ActivityMetricControls
+          value={metric}
+          onValueChange={setMetric}
+          projectChart
+        />
         <RadioGroup
           name="activityChartScale"
           value={scale}
@@ -137,6 +124,58 @@ export function ProjectActivityChart({
           <RadioGroupItem value="lin">LIN</RadioGroupItem>
         </RadioGroup>
       </div>
+      <ChartStats className="mt-4 md:grid-cols-2 lg:grid-cols-4">
+        <ChartStatsItem
+          label={`Past Day ${metric === 'tps' ? 'TPS' : 'UOPS'}`}
+          className="max-md:h-7"
+          tooltip={`${metric === 'uops' ? 'User operations' : 'Transactions'} per second averaged over the past day.`}
+          isLoading={isLoading}
+        >
+          {chart?.stats?.[metric].pastDayCount !== undefined &&
+          chart?.stats?.[metric].pastDayCount !== null
+            ? formatActivityCount(chart?.stats?.[metric].pastDayCount)
+            : 'No data'}
+        </ChartStatsItem>
+        <ChartStatsItem
+          label={`Past Day ${metric === 'tps' ? 'Txs' : 'Ops'} count`}
+          className="max-md:h-7"
+          isLoading={isLoading}
+        >
+          {chart?.stats?.[metric].pastDaySum !== undefined &&
+          chart?.stats?.[metric].pastDaySum !== null
+            ? formatInteger(chart?.stats?.[metric].pastDaySum)
+            : 'No data'}
+        </ChartStatsItem>
+        <ChartStatsItem
+          label={`Max. ${metric === 'tps' ? 'TPS' : 'UOPS'}`}
+          tooltip={`Shows the maximum sustained ${metric === 'uops' ? 'UOPS' : 'TPS'}, calculated as an average over the count for a day.`}
+          className="max-md:h-7"
+          isLoading={isLoading}
+        >
+          {chart?.stats?.[metric].maxCount !== undefined ? (
+            <div className="flex gap-1 max-md:flex-row-reverse max-md:items-baseline md:flex-col">
+              <div>
+                {formatActivityCount(chart?.stats?.[metric].maxCount.value)}
+              </div>
+              <div className="font-medium text-label-value-14 text-secondary">
+                {formatTimestamp(chart?.stats?.[metric].maxCount.timestamp)}
+              </div>
+            </div>
+          ) : (
+            'No data'
+          )}
+        </ChartStatsItem>
+        <ChartStatsItem
+          label="Past day UOPS/TPS Ratio"
+          className="max-md:h-7"
+          tooltip="The ratio of user operations to transactions over the past day. A high ratio indicates that for some transactions multiple individual user operations are bundled in a single transaction."
+          isLoading={isLoading}
+        >
+          {lastRatio !== undefined && lastRatio !== null
+            ? formatUopsRatio(lastRatio)
+            : 'No data'}
+        </ChartStatsItem>
+      </ChartStats>
     </div>
   )
 }

@@ -1,7 +1,8 @@
-import type { TrackedTxConfigEntry } from '@l2beat/shared'
+import type { RetryHandlerVariant, TrackedTxConfigEntry } from '@l2beat/shared'
 import {
   type ChainId,
   type ChainSpecificAddress,
+  type CoingeckoId,
   EthereumAddress,
   type ProjectId,
   type StringWithAutocomplete,
@@ -20,8 +21,8 @@ export interface WarningWithSentiment {
   sentiment: 'bad' | 'warning' | 'neutral'
 }
 
-export interface TableReadyValue {
-  value: string
+export interface TableReadyValue<T extends string = string> {
+  value: T
   secondLine?: string
   description?: string
   sentiment?: Sentiment
@@ -90,7 +91,7 @@ export interface BaseProject {
   scalingInfo?: ProjectScalingInfo
   scalingStage?: ProjectScalingStage
   scalingRisks?: ProjectScalingRisks
-  scalingDa?: ProjectScalingDa
+  scalingDa?: ProjectScalingDa[]
   scalingTechnology?: ProjectScalingTechnology
 
   // da data
@@ -126,13 +127,19 @@ export interface BaseProject {
   isDaLayer?: true
   isUpcoming?: true
   archivedAt?: UnixTime
-  hasActivity?: true
+  hasTestnet?: true
 }
 
 // #region common data
 export interface ProjectCustomColors {
-  primary: string
-  secondary: string
+  primary: {
+    light: string
+    dark?: string
+  }
+  secondary: {
+    light: string
+    dark?: string
+  }
 }
 
 export interface ProjectStatuses {
@@ -158,6 +165,7 @@ export interface ProjectLinks {
   explorers?: string[]
   repositories?: string[]
   socialMedia?: string[]
+  other?: string[]
   rollupCodes?: string
 }
 export interface Badge {
@@ -265,7 +273,7 @@ export interface ChainBasicApi<T extends string> {
   type: T
   url: string
   callsPerMinute?: number
-  retryStrategy?: 'UNRELIABLE' | 'RELIABLE'
+  retryStrategy?: RetryHandlerVariant
 }
 
 export interface ChainExplorerApi<T extends string> {
@@ -331,7 +339,7 @@ export interface ProjectBridgeTechnology {
 // #region scaling data
 export interface ProjectScalingInfo {
   layer: 'layer2' | 'layer3'
-  type: ProjectScalingCategory
+  type: ProjectScalingCategory | undefined
   capability: ProjectScalingCapability
   reasonsForBeingOther: ReasonForBeingInOther[] | undefined
   hostChain: {
@@ -344,10 +352,11 @@ export interface ProjectScalingInfo {
   raas: string | undefined
   infrastructure: string | undefined
   vm: string[]
-  daLayer: string | undefined
+  daLayer: string[] | undefined
   stage: ProjectStageName
   purposes: ProjectScalingPurpose[]
   scopeOfAssessment: ProjectScalingScopeOfAssessment | undefined
+  proofSystem: ProjectScalingProofSystem | undefined
 }
 
 export type ProjectScalingCategory =
@@ -357,6 +366,17 @@ export type ProjectScalingCategory =
   | 'Validium'
   | 'Optimium'
   | 'Other'
+
+export interface ProjectScalingProofSystem {
+  /** Type of proof system */
+  type: 'Optimistic' | 'Validity'
+  /** Name of the proof system. Only one of name or zkCatalogId should be provided. */
+  name?: string
+  /** Id for ZkCatalog project to link to. Only one of name or zkCatalogId should be provided. */
+  zkCatalogId?: string
+  /** Challenge protocol of the proof system. Configured only for optimistic proof systems. */
+  challengeProtocol?: 'Interactive' | 'Single-step'
+}
 
 export type ProjectScalingCapability = 'universal' | 'appchain'
 
@@ -369,6 +389,8 @@ export interface ReasonForBeingInOther {
   label: string
   shortDescription: string
   description: string
+  /** A few words explaining why we added this reason for being other. It is showed in `Why is the project listed in others?` section */
+  explanation?: string
 }
 
 export type ProjectScalingStack =
@@ -416,6 +438,7 @@ export type ProjectScalingPurpose =
   | 'RWA'
   | 'IoT'
   | 'Restaking'
+  | 'Enterprise'
 
 export type ProjectScalingStage =
   | StageNotApplicable
@@ -476,13 +499,20 @@ export interface StageNotApplicable {
   stage: 'NotApplicable'
 }
 export interface ProjectScalingRisks {
-  self: ProjectScalingRiskView
-  host: ProjectScalingRiskView | undefined
-  stacked: ProjectScalingRiskView | undefined
+  self: ProjectRiskView
+  host: ProjectRiskView | undefined
+  stacked: ProjectRiskView | undefined
 }
 
-export interface ProjectScalingRiskView {
-  stateValidation: TableReadyValue
+export interface ProjectRiskView {
+  stateValidation: TableReadyValue & {
+    /** @unit seconds */
+    executionDelay?: number
+    /** @unit seconds */
+    challengeDelay?: number
+    /** @unit ETH */
+    initialBond?: string
+  }
   dataAvailability: TableReadyValue
   exitWindow: TableReadyValue
   sequencerFailure: TableReadyValue
@@ -499,7 +529,7 @@ export interface ProjectScalingTechnology {
   warning?: string
   detailedDescription?: string
   architectureImage?: string
-  dataAvailability?: ProjectTechnologyChoice
+  dataAvailability?: ProjectTechnologyChoice[]
   operator?: ProjectTechnologyChoice
   sequencing?: ProjectTechnologyChoice
   sequencingImage?: string
@@ -550,6 +580,16 @@ export interface ProjectScalingStateValidationCategory {
   references?: ReferenceLink[]
   isIncomplete?: boolean
 }
+
+export interface ProjectScalingContractsZkProgramHash {
+  hash: string
+  proverSystemProject?: ProjectId
+  title: string
+  description?: string
+  programUrl?: string
+  verificationStatus: 'successful' | 'unsuccessful' | 'notVerified'
+  verificationSteps?: string
+}
 // #endregion
 
 // #region da data
@@ -570,6 +610,8 @@ export interface ProjectDaLayer {
   finality?: number
   dataAvailabilitySampling?: DataAvailabilitySampling
   economicSecurity?: DaEconomicSecurity
+  /** Config for getting the number of validators. Type: `static` means the number is fixed. Type: `dynamic` means we need to fetch it (has to be implemented in BE). */
+  validators?: DaValidators
   sovereignProjectsTrackingConfig?: SovereignProjectDaTrackingConfig[]
 }
 
@@ -613,7 +655,7 @@ export interface DaLayerThroughput {
    * Batch size for data availability. Together with batchFrequency it determines max throughput.
    * @unit B - bytes
    */
-  size: number
+  size: number | 'NO_CAP'
   /**
    * Desired size of blob data per block. Should be less than or equal to size.
    * @unit B - bytes
@@ -637,13 +679,21 @@ export interface DataAvailabilitySampling {
 }
 
 export interface DaEconomicSecurity {
-  name: string
   token: {
     symbol: string
     decimals: number
     coingeckoId: string
   }
 }
+
+export type DaValidators =
+  | {
+      type: 'static'
+      count: number
+    }
+  | {
+      type: 'dynamic'
+    }
 
 export interface ProjectDaBridge {
   name: string
@@ -652,6 +702,14 @@ export interface ProjectDaBridge {
   risks: DaBridgeRisks
   usedIn: UsedInProject[]
   dac?: DacInfo
+  relayerType?: TableReadyValue<'Permissioned' | 'SelfRelay'>
+  validationType?: DaBridgeValidationType
+}
+
+type DaBridgeValidationType = TableReadyValue<
+  'Validity Proof' | 'BLS Signature'
+> & {
+  zkCatalogId?: ProjectId
 }
 
 export interface DaBridgeRisks {
@@ -739,9 +797,18 @@ export interface RequiredTool {
 // #region zk catalog v2 data
 export interface ProjectZkCatalogInfo {
   creator?: string
+  formalVerificationLinks?: {
+    name: string
+    url: string
+  }[]
+  audits?: {
+    company: string
+    url: string
+  }[]
   techStack: {
     zkVM?: ZkCatalogTag[]
     finalWrap?: ZkCatalogTag[]
+    snark?: ZkCatalogTag[]
   }
   proofSystemInfo: string
   trustedSetups: (TrustedSetup & {
@@ -750,12 +817,15 @@ export interface ProjectZkCatalogInfo {
   verifierHashes: {
     hash: string
     proofSystem: ZkCatalogTag
-    knownDeployments: string[]
+    knownDeployments: {
+      address: string
+      chain: string
+    }[]
     verificationStatus: 'successful' | 'unsuccessful' | 'notVerified'
-    usedBy: ProjectId[]
     verificationSteps?: string
     attesters?: ZkCatalogAttester[]
     description?: string
+    unsafe?: boolean
   }[]
 }
 
@@ -768,6 +838,7 @@ export interface ZkCatalogTag {
 
 export interface TrustedSetup {
   id: string
+  name: string
   risk: 'green' | 'yellow' | 'red' | 'N/A'
   shortDescription: string
   longDescription: string
@@ -777,8 +848,13 @@ export interface TrustedSetup {
 
 // #region feature configs
 export interface ProjectTvsInfo {
-  associatedTokens: string[]
+  associatedTokens: ProjectAssociatedToken[]
   warnings: WarningWithSentiment[]
+}
+
+export interface ProjectAssociatedToken {
+  symbol: string
+  icon: string | undefined
 }
 
 export type ProjectEscrowSource = 'canonical' | 'external' | 'native'
@@ -839,7 +915,10 @@ export type AdjustCount =
 export interface DayActivityConfig {
   type: 'day'
   sinceTimestamp: UnixTime
+  /** Source of the data, will be displayed in the UI */
+  dataSource: string
   resyncLastDays?: number
+  batchSize?: number
 }
 
 export interface ProjectLivenessInfo {
@@ -905,7 +984,7 @@ export interface CelestiaDaTrackingConfig {
 export interface AvailDaTrackingConfig {
   type: 'avail'
   daLayer: ProjectId
-  appId: string
+  appIds: string[]
   sinceBlock: number
   untilBlock?: number
 }
@@ -920,14 +999,16 @@ export interface EigenDaTrackingConfig {
 
 export interface ProjectEcosystemInfo {
   id: ProjectId
+  /** Is this project part of the Superchain? Only used with id: 'superchain' */
+  isPartOfSuperchain?: boolean
   sinceTimestamp?: UnixTime
   untilTimestamp?: UnixTime
 }
 
 export interface ProjectEcosystemConfig {
+  startedAt?: UnixTime
   token: {
-    tokenId: string
-    projectId: ProjectId
+    coingeckoId: CoingeckoId
     description: string
   }
   links: {
@@ -937,6 +1018,14 @@ export interface ProjectEcosystemConfig {
     governanceProposals: string
     tools?: string[]
     grants?: string
+  }
+  firstBanner?: {
+    headlineText?: string
+    mainText?: string
+  }
+  secondBanner?: {
+    headlineText?: string
+    mainText?: string
   }
 }
 // #endregion
@@ -950,6 +1039,7 @@ export interface ProjectPermissions {
 }
 
 export interface ProjectPermission {
+  id: string
   /** List of the accounts */
   accounts: ProjectPermissionedAccount[]
   /** Name of this group */
@@ -971,7 +1061,7 @@ export interface ProjectPermissionedAccount {
   url: string
   address: ChainSpecificAddress
   isVerified: boolean
-  type: 'EOA' | 'Contract'
+  type: 'EOA' | 'Contract' | 'Reference'
 }
 
 export interface ProjectContracts {
@@ -980,6 +1070,7 @@ export interface ProjectContracts {
   /** List of risks associated with the contracts */
   risks: ProjectRisk[]
   escrows?: ProjectEscrow[]
+  zkProgramHashes?: ProjectScalingContractsZkProgramHash[]
 }
 
 export interface ProjectContract {
@@ -1008,6 +1099,12 @@ export interface ProjectContract {
     /** Who can pause/unpause the contract */
     pausableBy: string[]
   }
+  /** List of past upgrades */
+  pastUpgrades?: {
+    timestamp: UnixTime
+    transactionHash: string
+    implementations: ChainSpecificAddress[]
+  }[]
   /** List of references */
   references?: ReferenceLink[]
   /** Indicates whether the generation of contained data was driven by discovery */
@@ -1022,6 +1119,8 @@ export interface ProjectContractUpgradeability {
 }
 
 export interface ProjectUpgradeableActor {
+  /** Id of the actor */
+  id?: string
   /** Actor from permissions that can upgrade */
   name: string
   /** Upgrade delay. Can be simple "21 days" or more complex "8 days shortened to 0 by security council" */
@@ -1069,7 +1168,7 @@ export interface ProjectDiscoveryInfo {
   isDiscoDriven: boolean
   permissionsDiscoDriven: boolean
   contractsDiscoDriven: boolean
-  timestampPerChain: Record<string, number>
+  baseTimestamp: number | undefined
   hasDiscoUi: boolean
 }
 // #endregion

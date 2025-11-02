@@ -14,9 +14,8 @@ export const blockfit: ScalingProject = underReviewL3({
     name: 'BlockFit',
     slug: 'blockfit',
     description:
-      'BlockFit is a scaling solution built on the Orbit stack. It aims to revolutionizing healthcare.',
+      'BlockFit is a scaling solution built on the Orbit stack. It aims to revolutionize healthcare.',
     purposes: ['Universal'],
-    category: 'Optimium',
     stacks: ['Arbitrum'],
     links: {
       websites: ['https://blockfit.io/'],
@@ -29,6 +28,10 @@ export const blockfit: ScalingProject = underReviewL3({
       socialMedia: ['https://x.com/Fit24updates', 'https://t.me/fit24updates'],
     },
   },
+  dataAvailability: undefined,
+  proofSystem: {
+    type: 'Optimistic',
+  },
   chainConfig: {
     name: 'blockfit',
     chainId: 202424,
@@ -36,7 +39,7 @@ export const blockfit: ScalingProject = underReviewL3({
       {
         type: 'rpc',
         url: 'https://rpc.blockfitscan.io',
-        callsPerMinute: 1500,
+        callsPerMinute: 300,
       },
     ],
   },

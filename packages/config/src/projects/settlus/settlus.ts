@@ -1,4 +1,4 @@
-import { UnixTime } from '@l2beat/shared-pure'
+import { ProjectId, UnixTime } from '@l2beat/shared-pure'
 import { REASON_FOR_BEING_OTHER } from '../../common'
 import { BADGES } from '../../common/badges'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
@@ -9,10 +9,15 @@ const discovery = new ProjectDiscovery('settlus')
 const genesisTimestamp = UnixTime(1736459256)
 
 export const settlus: ScalingProject = opStackL2({
+  ecosystemInfo: {
+    id: ProjectId('superchain'),
+    isPartOfSuperchain: false,
+  },
   capability: 'universal',
   addedAt: UnixTime(1737636288), // 2025-01-23T12:44:48+00:00
   additionalBadges: [BADGES.RaaS.Alchemy],
   reasonsForBeingOther: [REASON_FOR_BEING_OTHER.CLOSED_PROOFS],
+  isPartOfSuperchain: false,
   display: {
     name: 'Settlus',
     slug: 'settlus',
@@ -24,6 +29,7 @@ export const settlus: ScalingProject = opStackL2({
       bridges: ['https://settlus-mainnet.bridge.alchemy.com/'],
       explorers: ['https://mainnet.settlus.network/'],
       documentation: ['https://docs.settlus.org/'],
+      repositories: ['https://github.com/settlus'],
       socialMedia: [
         'https://x.com/Settlusofficial',
         'https://github.com/settlus',
@@ -33,18 +39,7 @@ export const settlus: ScalingProject = opStackL2({
   chainConfig: {
     name: 'settlus',
     chainId: 5371,
-    apis: [
-      {
-        type: 'rpc',
-        url: 'https://settlus-septestnet.g.alchemy.com/public',
-        callsPerMinute: 1500,
-      },
-    ],
-  },
-  activityConfig: {
-    type: 'block',
-    startBlock: 1,
-    adjustCount: { type: 'SubtractOne' },
+    apis: [],
   },
   discovery,
   genesisTimestamp,

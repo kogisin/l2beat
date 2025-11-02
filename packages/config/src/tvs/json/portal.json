@@ -129,7 +129,8 @@
         "chain": "ethereum",
         "escrowAddress": "0x3ee18B2214AFF97000D974cf647E7C347E8fa585",
         "decimals": 18,
-        "sinceTimestamp": 1631535967
+        "sinceTimestamp": 1631535967,
+        "untilTimestamp": 1754290800
       },
       "category": "other",
       "source": "canonical",
@@ -244,6 +245,25 @@
         "escrowAddress": "0x3ee18B2214AFF97000D974cf647E7C347E8fa585",
         "decimals": 9,
         "sinceTimestamp": 1636297637
+      },
+      "category": "other",
+      "source": "canonical",
+      "isAssociated": false
+    },
+    {
+      "mode": "auto",
+      "id": "portal-BADGER",
+      "priceId": "badger-dao",
+      "symbol": "BADGER",
+      "name": "Badger",
+      "iconUrl": "https://coin-images.coingecko.com/coins/images/13287/large/badger_dao_logo.jpg?1696513059",
+      "amount": {
+        "type": "balanceOfEscrow",
+        "address": "0x3472A5A71965499acd81997a54BBA8D852C6E53d",
+        "chain": "ethereum",
+        "escrowAddress": "0x3ee18B2214AFF97000D974cf647E7C347E8fa585",
+        "decimals": 18,
+        "sinceTimestamp": 1631535967
       },
       "category": "other",
       "source": "canonical",
@@ -492,7 +512,7 @@
         "decimals": 8,
         "sinceTimestamp": 1726099200
       },
-      "category": "other",
+      "category": "btc",
       "source": "canonical",
       "isAssociated": false
     },
@@ -567,6 +587,25 @@
         "escrowAddress": "0x3ee18B2214AFF97000D974cf647E7C347E8fa585",
         "decimals": 18,
         "sinceTimestamp": 1639008000
+      },
+      "category": "other",
+      "source": "canonical",
+      "isAssociated": false
+    },
+    {
+      "mode": "auto",
+      "id": "portal-CRO",
+      "priceId": "crypto-com-chain",
+      "symbol": "CRO",
+      "name": "CRO",
+      "iconUrl": "https://assets.coingecko.com/coins/images/7310/large/cro_token_logo.png?1696507599",
+      "amount": {
+        "type": "balanceOfEscrow",
+        "address": "0xA0b73E1Ff0B80914AB6fe0444E65848C4C34450b",
+        "chain": "ethereum",
+        "escrowAddress": "0x3ee18B2214AFF97000D974cf647E7C347E8fa585",
+        "decimals": 8,
+        "sinceTimestamp": 1631535967
       },
       "category": "other",
       "source": "canonical",
@@ -891,7 +930,7 @@
         "decimals": 6,
         "sinceTimestamp": 1656547200
       },
-      "category": "other",
+      "category": "stablecoin",
       "source": "canonical",
       "isAssociated": false
     },
@@ -1072,28 +1111,14 @@
       "priceId": "gala",
       "symbol": "GALA",
       "name": "Gala",
-      "iconUrl": "https://assets.coingecko.com/coins/images/12493/large/GALA-COINGECKO.png?1696512310",
+      "iconUrl": "https://coin-images.coingecko.com/coins/images/12493/large/GALA_token_image_-_200PNG.png?1709725869",
       "amount": {
-        "type": "calculation",
-        "operator": "sum",
-        "arguments": [
-          {
-            "type": "balanceOfEscrow",
-            "address": "0x15D4c048F83bd7e37d49eA4C83a07267Ec4203dA",
-            "chain": "ethereum",
-            "escrowAddress": "0x3ee18B2214AFF97000D974cf647E7C347E8fa585",
-            "decimals": 8,
-            "sinceTimestamp": 1631535967
-          },
-          {
-            "type": "balanceOfEscrow",
-            "address": "0xd1d2Eb1B1e90B638588728b4130137D262C87cae",
-            "chain": "ethereum",
-            "escrowAddress": "0x3ee18B2214AFF97000D974cf647E7C347E8fa585",
-            "decimals": 8,
-            "sinceTimestamp": 1681915991
-          }
-        ]
+        "type": "balanceOfEscrow",
+        "address": "0xd1d2Eb1B1e90B638588728b4130137D262C87cae",
+        "chain": "ethereum",
+        "escrowAddress": "0x3ee18B2214AFF97000D974cf647E7C347E8fa585",
+        "decimals": 8,
+        "sinceTimestamp": 1681915991
       },
       "category": "other",
       "source": "canonical",
@@ -1310,6 +1335,25 @@
     },
     {
       "mode": "auto",
+      "id": "portal-LEASH",
+      "priceId": "leash",
+      "symbol": "LEASH",
+      "name": "DOGE KILLER",
+      "iconUrl": "https://coin-images.coingecko.com/coins/images/15802/large/Leash.png?1696515425",
+      "amount": {
+        "type": "balanceOfEscrow",
+        "address": "0x27C70Cd1946795B66be9d954418546998b546634",
+        "chain": "ethereum",
+        "escrowAddress": "0x3ee18B2214AFF97000D974cf647E7C347E8fa585",
+        "decimals": 18,
+        "sinceTimestamp": 1631535967
+      },
+      "category": "other",
+      "source": "canonical",
+      "isAssociated": false
+    },
+    {
+      "mode": "auto",
       "id": "portal-LEO",
       "priceId": "leo-token",
       "symbol": "LEO",
@@ -1494,7 +1538,7 @@
         "decimals": 18,
         "sinceTimestamp": 1631535967
       },
-      "category": "other",
+      "category": "stablecoin",
       "source": "canonical",
       "isAssociated": false
     },
@@ -1798,7 +1842,7 @@
         "decimals": 18,
         "sinceTimestamp": 1631535967
       },
-      "category": "other",
+      "category": "rwaPublic",
       "source": "canonical",
       "isAssociated": false
     },
@@ -2083,7 +2127,7 @@
         "decimals": 8,
         "sinceTimestamp": 1631535967
       },
-      "category": "other",
+      "category": "btc",
       "source": "canonical",
       "isAssociated": false
     },
@@ -2463,7 +2507,7 @@
         "decimals": 18,
         "sinceTimestamp": 1631535967
       },
-      "category": "other",
+      "category": "btc",
       "source": "canonical",
       "isAssociated": false
     },
@@ -2653,7 +2697,7 @@
         "decimals": 8,
         "sinceTimestamp": 1631535967
       },
-      "category": "other",
+      "category": "btc",
       "source": "canonical",
       "isAssociated": false
     },
@@ -2767,7 +2811,7 @@
         "decimals": 6,
         "sinceTimestamp": 1635679310
       },
-      "category": "other",
+      "category": "rwaPublic",
       "source": "canonical",
       "isAssociated": false
     },

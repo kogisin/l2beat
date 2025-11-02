@@ -15,6 +15,7 @@ import {
   EXITS,
   FORCE_TRANSACTIONS,
   FRONTRUNNING_RISK,
+  REASON_FOR_BEING_OTHER,
   RISK_VIEW,
   SEQUENCER_NO_MECHANISM,
   STATE_VALIDATION,
@@ -22,7 +23,6 @@ import {
 } from '../common'
 import { BADGES } from '../common/badges'
 import { EXPLORER_URLS } from '../common/explorerUrls'
-import { formatExecutionDelay } from '../common/formatDelays'
 import { getStage } from '../common/stages/getStage'
 import { ProjectDiscovery } from '../discovery/ProjectDiscovery'
 import type {
@@ -42,6 +42,7 @@ import type {
   ProjectEscrow,
   ProjectPermissions,
   ProjectScalingCapability,
+  ProjectScalingProofSystem,
   ProjectScalingPurpose,
   ProjectScalingScopeOfAssessment,
   ProjectScalingStateDerivation,
@@ -75,6 +76,7 @@ export interface PolygonCDKStackConfig {
   activityConfig?: ProjectActivityConfig
   chainConfig?: ChainConfig
   stateDerivation?: ProjectScalingStateDerivation
+  nonTemplateProofSystem?: ProjectScalingProofSystem
   nonTemplatePermissions?: Record<string, ProjectPermissions>
   nonTemplateContracts?: ProjectContract[]
   nonTemplateEscrows: ProjectEscrow[]
@@ -104,7 +106,7 @@ export interface PolygonCDKStackConfig {
   }
   /** Configure to enable DA metrics tracking for chain using Avail DA */
   availDa?: {
-    appId: string
+    appIds: string[]
     /* IMPORTANT: Block number on Avail Network */
     sinceBlock: number
   }
@@ -118,7 +120,7 @@ export function polygonCDKStack(
   const explorerUrl = EXPLORER_URLS['ethereum']
   const daProvider = templateVars.daProvider
   const shared = new ProjectDiscovery('shared-polygon-cdk')
-  const rollupManagerContract = shared.getContract('PolygonRollupManager')
+  const agglayerManagerContract = shared.getContract('AgglayerManager')
   if (daProvider !== undefined) {
     assert(
       templateVars.additionalBadges?.find((b) => b.type === 'DA') !== undefined,
@@ -132,7 +134,7 @@ export function polygonCDKStack(
   )
   const upgradeDelayString = formatSeconds(upgradeDelay)
   const emergencyActivatedCount = shared.getContractValue<number>(
-    'PolygonRollupManager',
+    'AgglayerManager',
     'emergencyStateCount',
   )
 
@@ -148,15 +150,29 @@ export function polygonCDKStack(
   } as const
 
   assert(
-    rollupManagerContract.address ===
+    agglayerManagerContract.address ===
       ChainSpecificAddress('eth:0x5132A183E9F3CB7C848b0AAC5Ae0c4f0491B7aB2'),
     'Polygon rollup manager address does not match with the one in the shared Polygon CDK discovery. Tracked transactions would be misconfigured, bailing.',
   )
-  const bridge = shared.getContract('PolygonSharedBridge')
+  const bridge = shared.getContract('AgglayerBridge')
 
   const finalizationPeriod = 0
 
   const discoveries = [templateVars.discovery, shared]
+
+  const hasNoProofs = templateVars.reasonsForBeingOther?.some(
+    (e) => e.label === REASON_FOR_BEING_OTHER.NO_PROOFS.label,
+  )
+  const baseBadges = [
+    BADGES.Stack.CDKErigon,
+    BADGES.VM.EVM,
+    BADGES.Infra.Agglayer,
+  ]
+
+  if (!daProvider) {
+    baseBadges.push(BADGES.DA.EthereumCalldata)
+  }
+
   return {
     type: 'layer2',
     addedAt: templateVars.addedAt,
@@ -173,11 +189,6 @@ export function polygonCDKStack(
         'Universal',
         ...(templateVars.additionalPurposes ?? []),
       ],
-      category: templateVars.reasonsForBeingOther
-        ? 'Other'
-        : templateVars.daProvider !== undefined
-          ? 'Validium'
-          : 'ZK Rollup',
       architectureImage:
         (templateVars.architectureImage ??
         templateVars.daProvider !== undefined)
@@ -186,6 +197,11 @@ export function polygonCDKStack(
       stacks: ['Agglayer CDK'],
       tvsWarning: templateVars.display.tvsWarning,
     },
+    proofSystem:
+      templateVars.nonTemplateProofSystem ??
+      (hasNoProofs
+        ? undefined
+        : { type: 'Validity', zkCatalogId: ProjectId('zkprover') }),
     config: {
       associatedTokens: templateVars.associatedTokens,
       escrows: templateVars.nonTemplateEscrows,
@@ -218,7 +234,7 @@ export function polygonCDKStack(
     riskView: {
       stateValidation: {
         ...RISK_VIEW.STATE_ZKP_ST_SN_WRAP,
-        secondLine: formatExecutionDelay(finalizationPeriod),
+        executionDelay: finalizationPeriod,
       },
       dataAvailability: riskViewDA(daProvider),
       exitWindow: exitWindowRisk,
@@ -312,8 +328,7 @@ export function polygonCDKStack(
           ...EXITS.REGULAR_MESSAGING('zk'),
           references: explorerReferences(explorerUrl, [
             {
-              title:
-                'PolygonSharedBridge.sol - source code, claimAsset function',
+              title: 'AgglayerBridge.sol - source code, claimAsset function',
               address: safeGetImplementation(bridge),
             },
           ]),
@@ -338,8 +353,8 @@ export function polygonCDKStack(
             },
             {
               title:
-                'Etherscan: PolygonRollupManager.sol - verifyPessimisticTrustedAggregator() function',
-              url: 'https://etherscan.io/address/0x42B9fF0644741e3353162678596e7D6aA6a13240#code#F1#L1280',
+                'Etherscan: AgglayerManager.sol - verifyPessimisticTrustedAggregator() function',
+              url: 'https://etherscan.io/address/0x15cAF18dEd768e3620E0f656221Bf6B400ad2618#code#F1#L1300',
             },
           ],
         },
@@ -350,7 +365,7 @@ export function polygonCDKStack(
         'Node software can be found [here](https://github.com/0xPolygonHermez/zkevm-node) and [here](https://github.com/0xPolygonHermez/cdk-erigon). The cdk-erigon node is the more recent implementation.',
       compressionScheme: 'No compression scheme is used.',
       genesisState:
-        'The genesis state, whose corresponding root is accessible as Batch 0 root in the [`_legacyBatchNumToStateRoot`](https://evm.storage/eth/19489007/0x5132a183e9f3cb7c848b0aac5ae0c4f0491b7ab2/_legacyBatchNumToStateRoot#map) variable of PolygonRollupManager, is available [here](https://github.com/0xPolygonHermez/zkevm-contracts/blob/0d0e69a6f299e273343461f6350343cf4b048269/deployment/genesis.json).',
+        'The genesis state, whose corresponding root is accessible as Batch 0 root in the [`_legacyBatchNumToStateRoot`](https://evm.storage/eth/19489007/0x5132a183e9f3cb7c848b0aac5ae0c4f0491b7ab2/_legacyBatchNumToStateRoot#map) variable of AgglayerManager, is available [here](https://github.com/0xPolygonHermez/zkevm-contracts/blob/0d0e69a6f299e273343461f6350343cf4b048269/deployment/genesis.json).',
       dataFormat:
         'The trusted sequencer batches transactions according to the specifications documented [here](https://docs.polygon.technology/zkEVM/architecture/protocol/transaction-life-cycle/transaction-batching/).',
     },
@@ -389,8 +404,8 @@ export function polygonCDKStack(
           references: explorerReferences(explorerUrl, [
             {
               title:
-                'PolygonRollupManager.sol - source code, _verifyAndRewardBatches function',
-              address: safeGetImplementation(rollupManagerContract),
+                'AgglayerManager.sol - source code, _verifyAndRewardBatches function',
+              address: safeGetImplementation(agglayerManagerContract),
             },
           ]),
         },
@@ -409,21 +424,13 @@ export function polygonCDKStack(
     upgradesAndGovernance:
       templateVars.upgradesAndGovernance ??
       `
-The regular upgrade process for all system contracts (shared and L2-specific) starts at the PolygonAdminMultisig. For the shared contracts, they schedule a transaction that targets the ProxyAdmin via the Timelock, wait for ${upgradeDelayString} and then execute the upgrade. An upgrade of the Layer 2 specific rollup- or validium contract requires first adding a new rollupType through the Timelock and the RollupManager (defining the new implementation and verifier contracts). Now that the rollupType is created, either the local admin or the PolygonAdminMultisig can immediately upgrade the local system contracts to it.
+The regular upgrade process for all system contracts (shared and L2-specific) starts at the PolygonAdminMultisig. For the shared contracts, they schedule a transaction that targets the ProxyAdmin via the Timelock, wait for ${upgradeDelayString} and then execute the upgrade. An upgrade of the Layer 2 specific rollup- or validium contract requires first adding a new rollupType through the Timelock and the AgglayerManager (defining the new implementation and verifier contracts). Now that the rollupType is created, either the local admin or the PolygonAdminMultisig can immediately upgrade the local system contracts to it.
 
-The PolygonSecurityCouncil can expedite the upgrade process by declaring an emergency state. This state pauses both the shared bridge and the PolygonRollupManager and allows for instant upgrades through the timelock. Accordingly, instant upgrades for all system contracts are possible with the cooperation of the SecurityCouncil. The emergency state has been activated ${emergencyActivatedCount} time(s) since inception.
+The PolygonSecurityCouncil can expedite the upgrade process by declaring an emergency state. This state pauses both the shared bridge and the AgglayerManager and allows for instant upgrades through the timelock. Accordingly, instant upgrades for all system contracts are possible with the cooperation of the SecurityCouncil. The emergency state has been activated ${emergencyActivatedCount} time(s) since inception.
 
-Furthermore, the PolygonAdminMultisig is permissioned to manage the shared trusted aggregator (proposer and prover) for all participating Layer 2s, deactivate the emergency state, obsolete rolupTypes and manage operational parameters and fees in the PolygonRollupManager directly. The local admin of a specific Layer 2 can manage their chain by choosing the trusted sequencer, manage forced batches and set the data availability config. Creating new Layer 2s (of existing rollupType) is outsourced to the PolygonCreateRollupMultisig but can also be done by the PolygonAdminMultisig. Custom non-shared bridge escrows have their custom upgrade admins listed in the permissions section.`,
+Furthermore, the PolygonAdminMultisig is permissioned to manage the shared trusted aggregator (proposer and prover) for all participating Layer 2s, deactivate the emergency state, obsolete rolupTypes and manage operational parameters and fees in the AgglayerManager directly. The local admin of a specific Layer 2 can manage their chain by choosing the trusted sequencer, manage forced batches and set the data availability config. Creating new Layer 2s (of existing rollupType) is outsourced to the PolygonCreateRollupMultisig but can also be done by the PolygonAdminMultisig. Custom non-shared bridge escrows have their custom upgrade admins listed in the permissions section.`,
     milestones: templateVars.milestones,
-    badges: mergeBadges(
-      [
-        BADGES.Stack.CDKErigon,
-        BADGES.VM.EVM,
-        BADGES.DA.EthereumCalldata,
-        BADGES.Infra.Agglayer,
-      ],
-      templateVars.additionalBadges ?? [],
-    ),
+    badges: mergeBadges(baseBadges, templateVars.additionalBadges ?? []),
     customDa: templateVars.customDa,
     reasonsForBeingOther: templateVars.reasonsForBeingOther,
     scopeOfAssessment: templateVars.scopeOfAssessment,
@@ -495,7 +502,7 @@ function getDaTracking(
         daLayer: ProjectId('avail'),
         // TODO: update to value from discovery
         sinceBlock: templateVars.availDa.sinceBlock,
-        appId: templateVars.availDa.appId,
+        appIds: templateVars.availDa.appIds,
       },
     ]
   }

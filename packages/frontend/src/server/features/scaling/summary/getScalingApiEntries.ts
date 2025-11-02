@@ -1,4 +1,4 @@
-import type { Badge } from '@l2beat/config'
+import type { Badge, ProjectAssociatedToken } from '@l2beat/config'
 import type { RosetteValue } from '~/components/rosette/types'
 import { getL2Risks } from '~/pages/scaling/utils/getL2Risks'
 import { ps } from '~/server/projects'
@@ -6,14 +6,14 @@ import { getUnderReviewStatus } from '~/utils/project/underReview'
 import { getProjectsChangeReport } from '../../projects-change-report/getProjectsChangeReport'
 import { get7dTvsBreakdown } from '../tvs/get7dTvsBreakdown'
 
-export interface ScalingApiEntry {
+interface ScalingApiEntry {
   id: string
   name: string
   shortName: string | undefined
   slug: string
   type: 'layer2' | 'layer3'
   hostChain: string | undefined
-  category: string
+  category: string | undefined
   providers: string[] | undefined
   purposes: string[]
   isArchived: boolean
@@ -30,7 +30,7 @@ export interface ScalingApiEntry {
       associated: number
     }
     change7d: number
-    associatedTokens: string[]
+    associatedTokens: ProjectAssociatedToken[]
   }
 }
 
@@ -71,17 +71,12 @@ export async function getScalingApiEntries(): Promise<ScalingApiEntry[]> {
           project.scalingRisks.stacked ?? project.scalingRisks.self,
         ),
         tvs: {
-          breakdown: latestTvs?.breakdown
-            ? {
-                ...latestTvs.breakdown,
-                associated: latestTvs.associated.total,
-              }
-            : {
-                total: 0,
-                associated: 0,
-                ether: 0,
-                stablecoin: 0,
-              },
+          breakdown: latestTvs?.breakdown ?? {
+            total: 0,
+            associated: 0,
+            ether: 0,
+            stablecoin: 0,
+          },
           change7d: latestTvs?.change.total ?? 0,
           associatedTokens: project.tvsInfo.associatedTokens,
         },

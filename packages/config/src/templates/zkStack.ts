@@ -17,17 +17,19 @@ import {
   EXITS,
   FORCE_TRANSACTIONS,
   OPERATOR,
+  REASON_FOR_BEING_OTHER,
   RISK_VIEW,
   TECHNOLOGY_DATA_AVAILABILITY,
 } from '../common'
 import { BADGES } from '../common/badges'
-import { formatExecutionDelay } from '../common/formatDelays'
 import { PROOFS } from '../common/proofSystems'
 import { getStage } from '../common/stages/getStage'
+import { ZK_PROGRAM_HASHES } from '../common/zkProgramHashes'
 import type { ProjectDiscovery } from '../discovery/ProjectDiscovery'
 import type {
   Layer2TxConfig,
   ProjectScalingDisplay,
+  ProjectScalingRiskView,
   ProjectScalingTechnology,
   ScalingProject,
 } from '../internalTypes'
@@ -42,8 +44,8 @@ import type {
   ProjectEscrow,
   ProjectPermissions,
   ProjectScalingCapability,
+  ProjectScalingProofSystem,
   ProjectScalingPurpose,
-  ProjectScalingRiskView,
   ProjectScalingScopeOfAssessment,
   ProjectScalingStage,
   ProjectTechnologyChoice,
@@ -77,6 +79,7 @@ export interface ZkStackConfigCommon {
   l1StandardBridgePremintedTokens?: string[]
   diamondContract: EntryParameters
   activityConfig?: ProjectActivityConfig
+  nonTemplateProofSystem?: ProjectScalingProofSystem
   nonTemplateTrackedTxs?: Layer2TxConfig[]
   l2OutputOracle?: EntryParameters
   portal?: EntryParameters
@@ -111,7 +114,7 @@ export interface ZkStackConfigCommon {
   }
   /** Configure to enable DA metrics tracking for chain using Avail DA */
   availDa?: {
-    appId: string
+    appIds: string[]
     /* IMPORTANT: Block number on Avail Network */
     sinceBlock: number
   }
@@ -245,21 +248,32 @@ export function zkStackL2(templateVars: ZkStackConfigCommon): ScalingProject {
   const scThresholdString = `${scMainThreshold}/${scMemberCount}`
   const guardiansThresholdString = `${guardiansMainThreshold}/${guardiansMemberCount}`
 
+  const hasNoProofs = templateVars.reasonsForBeingOther?.some(
+    (e) => e.label === REASON_FOR_BEING_OTHER.NO_PROOFS.label,
+  )
+
+  const l2BootloaderHash = templateVars.discovery.getContractValue<string>(
+    templateVars.diamondContract.address,
+    'getL2BootloaderBytecodeHash',
+  )
+
+  const baseBadges = [
+    BADGES.Stack.ZKStack,
+    BADGES.Infra.ElasticChain,
+    BADGES.VM.EVM,
+  ]
+
+  if (!daProvider) {
+    baseBadges.push(BADGES.DA.EthereumBlobs)
+  }
+
   return {
     type: 'layer2',
     id: ProjectId(templateVars.discovery.projectName),
     addedAt: templateVars.addedAt,
     capability: templateVars.capability ?? 'universal',
     archivedAt: templateVars.archivedAt,
-    badges: mergeBadges(
-      [
-        BADGES.Stack.ZKStack,
-        BADGES.Infra.ElasticChain,
-        BADGES.VM.EVM,
-        BADGES.DA.EthereumBlobs,
-      ],
-      templateVars.additionalBadges ?? [],
-    ),
+    badges: mergeBadges(baseBadges, templateVars.additionalBadges ?? []),
     display: {
       purposes: templateVars.overridingPurposes ?? [
         'Universal',
@@ -273,11 +287,6 @@ export function zkStackL2(templateVars: ZkStackConfigCommon): ScalingProject {
           : settlesOnGateway
             ? 'zkstack-rollup-gateway'
             : 'zkstack-rollup',
-      category: templateVars.reasonsForBeingOther
-        ? 'Other'
-        : daProvider !== undefined
-          ? 'Validium'
-          : 'ZK Rollup',
       liveness: {
         explanation: executionDelay
           ? `${templateVars.display.name} is a ${
@@ -290,6 +299,11 @@ export function zkStackL2(templateVars: ZkStackConfigCommon): ScalingProject {
       tvsWarning: templateVars.display.tvsWarning,
       ...templateVars.display,
     },
+    proofSystem:
+      templateVars.nonTemplateProofSystem ??
+      (hasNoProofs
+        ? undefined
+        : { type: 'Validity', zkCatalogId: ProjectId('boojum') }),
     config: {
       associatedTokens: templateVars.associatedTokens,
       escrows: [
@@ -321,7 +335,7 @@ export function zkStackL2(templateVars: ZkStackConfigCommon): ScalingProject {
     riskView: {
       stateValidation: templateVars.nonTemplateRiskView?.stateValidation ?? {
         ...RISK_VIEW.STATE_ZKP_ST_SN_WRAP,
-        secondLine: formatExecutionDelay(executionDelayS),
+        executionDelay: executionDelayS,
       },
       dataAvailability:
         templateVars.nonTemplateRiskView?.dataAvailability ??
@@ -358,7 +372,7 @@ export function zkStackL2(templateVars: ZkStackConfigCommon): ScalingProject {
                 principle: false,
                 usersHave7DaysToExit: false,
                 usersCanExitWithoutCooperation: false,
-                securityCouncilProperlySetUp: null,
+                securityCouncilProperlySetUp: true,
               },
               stage2: {
                 proofSystemOverriddenOnlyInCaseOfABug: null,
@@ -368,6 +382,8 @@ export function zkStackL2(templateVars: ZkStackConfigCommon): ScalingProject {
             },
             {
               rollupNodeLink: 'https://github.com/matter-labs/zksync-era',
+              stage1PrincipleDescription:
+                'While the Security Council is properly set up and is able to recover from a misbehaving operator, the majority is required, meaning that a compromised quorum-blocking minority can prevent users from exiting. Recovery actions are not straightforward and require complex protocol upgrades.',
             },
           )),
     technology: {
@@ -382,8 +398,7 @@ export function zkStackL2(templateVars: ZkStackConfigCommon): ScalingProject {
         ?.forceTransactions ?? {
         name: 'Users can force any transaction via L1',
         description:
-          'If a user is censored by the L2 Sequencer, they can try to force their transaction via an L1 queue. Right now there is no mechanism that forces L2 Sequencer to include\
-        transactions from the queue in an L2 block. The operator can implement a TransactionFilterer that censors forced transactions.',
+          'If a user is censored by the L2 Sequencer, they can try to force their transaction via an L1 queue. Right now there is no mechanism that forces L2 Sequencer to include transactions from the queue in an L2 block. The operator can implement a TransactionFilterer that censors forced transactions.',
         risks: [
           ...FORCE_TRANSACTIONS.SEQUENCER_NO_MECHANISM.risks,
           {
@@ -511,6 +526,7 @@ ZKsync Era's Chain Admin differs from the others as it also has the above *ZK cl
           'EmergencyUpgradeBoard',
         ),
       ],
+      zkProgramHashes: [ZK_PROGRAM_HASHES(l2BootloaderHash)],
     },
     stateDerivation:
       daProvider !== undefined
@@ -622,8 +638,9 @@ function getDaTracking(
   }
 
   if (templateVars.usesEthereumBlobs) {
-    const validatorTimelock =
-      templateVars.discovery.getContractDetails('ValidatorTimelock').address
+    const validatorTimelock = ChainSpecificAddress.address(
+      templateVars.discovery.getContractDetails('ValidatorTimelock').address,
+    )
 
     const validatorsVTL = templateVars.discovery.getContractValue<
       ChainSpecificAddress[]
@@ -662,7 +679,7 @@ function getDaTracking(
         daLayer: ProjectId('avail'),
         // TODO: update to value from discovery
         sinceBlock: templateVars.availDa.sinceBlock,
-        appId: templateVars.availDa.appId,
+        appIds: templateVars.availDa.appIds,
       },
     ]
   }

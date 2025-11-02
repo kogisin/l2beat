@@ -25,7 +25,7 @@ export const reya: ScalingProject = orbitStackL2({
     links: {
       websites: ['https://reya.network/'],
       bridges: [
-        'https://reya.network/lge',
+        'https://app.reya.network/bridge',
         'https://bridge.gelato.network/bridge/reya-network',
       ],
       documentation: ['https://docs.reya.network/'],
@@ -45,7 +45,7 @@ export const reya: ScalingProject = orbitStackL2({
     multicallContracts: [],
     sinceTimestamp: UnixTime.fromDate(new Date('2024-04-23T00:00:00Z')),
     apis: [
-      { type: 'rpc', url: 'https://rpc.reya.network', callsPerMinute: 1500 },
+      { type: 'rpc', url: 'https://rpc.reya.network', callsPerMinute: 300 },
       { type: 'blockscout', url: 'https://explorer.reya.network/api' },
     ],
   },

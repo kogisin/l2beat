@@ -111,7 +111,7 @@
         "decimals": 18,
         "sinceTimestamp": 1718170153
       },
-      "category": "other",
+      "category": "btc",
       "source": "external",
       "isAssociated": false,
       "bridgedUsing": {
@@ -492,6 +492,39 @@
     },
     {
       "mode": "auto",
+      "id": "linea-LINEA",
+      "priceId": "linea",
+      "symbol": "LINEA",
+      "name": "Linea",
+      "iconUrl": "https://coin-images.coingecko.com/coins/images/68507/large/linea-logo.jpeg?1756025484",
+      "amount": {
+        "type": "calculation",
+        "operator": "min",
+        "arguments": [
+          {
+            "type": "circulatingSupply",
+            "apiId": "linea",
+            "decimals": 18,
+            "sinceTimestamp": 1757548800,
+            "address": "0x1789e0043623282D5DCc7F213d703C6D8BAfBB04",
+            "chain": "ethereum"
+          },
+          {
+            "type": "balanceOfEscrow",
+            "address": "0x1789e0043623282D5DCc7F213d703C6D8BAfBB04",
+            "escrowAddress": "0x051F1D88f0aF5763fB888eC4378b4D8B29ea3319",
+            "chain": "ethereum",
+            "decimals": 18,
+            "sinceTimestamp": 1757548800
+          }
+        ]
+      },
+      "category": "other",
+      "source": "canonical",
+      "isAssociated": true
+    },
+    {
+      "mode": "auto",
       "id": "linea-LINK",
       "priceId": "chainlink",
       "symbol": "LINK",
@@ -580,7 +613,7 @@
         "decimals": 18,
         "sinceTimestamp": 1715526671
       },
-      "category": "other",
+      "category": "btc",
       "source": "external",
       "isAssociated": false,
       "bridgedUsing": {
@@ -665,6 +698,25 @@
       },
       "category": "other",
       "source": "canonical",
+      "isAssociated": false
+    },
+    {
+      "mode": "auto",
+      "id": "linea-REX",
+      "priceId": "etherex",
+      "symbol": "REX",
+      "name": "Etherex",
+      "iconUrl": "https://coin-images.coingecko.com/coins/images/68009/large/etherex.jpg?1754560098",
+      "amount": {
+        "type": "circulatingSupply",
+        "apiId": "etherex",
+        "decimals": 18,
+        "sinceTimestamp": 1754524800,
+        "address": "0xEfD81eeC32B9A8222D1842ec3d99c7532C31e348",
+        "chain": "linea"
+      },
+      "category": "other",
+      "source": "native",
       "isAssociated": false
     },
     {
@@ -783,7 +835,7 @@
         "decimals": 18,
         "sinceTimestamp": 1716875713
       },
-      "category": "other",
+      "category": "btc",
       "source": "external",
       "isAssociated": false,
       "bridgedUsing": {
@@ -808,7 +860,7 @@
         "decimals": 18,
         "sinceTimestamp": 1715238002
       },
-      "category": "other",
+      "category": "btc",
       "source": "external",
       "isAssociated": false,
       "bridgedUsing": {
@@ -1076,7 +1128,7 @@
         "decimals": 8,
         "sinceTimestamp": 1691060675
       },
-      "category": "other",
+      "category": "btc",
       "source": "canonical",
       "isAssociated": false
     },

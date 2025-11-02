@@ -130,7 +130,6 @@ export const zkfair: ScalingProject = {
     warning:
       'The forced transaction mechanism is currently disabled. The project claims to use CelestiaDA but smart contracts on L1 use DAC. Arbitrary messaging passing is removed from the bridge.',
     description: 'ZKFair is a Validium based on Polygon CDK and Celestia DA.',
-    category: 'Other',
     stacks: ['Agglayer CDK'],
     links: {
       websites: ['https://zkfair.io/'],
@@ -141,6 +140,7 @@ export const zkfair: ScalingProject = {
       socialMedia: ['https://twitter.com/ZKFCommunity'],
     },
   },
+  proofSystem: undefined,
   config: {
     escrows: [
       discovery.getEscrowDetails({
@@ -185,7 +185,7 @@ export const zkfair: ScalingProject = {
       {
         type: 'rpc',
         url: 'https://rpc.zkfair.io',
-        callsPerMinute: 1500,
+        callsPerMinute: 300,
         retryStrategy: 'UNRELIABLE',
       },
       { type: 'blockscout', url: 'https://scan.zkfair.io/api/' },

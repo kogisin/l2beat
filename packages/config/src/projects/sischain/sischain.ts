@@ -11,7 +11,6 @@ export const sischain: ScalingProject = underReviewL2({
     slug: 'sischain',
     description:
       'The SIS Chain is purpose-built for cross-chain activity – with fast execution, simple tooling, and native token utility at its core.',
-    category: 'Optimistic Rollup',
     purposes: ['Universal'],
     stacks: ['Arbitrum'],
     links: {
@@ -27,6 +26,10 @@ export const sischain: ScalingProject = underReviewL2({
       ],
     },
   },
+  dataAvailability: undefined,
+  proofSystem: {
+    type: 'Optimistic',
+  },
   chainConfig: {
     name: 'sischain',
     chainId: 13863860,
@@ -34,7 +37,7 @@ export const sischain: ScalingProject = underReviewL2({
       {
         type: 'rpc',
         url: 'https://symbiosis.calderachain.xyz/http',
-        callsPerMinute: 1500,
+        callsPerMinute: 300,
       },
     ],
   },

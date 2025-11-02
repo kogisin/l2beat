@@ -1,7 +1,6 @@
 import { ChartStats, ChartStatsItem } from '~/components/core/chart/ChartStats'
 import type { ScalingProjectDaThroughputChart } from '~/server/features/data-availability/throughput/getScalingProjectDaThroughtputChart'
 import type { DataPostedTimeRange } from '~/server/features/scaling/data-posted/range'
-import { cn } from '~/utils/cn'
 import { formatBytes } from '~/utils/number-format/formatBytes'
 import { rangeToLabel } from '~/utils/project/rangeToLabel'
 
@@ -15,10 +14,10 @@ export function ProjectDataPostedChartStats({
   data: ScalingProjectDaThroughputChart['stats'] | undefined
 }) {
   return (
-    <ChartStats className={cn('mt-4 lg:grid-cols-3')}>
+    <ChartStats className="lg:grid-cols-3">
       <ChartStatsItem
         label={`${rangeToLabel(range)} data posted`}
-        tooltip="The total amount of data posted to project's respective Data Availability (DA) layer."
+        tooltip="The total amount of data posted to project's respective Data Availability (DA) layer(s)."
         isLoading={isLoading}
         className="max-md:h-7"
       >
@@ -26,7 +25,7 @@ export function ProjectDataPostedChartStats({
       </ChartStatsItem>
       <ChartStatsItem
         label="Avg size per day"
-        tooltip="The average amount of data posted per day to project's respective Data Availability (DA) layer."
+        tooltip="The average amount of data posted per day to project's respective Data Availability (DA) layer(s)."
         isLoading={isLoading}
         className="max-md:h-7"
       >
@@ -34,7 +33,7 @@ export function ProjectDataPostedChartStats({
       </ChartStatsItem>
       <ChartStatsItem
         label="Avg size per L2 UOP"
-        tooltip="The average posted data size of a L2 user operation for the selected time period."
+        tooltip="The average amount of data posted to the respective DA layer(s), divided by the number of user operations."
         isLoading={isLoading}
         className="max-md:h-7"
       >

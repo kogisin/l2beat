@@ -4,7 +4,6 @@ import {
   ProjectId,
   UnixTime,
 } from '@l2beat/shared-pure'
-import { formatEther } from 'ethers/lib/utils'
 import {
   DA_BRIDGES,
   DA_LAYERS,
@@ -15,16 +14,12 @@ import {
   REASON_FOR_BEING_OTHER,
 } from '../../common'
 import { BADGES } from '../../common/badges'
-import { formatChallengePeriod } from '../../common/formatDelays'
 import { RISK_VIEW } from '../../common/riskView'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
 import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 
 const discovery = new ProjectDiscovery('fuel')
-const depositLimitGlobal = formatEther(
-  discovery.getContractValue<number>('FuelMessagePortal', 'depositLimitGlobal'),
-)
 const isErc20whitelistActive = discovery.getContractValue<boolean>(
   'FuelERC20Gateway',
   'whitelistRequired',
@@ -38,6 +33,9 @@ const challengePeriod = discovery.getContractValue<number>(
   'FuelChainState',
   'TIME_TO_FINALIZE',
 )
+
+// Fuel uses EigenDA v2 but doesn't have discovery configuration for version
+const eigenDACertVersion = 'v2'
 
 export const fuel: ScalingProject = {
   id: ProjectId('fuel'),
@@ -58,7 +56,6 @@ export const fuel: ScalingProject = {
     description:
       'Fuel Ignition is a high-performance Ethereum L2 built on FuelVM and the Sway language.',
     purposes: ['Universal'],
-    category: 'Other',
     links: {
       websites: ['https://fuel.network/'],
       bridges: [
@@ -77,6 +74,7 @@ export const fuel: ScalingProject = {
       ],
     },
   },
+  proofSystem: undefined,
   stage: {
     stage: 'NotApplicable',
   },
@@ -111,13 +109,12 @@ export const fuel: ScalingProject = {
         ],
         untilBlock: 22837254,
       },
-      // TODO: add as soon as we have their customerId
-      // {
-      //   type: 'eigen-da',
-      //   customerId: '',
-      //   daLayer: ProjectId('eigenda'),
-      //   sinceTimestamp: UnixTime(1751528219),
-      // },
+      {
+        type: 'eigen-da',
+        customerId: '0xea0337efc12e98ab118948da570c07691e8e4b37',
+        daLayer: ProjectId('eigenda'),
+        sinceTimestamp: UnixTime(1751526000),
+      },
     ],
     trackedTxs: [
       {
@@ -167,9 +164,9 @@ export const fuel: ScalingProject = {
   riskView: {
     stateValidation: {
       ...RISK_VIEW.STATE_NONE,
-      secondLine: formatChallengePeriod(challengePeriod),
+      challengeDelay: challengePeriod,
     },
-    dataAvailability: RISK_VIEW.DATA_EIGENDA(false),
+    dataAvailability: RISK_VIEW.DATA_EIGENDA(false, eigenDACertVersion),
     exitWindow: RISK_VIEW.EXIT_WINDOW(0, challengePeriod),
     sequencerFailure: RISK_VIEW.SEQUENCER_SELF_SEQUENCE(),
     proposerFailure: RISK_VIEW.PROPOSER_CANNOT_WITHDRAW,
@@ -311,7 +308,8 @@ export const fuel: ScalingProject = {
           upgradableBy: [{ name: 'Fuel Security Council', delay: 'no' }],
         }),
         discovery.getContractDetails('FuelMessagePortal', {
-          description: `Contract that allows to send and receive arbitrary messages to and from L2. It implements a max deposit limit for ETH, currently set to ${depositLimitGlobal} ETH, and rate limits withdrawals. Pausers are allowed to blacklist L2->L1 messages.`,
+          description:
+            'Contract that allows to send and receive arbitrary messages to and from L2. Pausers are allowed to blacklist L2->L1 messages.',
           upgradableBy: [{ name: 'Fuel Security Council', delay: 'no' }],
         }),
         discovery.getContractDetails('FuelChainState', {

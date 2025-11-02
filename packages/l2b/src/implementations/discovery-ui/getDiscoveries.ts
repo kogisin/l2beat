@@ -1,14 +1,16 @@
 import type { ConfigReader, DiscoveryOutput } from '@l2beat/discovery'
+import { getReferencedProjects } from './utils'
 
 export function getProjectDiscoveries(
   configReader: ConfigReader,
   project: string,
-  chain: string,
 ): DiscoveryOutput[] {
-  const baseDiscovery = configReader.readDiscovery(project, chain)
+  const baseDiscovery = configReader.readDiscovery(project)
   const discoveries = [baseDiscovery]
-  for (const sharedModule of baseDiscovery.sharedModules ?? []) {
-    discoveries.push(configReader.readDiscovery(sharedModule, chain))
+  const referencedProjects = getReferencedProjects(baseDiscovery)
+
+  for (const refProject of referencedProjects) {
+    discoveries.push(configReader.readDiscovery(refProject))
   }
 
   return discoveries
@@ -18,6 +20,5 @@ export function getAllProjectDiscoveries(
   configReader: ConfigReader,
   project: string,
 ): DiscoveryOutput[] {
-  const chains = configReader.readAllDiscoveredChainsForProject(project)
-  return chains.flatMap((c) => getProjectDiscoveries(configReader, project, c))
+  return getProjectDiscoveries(configReader, project)
 }

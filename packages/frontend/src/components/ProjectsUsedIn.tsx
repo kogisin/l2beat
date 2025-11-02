@@ -1,19 +1,30 @@
 import type { UsedInProject } from '@l2beat/config'
+import { useState } from 'react'
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '~/components/core/tooltip/Tooltip'
+import { useRouter } from '~/hooks/useRouter'
 import { cn } from '~/utils/cn'
+import {
+  Command,
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from './core/Command'
 
 export interface UsedInProjectWithIcon extends UsedInProject {
   icon: string
-  href: string
+  url: string
 }
-
 interface Props {
   usedIn: UsedInProjectWithIcon[]
   className?: string
+  noL2ClassName?: string
   maxProjects?: number
   noTooltip?: boolean
   noLink?: boolean
@@ -22,14 +33,17 @@ interface Props {
 export function ProjectsUsedIn({
   usedIn,
   className,
+  noL2ClassName,
   maxProjects = 5,
   noTooltip,
   noLink,
 }: Props) {
+  const [open, setOpen] = useState(false)
+  const router = useRouter()
   if (usedIn.length === 0) {
     return (
       <Tooltip>
-        <TooltipTrigger>No L2 😔</TooltipTrigger>
+        <TooltipTrigger className={noL2ClassName}>No L2 😔</TooltipTrigger>
         <TooltipContent>
           There are no scaling projects listed on L2BEAT that use this solution.
         </TooltipContent>
@@ -41,22 +55,10 @@ export function ProjectsUsedIn({
 
   const rest = usedIn.slice(maxProjects)
 
-  const nMoreComponent = noTooltip ? (
-    <span className="text-2xs">+{rest.length} more</span>
-  ) : (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <span className="cursor-default text-2xs leading-none">
-          +{rest.length} more
-        </span>
-      </TooltipTrigger>
-      <TooltipContent className="flex flex-col">
-        {rest.map((project) => (
-          <span key={project.slug}>{project.name}</span>
-        ))}
-      </TooltipContent>
-    </Tooltip>
-  )
+  function onItemSelect(item: UsedInProjectWithIcon) {
+    setOpen(false)
+    router.push(item.url)
+  }
 
   return (
     <div
@@ -78,7 +80,7 @@ export function ProjectsUsedIn({
                 />
               </TooltipTrigger>
             ) : (
-              <a href={project.href} className="size-5">
+              <a href={project.url} className="size-5">
                 <TooltipTrigger>
                   <img
                     width={20}
@@ -98,7 +100,52 @@ export function ProjectsUsedIn({
           </Tooltip>
         )
       })}
-      {rest.length > 0 && nMoreComponent}
+      {rest.length > 0 && (
+        <>
+          <button
+            className="text-2xs hover:underline"
+            onClick={(e) => {
+              e.preventDefault()
+              setOpen(true)
+            }}
+          >
+            +{rest.length} more
+          </button>
+          <CommandDialog
+            open={open}
+            onOpenChange={setOpen}
+            title="Projects used in"
+            description="Search for projects used in"
+          >
+            <Command className="rounded-none">
+              <CommandInput placeholder="Start typing to find project..." />
+              <CommandList>
+                <CommandEmpty>No projects found.</CommandEmpty>
+                <CommandGroup>
+                  {usedIn.map((project) => (
+                    <CommandItem
+                      key={project.slug}
+                      className="flex items-center gap-3"
+                      onSelect={() => onItemSelect(project)}
+                    >
+                      <img
+                        src={project.icon}
+                        alt={project.name}
+                        width={20}
+                        height={20}
+                        className="size-5"
+                      />
+                      <span className="font-bold text-label-value-15">
+                        {project.name}
+                      </span>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </CommandDialog>
+        </>
+      )}
     </div>
   )
 }

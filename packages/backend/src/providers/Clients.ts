@@ -1,5 +1,6 @@
 import { type Logger, RateLimiter } from '@l2beat/backend-tools'
 import {
+  AvailWsClient,
   BeaconChainClient,
   type BlockClient,
   BlockIndexerClient,
@@ -11,12 +12,14 @@ import {
   type LogsClient,
   LoopringClient,
   MulticallV3Client,
+  NearClient,
   PolkadotRpcClient,
   RpcClient,
   StarkexClient,
   StarknetClient,
   type SvmBlockClient,
   SvmRpcClient,
+  VoyagerClient,
   ZksyncLiteClient,
 } from '@l2beat/shared'
 import { assert, assertUnreachable } from '@l2beat/shared-pure'
@@ -27,30 +30,38 @@ export interface Clients {
   logs: LogsClient[]
   svmBlock: SvmBlockClient[]
   indexer: BlockIndexerClient[]
+  voyager: VoyagerClient | undefined
   starkex: StarkexClient | undefined
   loopring: LoopringClient | undefined
   degate: LoopringClient | undefined
   coingecko: CoingeckoClient
   beacon: BeaconChainClient | undefined
   celestia: CelestiaRpcClient | undefined
+  celestiaDaBeat: CelestiaRpcClient | undefined
   avail: PolkadotRpcClient | undefined
+  availWs: AvailWsClient | undefined
   eigen: EigenApiClient | undefined
   getRpcClient: (chain: string) => RpcClient
   getStarknetClient: (chain: string) => StarknetClient
   rpcClients: RpcClient[]
   starknetClients: StarknetClient[]
+  near: NearClient | undefined
 }
 
 export function initClients(config: Config, logger: Logger): Clients {
   const http = new HttpClient()
 
   let starkexClient: StarkexClient | undefined
+  let voyagerClient: VoyagerClient | undefined
   let loopringClient: LoopringClient | undefined
   let degateClient: LoopringClient | undefined
   let ethereumClient: RpcClient | undefined
   let beaconChainClient: BeaconChainClient | undefined
   let celestia: CelestiaRpcClient | undefined
+  let celestiaDaBeat: CelestiaRpcClient | undefined
   let avail: PolkadotRpcClient | undefined
+  let availWs: AvailWsClient | undefined
+  let near: NearClient | undefined
   let eigen: EigenApiClient | undefined
 
   const starknetClients: StarknetClient[] = []
@@ -84,7 +95,7 @@ export function initClients(config: Config, logger: Logger): Clients {
               )
             : undefined
           const rpcClient = new RpcClient({
-            sourceName: chain.name,
+            chain: chain.name,
             url: blockApi.url,
             http,
             callsPerMinute: blockApi.callsPerMinute,
@@ -245,6 +256,17 @@ export function initClients(config: Config, logger: Logger): Clients {
     retryStrategy: 'RELIABLE',
   })
 
+  if (config.activity && config.activity.voyagerApiKey) {
+    voyagerClient = new VoyagerClient({
+      sourceName: 'voyager',
+      apiKey: config.activity?.voyagerApiKey,
+      http,
+      logger,
+      callsPerMinute: 100,
+      retryStrategy: 'RELIABLE',
+    })
+  }
+
   if (config.beaconApi.url) {
     beaconChainClient = new BeaconChainClient({
       sourceName: 'beaconApi',
@@ -255,6 +277,26 @@ export function initClients(config: Config, logger: Logger): Clients {
       timeout: config.beaconApi.timeout,
       retryStrategy: 'RELIABLE',
     })
+  }
+
+  if (config.daBeat) {
+    near = new NearClient({
+      sourceName: 'near',
+      nearApiUrl: config.daBeat.nearRpcUrl,
+      http,
+      retryStrategy: 'RELIABLE',
+      logger,
+      callsPerMinute: 100,
+    })
+    celestiaDaBeat = new CelestiaRpcClient({
+      callsPerMinute: config.daBeat.celestiaCallsPerMinute,
+      url: config.daBeat.celestiaApiUrl,
+      retryStrategy: 'RELIABLE',
+      sourceName: 'celestia',
+      logger,
+      http,
+    })
+    availWs = new AvailWsClient(config.daBeat.availWsUrl)
   }
 
   const getRpcClient = (chain: string) => {
@@ -280,11 +322,15 @@ export function initClients(config: Config, logger: Logger): Clients {
     coingecko: coingeckoClient,
     beacon: beaconChainClient,
     celestia,
+    celestiaDaBeat,
     eigen,
     avail,
+    availWs,
+    near,
     getStarknetClient,
     getRpcClient,
     rpcClients,
     starknetClients,
+    voyager: voyagerClient,
   }
 }

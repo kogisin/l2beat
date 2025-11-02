@@ -1,27 +1,24 @@
 import { Logger } from '@l2beat/backend-tools'
 import { ProjectService } from '@l2beat/config'
 import { HttpClient } from '@l2beat/shared'
-import { ChainConverter } from '@l2beat/shared-pure'
-import type { Config } from '../../config'
 import { DiscordClient } from '../../peripherals/discord/DiscordClient'
-import type { Peripherals } from '../../peripherals/Peripherals'
-import type { Clock } from '../../tools/Clock'
-import type { ApplicationModule } from '../ApplicationModule'
+import type { ApplicationModule, ModuleDependencies } from '../types'
 import { UpdateMonitorController } from './api/UpdateMonitorController'
 import { createUpdateMonitorRouter } from './api/UpdateMonitorRouter'
 import { createDiscoveryRunner } from './createDiscoveryRunner'
+import { createWorkerPool } from './createWorkers'
 import { DiscoveryOutputCache } from './DiscoveryOutputCache'
 import { UpdateDiffer } from './UpdateDiffer'
 import { UpdateMessagesService } from './UpdateMessagesService'
 import { UpdateMonitor } from './UpdateMonitor'
 import { UpdateNotifier } from './UpdateNotifier'
 
-export function createUpdateMonitorModule(
-  config: Config,
-  logger: Logger,
-  peripherals: Peripherals,
-  clock: Clock,
-): ApplicationModule | undefined {
+export function createUpdateMonitorModule({
+  config,
+  logger,
+  peripherals,
+  clock,
+}: ModuleDependencies): ApplicationModule | undefined {
   if (!config.updateMonitor) {
     logger.info('UpdateMonitor module disabled')
     return
@@ -41,14 +38,12 @@ export function createUpdateMonitorModule(
     config.updateMonitor.updateMessagesRetentionPeriodDays,
   )
 
-  const chainConverter = new ChainConverter(config.chains)
   const discoveryOutputCache = new DiscoveryOutputCache()
   const projectService = new ProjectService()
 
   const updateNotifier = new UpdateNotifier(
     peripherals.database,
     discordClient,
-    chainConverter,
     logger,
     updateMessagesService,
     projectService,
@@ -67,37 +62,40 @@ export function createUpdateMonitorModule(
   const http = new HttpClient()
 
   const { chains, cacheEnabled, cacheUri } = config.updateMonitor
-  const runners = chains.map((chainConfig) =>
-    createDiscoveryRunner(
-      paths,
-      http,
-      peripherals,
-      Logger.SILENT,
-      chains,
-      chainConfig.name,
-      !!cacheEnabled,
-      cacheUri,
-    ),
+  const runner = createDiscoveryRunner(
+    paths,
+    http,
+    peripherals,
+    Logger.SILENT,
+    chains,
+    !!cacheEnabled,
+    cacheUri,
   )
 
+  const workerPool = createWorkerPool({
+    workerCount: config.updateMonitor.workerPool.workerCount,
+    timeoutPerTaskMs: config.updateMonitor.workerPool.timeoutPerTaskMs,
+    timeoutPerRunMs: config.updateMonitor.workerPool.timeoutPerRunMs,
+    logger: logger.for('UpdateMonitor'),
+  })
+
   const updateMonitor = new UpdateMonitor(
-    runners,
+    runner,
     updateNotifier,
     updateDiffer,
     configReader,
     peripherals.database,
     clock,
-    chainConverter,
     discoveryOutputCache,
     logger,
     !!config.updateMonitor.runOnStart,
+    workerPool,
+    config.updateMonitor.disabledProjects,
   )
 
   const updateMonitorController = new UpdateMonitorController(
     peripherals.database,
-    chains,
     configReader,
-    chainConverter,
     projectService,
   )
   const updateMonitorRouter = createUpdateMonitorRouter(updateMonitorController)

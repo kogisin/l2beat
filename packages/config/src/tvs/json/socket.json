@@ -72,7 +72,7 @@
           }
         ]
       },
-      "category": "other",
+      "category": "btc",
       "source": "canonical",
       "isAssociated": false
     },
@@ -162,7 +162,7 @@
         "decimals": 8,
         "sinceTimestamp": 1727654400
       },
-      "category": "other",
+      "category": "btc",
       "source": "canonical",
       "isAssociated": false
     },
@@ -257,7 +257,7 @@
         "decimals": 8,
         "sinceTimestamp": 1725056027
       },
-      "category": "other",
+      "category": "btc",
       "source": "canonical",
       "isAssociated": false
     },
@@ -371,7 +371,7 @@
         "decimals": 18,
         "sinceTimestamp": 1721253827
       },
-      "category": "other",
+      "category": "rwaPublic",
       "source": "canonical",
       "isAssociated": false
     },
@@ -581,7 +581,7 @@
           }
         ]
       },
-      "category": "other",
+      "category": "btc",
       "source": "canonical",
       "isAssociated": false
     },
@@ -894,7 +894,7 @@
           }
         ]
       },
-      "category": "other",
+      "category": "btc",
       "source": "canonical",
       "isAssociated": false
     },
@@ -1044,7 +1044,7 @@
         "decimals": 6,
         "sinceTimestamp": 1721253935
       },
-      "category": "other",
+      "category": "rwaPublic",
       "source": "canonical",
       "isAssociated": false
     }

@@ -1,4 +1,7 @@
-import type { WarningWithSentiment } from '@l2beat/config'
+import type {
+  ProjectAssociatedToken,
+  WarningWithSentiment,
+} from '@l2beat/config'
 import { NoDataBadge } from '~/components/badge/NoDataBadge'
 import {
   TokenBreakdown,
@@ -15,7 +18,7 @@ import { sentimentToWarningBarColor, WarningBar } from '~/components/WarningBar'
 import { RoundedWarningIcon } from '~/icons/RoundedWarning'
 import { formatDollarValueNumber } from '~/utils/number-format/formatDollarValueNumber'
 
-export interface TotalCellProps {
+interface TotalCellProps {
   breakdown:
     | {
         total: number
@@ -23,9 +26,12 @@ export interface TotalCellProps {
         stablecoin: number
         associated: number
         btc: number
+        other: number
+        rwaPublic: number
+        rwaRestricted: number
       }
     | undefined
-  associatedTokenSymbols: string[]
+  associatedTokens: ProjectAssociatedToken[]
   href: string
   change?: number
   tvsWarnings?: WarningWithSentiment[]
@@ -90,10 +96,12 @@ export function TotalCellWithTokenBreakdown(props: TotalCellProps) {
             </div>
             <TokenBreakdown
               total={props.breakdown.total}
-              associated={props.breakdown.associated}
               ether={props.breakdown.ether}
               stablecoin={props.breakdown.stablecoin}
               btc={props.breakdown.btc}
+              other={props.breakdown.other}
+              rwaPublic={props.breakdown.rwaPublic}
+              rwaRestricted={props.breakdown.rwaRestricted}
               className="h-[3px] w-[180px]"
             />
           </div>
@@ -106,8 +114,11 @@ export function TotalCellWithTokenBreakdown(props: TotalCellProps) {
           ether={props.breakdown.ether}
           stablecoin={props.breakdown.stablecoin}
           btc={props.breakdown.btc}
+          other={props.breakdown.other}
+          rwaPublic={props.breakdown.rwaPublic}
+          rwaRestricted={props.breakdown.rwaRestricted}
           tvsWarnings={tvsWarnings}
-          associatedTokenSymbols={props.associatedTokenSymbols}
+          associatedTokens={props.associatedTokens}
         />
       </TooltipContent>
     </Tooltip>

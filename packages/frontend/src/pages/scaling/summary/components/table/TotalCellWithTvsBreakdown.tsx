@@ -1,4 +1,7 @@
-import type { WarningWithSentiment } from '@l2beat/config'
+import type {
+  ProjectAssociatedToken,
+  WarningWithSentiment,
+} from '@l2beat/config'
 import { NoDataBadge } from '~/components/badge/NoDataBadge'
 import {
   ValueSecuredBreakdown,
@@ -15,7 +18,7 @@ import { sentimentToWarningBarColor, WarningBar } from '~/components/WarningBar'
 import { RoundedWarningIcon } from '~/icons/RoundedWarning'
 import { formatDollarValueNumber } from '~/utils/number-format/formatDollarValueNumber'
 
-export interface TotalCellProps {
+interface TotalCellProps {
   breakdown:
     | {
         total: number
@@ -25,7 +28,7 @@ export interface TotalCellProps {
         associated: number
       }
     | undefined
-  associatedTokenSymbols: string[]
+  associatedTokens: ProjectAssociatedToken[]
   href: string
   change?: number
   tvsWarnings?: WarningWithSentiment[]

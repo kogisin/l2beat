@@ -7,6 +7,7 @@ export const conwai: ScalingProject = underReviewL3({
   id: 'conwai',
   capability: 'universal',
   addedAt: UnixTime(1739364151),
+  archivedAt: UnixTime(1761826453), // 2025-10-30T12:14:13Z
   badges: [
     BADGES.L3ParentChain.Arbitrum,
     BADGES.Stack.Orbit,
@@ -20,7 +21,6 @@ export const conwai: ScalingProject = underReviewL3({
     description:
       'Conwai is an Optimium using the Orbit stack. It is focused on supporting AI-driven applications.',
     purposes: ['AI'],
-    category: 'Optimium',
     stacks: ['Arbitrum'],
     links: {
       websites: ['https://conwai.net'],
@@ -34,6 +34,10 @@ export const conwai: ScalingProject = underReviewL3({
       ],
     },
   },
+  dataAvailability: undefined,
+  proofSystem: {
+    type: 'Optimistic',
+  },
   ecosystemInfo: {
     id: ProjectId('arbitrum-orbit'),
   },
@@ -45,7 +49,7 @@ export const conwai: ScalingProject = underReviewL3({
       {
         type: 'rpc',
         url: 'https://conwai.calderachain.xyz/http',
-        callsPerMinute: 1500,
+        callsPerMinute: 300,
       },
     ],
   },

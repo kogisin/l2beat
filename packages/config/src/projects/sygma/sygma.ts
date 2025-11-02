@@ -15,6 +15,7 @@ export const sygma: Bridge = {
   type: 'bridge',
   id: ProjectId('sygma'),
   addedAt: UnixTime(1711107103), // 2024-03-22T11:31:43Z
+  archivedAt: UnixTime(1755181398),
   display: {
     name: 'Sygma',
     slug: 'sygma',
@@ -34,7 +35,7 @@ export const sygma: Bridge = {
         'https://scan.buildwithsygma.com',
         'https://scan.test.buildwithsygma.com',
       ],
-      repositories: ['https://github.com/sygmaprotocol'],
+      repositories: ['https://github.com/sprintertech/'],
       socialMedia: [
         'https://discord.gg/Qdf6GyNB5J',
         'https://twitter.com/buildwithsygma',

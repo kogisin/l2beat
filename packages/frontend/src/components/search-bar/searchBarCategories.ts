@@ -11,12 +11,12 @@ export const searchBarCategories = {
   zkCatalog: {
     name: 'ZK Catalog',
   },
+  ecosystems: {
+    name: 'Ecosystems',
+  },
   other: {
     name: 'Other',
   },
 } as const satisfies Record<string, { name: string }>
 
 export type SearchBarCategory = keyof typeof searchBarCategories
-export type SearchBarCategoryMeta<
-  T extends SearchBarCategory = SearchBarCategory,
-> = (typeof searchBarCategories)[T]

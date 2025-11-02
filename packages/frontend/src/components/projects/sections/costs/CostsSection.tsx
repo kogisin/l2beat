@@ -1,5 +1,6 @@
 import type { Milestone } from '@l2beat/config'
 import { ProjectCostsChart } from '~/components/chart/costs/ProjectCostsChart'
+import type { ChartProject } from '~/components/core/chart/Chart'
 import { HorizontalSeparator } from '~/components/core/HorizontalSeparator'
 import type { CostsTimeRange } from '~/server/features/scaling/costs/utils/range'
 import type { TrackedTransactionsByType } from '~/utils/project/tracked-txs/getTrackedTransactions'
@@ -8,19 +9,17 @@ import type { ProjectSectionProps } from '../types'
 import { TrackedTransactions } from './TrackedTransactions'
 
 export interface CostsSectionProps extends ProjectSectionProps {
-  projectId: string
+  project: ChartProject
   milestones: Milestone[]
   trackedTransactions: TrackedTransactionsByType
   defaultRange: CostsTimeRange
-  hasPostedData: boolean
 }
 
 export function CostsSection({
-  projectId,
+  project,
   milestones,
   trackedTransactions,
   defaultRange,
-  hasPostedData,
   ...sectionProps
 }: CostsSectionProps) {
   return (
@@ -31,9 +30,8 @@ export function CostsSection({
       <HorizontalSeparator className="my-4" />
       <ProjectCostsChart
         milestones={milestones}
-        projectId={projectId}
+        project={project}
         defaultRange={defaultRange}
-        hasPostedData={hasPostedData}
       />
       <HorizontalSeparator className="my-4" />
       <TrackedTransactions {...trackedTransactions} />

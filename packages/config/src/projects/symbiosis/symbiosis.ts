@@ -15,7 +15,7 @@ export const symbiosis: Bridge = {
     slug: 'symbiosis',
     category: 'Hybrid',
     description:
-      'Symbiosis is a cross-chain AMM DEX externally validated my an MPC relayers network.',
+      'Symbiosis is a cross-chain AMM DEX externally validated by an MPC relayers network.',
     links: {
       websites: [
         'https://symbiosis.finance/',
@@ -28,6 +28,8 @@ export const symbiosis: Bridge = {
         'https://twitter.com/symbiosis_fi',
       ],
       documentation: ['https://docs.symbiosis.finance'],
+      bridges: ['https://app.symbiosis.finance/bridge'],
+      explorers: ['https://explorer.symbiosis.finance/transactions'],
     },
   },
   riskView: {

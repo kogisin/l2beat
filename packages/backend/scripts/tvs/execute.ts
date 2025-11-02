@@ -1,10 +1,4 @@
-import {
-  type Env,
-  getEnv,
-  LogFormatterPretty,
-  Logger,
-  type LogLevel,
-} from '@l2beat/backend-tools'
+import { type Env, getEnv, Logger, type LogLevel } from '@l2beat/backend-tools'
 import { ProjectService, type TvsToken } from '@l2beat/config'
 import { assert, ProjectId, UnixTime } from '@l2beat/shared-pure'
 import {
@@ -27,6 +21,10 @@ import type {
   TvsBreakdown,
   TvsProjectBreakdown,
 } from '../../src/modules/tvs/types'
+
+// we have disabled TVS for some projects using feature flags on HEROKU
+// as this script will be phased out soon we decided to hardcode it here
+const DISABLED_PROJECTS = ['kroma', 'treasure', 'real']
 
 const args = {
   project: positional({
@@ -69,10 +67,12 @@ const cmd = command({
     )
 
     if (!args.project) {
-      const projects = await ps.getProjects({
+      let projects = await ps.getProjects({
         select: ['tvsConfig'],
         optional: ['chainConfig', 'isBridge'],
       })
+
+      projects = projects.filter((p) => !DISABLED_PROJECTS.includes(p.id))
 
       if (!projects) {
         logger.error('No TVS projects found')
@@ -155,6 +155,11 @@ const cmd = command({
         ),
       )
     } else {
+      if (DISABLED_PROJECTS.includes(args.project)) {
+        logger.error(`TVS for project '${args.project}' is disabled`)
+        process.exit(1)
+      }
+
       const project = await ps.getProject({
         id: ProjectId(args.project),
         select: ['tvsConfig'],
@@ -447,17 +452,9 @@ function calculateBreakdown(
 }
 
 function initLogger(env: Env) {
-  const logLevel = env.string('LOG_LEVEL', 'INFO') as LogLevel
-  const logger = new Logger({
-    logLevel: logLevel,
-    transports: [
-      {
-        transport: console,
-        formatter: new LogFormatterPretty(),
-      },
-    ],
+  return new Logger({
+    level: env.string('LOG_LEVEL', 'INFO') as LogLevel,
   })
-  return logger
 }
 
 function toDollarString(value: number) {

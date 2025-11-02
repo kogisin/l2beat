@@ -6,8 +6,12 @@ import type { SsrHelpers } from '~/trpc/server'
 
 export async function getActivitySection(
   helpers: SsrHelpers,
-  project: Project<never, 'archivedAt'>,
-): Promise<Pick<ActivitySectionProps, 'defaultRange'> | undefined> {
+  project: Project<never, 'archivedAt' | 'activityConfig'>,
+): Promise<
+  Pick<ActivitySectionProps, 'defaultRange' | 'dataSource'> | undefined
+> {
+  if (!project.activityConfig) return undefined
+
   const range = project.archivedAt ? 'max' : '1y'
   const data = await helpers.activity.chart.fetch({
     range: { type: range },
@@ -20,5 +24,9 @@ export async function getActivitySection(
 
   return {
     defaultRange: range,
+    dataSource:
+      project.activityConfig.type === 'day'
+        ? project.activityConfig.dataSource
+        : undefined,
   }
 }

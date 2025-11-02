@@ -7,6 +7,7 @@ import type { ProjectSectionId } from './types'
 
 export interface ExtendedProjectSectionProps {
   title: string
+  headerAccessory?: ReactNode
   id: ProjectSectionId
   nested?: boolean
   sectionOrder: string | undefined
@@ -22,7 +23,7 @@ export function ProjectSection(props: ExtendedProjectSectionProps) {
   return (
     <HighlightablePrimaryCard
       id={props.id}
-      data-role="project-section"
+      data-role="nav-section"
       className={cn(
         'scroll-mt-[38px] px-4 py-8 md:mt-4 md:scroll-mt-4 md:p-6',
         'max-md:border-divider max-md:border-b max-md:last:border-none',
@@ -40,6 +41,7 @@ export function ProjectSection(props: ExtendedProjectSectionProps) {
           id={props.id}
           sectionOrder={props.sectionOrder}
           nested={props.nested}
+          headerAccessory={props.headerAccessory}
           className="mb-4"
         />
         {props.isUnderReview ? (
@@ -65,36 +67,41 @@ interface ProjectDetailsSectionHeaderProps {
   sectionOrder: string | undefined
   nested: boolean | undefined
   className?: string
+  headerAccessory?: ReactNode
 }
 
 function ProjectDetailsSectionHeader(props: ProjectDetailsSectionHeaderProps) {
   return (
-    <a
-      href={`#${props.id}`}
+    <div
       className={cn(
-        'flex items-center gap-4',
-        props.nested && 'gap-3',
+        'flex flex-col justify-between gap-4 md:flex-row md:items-center',
         props.className,
       )}
     >
-      {props.sectionOrder && (
-        <div
+      <a
+        href={`#${props.id}`}
+        className={cn('flex items-center gap-4', props.nested && 'gap-3')}
+      >
+        {props.sectionOrder && (
+          <div
+            className={cn(
+              'hidden size-10 items-center justify-center rounded bg-surface-secondary font-bold text-label-value-24 text-secondary tabular-nums md:flex',
+              props.nested && 'h-8 w-12 text-label-value-18',
+            )}
+          >
+            {props.sectionOrder}
+          </div>
+        )}
+        <span
           className={cn(
-            'hidden size-[26px] items-center justify-center rounded bg-surface-secondary px-3 text-heading-18 text-secondary tabular-nums leading-none! md:flex',
-            props.nested && 'h-[26px] w-10',
+            'text-heading-28',
+            props.nested && 'text-heading-24 leading-none!',
           )}
         >
-          {props.sectionOrder}
-        </div>
-      )}
-      <span
-        className={cn(
-          'text-heading-28',
-          props.nested && 'text-heading-24 leading-none!',
-        )}
-      >
-        {props.title}
-      </span>
-    </a>
+          {props.title}
+        </span>
+      </a>
+      {props.headerAccessory}
+    </div>
   )
 }

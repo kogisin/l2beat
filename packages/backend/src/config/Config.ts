@@ -11,7 +11,7 @@ import type {
   DiscoveryPaths,
 } from '@l2beat/discovery'
 import type { TrackedTxConfigEntry } from '@l2beat/shared'
-import type { ProjectId, UnixTime } from '@l2beat/shared-pure'
+import type { CoingeckoId, ProjectId, UnixTime } from '@l2beat/shared-pure'
 import type {
   AmountConfig,
   BlockTimestampConfig,
@@ -42,6 +42,7 @@ export interface Config {
   readonly chains: { name: string; chainId: number | undefined }[]
   readonly verifiers: VerifiersConfig | false
   readonly daBeat: DaBeatConfig | false
+  readonly ecosystems: EcosystemsConfig | false
   readonly chainConfig: ChainApi[]
   readonly beaconApi: {
     readonly url: string | undefined
@@ -49,8 +50,9 @@ export interface Config {
     readonly timeout: number
   }
   readonly da: DataAvailabilityTrackingConfig | false
-  readonly shared: SharedModuleConfig | false
-  readonly discord: DiscordWebhookConfig
+  readonly blockSync: BlockSyncModuleConfig
+  readonly anomalies: AnomaliesConfig | false
+  readonly interop: InteropFeatureConfig | false
 
   readonly flags: ResolvedFeatureFlag[]
 }
@@ -72,7 +74,6 @@ export interface DatabaseConfig {
       rejectUnauthorized?: boolean
     }
   }
-  readonly freshStart: boolean
   readonly enableQueryLogging: boolean
   readonly requiredMajorVersion?: number
   readonly connectionPoolSize: {
@@ -157,6 +158,7 @@ export interface HealthConfig {
 }
 
 export interface ActivityConfig {
+  readonly voyagerApiKey: string | undefined
   readonly projects: ActivityConfigProject[]
 }
 
@@ -180,8 +182,14 @@ export interface UpdateMonitorConfig {
   readonly cacheUri: string
   readonly chains: DiscoveryChainConfig[]
   readonly disabledChains: string[]
+  readonly disabledProjects: string[]
   readonly discord: DiscordConfig | false
   readonly updateMessagesRetentionPeriodDays: number
+  readonly workerPool: {
+    readonly workerCount: number
+    readonly timeoutPerTaskMs: number
+    readonly timeoutPerRunMs: number
+  }
 }
 
 export interface VerifiersConfig {
@@ -196,22 +204,54 @@ export interface DiscordConfig {
   readonly callsPerMinute: number
 }
 
-export interface DiscordWebhookConfig {
+export interface AnomaliesConfig {
   readonly anomaliesWebhookUrl?: string
   readonly anomaliesMinDuration: number
 }
 
+export interface InteropFeatureConfig {
+  capture: {
+    enabled: boolean
+    chains: {
+      name: string
+      type: 'evm'
+    }[]
+  }
+  matching: boolean
+  cleaner: boolean
+  dashboard: {
+    enabled: boolean
+    getExplorerUrl: (chain: string) => string | undefined
+  }
+  compare: {
+    enabled: boolean
+  }
+  financials: {
+    enabled: boolean
+  }
+  config: {
+    enabled: boolean
+    chains: { id: number; name: string }[]
+  }
+}
+
 export interface DaBeatConfig {
+  readonly projectsForDaBeatStats: ProjectId[]
   /** Coingecko ids of tokens for economic security */
   readonly coingeckoIds: string[]
-  /** Names of the economic security types */
-  readonly types: string[]
-  readonly quicknodeApiUrl: string
-  readonly quicknodeCallsPerMinute: number
   readonly celestiaApiUrl: string
   readonly celestiaCallsPerMinute: number
   readonly nearRpcUrl: string
   readonly availWsUrl: string
+}
+
+export interface EcosystemTokenConfig {
+  readonly configurationId: string
+  readonly projectId: ProjectId
+  readonly coingeckoId: CoingeckoId
+}
+export interface EcosystemsConfig {
+  readonly tokens: EcosystemTokenConfig[]
 }
 
 type BlockLayerAsProjectDaTrackingConfig = {
@@ -271,6 +311,7 @@ export interface DataAvailabilityTrackingConfig {
   readonly timestampProjects: TimestampDaIndexedConfig[]
 }
 
-export interface SharedModuleConfig {
-  ethereumWsUrl: string
+export interface BlockSyncModuleConfig {
+  delayFromTipInSeconds: number
+  ethereumWsUrl?: string
 }

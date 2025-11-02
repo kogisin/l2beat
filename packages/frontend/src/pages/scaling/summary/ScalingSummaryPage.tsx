@@ -11,6 +11,7 @@ import { SideNavLayout } from '~/layouts/SideNavLayout'
 import { ScalingAssociatedTokensContextProvider } from '~/pages/scaling/components/ScalingAssociatedTokensContext'
 import type { TabbedScalingEntries } from '~/pages/scaling/utils/groupByScalingTabs'
 import type { ScalingSummaryEntry } from '~/server/features/scaling/summary/getScalingSummaryEntries'
+import { ScalingRwaRestrictedTokensContextProvider } from '../components/ScalingRwaRestrictedTokensContext'
 import { ChartTabs } from './components/ChartTabs'
 import { ScalingSummaryTables } from './components/ScalingSummaryTables'
 
@@ -23,34 +24,33 @@ interface Props extends AppLayoutProps {
 }
 
 export function ScalingSummaryPage({ entries, queryState, ...props }: Props) {
+  const tvsChart = (
+    <ScalingSummaryTvsChart
+      unit={SCALING_SUMMARY_UNIT}
+      timeRange={SCALING_SUMMARY_TIME_RANGE}
+    />
+  )
+  const activityChart = (
+    <ScalingSummaryActivityChart timeRange={SCALING_SUMMARY_TIME_RANGE} />
+  )
+
   return (
     <AppLayout {...props}>
       <HydrationBoundary state={queryState}>
         <SideNavLayout>
           <MainPageHeader>Summary</MainPageHeader>
           <div className="grid grid-cols-2 gap-4 max-lg:hidden ">
-            <PrimaryCard>
-              <ScalingSummaryTvsChart
-                unit={SCALING_SUMMARY_UNIT}
-                timeRange={SCALING_SUMMARY_TIME_RANGE}
-              />
-            </PrimaryCard>
-            <PrimaryCard>
-              <ScalingSummaryActivityChart
-                timeRange={SCALING_SUMMARY_TIME_RANGE}
-              />
-            </PrimaryCard>
+            <PrimaryCard>{tvsChart}</PrimaryCard>
+            <PrimaryCard>{activityChart}</PrimaryCard>
           </div>
-          <ChartTabs
-            className="lg:hidden"
-            unit={SCALING_SUMMARY_UNIT}
-            timeRange={SCALING_SUMMARY_TIME_RANGE}
-          />
-          <ScalingAssociatedTokensContextProvider>
-            <TableFilterContextProvider>
-              <ScalingSummaryTables {...entries} />
-            </TableFilterContextProvider>
-          </ScalingAssociatedTokensContextProvider>
+          <ChartTabs className="lg:hidden" charts={[tvsChart, activityChart]} />
+          <ScalingRwaRestrictedTokensContextProvider>
+            <ScalingAssociatedTokensContextProvider>
+              <TableFilterContextProvider>
+                <ScalingSummaryTables {...entries} />
+              </TableFilterContextProvider>
+            </ScalingAssociatedTokensContextProvider>
+          </ScalingRwaRestrictedTokensContextProvider>
         </SideNavLayout>
       </HydrationBoundary>
     </AppLayout>

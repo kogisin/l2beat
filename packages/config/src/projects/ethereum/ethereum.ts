@@ -85,12 +85,10 @@ Equivocating (expressing two conflicting views) over blocks or attestations by a
 
 ## Blobs (EIP-4844)
 [EIP-4844](https://eips.ethereum.org/EIPS/eip-4844) introduces "blob-carrying transactions," a new transaction type under [EIP-2718](https://eips.ethereum.org/EIPS/eip-2718) that allows for the inclusion of large data payloads, or blobs, within transactions. 
-EIP-4844 introduces "blob-carrying transactions," a new transaction type under EIP-2718 that allows for the inclusion of large data payloads, or blobs, within transactions. 
 These blobs are not directly accessible during EVM execution but can be verified through commitments. 
 The EIP sets a target of 3 blobs of 128kb each, with a maximum of 6 blobs per block, equating to ~0.375 MB to ~0.75 MB of data. 
 On the consensus layer, blobs are referenced in the beacon block and propagated separately as "sidecars," enabling forward compatibility with future data scaling methods like data-availability sampling (DAS). 
-EIP-4844 also creates a new blob gas market, which operates similarly to [EIP-1559](https://eips.ethereum.org/EIPS/eip-1559)'s fee mechanism. 
-EIP-4844 also creates a new blob gas market, which operates similarly to EIP-1559's fee mechanism.  
+EIP-4844 also creates a new blob gas market, which operates similarly to [EIP-1559](https://eips.ethereum.org/EIPS/eip-1559)'s fee mechanism.  
 The blob base fee adjusts dynamically based on the number of blobs included in each block relative to the target. 
 If a block contains more blobs than the target (3 blobs), the blob base fee increases, discouraging additional blob usage in subsequent blocks. Conversely, if a block contains fewer blobs than the target, the blob base fee decreases, encouraging more blob usage. If the number of blobs in a block matches the target, the blob base fee remains unchanged.
 
@@ -152,12 +150,14 @@ This method allows ZK rollups to prove that the data used in their validity proo
       daLayer: EthereumDaLayerRisks.SelfVerify,
     },
     economicSecurity: {
-      name: 'Ethereum',
       token: {
         symbol: 'ETH',
         decimals: 18,
         coingeckoId: 'ethereum',
       },
+    },
+    validators: {
+      type: 'dynamic',
     },
   },
   daBridge: {
@@ -215,7 +215,7 @@ This method allows ZK rollups to prove that the data used in their validity proo
     apis: [
       { type: 'etherscan', chainId },
       { type: 'blockscoutV2', url: 'https://eth.blockscout.com/api/v2' },
-      { type: 'rpc', url: 'https://eth-mainnet.alchemyapi.io/v2/demo' },
+      { type: 'rpc', url: 'https://ethereum-rpc.publicnode.com' },
     ],
   },
   milestones: [

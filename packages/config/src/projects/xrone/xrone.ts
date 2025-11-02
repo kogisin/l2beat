@@ -7,6 +7,7 @@ export const xrone: ScalingProject = underReviewL3({
   id: 'xrone',
   capability: 'universal',
   addedAt: UnixTime(1737469445), // 2025-01-21T14:24:03+00:00
+  archivedAt: UnixTime(1761826453), // 2025-10-30T12:14:13Z
   hostChain: ProjectId('arbitrum'),
   badges: [
     BADGES.RaaS.Caldera,
@@ -15,17 +16,17 @@ export const xrone: ScalingProject = underReviewL3({
     BADGES.Stack.Orbit,
     BADGES.VM.EVM,
   ],
+  dataAvailability: undefined,
   display: {
     name: 'XR One',
     slug: 'xrone',
-    category: 'Optimium',
     stacks: ['Arbitrum'],
     description:
       "XR One is an Orbit stack L3 with AnyTrust DA built by DeMoN Labs and partnered with Saltwater Games. It is designed to power unique PvP and AI-enhanced applications that spark user's imaginations through mechanics that reward risk-takers.",
     purposes: ['Gaming'],
     links: {
       websites: ['https://saltwatergames.com/'],
-      bridges: [],
+      bridges: ['https://xr-sepolia-testnet.bridge.caldera.xyz'],
       documentation: ['https://xr-one.gitbook.io/xr'],
       explorers: ['https://xr1.calderaexplorer.xyz/'],
       socialMedia: [
@@ -34,6 +35,9 @@ export const xrone: ScalingProject = underReviewL3({
         'https://t.me/xrfoundation',
       ],
     },
+  },
+  proofSystem: {
+    type: 'Optimistic',
   },
   ecosystemInfo: {
     id: ProjectId('arbitrum-orbit'),
@@ -46,7 +50,7 @@ export const xrone: ScalingProject = underReviewL3({
       {
         type: 'rpc',
         url: 'https://xr1.calderachain.xyz/http',
-        callsPerMinute: 1500,
+        callsPerMinute: 300,
       },
     ],
   },

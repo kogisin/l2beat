@@ -1,15 +1,21 @@
-import { ProjectId, UnixTime } from '@l2beat/shared-pure'
+import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
 import {
   DaCommitteeSecurityRisk,
   DaRelayerFailureRisk,
   DaUpgradeabilityRisk,
 } from '../../common'
 import { linkByDA } from '../../common/linkByDA'
+import { ZK_PROGRAM_HASHES } from '../../common/zkProgramHashes'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import { getDiscoveryInfo } from '../../templates/getDiscoveryInfo'
 import type { BaseProject } from '../../types'
 
 const discovery = new ProjectDiscovery('vector')
+
+const vectorProgramHash = discovery.getContractValue<string>(
+  'Vector',
+  'vectorXProgramVkey',
+)
 
 export const vector: BaseProject = {
   id: ProjectId('vector'),
@@ -34,9 +40,49 @@ export const vector: BaseProject = {
     },
     badges: [],
   },
+  trackedTxsConfig: [
+    {
+      projectId: ProjectId('vector'),
+      sinceTimestamp: 1719974843,
+      type: 'liveness',
+      subtype: 'proofSubmissions',
+      params: {
+        formula: 'functionCall',
+        address: EthereumAddress('0x02993cdC11213985b9B13224f3aF289F03bf298d'),
+        selector: '0x8455a3cf',
+        signature:
+          'function commitHeaderRange(bytes proof, bytes publicValues)',
+      },
+    },
+    {
+      projectId: ProjectId('vector'),
+      sinceTimestamp: 1719974843,
+      type: 'l2costs',
+      subtype: 'proofSubmissions',
+      params: {
+        formula: 'functionCall',
+        address: EthereumAddress('0x02993cdC11213985b9B13224f3aF289F03bf298d'),
+        selector: '0x8455a3cf',
+        signature:
+          'function commitHeaderRange(bytes proof, bytes publicValues)',
+      },
+    },
+  ],
   daBridge: {
     name: 'Vector',
     daLayer: ProjectId('avail'),
+    relayerType: {
+      value: 'Permissioned',
+      sentiment: 'warning',
+      description:
+        'Only whitelisted relayers can post attestations to this bridge.',
+    },
+    validationType: {
+      value: 'Validity Proof',
+      description:
+        'The DA attestation requires onchain SNARK proof verification to be accepted by the bridge. Operators signatures and their corresponding stake are verified as part of the proof.',
+      zkCatalogId: ProjectId('sp1'),
+    },
     technology: {
       description: `
 ## Architecture
@@ -94,6 +140,7 @@ By default, Vector on Ethereum is updated by the Succinct operator at a cadence 
         text: 'the bridge contract is frozen by the Guardian (AvailMultisig).',
       },
     ],
+    zkProgramHashes: [ZK_PROGRAM_HASHES(vectorProgramHash)],
   },
   permissions: discovery.getDiscoveredPermissions(),
   milestones: [

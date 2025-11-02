@@ -14,10 +14,8 @@ export function StatsForm({
   lastFetched?: number
   onUpdate: (block: StatsWithChain | undefined) => void
 }) {
-  const [chainId, setChain] = useState<string>(SUPPORTED_CHAINS[0].id)
-  const [blockCount, setBlockCount] = useState(
-    SUPPORTED_CHAINS[0].customSuggestedBlocksCount ?? 100,
-  )
+  const [chainId, setChain] = useState<string>('ethereum')
+  const [blockCount, setBlockCount] = useState(100)
 
   const [loadedCount, setLoadedCount] = useState(0)
 
@@ -26,8 +24,7 @@ export function StatsForm({
 
   const handleSetChain = (chain: string) => {
     setChain(chain)
-    const selectedChain = SUPPORTED_CHAINS.find((c) => c.id === chain)
-    setBlockCount(selectedChain?.customSuggestedBlocksCount || 100)
+    setBlockCount(100)
     onUpdate(undefined)
   }
 
@@ -67,7 +64,7 @@ export function StatsForm({
     getStats(chainId, blockCount)
   }
 
-  const getStats = async (chainId: string, overideBlockCount: number) => {
+  const getStats = async (chainId: string, overrideBlockCount: number) => {
     setIsLoading(true)
 
     const chain = SUPPORTED_CHAINS.find((c) => c.id === chainId)
@@ -76,8 +73,8 @@ export function StatsForm({
       throw new Error(`Unsupported chain: ${chain}`)
     }
 
-    let currentBatchSize = chain.customBatchSize || 10
-    let blocksLeftToFetch = overideBlockCount ?? blockCount
+    let currentBatchSize = 10
+    let blocksLeftToFetch = overrideBlockCount ?? blockCount
     let currentLastFetched = lastFetched
 
     try {

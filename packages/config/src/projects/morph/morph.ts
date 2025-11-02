@@ -4,6 +4,7 @@ import {
   ProjectId,
   UnixTime,
 } from '@l2beat/shared-pure'
+import { formatEther } from 'ethers/lib/utils'
 import {
   CONTRACTS,
   DA_BRIDGES,
@@ -18,7 +19,6 @@ import {
   TECHNOLOGY_DATA_AVAILABILITY,
 } from '../../common'
 import { BADGES } from '../../common/badges'
-import { formatChallengePeriod } from '../../common/formatDelays'
 import { getStage } from '../../common/stages/getStage'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import type { ScalingProject } from '../../internalTypes'
@@ -57,13 +57,15 @@ export const morph: ScalingProject = {
   addedAt: UnixTime(1702295992), // 2023-12-11T11:59:52Z
   badges: [BADGES.VM.EVM, BADGES.DA.EthereumBlobs],
   reasonsForBeingOther: [REASON_FOR_BEING_OTHER.CLOSED_PROOFS],
+  proofSystem: {
+    type: 'Optimistic',
+  },
   display: {
     name: 'Morph',
     slug: 'morph',
     description:
       'Morph is an EVM compatible rollup. It operates as an optimistic rollup with ZK fault proofs and has plans for decentralizing the Sequencer. Their mission is to build the first blockchain for consumers, where user-friendly applications integrate seamlessly into everyday life, becoming indispensable utilities.',
     purposes: ['Universal'],
-    category: 'Other',
     links: {
       websites: ['https://morphl2.io'],
       bridges: ['https://bridge.morphl2.io/'],
@@ -171,7 +173,10 @@ export const morph: ScalingProject = {
         RISK_VIEW.STATE_FP_1R_ZK.description +
         ' The system currently operates with a single whitelisted challenger.',
       sentiment: 'bad',
-      secondLine: formatChallengePeriod(challengeWindow),
+      challengeDelay: challengeWindow,
+      initialBond: formatEther(
+        discovery.getContractValue<number>('L1Staking', 'stakingValue'),
+      ),
     },
     dataAvailability: RISK_VIEW.DATA_ON_CHAIN,
     exitWindow: RISK_VIEW.EXIT_WINDOW(upgradeDelay, 0),

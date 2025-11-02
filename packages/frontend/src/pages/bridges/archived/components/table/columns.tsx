@@ -2,7 +2,6 @@ import { createColumnHelper } from '@tanstack/react-table'
 import compact from 'lodash/compact'
 import { NoDataBadge } from '~/components/badge/NoDataBadge'
 import { TableValueCell } from '~/components/table/cells/TableValueCell'
-import { TypeInfo } from '~/components/table/cells/TypeInfo'
 import {
   adjustTableValue,
   sortTableValues,
@@ -32,7 +31,7 @@ export function getBridgesArchivedColumns(isOthers?: boolean) {
     isOthers &&
       columnHelper.accessor('type', {
         header: 'Type',
-        cell: (ctx) => <TypeInfo>{ctx.getValue()}</TypeInfo>,
+        cell: (ctx) => <span>{ctx.getValue()}</span>,
         meta: {
           tooltip:
             'Token bridges use escrows and mint tokens. Liquidity Networks use pools and swap tokens. Hybrid do both.',
@@ -66,7 +65,7 @@ export function getBridgesArchivedColumns(isOthers?: boolean) {
       meta: {
         align: 'right',
         tooltip:
-          'Total value secured is calculated as the sum of canonically bridged tokens, externally bridged tokens, and native tokens.',
+          'Total value secured in contracts on Ethereum, shown together with a percentage change compared to 7D ago.',
       },
     }),
   ])

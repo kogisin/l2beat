@@ -15,13 +15,16 @@ export const pandasea: ScalingProject = underReviewL2({
     description:
       'PandaSea.io is a Layer 2 Web3 platform focused on integrating social finance and sports engagement.',
     purposes: ['Universal'],
-    category: 'Optimistic Rollup',
     stacks: ['OP Stack'],
     links: {
       websites: ['https://pandasea.io/'],
       explorers: ['https://pandaseascan.com/'],
       bridges: ['https://bridge.pandasea.io/'],
     },
+  },
+  dataAvailability: undefined,
+  proofSystem: {
+    type: 'Optimistic',
   },
   ecosystemInfo: {
     id: ProjectId('superchain'),
@@ -30,7 +33,7 @@ export const pandasea: ScalingProject = underReviewL2({
     name: 'pandasea',
     chainId: 7776,
     apis: [
-      { type: 'rpc', url: 'https://rpc1.pandasea.io', callsPerMinute: 1500 },
+      { type: 'rpc', url: 'https://rpc1.pandasea.io', callsPerMinute: 300 },
     ],
   },
   activityConfig: {

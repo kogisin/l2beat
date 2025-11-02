@@ -6,19 +6,15 @@ import {
   type DiscoveryDiff,
   type DiscoveryOutput,
   diffDiscovery,
-  hashJsonStable,
+  generateStructureHash,
 } from '@l2beat/discovery'
 import { hashJson, sortObjectByKeys } from '@l2beat/shared'
-import {
-  assert,
-  assertUnreachable,
-  type ChainConverter,
-  ChainId,
-  UnixTime,
-} from '@l2beat/shared-pure'
+import { assertUnreachable, UnixTime } from '@l2beat/shared-pure'
+import shuffle from 'lodash/shuffle'
 import { Gauge } from 'prom-client'
 import type { Clock } from '../../tools/Clock'
 import { TaskQueue } from '../../tools/queue/TaskQueue'
+import type { WorkerPool } from './createWorkers'
 import type { DiscoveryOutputCache } from './DiscoveryOutputCache'
 import type { DiscoveryRunner } from './DiscoveryRunner'
 import { sanitizeDiscoveryOutput } from './sanitizeDiscoveryOutput'
@@ -31,16 +27,17 @@ export class UpdateMonitor {
   private readonly taskQueue: TaskQueue<UnixTime>
 
   constructor(
-    private readonly discoveryRunners: DiscoveryRunner[],
+    private readonly runner: DiscoveryRunner,
     private readonly updateNotifier: UpdateNotifier,
     private readonly updateDiffer: UpdateDiffer | undefined,
     private readonly configReader: ConfigReader,
     private readonly db: Database,
     private readonly clock: Clock,
-    private readonly chainConverter: ChainConverter,
     private readonly discoveryOutputCache: DiscoveryOutputCache,
     private readonly logger: Logger,
     private readonly runOnStart: boolean,
+    private readonly workerPool: WorkerPool,
+    private readonly disabledProjects: string[] = [],
   ) {
     this.logger = this.logger.for(this)
     this.taskQueue = new TaskQueue(
@@ -71,13 +68,32 @@ export class UpdateMonitor {
       start: updateStart,
       updateTarget: timestamp,
       updateTargetDate: targetDateIso,
-      chainsCount: this.discoveryRunners.length,
     })
 
-    for (const runner of this.discoveryRunners) {
-      await this.updateChain(runner, timestamp)
-      await this.updateDiffer?.runForChain(runner.chain, timestamp)
-    }
+    const allProjects = this.configReader.readAllDiscoveredProjects()
+    const enabledProjects = shuffle(allProjects).filter(
+      (project) => !this.disabledProjects.includes(project),
+    )
+
+    this.logger.info('Processing projects', {
+      total: allProjects.length,
+      enabled: enabledProjects.length,
+      disabled: this.disabledProjects.length,
+      disabledProjects: this.disabledProjects,
+    })
+
+    const tasks = enabledProjects.map((project) => ({
+      identity: {
+        id: project,
+        name: `Update project ${project}`,
+      },
+      job: async () => {
+        await this.updateProject(this.runner, project, timestamp)
+        await this.updateDiffer?.runForProject(project, timestamp)
+      },
+    }))
+
+    const results = await this.workerPool.runInPool(tasks)
 
     const updateEnd = UnixTime.now()
     const updateDuration = updateEnd - updateStart
@@ -88,188 +104,144 @@ export class UpdateMonitor {
       duration: updateDuration,
       updateTarget: timestamp,
       updateTargetDate: targetDateIso,
+      timedOut: results.timedOut,
+      successCount: results.results.length,
+      failedCount: results.errors.length,
+      totalCount: tasks.length,
     })
 
     const reminders = this.generateDailyReminder()
     await this.updateNotifier.sendDailyReminder(reminders, timestamp)
   }
 
-  generateDailyReminder(): Record<string, DailyReminderChainEntry[]> {
-    const result: Record<string, DailyReminderChainEntry[]> = {}
+  generateDailyReminder(): Record<string, DailyReminderChainEntry> {
+    const result: Record<string, DailyReminderChainEntry> = {}
 
-    for (const runner of this.discoveryRunners) {
-      const projectConfigs = this.configReader.readAllDiscoveredConfigsForChain(
-        runner.chain,
-      )
+    const projectConfigs = this.configReader
+      .readAllDiscoveredProjects()
+      .map((project) => this.configReader.readConfig(project))
 
-      for (const projectConfig of projectConfigs) {
-        if (projectConfig.archived) {
-          continue
-        }
+    for (const projectConfig of projectConfigs) {
+      if (projectConfig.archived) {
+        continue
+      }
 
-        const discovery = this.discoveryOutputCache.get(
-          projectConfig.name,
-          runner.chain,
-        )
+      const discovery = this.discoveryOutputCache.get(projectConfig.name)
 
-        if (!discovery) {
-          continue
-        }
+      if (!discovery) {
+        continue
+      }
 
-        const committed = this.configReader.readDiscovery(
-          projectConfig.name,
-          runner.chain,
-        )
+      const committed = this.configReader.readDiscovery(projectConfig.name)
 
-        const diff = diffDiscovery(committed.entries, discovery.entries)
-        const severityCounts = countSeverities(diff)
+      const diff = diffDiscovery(committed.entries, discovery.entries)
+      const severityCounts = countSeverities(diff)
 
-        if (diff.length > 0) {
-          result[projectConfig.name] ??= []
-          result[projectConfig.name].push({
-            chainName: runner.chain,
-            severityCounts,
-          })
-        }
+      if (diff.length > 0) {
+        result[projectConfig.name] = { severityCounts }
       }
     }
 
     return result
   }
 
-  async updateChain(runner: DiscoveryRunner, timestamp: UnixTime) {
-    const chainUpdateStart = UnixTime.now()
-
-    // #region metrics
-    errorCount.set(0)
-    // #endregion
-
-    const projectConfigs = this.configReader.readAllDiscoveredConfigsForChain(
-      runner.chain,
-    )
-
-    this.logger.info('Chain update started', {
-      chain: runner.chain,
-      projects: projectConfigs.length,
-      timestamp: timestamp,
-      date: UnixTime.toDate(timestamp).toISOString(),
-    })
-
-    for (const projectConfig of projectConfigs) {
-      const projectUpdateStart = UnixTime.now()
-      assert(
-        projectConfig.chain === runner.chain,
-        `Discovery runner and project config chain mismatch in project ${projectConfig.name}. Update the config.json file or config.discovery.`,
-      )
-
-      // Skip archived configurations as an additional safety measure
-      if (projectConfig.archived) {
-        this.logger.info('Skipping archived project', {
-          chain: runner.chain,
-          project: projectConfig.name,
-        })
-        continue
-      }
-
-      this.logger.info('Project update started', {
-        chain: runner.chain,
-        project: projectConfig.name,
-      })
-
-      const projectFinished = projectGauge.startTimer({
-        project: `${runner.chain}:${projectConfig.name}`,
-      })
-      try {
-        await this.updateProject(runner, projectConfig, timestamp)
-      } catch (error) {
-        this.logger.error(
-          `[chain: ${runner.chain}] Failed to update project [${projectConfig.name}]`,
-          error,
-        )
-        errorCount.inc()
-      }
-      const projectUpdateEnd = UnixTime.now()
-      projectFinished()
-
-      this.logger.info('Project update finished', {
-        chain: runner.chain,
-        project: projectConfig.name,
-        start: projectUpdateStart,
-        end: projectUpdateEnd,
-        duration: projectUpdateEnd - projectUpdateStart,
-      })
-    }
-
-    const chainUpdateEnd = UnixTime.now()
-
-    this.logger.info('Chain update finished', {
-      start: chainUpdateStart,
-      end: chainUpdateEnd,
-      duration: chainUpdateEnd - chainUpdateStart,
-      chain: runner.chain,
-      timestamp: timestamp,
-      date: UnixTime.toDate(timestamp).toISOString(),
-    })
-  }
-
-  private async updateProject(
+  async updateProject(
     runner: DiscoveryRunner,
-    projectConfig: ConfigRegistry,
+    project: string,
     timestamp: UnixTime,
   ) {
-    const previousDiscovery = await this.getPreviousDiscovery(
-      runner,
-      projectConfig,
-    )
+    const projectUpdateStart = UnixTime.now()
 
-    const { discovery } = await runner.discoverWithRetry(
-      projectConfig,
+    this.logger.info('Project update started', {
+      projectName: project,
       timestamp,
-      this.logger,
-      undefined,
-      undefined,
-      'useCurrentTimestamp', // this is for dependent discoveries
-    )
+      date: UnixTime.toDate(timestamp).toISOString(),
+    })
 
-    if (!previousDiscovery || !discovery) return
+    const projectFinished = projectGauge.startTimer({ project })
 
-    this.discoveryOutputCache.set(projectConfig.name, runner.chain, discovery)
+    const chainUpdateStart = UnixTime.now()
+    try {
+      const projectConfig = this.configReader.readConfig(project)
 
-    const deployedDiscovered = this.configReader.readDiscovery(
-      projectConfig.name,
-      projectConfig.chain,
-    )
-    const unverifiedEntries = deployedDiscovered.entries
-      .filter((c) => c.unverified)
-      .map((c) => c.name)
-      .filter((c) => c !== undefined)
+      // additional safety: skip archived per-chain config
+      if (projectConfig.archived) {
+        this.logger.info('Skipping archived project config', { project })
+        return
+      }
 
-    this.logErrorsInDiscovery(discovery, this.logger)
+      const runResult = await runner.run(
+        projectConfig,
+        timestamp,
+        this.logger,
+        'useCurrentTimestamp', // for dependent discoveries
+      )
 
-    const prevSanitizedDiscovery = sanitizeDiscoveryOutput(previousDiscovery)
-    const sanitizedDiscovery = sanitizeDiscoveryOutput(discovery)
+      // read previous state (committed vs DB) and prime flat sources if needed
+      const previousDiscovery = await this.getPreviousDiscovery(
+        runner,
+        projectConfig,
+      )
 
-    const diff = diffDiscovery(
-      prevSanitizedDiscovery.entries,
-      sanitizedDiscovery.entries,
-      unverifiedEntries,
-    )
+      const { discovery } = runResult
+      if (!previousDiscovery || !discovery) {
+        this.logger.warn('Previous or current discovery missing', {
+          project,
+        })
+        return
+      }
 
-    await this.handleUpdateNotifier(
-      diff,
-      discovery,
-      projectConfig,
-      runner.chain,
-      timestamp,
-    )
+      this.discoveryOutputCache.set(projectConfig.name, discovery)
 
-    await this.db.updateMonitor.upsert({
-      projectId: projectConfig.name,
-      chainId: ChainId(this.chainConverter.toChainId(runner.chain)),
-      timestamp,
-      blockNumber: 0,
-      discovery,
-      configHash: hashJsonStable(projectConfig.structure),
+      const deployedDiscovered = this.configReader.readDiscovery(
+        projectConfig.name,
+      )
+      const unverifiedEntries = deployedDiscovered.entries
+        .filter((c) => c.unverified)
+        .map((c) => c.name)
+        .filter((c) => c !== undefined)
+
+      this.logErrorsInDiscovery(discovery, this.logger)
+
+      const prevSanitizedDiscovery = sanitizeDiscoveryOutput(previousDiscovery)
+      const sanitizedDiscovery = sanitizeDiscoveryOutput(discovery)
+
+      const diff = diffDiscovery(
+        prevSanitizedDiscovery.entries,
+        sanitizedDiscovery.entries,
+        unverifiedEntries,
+      )
+
+      await this.handleUpdateNotifier(diff, discovery, projectConfig, timestamp)
+
+      await this.db.updateMonitor.upsert({
+        projectId: projectConfig.name,
+        timestamp,
+        blockNumber: 0,
+        discovery,
+        configHash: generateStructureHash(projectConfig.structure),
+      })
+    } catch (error) {
+      errorCount.inc()
+      const chainUpdateEnd = UnixTime.now()
+      this.logger.error(
+        {
+          project,
+          start: chainUpdateStart,
+          end: chainUpdateEnd,
+          duration: chainUpdateEnd - chainUpdateStart,
+        },
+        error,
+      )
+    }
+
+    projectFinished()
+    const projectUpdateEnd = UnixTime.now()
+    this.logger.info('Project update finished', {
+      project,
+      start: projectUpdateStart,
+      end: projectUpdateEnd,
+      duration: projectUpdateEnd - projectUpdateStart,
     })
   }
 
@@ -294,48 +266,40 @@ export class UpdateMonitor {
     projectConfig: ConfigRegistry,
   ): Promise<DiscoveryOutput | undefined> {
     this.logger.info('Getting previous discovery', {
-      chain: runner.chain,
       project: projectConfig.name,
     })
-    const projectPair = { chain: runner.chain, project: projectConfig.name }
+    const project = { project: projectConfig.name }
 
     const databaseEntry = await this.db.updateMonitor.findLatest(
       projectConfig.name,
-      ChainId(this.chainConverter.toChainId(runner.chain)),
     )
-    const diskDiscovery = this.configReader.readDiscovery(
-      projectConfig.name,
-      runner.chain,
-    )
+    const diskDiscovery = this.configReader.readDiscovery(projectConfig.name)
 
-    const flatSourceEntry = await this.db.flatSources.get(
-      projectConfig.name,
-      ChainId(this.chainConverter.toChainId(runner.chain)),
-    )
+    const flatSourceEntry = await this.db.flatSources.get(projectConfig.name)
 
     const flatSourceTimestamp = flatSourceEntry?.timestamp ?? 0
     const onDiskDiscoveryChanged = diskDiscovery.timestamp > flatSourceTimestamp
     const onDiskConfigChanged =
-      databaseEntry?.configHash !== hashJsonStable(projectConfig.structure)
+      databaseEntry?.configHash !==
+      generateStructureHash(projectConfig.structure)
 
     let previousDiscovery: DiscoveryOutput
 
     if (onDiskConfigChanged || onDiskDiscoveryChanged) {
-      this.logger.info('Using committed file', projectPair)
+      this.logger.info('Using committed file', project)
       previousDiscovery = diskDiscovery
     } else {
-      this.logger.info('Using database record', projectPair)
+      this.logger.info('Using database record', project)
       previousDiscovery = databaseEntry.discovery
     }
 
-    const { discovery, flatSources } = await runner.discoverWithRetry(
+    const runResult = await runner.run(
       projectConfig,
       previousDiscovery.timestamp,
       this.logger,
-      undefined,
-      undefined,
       previousDiscovery.dependentDiscoveries,
     )
+    const { discovery, flatSources } = runResult
 
     // NOTE(radomski): We should only write to the database files that are
     // resulting from discoveries accepted by the research team. Otherwise an
@@ -347,10 +311,9 @@ export class UpdateMonitor {
     // the same. The only way to detect it is to check if the block number of
     // the ondisk discovery is higher than the one in the flat source table
     if (onDiskConfigChanged || onDiskDiscoveryChanged) {
-      this.logger.info('Upserting flat source', projectPair)
+      this.logger.info('Upserting flat source', project)
       await this.db.flatSources.upsert({
         projectId: projectConfig.name,
-        chainId: ChainId(this.chainConverter.toChainId(runner.chain)),
         timestamp: previousDiscovery.timestamp,
         contentHash: hashJson(sortObjectByKeys(flatSources)),
         flat: flatSources,
@@ -364,28 +327,21 @@ export class UpdateMonitor {
     diff: DiscoveryDiff[],
     discovery: DiscoveryOutput,
     projectConfig: ConfigRegistry,
-    chain: string,
     timestamp: UnixTime,
   ) {
     if (diff.length === 0) {
       return
     }
 
-    const dependents = findDependents(
-      projectConfig.name,
-      chain,
-      this.configReader,
-    )
+    const dependents = findDependents(projectConfig.name, this.configReader)
     const unknownEntries = findUnknownEntries(
       discovery.name,
       discovery.entries,
       this.configReader,
-      chain,
     )
     await this.updateNotifier.handleUpdate(
       projectConfig.name,
       diff,
-      ChainId(this.chainConverter.toChainId(chain)),
       dependents,
       unknownEntries,
       timestamp,

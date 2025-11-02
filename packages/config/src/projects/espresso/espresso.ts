@@ -1,4 +1,4 @@
-import { ProjectId, UnixTime } from '@l2beat/shared-pure'
+import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
 import {
   DaCommitteeSecurityRisk,
   DaEconomicSecurityRisk,
@@ -51,6 +51,32 @@ export const espresso: BaseProject = {
     },
     badges: [],
   },
+  trackedTxsConfig: [
+    {
+      projectId: ProjectId('espresso'),
+      sinceTimestamp: 1704700211,
+      type: 'liveness',
+      subtype: 'proofSubmissions',
+      params: {
+        formula: 'functionCall',
+        address: EthereumAddress('0x95Ca91Cea73239b15E5D2e5A74d02d6b5E0ae458'),
+        selector: '0x2063d4f7',
+        signature: 'function newFinalizedState(tuple newState, tuple proof)',
+      },
+    },
+    {
+      projectId: ProjectId('espresso'),
+      sinceTimestamp: 1704700211,
+      type: 'l2costs',
+      subtype: 'proofSubmissions',
+      params: {
+        formula: 'functionCall',
+        address: EthereumAddress('0x95Ca91Cea73239b15E5D2e5A74d02d6b5E0ae458'),
+        selector: '0x2063d4f7',
+        signature: 'function newFinalizedState(tuple newState, tuple proof)',
+      },
+    },
+  ],
   daLayer: {
     type: 'DA Service',
     systemCategory: 'public',
@@ -82,7 +108,7 @@ Once nodes receive and store the data, they return votes to the proposer. DAVote
 A DA certificate consists of two components, the retrievability certificate and the optimistic DAC certificate:
 
 - **Retrievability Certificate**: Formed when the DA leader collects 2/3 + 1 QuorumVotes.
-- **Optimistic DAC Certificate**: Formed when the DA leader gathers 2/3 + 1 DAVotes from the DA committee. Currently, the committee size is 21 members, so the threshold is 15 signatures. \  
+- **Optimistic DAC Certificate**: Formed when the DA leader gathers 2/3 + 1 DAVotes from the DA committee. Currently, the committee size is 21 members, so the threshold is 15 signatures.
 
 
 Once the DAC is formed, the DA leader stops broadcasting data to the nodes.
@@ -107,10 +133,25 @@ Users can retrieve data by querying any of Espresso DA's layers, though the VID 
       economicSecurity: DaEconomicSecurityRisk.OffChainVerifiable,
       fraudDetection: DaFraudDetectionRisk.NoFraudDetection,
     },
+    validators: {
+      type: 'static',
+      count: 100,
+    },
   },
   daBridge: {
     name: 'HotShot Light Client',
     daLayer: ProjectId('espresso'),
+    relayerType: {
+      value: 'Permissioned',
+      sentiment: 'warning',
+      description:
+        'Only whitelisted relayers can post attestations to this bridge.',
+    },
+    validationType: {
+      value: 'Validity Proof',
+      description:
+        'The DA attestation requires onchain SNARK proof verification to be accepted by the bridge. Operators signatures and their corresponding stake are verified as part of the proof.',
+    },
     technology: {
       description: `
       ## Architecture

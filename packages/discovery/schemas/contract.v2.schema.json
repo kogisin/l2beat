@@ -9,6 +9,7 @@
         "new Arbitrum proxy",
         "call implementation proxy",
         "zkSync Lite proxy",
+        "zkLighter proxy",
         "zkSpace proxy",
         "Eternal Storage proxy",
         "Polygon Extension proxy",
@@ -59,6 +60,7 @@
                     "hotValidatorHyperliquid",
                     "coldValidatorHyperliquid",
                     "acrossPropose",
+                    "validateLighter",
                     "member",
                     "act",
                     "interact",
@@ -585,6 +587,44 @@
               {
                 "type": "object",
                 "properties": { "type": { "const": "tradable" } },
+                "required": ["type"]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": { "const": "YieldFiMinters" },
+                  "permissionlessMinting": { "type": "boolean" },
+                  "mintingWithPermit": { "type": "boolean" }
+                },
+                "required": ["type"]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": { "const": "eventTrace" },
+                  "event": { "type": "string" },
+                  "function": { "type": "string" }
+                },
+                "required": ["type", "event", "function"]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": { "const": "crossChainAccessControl" },
+                  "roleNames": {
+                    "type": "object",
+                    "propertyNames": { "type": "string" },
+                    "additionalProperties": { "type": "string" }
+                  },
+                  "chainAddressNames": {
+                    "type": "object",
+                    "propertyNames": { "type": "string" },
+                    "additionalProperties": { "type": "string" }
+                  },
+                  "pickRoleMembers": { "type": "string" },
+                  "pickChainAddress": { "type": "string" },
+                  "ignoreRelative": { "type": "boolean" }
+                },
                 "required": ["type"]
               }
             ]

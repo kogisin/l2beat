@@ -17,7 +17,7 @@ import {
   useIndividualRosetteTooltipContext,
 } from './IndividualRosetteTooltipContext'
 
-export interface Props {
+interface Props {
   l2: {
     name: string
     risks: RosetteValueTuple
@@ -58,6 +58,7 @@ export function BigIndividualRosette(props: Props) {
             parameters.rosetteClassName,
           )}
           background={props.background}
+          disableSectionLinking
         />
         {props.isUpcoming && (
           <UpcomingBadge className="absolute top-[130px] left-[90px]" />

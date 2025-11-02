@@ -1,18 +1,20 @@
 import type {
   Project,
   ProjectScalingCategory,
+  ProjectScalingProofSystem,
   ProjectScalingStack,
   TableReadyValue,
 } from '@l2beat/config'
 import { TrackedTxsConfigSubtypeValues, UnixTime } from '@l2beat/shared-pure'
 import { groupByScalingTabs } from '~/pages/scaling/utils/groupByScalingTabs'
 import { ps } from '~/server/projects'
+import { getProofSystemWithName } from '~/utils/project/getProofSystemWithName'
 import type { ProjectsChangeReport } from '../../projects-change-report/getProjectsChangeReport'
 import { getProjectsChangeReport } from '../../projects-change-report/getProjectsChangeReport'
 import type { CommonScalingEntry } from '../getCommonScalingEntry'
 import { getCommonScalingEntry } from '../getCommonScalingEntry'
-import { getProjectsLatestTvsUsd } from '../tvs/getLatestTvsUsd'
-import { compareStageAndTvs } from '../utils/compareStageAndTvs'
+import { get7dTvsBreakdown } from '../tvs/get7dTvsBreakdown'
+import { compareTvs } from '../tvs/utils/compareTvs'
 import { getLiveness } from './getLiveness'
 import type { LivenessAnomaly, LivenessProject } from './types'
 import { getHasTrackedContractChanged } from './utils/getHasTrackedContractChanged'
@@ -23,23 +25,27 @@ import {
 } from './utils/transformLivenessData'
 
 export async function getScalingLivenessEntries() {
-  const [tvs, projectsChangeReport, liveness, projects] = await Promise.all([
-    getProjectsLatestTvsUsd(),
-    getProjectsChangeReport(),
-    getLiveness(),
-    ps.getProjects({
-      select: [
-        'statuses',
-        'scalingInfo',
-        'livenessInfo',
-        'display',
-        'trackedTxsConfig',
-      ],
-      optional: ['scalingDa'],
-      where: ['isScaling'],
-      whereNot: ['isUpcoming', 'archivedAt'],
-    }),
-  ])
+  const [tvs, projectsChangeReport, liveness, projects, zkCatalogProjects] =
+    await Promise.all([
+      get7dTvsBreakdown({ type: 'layer2' }),
+      getProjectsChangeReport(),
+      getLiveness(),
+      ps.getProjects({
+        select: [
+          'statuses',
+          'scalingInfo',
+          'livenessInfo',
+          'display',
+          'trackedTxsConfig',
+        ],
+        optional: ['scalingDa'],
+        where: ['isScaling'],
+        whereNot: ['isUpcoming', 'archivedAt'],
+      }),
+      ps.getProjects({
+        select: ['zkCatalogInfo'],
+      }),
+    ])
 
   const entries = projects
     .map((project) =>
@@ -47,22 +53,24 @@ export async function getScalingLivenessEntries() {
         project,
         projectsChangeReport,
         liveness[project.id.toString()],
-        tvs[project.id],
+        tvs.projects[project.id]?.breakdown.total,
+        zkCatalogProjects,
       ),
     )
     .filter((x) => x !== undefined)
-    .sort(compareStageAndTvs)
+    .sort(compareTvs)
 
   return groupByScalingTabs(entries)
 }
 
 export interface ScalingLivenessEntry extends CommonScalingEntry {
-  category: ProjectScalingCategory
+  proofSystem: ProjectScalingProofSystem | undefined
+  category: ProjectScalingCategory | undefined
   stacks: ProjectScalingStack[] | undefined
   data: LivenessData
   explanation: string | undefined
   anomalies: LivenessAnomaly[]
-  dataAvailabilityMode: TableReadyValue | undefined
+  dataAvailabilityMode: TableReadyValue[] | undefined
   hasTrackedContractsChanged: boolean
   tvsOrder: number
 }
@@ -79,6 +87,7 @@ function getScalingLivenessEntry(
   projectsChangeReport: ProjectsChangeReport,
   liveness: LivenessProject | undefined,
   tvs: number | undefined,
+  zkCatalogProjects: Project<'zkCatalogInfo'>[],
 ): ScalingLivenessEntry | undefined {
   if (!liveness) {
     return undefined
@@ -100,18 +109,22 @@ function getScalingLivenessEntry(
       syncWarning,
       ongoingAnomaly: liveness.anomalies.some((a) => a.end === undefined),
     }),
-    category: project.scalingInfo.type,
     stacks: project.scalingInfo.stacks,
+    proofSystem: getProofSystemWithName(
+      project.scalingInfo.proofSystem,
+      zkCatalogProjects,
+    ),
+    category: project.scalingInfo.type,
     data,
     explanation: project.livenessInfo?.explanation,
     anomalies: liveness.anomalies,
-    dataAvailabilityMode: project.scalingDa?.mode,
+    dataAvailabilityMode: project.scalingDa?.map((da) => da.mode),
     tvsOrder: tvs ?? -1,
     hasTrackedContractsChanged,
   }
 }
 
-function getLowestSyncedUntil(liveness: LivenessProject): UnixTime {
+export function getLowestSyncedUntil(liveness: LivenessProject): UnixTime {
   let lowestSyncedUntil = UnixTime.now()
 
   for (const subtype of TrackedTxsConfigSubtypeValues) {

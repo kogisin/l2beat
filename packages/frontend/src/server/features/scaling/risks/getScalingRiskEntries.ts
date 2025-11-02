@@ -1,4 +1,4 @@
-import type { Project, ProjectScalingRiskView } from '@l2beat/config'
+import type { Project, ProjectRiskView } from '@l2beat/config'
 import { groupByScalingTabs } from '~/pages/scaling/utils/groupByScalingTabs'
 import { ps } from '~/server/projects'
 import { getDataAvailabilitySection } from '~/utils/project/technology/getDataAvailabilitySection'
@@ -8,12 +8,12 @@ import type { ProjectChanges } from '../../projects-change-report/getProjectsCha
 import { getProjectsChangeReport } from '../../projects-change-report/getProjectsChangeReport'
 import type { CommonScalingEntry } from '../getCommonScalingEntry'
 import { getCommonScalingEntry } from '../getCommonScalingEntry'
-import { getProjectsLatestTvsUsd } from '../tvs/getLatestTvsUsd'
-import { compareStageAndTvs } from '../utils/compareStageAndTvs'
+import { get7dTvsBreakdown } from '../tvs/get7dTvsBreakdown'
+import { compareTvs } from '../tvs/utils/compareTvs'
 
 export async function getScalingRiskEntries() {
   const [tvs, projectsChangeReport, projects] = await Promise.all([
-    getProjectsLatestTvsUsd(),
+    get7dTvsBreakdown({ type: 'layer2' }),
     getProjectsChangeReport(),
     ps.getProjects({
       select: [
@@ -30,20 +30,21 @@ export async function getScalingRiskEntries() {
   ])
 
   const entries = projects
+    .filter((p) => p.statuses.reviewStatus !== 'initialReview')
     .map((project) =>
       getScalingRiskEntry(
         project,
         projectsChangeReport.getChanges(project.id),
-        tvs[project.id],
+        tvs.projects[project.id]?.breakdown.total,
       ),
     )
-    .sort(compareStageAndTvs)
+    .sort(compareTvs)
 
   return groupByScalingTabs(entries)
 }
 
 export interface ScalingRiskEntry extends CommonScalingEntry {
-  risks: ProjectScalingRiskView
+  risks: ProjectRiskView
   tvsOrder: number
   hasStateValidationSection: boolean
   hasDataAvailabilitySection: boolean

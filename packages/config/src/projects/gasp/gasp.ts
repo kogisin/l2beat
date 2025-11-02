@@ -12,18 +12,21 @@ export const gasp: ScalingProject = underReviewL2({
     description:
       'Gasp aims to deliver omnichain liquidity, empowering efficient trading across blockchain networks through a modular rollup secured by Ethereum and an Eigenlayer AVS.',
     purposes: ['Universal', 'Interoperability'],
-    category: 'Optimistic Rollup', // no zk found here on first sight, so OP or Other
     links: {
       websites: ['https://gasp.xyz/'],
       bridges: ['https://app.gasp.xyz/'],
       documentation: ['https://docs.gasp.xyz/'],
       explorers: [],
-      repositories: [],
+      repositories: ['https://github.com/gasp-xyz'],
       socialMedia: [
         'https://x.com/gasp_xyz',
         'https://discord.com/invite/gasp-xyz',
       ],
     },
+  },
+  dataAvailability: undefined,
+  proofSystem: {
+    type: 'Optimistic',
   },
   escrows: [
     {

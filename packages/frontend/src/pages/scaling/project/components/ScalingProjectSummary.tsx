@@ -1,3 +1,4 @@
+import type { HTMLAttributes } from 'react'
 import {
   TokenBreakdown,
   TokenBreakdownTooltipContent,
@@ -46,7 +47,7 @@ export function ProjectScalingSummary({ project }: Props) {
   return (
     <section
       id="summary"
-      data-role="project-section"
+      data-role="nav-section"
       className="w-full border-divider px-4 max-md:border-b md:rounded-lg md:bg-surface-primary md:p-6"
     >
       <div className="flex">
@@ -69,21 +70,29 @@ export function ProjectScalingSummary({ project }: Props) {
                 Tokens breakdown
               </p>
               <Tooltip>
-                <TooltipTrigger asChild>
-                  <a
-                    className="flex w-full items-center gap-1"
-                    href={`/scaling/projects/${project.slug}/tvs-breakdown`}
+                <TooltipTrigger className="w-full cursor-pointer" asChild>
+                  <ConditionalLink
+                    className="flex items-center gap-1"
+                    href={
+                      project.header.tvs
+                        ? `/scaling/projects/${project.slug}/tvs-breakdown`
+                        : undefined
+                    }
                   >
                     <TokenBreakdown
                       total={project.header.tvs?.tokens.breakdown?.total ?? 0}
-                      associated={
-                        project.header.tvs?.tokens.breakdown?.associated ?? 0
-                      }
                       ether={project.header.tvs?.tokens.breakdown?.ether ?? 0}
                       stablecoin={
                         project.header.tvs?.tokens.breakdown?.stablecoin ?? 0
                       }
                       btc={project.header.tvs?.tokens.breakdown?.btc ?? 0}
+                      other={project.header.tvs?.tokens.breakdown?.other ?? 0}
+                      rwaPublic={
+                        project.header.tvs?.tokens.breakdown?.rwaPublic ?? 0
+                      }
+                      rwaRestricted={
+                        project.header.tvs?.tokens.breakdown?.rwaRestricted ?? 0
+                      }
                       className="h-1.5 w-full"
                     />
                     {hasTokenWarnings && (
@@ -92,7 +101,7 @@ export function ProjectScalingSummary({ project }: Props) {
                         className="size-[22px]"
                       />
                     )}
-                  </a>
+                  </ConditionalLink>
                 </TooltipTrigger>
                 <TooltipContent>
                   <TokenBreakdownTooltipContent
@@ -105,14 +114,23 @@ export function ProjectScalingSummary({ project }: Props) {
                       project.header.tvs?.tokens.breakdown?.stablecoin ?? 0
                     }
                     btc={project.header.tvs?.tokens.breakdown?.btc ?? 0}
-                    associatedTokenSymbols={
+                    other={project.header.tvs?.tokens.breakdown?.other ?? 0}
+                    rwaPublic={
+                      project.header.tvs?.tokens.breakdown?.rwaPublic ?? 0
+                    }
+                    rwaRestricted={
+                      project.header.tvs?.tokens.breakdown?.rwaRestricted ?? 0
+                    }
+                    associatedTokens={
                       project.header.tvs?.tokens.associatedTokens ?? []
                     }
                     tvsWarnings={project.header.tvs?.tokens.warnings ?? []}
                   />
-                  <p className="mt-2 text-label-value-13 text-secondary">
-                    Click to view TVS breakdown
-                  </p>
+                  {project.header.tvs && (
+                    <p className="mt-2 text-label-value-13 text-secondary max-md:hidden">
+                      Click to view TVS breakdown
+                    </p>
+                  )}
                 </TooltipContent>
               </Tooltip>
             </div>
@@ -121,10 +139,13 @@ export function ProjectScalingSummary({ project }: Props) {
                 Value secured breakdown
               </p>
               <Tooltip>
-                <TooltipTrigger asChild>
-                  <a
-                    className="block w-full"
-                    href={`/scaling/projects/${project.slug}/tvs-breakdown`}
+                <TooltipTrigger className="block w-full cursor-pointer" asChild>
+                  <ConditionalLink
+                    href={
+                      project.header.tvs
+                        ? `/scaling/projects/${project.slug}/tvs-breakdown`
+                        : undefined
+                    }
                   >
                     <ValueSecuredBreakdown
                       canonical={project.header.tvs?.breakdown?.canonical ?? 0}
@@ -132,7 +153,7 @@ export function ProjectScalingSummary({ project }: Props) {
                       native={project.header.tvs?.breakdown?.native ?? 0}
                       className="h-1.5 w-full"
                     />
-                  </a>
+                  </ConditionalLink>
                 </TooltipTrigger>
                 <TooltipContent>
                   <ValueSecuredBreakdownTooltipContent
@@ -142,9 +163,11 @@ export function ProjectScalingSummary({ project }: Props) {
                     change={project.header.tvs?.breakdown?.totalChange ?? 0}
                     tvsWarnings={[]}
                   />
-                  <p className="mt-2 text-label-value-13 text-secondary">
-                    Click to view TVS breakdown
-                  </p>
+                  {project.header.tvs && (
+                    <p className="mt-2 text-label-value-13 text-secondary max-md:hidden">
+                      Click to view TVS breakdown
+                    </p>
+                  )}
                 </TooltipContent>
               </Tooltip>
               <CustomLink
@@ -191,5 +214,21 @@ export function ProjectScalingSummary({ project }: Props) {
         </div>
       </div>
     </section>
+  )
+}
+
+function ConditionalLink({
+  children,
+  href,
+  ...props
+}: HTMLAttributes<HTMLAnchorElement | HTMLDivElement> & {
+  href: string | undefined
+}) {
+  return href ? (
+    <a href={href} {...props}>
+      {children}
+    </a>
+  ) : (
+    <div {...props}>{children}</div>
   )
 }

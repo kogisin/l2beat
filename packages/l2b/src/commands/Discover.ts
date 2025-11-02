@@ -3,16 +3,10 @@ import {
   ConfigReader,
   DiscoverCommandArgs,
   type DiscoveryModuleConfig,
-  getChainConfig,
-  getChainFullName,
-  getChainShortName,
+  type EntryParameters,
   getDiscoveryPaths,
 } from '@l2beat/discovery'
-import {
-  ChainSpecificAddress,
-  EthereumAddress,
-  UnixTime,
-} from '@l2beat/shared-pure'
+import { ChainSpecificAddress, EthereumAddress } from '@l2beat/shared-pure'
 import chalk from 'chalk'
 import { command, option, optional, positional, string } from 'cmd-ts'
 import { getPlainLogger } from '../implementations/common/getPlainLogger'
@@ -21,7 +15,7 @@ import { discoverAndUpdateDiffHistory } from '../implementations/discovery/disco
 // NOTE(radomski): We need to modify the args object because the only allowed
 // chains are those that we know of. But we also want to allow the user to
 // specify "all" as the chain name.
-const { project: _, chain: __, ...remainingArgs } = DiscoverCommandArgs
+const { project: _, ...remainingArgs } = DiscoverCommandArgs
 const args = {
   ...remainingArgs,
   projectQuery: positional({
@@ -47,76 +41,60 @@ export const Discover = command({
   args,
   handler: async (args) => {
     const logger = getPlainLogger()
-    const projectsOnChain: Record<string, string[]> = resolveProjects(
-      args.projectQuery,
-    )
+    const matchingProjects = resolveProjects(args.projectQuery)
 
-    logProjectsToDiscover(projectsOnChain, logger)
-    const timestamp = getTimestamp(args)
+    logProjectsToDiscover(matchingProjects, logger)
 
-    for (const chainName in projectsOnChain) {
-      const chain = getChainConfig(chainName)
-      for (const project of projectsOnChain[chainName]) {
-        const config: DiscoveryModuleConfig = {
-          ...args,
-          project,
-          chain,
-          timestamp: timestamp ?? args.timestamp,
-        }
+    for (const project of matchingProjects) {
+      const config: DiscoveryModuleConfig = { ...args, project }
 
-        await discoverAndUpdateDiffHistory(config, {
-          logger,
-          description: args.message,
-        })
-      }
+      await discoverAndUpdateDiffHistory(config, {
+        logger,
+        configReader,
+        description: args.message,
+      })
     }
   },
 })
 
-function logProjectsToDiscover(
-  projectsOnChain: Record<string, string[]>,
-  logger: Logger,
-) {
-  if (Object.keys(projectsOnChain).length === 0) {
+function logProjectsToDiscover(projects: string[], logger: Logger) {
+  if (projects.length === 0) {
     logger.info(chalk.greenBright('Nothing to discover'))
     return
   }
 
   logger.info('Will discover')
-  for (const chainName in projectsOnChain) {
-    logger.info(chalk.blue(chainName))
-    for (const project of projectsOnChain[chainName]) {
-      logger.info(`  - ${chalk.yellowBright(project)}`)
-    }
+  for (const project of projects) {
+    logger.info(`${chalk.blue(project)}`)
   }
 }
 
-function resolveProjects(projectQuery: string) {
-  const result: Record<string, string[]> = {}
+function resolveProjects(projectQuery: string): string[] {
   const entries = configReader.readAllConfiguredProjects()
 
-  const predicate: Predicate = EthereumAddress.check(projectQuery)
-    ? addressPredicate
-    : projectPredicate
+  const isChainSpecificAddressPredicate =
+    ChainSpecificAddress.check(projectQuery)
+  const isAddressPredicate = EthereumAddress.check(projectQuery)
 
-  for (const { project, chains } of entries) {
-    const matchingChains = chains.filter((chain) => {
-      const query = EthereumAddress.check(projectQuery)
-        ? ChainSpecificAddress.from(getChainShortName(chain), projectQuery)
-        : projectQuery
+  const predicate: Predicate = isChainSpecificAddressPredicate
+    ? chainSpecificAddressPredicate
+    : isAddressPredicate
+      ? addressPredicate
+      : projectPredicate
 
-      return predicate(query, project)
-    })
+  const matchingProjects: string[] = []
+  for (const project of entries) {
+    const query = isAddressPredicate
+      ? EthereumAddress(projectQuery)
+      : projectQuery
+    const projectMatches = predicate(query, project)
 
-    for (const chain of matchingChains) {
-      if (!result[chain]) {
-        result[chain] = []
-      }
-      result[chain].push(project)
+    if (projectMatches) {
+      matchingProjects.push(project)
     }
   }
 
-  return result
+  return matchingProjects
 }
 
 type Predicate = (needle: string, haystackProject: string) => boolean
@@ -132,28 +110,30 @@ function addressPredicate(
   needleAddress: string,
   haystackProject: string,
 ): boolean {
-  const address = ChainSpecificAddress(needleAddress)
-  const chain = getChainFullName(ChainSpecificAddress.chain(address))
-  const discovery = configReader.readDiscovery(haystackProject, chain)
+  const address = EthereumAddress(needleAddress)
+  const entries = getEntries(haystackProject)
 
-  return discovery.entries.find((c) => c.address === address) !== undefined
+  return (
+    entries.find((c) => ChainSpecificAddress.address(c.address) === address) !==
+    undefined
+  )
 }
 
-// TODO(radomski): This will not exist. In the future all of this information
-// will be stored in the discovery but since we're emulating having a single
-// discovered.json we have to do this trick.
-function getTimestamp(args: {
-  timestamp: number | undefined
-  dev: boolean
-  dryRun: boolean
-}): UnixTime | undefined {
-  if (
-    args.dev === false &&
-    args.dryRun === false &&
-    args.timestamp === undefined
-  ) {
-    return UnixTime.now()
-  }
+function chainSpecificAddressPredicate(
+  needleAddress: string,
+  haystackProject: string,
+): boolean {
+  const address = ChainSpecificAddress(needleAddress)
+  const entries = getEntries(haystackProject)
 
-  return undefined
+  return entries.find((c) => c.address === address) !== undefined
+}
+
+function getEntries(project: string): EntryParameters[] {
+  try {
+    const discovery = configReader.readDiscovery(project)
+    return discovery.entries
+  } catch {
+    return []
+  }
 }

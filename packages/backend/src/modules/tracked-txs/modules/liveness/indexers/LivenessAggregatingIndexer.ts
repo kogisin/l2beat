@@ -1,5 +1,4 @@
-import type { Database } from '@l2beat/database'
-import type { AggregatedLivenessRecord } from '@l2beat/database/dist/other/aggregated-liveness/entity'
+import type { AggregatedLivenessRecord, Database } from '@l2beat/database'
 import {
   clampRangeToDay,
   ProjectId,
@@ -86,9 +85,20 @@ export class LivenessAggregatingIndexer extends ManagedChildIndexer {
       to,
     )
 
-    const livenessRecords = records.map((r) =>
-      mapToRecordWithConfig(r, allProjectConfigs),
-    )
+    // NOTE(maciekzygmunt): normally this steps should be done in the database, but because liveness table is huge, sorting and distinction
+    // takes a lot of memory, so for this case it is better to do it here
+    records.sort((a, b) => b.timestamp - a.timestamp)
+    const livenessRecords: LivenessRecordWithConfig[] = []
+    const present = new Set<string>()
+
+    for (const r of records) {
+      const key = r.timestamp + '-' + r.configurationId
+
+      if (!present.has(key)) {
+        present.add(key)
+        livenessRecords.push(mapToRecordWithConfig(r, allProjectConfigs))
+      }
+    }
 
     const groupedConfigs = groupBy(allProjectConfigs, (c) => c.projectId)
 

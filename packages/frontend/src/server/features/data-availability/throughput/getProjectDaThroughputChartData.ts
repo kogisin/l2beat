@@ -7,12 +7,12 @@ import { getDaThroughputTable } from './getDaThroughputTable'
 import {
   getProjectDaThroughputChart,
   ProjectDaThroughputChartParams,
-} from './getProjectDaThroughtputChart'
+} from './getProjectDaThroughputChart'
 
-export type ProjectDaThroughputChartData = {
+type ProjectDaThroughputChartData = {
   chart: ProjectDaThroughputChartPoint[]
   stats: {
-    pastDayAvgCapacityUtilization: number | undefined
+    pastDayAvgCapacityUtilization: number | undefined | null
     pastDayAvgThroughputPerSecond: number | undefined
     largestPoster:
       | {

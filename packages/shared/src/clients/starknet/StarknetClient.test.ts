@@ -12,9 +12,10 @@ import type {
 
 describe(StarknetClient.name, () => {
   describe(StarknetClient.prototype.getBlockWithTransactions.name, () => {
-    it('fetches block from api and parsers response', async () => {
+    it('fetches block from api and parses response', async () => {
       const mockStarknetBlock: Block = {
         hash: '0xabcdef',
+        logsBloom: 'UNSUPPORTED',
         number: 100,
         timestamp: UnixTime.now(),
         transactions: [

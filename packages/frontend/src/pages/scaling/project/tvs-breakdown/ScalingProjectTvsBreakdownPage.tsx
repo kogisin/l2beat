@@ -1,118 +1,85 @@
-import type { DehydratedState } from '@tanstack/react-query'
-import { HydrationBoundary } from '@tanstack/react-query'
-import { ProjectStackedTvsChart } from '~/components/chart/tvs/stacked/ProjectStackedTvsChart'
-import { HorizontalSeparator } from '~/components/core/HorizontalSeparator'
-import { HighlightablePrimaryCard } from '~/components/primary-card/HighlightablePrimaryCard'
+import { ProjectAssetCategoryTvsChart } from '~/components/chart/tvs/stacked/ProjectAssetCategoryTvsChart'
+import { ProjectBridgeTypeTvsChart } from '~/components/chart/tvs/stacked/ProjectBridgeTypeTvsChart'
+import { TvsChartControlsContextProvider } from '~/components/chart/tvs/TvsChartControlsContext'
+import { SelectedTokenContextProvider } from '~/components/chart/tvs/token/SelectedTokenContext'
 import { PrimaryCard } from '~/components/primary-card/PrimaryCard'
+import { ChartControls } from '~/components/projects/sections/tvs/ChartControls'
+import { TokenChart } from '~/components/projects/sections/tvs/TokenChart'
+import { TokensControls } from '~/components/projects/sections/tvs/TokensControls'
+import { TvsProjectStats } from '~/components/projects/sections/tvs/TvsProjectStats'
 import { ScrollToTopButton } from '~/components/ScrollToTopButton'
+import { TableFilterContextProvider } from '~/components/table/filters/TableFilterContext'
 import type { AppLayoutProps } from '~/layouts/AppLayout'
 import { AppLayout } from '~/layouts/AppLayout'
 import { SideNavLayout } from '~/layouts/SideNavLayout'
 import type { ScalingProjectTvsBreakdown } from '~/server/features/scaling/project/getScalingProjectTvsBreakdown'
 import type { TvsChartRange } from '~/server/features/scaling/tvs/utils/range'
+import { ScalingRwaRestrictedTokensContextProvider } from '../../components/ScalingRwaRestrictedTokensContext'
 import { RequestTokenBox } from './components/RequestTokenBox'
 import { TvsBreakdownPageHeader } from './components/TvsBreakdownPageHeader'
-import { TvsBreakdownSummaryBox } from './components/TvsBreakdownSummaryBox'
-import { CanonicallyBridgedTable } from './components/tables/CanonicallyBridgedTable'
-import { ExternallyBridgedTable } from './components/tables/ExternallyBridgesTable'
-import { NativelyMintedTable } from './components/tables/NativelyMintedTable'
+import { ProjectTvsBreakdownTokenTable } from './components/tables/ProjectTvsBreakdownTokenTable'
 
-interface Props extends AppLayoutProps {
-  tvsBreakdownData: ScalingProjectTvsBreakdown
-  queryState: DehydratedState
+interface Props extends AppLayoutProps, ScalingProjectTvsBreakdown {
   defaultRange: TvsChartRange
 }
 
 export function ScalingProjectTvsBreakdownPage({
-  tvsBreakdownData: {
-    project,
-    icon,
-    dataTimestamp,
-    breakdown,
-    projectTokens,
-    project7dData,
-  },
-  queryState,
+  project,
+  icon,
+  dataTimestamp,
+  entries,
+  project7dData,
+  milestones,
   defaultRange,
   ...props
 }: Props) {
   return (
     <AppLayout {...props}>
-      <HydrationBoundary state={queryState}>
-        <SideNavLayout>
-          <div className="smooth-scroll">
-            <TvsBreakdownPageHeader
-              title={project.name}
-              slug={project.slug}
-              icon={icon}
-              tvsBreakdownTimestamp={dataTimestamp}
-            />
-            <div className="md:space-y-6">
-              <PrimaryCard>
-                <ProjectStackedTvsChart
-                  projectId={project.id}
-                  milestones={project.milestones ?? []}
-                  tokens={projectTokens}
-                  defaultRange={defaultRange}
-                />
-                <HorizontalSeparator className="my-4" />
-                <TvsBreakdownSummaryBox
-                  total={{
-                    value: project7dData.breakdown.total,
-                    change: project7dData.change.total,
-                  }}
-                  canonical={{
-                    value: project7dData.breakdown.canonical,
-                    change: project7dData.change.canonical,
-                  }}
-                  external={{
-                    value: project7dData.breakdown.external,
-                    change: project7dData.change.external,
-                  }}
-                  native={{
-                    value: project7dData.breakdown.native,
-                    change: project7dData.change.native,
-                  }}
-                  warning={project.tvsInfo?.warnings[0]}
-                />
-              </PrimaryCard>
-
-              {breakdown.canonical.length > 0 && (
-                <HighlightablePrimaryCard
-                  id="canonical"
-                  className="md:scroll-mt-6"
-                >
-                  <CanonicallyBridgedTable
-                    tokens={breakdown.canonical}
-                    id="canonical"
+      <SideNavLayout>
+        <TvsBreakdownPageHeader
+          title={project.name}
+          slug={project.slug}
+          icon={icon}
+          tvsBreakdownTimestamp={dataTimestamp}
+        />
+        <div
+          className="smooth-scroll group/section-wrapper md:space-y-6"
+          data-project-page={true}
+        >
+          <SelectedTokenContextProvider>
+            <TvsChartControlsContextProvider defaultRange={defaultRange}>
+              <ScalingRwaRestrictedTokensContextProvider>
+                <PrimaryCard>
+                  <ChartControls projectId={project.id} />
+                  <ProjectBridgeTypeTvsChart
+                    project={project}
+                    milestones={milestones}
                   />
-                </HighlightablePrimaryCard>
-              )}
-              {breakdown.native.length > 0 && (
-                <HighlightablePrimaryCard
-                  id="native"
-                  className="md:scroll-mt-6"
-                >
-                  <NativelyMintedTable tokens={breakdown.native} id="native" />
-                </HighlightablePrimaryCard>
-              )}
-              {breakdown.external.length > 0 && (
-                <HighlightablePrimaryCard
-                  id="external"
-                  className="md:scroll-mt-6"
-                >
-                  <ExternallyBridgedTable
-                    tokens={breakdown.external}
-                    id="external"
+                  <ProjectAssetCategoryTvsChart
+                    project={project}
+                    milestones={milestones}
                   />
-                </HighlightablePrimaryCard>
-              )}
-            </div>
-            <RequestTokenBox />
-            <ScrollToTopButton />
-          </div>
-        </SideNavLayout>
-      </HydrationBoundary>
+                  <div>
+                    <section id="token-chart" className="scroll-mt-2">
+                      <TokensControls tokens={entries} />
+                      <TokenChart project={project} milestones={milestones} />
+                    </section>
+                  </div>
+                  <TvsProjectStats
+                    projectId={project.id}
+                    tvsInfo={project.tvsInfo}
+                  />
+                </PrimaryCard>
+              </ScalingRwaRestrictedTokensContextProvider>
+            </TvsChartControlsContextProvider>
+            <TableFilterContextProvider>
+              <ProjectTvsBreakdownTokenTable entries={entries} />
+            </TableFilterContextProvider>
+          </SelectedTokenContextProvider>
+        </div>
+        <RequestTokenBox />
+        <ScrollToTopButton />
+      </SideNavLayout>
     </AppLayout>
   )
 }

@@ -1,7 +1,9 @@
 import type {
   Project,
+  ProjectAssociatedToken,
   ProjectCustomColors,
   ProjectScalingCategory,
+  ProjectScalingProofSystem,
   ProjectScalingStage,
   ReasonForBeingInOther,
   WarningWithSentiment,
@@ -31,7 +33,8 @@ import { getOperatorSection } from '~/utils/project/technology/getOperatorSectio
 import { getOtherConsiderationsSection } from '~/utils/project/technology/getOtherConsiderationsSection'
 import { getSequencingSection } from '~/utils/project/technology/getSequencingSection'
 import { getWithdrawalsSection } from '~/utils/project/technology/getWithdrawalsSection'
-import { getStackedTvsSection } from '~/utils/project/tvs/getStackedTvsSection'
+import { getStateValidationSection } from '~/utils/project/technology/state-validation/getStateValidationSection'
+import { getScalingTvsSection } from '~/utils/project/tvs/getScalingTvsSection'
 import {
   getUnderReviewStatus,
   type UnderReviewStatus,
@@ -44,7 +47,7 @@ import { getLiveness } from '../liveness/getLiveness'
 import { get7dTvsBreakdown } from '../tvs/get7dTvsBreakdown'
 import { getTokensForProject } from '../tvs/tokens/getTokensForProject'
 import { getAssociatedTokenWarning } from '../tvs/utils/getAssociatedTokenWarning'
-import { getScalingDaSolution } from './getScalingDaSolution'
+import { getScalingDaSolutions } from './getScalingDaSolutions'
 import type { ScalingRosette } from './getScalingRosetteValues'
 import { getScalingRosette } from './getScalingRosetteValues'
 
@@ -74,7 +77,8 @@ export interface ProjectScalingEntry {
     links: ProjectLink[]
     hostChain?: string
     chainId?: number
-    category: ProjectScalingCategory
+    category?: ProjectScalingCategory
+    proofSystemType?: ProjectScalingProofSystem['type']
     purposes: string[]
     tvs?: {
       breakdown?: {
@@ -92,9 +96,12 @@ export interface ProjectScalingEntry {
           stablecoin: number
           associated: number
           btc: number
+          other: number
+          rwaPublic: number
+          rwaRestricted: number
         }
         warnings: WarningWithSentiment[]
-        associatedTokens: string[]
+        associatedTokens: ProjectAssociatedToken[]
       }
     }
     activity?: {
@@ -131,7 +138,10 @@ export async function getScalingProjectEntry(
     | 'archivedAt'
     | 'milestones'
     | 'trackedTxsConfig'
+    | 'livenessInfo'
     | 'livenessConfig'
+    | 'costsInfo'
+    | 'activityConfig'
     | 'colors'
     | 'ecosystemColors'
     | 'discoveryInfo'
@@ -139,34 +149,41 @@ export async function getScalingProjectEntry(
   >,
   helpers: SsrHelpers,
 ): Promise<ProjectScalingEntry> {
+  const daSolutions = await getScalingDaSolutions(project)
   const [
     projectsChangeReport,
     activityProjectStats,
     tvsStats,
     tokens,
     liveness,
-    daSolution,
     contractUtils,
-    stackedTvsSection,
+    scalingTvsSection,
     activitySection,
     costsSection,
     dataPostedSection,
+    zkCatalogProjects,
+    allProjectsWithContracts,
+    allProjects,
   ] = await Promise.all([
     getProjectsChangeReport(),
     getActivityProjectStats(project.id),
-    get7dTvsBreakdown({ type: 'projects', projectIds: [project.id] }),
+    get7dTvsBreakdown({ type: 'layer2' }),
     getTokensForProject(project),
     getLiveness(project.id),
-    getScalingDaSolution(project),
     getContractUtils(),
-    getStackedTvsSection(helpers, project),
+    getScalingTvsSection(project),
     getActivitySection(helpers, project),
-    project.scalingInfo.layer === 'layer2'
-      ? getCostsSection(helpers, project)
-      : undefined,
-    project.scalingInfo.layer === 'layer2'
-      ? getDataPostedSection(helpers, project)
-      : undefined,
+    getCostsSection(helpers, project),
+    getDataPostedSection(helpers, project),
+    ps.getProjects({
+      select: ['zkCatalogInfo'],
+    }),
+    ps.getProjects({
+      select: ['contracts'],
+    }),
+    ps.getProjects({
+      optional: ['daBridge', 'isBridge', 'isScaling', 'isDaLayer'],
+    }),
   ])
 
   const projectLiveness = liveness[project.id]
@@ -189,6 +206,7 @@ export async function getScalingProjectEntry(
           : 'multiple'
       : undefined,
     category: project.scalingInfo.type,
+    proofSystemType: project.scalingInfo.proofSystem?.type,
     purposes: project.scalingInfo.purposes,
     activity: activityProjectStats,
     links: getProjectLinks(project.display.links),
@@ -206,16 +224,13 @@ export async function getScalingProjectEntry(
             },
             warning: project.tvsInfo.warnings[0],
             tokens: {
-              breakdown: {
-                ...tvsProjectStats.breakdown,
-                associated: tvsProjectStats.associated.total,
-              },
+              breakdown: tvsProjectStats.breakdown,
               warnings: compact([
                 tvsProjectStats &&
                   tvsProjectStats.breakdown.total > 0 &&
                   getAssociatedTokenWarning({
                     associatedRatio:
-                      tvsProjectStats.associated.total /
+                      tvsProjectStats.breakdown.associated /
                       tvsProjectStats.breakdown.total,
                     name: project.name,
                     associatedTokens: project.tvsInfo.associatedTokens,
@@ -233,6 +248,21 @@ export async function getScalingProjectEntry(
 
   const changes = projectsChangeReport.getChanges(project.id)
 
+  const dataAvailabilitySection = getDataAvailabilitySection(
+    project,
+    daSolutions,
+  )
+  const withdrawalsSection = getWithdrawalsSection(project)
+  const sequencingSection = getSequencingSection(project)
+  const operatorSection = getOperatorSection(project)
+  const stateValidationSection = getStateValidationSection(
+    project,
+    zkCatalogProjects,
+    contractUtils,
+    tvsStats,
+    allProjects,
+  )
+
   const common = {
     type: project.scalingInfo.layer,
     name: project.name,
@@ -246,15 +276,19 @@ export async function getScalingProjectEntry(
     archivedAt: project.archivedAt,
     isUpcoming: !!project.isUpcoming,
     isAppchain: project.scalingInfo.capability === 'appchain',
-    colors: env.CLIENT_SIDE_PARTNERS
-      ? {
-          project: project.colors,
-          ecosystem: project.ecosystemColors,
-        }
-      : undefined,
+    colors: {
+      project: project.colors,
+      ecosystem: project.ecosystemColors,
+    },
     header,
     reasonsForBeingOther: project.scalingInfo.reasonsForBeingOther,
-    rosette: getScalingRosette(project),
+    rosette: getScalingRosette(project, {
+      hasStateValidationSection: !!stateValidationSection,
+      hasDataAvailabilitySection: !!dataAvailabilitySection,
+      hasWithdrawalsSection: !!withdrawalsSection,
+      hasSequencingSection: !!sequencingSection,
+      hasOperatorsSection: !!operatorSection,
+    }),
     hostChainName: project.scalingInfo.hostChain.name,
     stageConfig:
       project.scalingInfo.type === 'Other'
@@ -305,19 +339,18 @@ export async function getScalingProjectEntry(
         }
       : undefined
 
-  if (!project.isUpcoming && stackedTvsSection && tvsProjectStats) {
+  if (!project.isUpcoming && scalingTvsSection && tvsProjectStats) {
     sections.push({
-      type: 'StackedTvsSection',
+      type: 'ScalingTvsSection',
       props: {
         id: 'tvs',
         title: 'Value Secured',
-        projectId: project.id,
         tvsBreakdownUrl: `/scaling/projects/${project.slug}/tvs-breakdown`,
         milestones: sortedMilestones,
         tokens,
-        tvsProjectStats,
         tvsInfo: project.tvsInfo,
-        ...stackedTvsSection,
+        project,
+        ...scalingTvsSection,
       },
     })
   }
@@ -328,10 +361,9 @@ export async function getScalingProjectEntry(
       props: {
         id: 'activity',
         title: 'Activity',
-        projectId: project.id,
         milestones: sortedMilestones,
         category: project.scalingInfo.type,
-        projectName: project.name,
+        project,
         ...activitySection,
       },
     })
@@ -343,8 +375,8 @@ export async function getScalingProjectEntry(
       props: {
         id: 'onchain-costs',
         title: 'Onchain costs',
-        projectId: project.id,
         milestones: sortedMilestones,
+        project,
         ...costsSection,
       },
     })
@@ -356,8 +388,8 @@ export async function getScalingProjectEntry(
       props: {
         id: 'data-posted',
         title: 'Data posted',
-        projectId: project.id,
         milestones: sortedMilestones,
+        project,
         ...dataPostedSection,
       },
     })
@@ -375,8 +407,8 @@ export async function getScalingProjectEntry(
       props: {
         id: 'liveness',
         title: 'Liveness',
-        projectId: project.id,
         milestones: sortedMilestones,
+        project,
         ...livenessSection,
       },
     })
@@ -471,7 +503,10 @@ export async function getScalingProjectEntry(
     })
   }
 
-  if (project.scalingStage.stage !== 'NotApplicable') {
+  if (
+    project.scalingStage.stage !== 'NotApplicable' &&
+    project.scalingInfo.type
+  ) {
     sections.push({
       type: 'StageSection',
       props: {
@@ -493,10 +528,6 @@ export async function getScalingProjectEntry(
     })
   }
 
-  const dataAvailabilitySection = getDataAvailabilitySection(
-    project,
-    daSolution,
-  )
   if (dataAvailabilitySection) {
     sections.push({
       type: dataAvailabilitySection.type,
@@ -522,25 +553,33 @@ export async function getScalingProjectEntry(
     })
   }
 
-  if (project.scalingTechnology.stateValidation) {
+  if (stateValidationSection) {
     sections.push({
       type: 'StateValidationSection',
       props: {
         id: 'state-validation',
         title: 'State validation',
-        stateValidation: project.scalingTechnology.stateValidation,
-        diagram: getDiagramParams(
-          'state-validation',
-          project.scalingTechnology.stateValidationImage ?? project.slug,
-        ),
-        isUnderReview:
-          !!project.statuses.reviewStatus ||
-          !!project.scalingTechnology.stateValidation.isUnderReview,
+        ...stateValidationSection,
       },
     })
   }
 
-  const operatorSection = getOperatorSection(project)
+  if (project.scalingTechnology.upgradesAndGovernance) {
+    sections.push({
+      type: 'MarkdownSection',
+      props: {
+        id: 'upgrades-and-governance',
+        title: 'Upgrades & Governance',
+        content: project.scalingTechnology.upgradesAndGovernance,
+        diagram: getDiagramParams(
+          'upgrades-and-governance',
+          project.scalingTechnology.upgradesAndGovernanceImage ?? project.slug,
+        ),
+        isUnderReview: !!project.statuses.reviewStatus,
+      },
+    })
+  }
+
   if (operatorSection) {
     sections.push({
       type: 'TechnologyChoicesSection',
@@ -553,7 +592,6 @@ export async function getScalingProjectEntry(
     })
   }
 
-  const sequencingSection = getSequencingSection(project)
   if (sequencingSection) {
     sections.push({
       type: 'SequencingSection',
@@ -565,7 +603,6 @@ export async function getScalingProjectEntry(
     })
   }
 
-  const withdrawalsSection = getWithdrawalsSection(project)
   if (withdrawalsSection) {
     sections.push({
       type: 'TechnologyChoicesSection',
@@ -586,21 +623,6 @@ export async function getScalingProjectEntry(
         id: 'other-considerations',
         title: 'Other considerations',
         ...otherConsiderationsSection,
-      },
-    })
-  }
-  if (project.scalingTechnology.upgradesAndGovernance) {
-    sections.push({
-      type: 'MarkdownSection',
-      props: {
-        id: 'upgrades-and-governance',
-        title: 'Upgrades & Governance',
-        content: project.scalingTechnology.upgradesAndGovernance,
-        diagram: getDiagramParams(
-          'upgrades-and-governance',
-          project.scalingTechnology.upgradesAndGovernanceImage ?? project.slug,
-        ),
-        isUnderReview: !!project.statuses.reviewStatus,
       },
     })
   }
@@ -641,6 +663,8 @@ export async function getScalingProjectEntry(
     },
     contractUtils,
     projectsChangeReport,
+    zkCatalogProjects,
+    allProjectsWithContracts,
   )
   if (contractsSection) {
     sections.push({

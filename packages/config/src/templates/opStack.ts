@@ -17,20 +17,23 @@ import {
   FORCE_TRANSACTIONS,
   OPERATOR,
   pickWorseRisk,
+  REASON_FOR_BEING_OTHER,
   RISK_VIEW,
   sumRisk,
   TECHNOLOGY_DATA_AVAILABILITY,
 } from '../common'
 import { BADGES } from '../common/badges'
 import { EXPLORER_URLS } from '../common/explorerUrls'
-import { formatChallengePeriod, formatDelay } from '../common/formatDelays'
+import { formatDelay } from '../common/formatDelays'
 import { OPTIMISTIC_ROLLUP_STATE_UPDATES_WARNING } from '../common/liveness'
 import { getStage } from '../common/stages/getStage'
+import { ZK_PROGRAM_HASHES } from '../common/zkProgramHashes'
 import type { ProjectDiscovery } from '../discovery/ProjectDiscovery'
 import { HARDCODED } from '../discovery/values/hardcoded'
 import type {
   Layer2TxConfig,
   ProjectScalingDisplay,
+  ProjectScalingRiskView,
   ProjectScalingTechnology,
   ScalingProject,
 } from '../internalTypes'
@@ -41,15 +44,16 @@ import type {
   ProjectActivityConfig,
   ProjectCustomDa,
   ProjectDaTrackingConfig,
+  ProjectEcosystemInfo,
   ProjectEscrow,
   ProjectLivenessInfo,
   ProjectReviewStatus,
   ProjectRisk,
   ProjectScalingCapability,
-  ProjectScalingCategory,
+  ProjectScalingContractsZkProgramHash,
   ProjectScalingDa,
+  ProjectScalingProofSystem,
   ProjectScalingPurpose,
-  ProjectScalingRiskView,
   ProjectScalingScopeOfAssessment,
   ProjectScalingStage,
   ProjectScalingStateDerivation,
@@ -65,7 +69,12 @@ import {
   generateDiscoveryDrivenPermissions,
 } from './generateDiscoveryDrivenSections'
 import { getDiscoveryInfo } from './getDiscoveryInfo'
-import { explorerReferences, mergeBadges, safeGetImplementation } from './utils'
+import {
+  asArray,
+  explorerReferences,
+  mergeBadges,
+  safeGetImplementation,
+} from './utils'
 
 export const CELESTIA_DA_PROVIDER: DAProvider = {
   layer: DA_LAYERS.CELESTIA,
@@ -75,12 +84,40 @@ export const CELESTIA_DA_PROVIDER: DAProvider = {
   badge: BADGES.DA.Celestia,
 }
 
-export const EIGENDA_DA_PROVIDER: DAProvider = {
-  layer: DA_LAYERS.EIGEN_DA,
-  riskView: RISK_VIEW.DATA_EIGENDA(false),
-  technology: TECHNOLOGY_DATA_AVAILABILITY.EIGENDA_OFF_CHAIN(false),
+export function EIGENDA_DA_PROVIDER(
+  isUsingDACertVerifier: boolean,
+): (templateVars: OpStackConfigCommon) => DAProvider {
+  return (templateVars: OpStackConfigCommon) => {
+    const opStackDA = templateVars.discovery.getContractValue<{
+      isUsingEigenDA: string | boolean
+    }>('SystemConfig', 'opStackDA')
+
+    const eigenDAConfig = opStackDA.isUsingEigenDA
+    const eigenDACertVersion =
+      typeof eigenDAConfig === 'string' ? eigenDAConfig : 'v1'
+
+    return {
+      layer: DA_LAYERS.EIGEN_DA,
+      riskView: RISK_VIEW.DATA_EIGENDA(
+        isUsingDACertVerifier,
+        eigenDACertVersion,
+      ),
+      technology: TECHNOLOGY_DATA_AVAILABILITY.EIGENDA_OFF_CHAIN(
+        isUsingDACertVerifier,
+        eigenDACertVersion,
+      ),
+      bridge: DA_BRIDGES.NONE,
+      badge: BADGES.DA.EigenDA,
+    }
+  }
+}
+
+export const PRIVATE_DA_PROVIDER: DAProvider = {
+  layer: DA_LAYERS.NONE,
+  riskView: RISK_VIEW.DATA_EXTERNAL,
+  technology: TECHNOLOGY_DATA_AVAILABILITY.GENERIC_OFF_CHAIN,
   bridge: DA_BRIDGES.NONE,
-  badge: BADGES.DA.EigenDA,
+  badge: BADGES.DA.CustomDA,
 }
 
 export function DACHALLENGES_DA_PROVIDER(
@@ -98,7 +135,7 @@ export function DACHALLENGES_DA_PROVIDER(
       nodeSourceLink,
     ),
     bridge: DA_BRIDGES.NONE_WITH_DA_CHALLENGES,
-    badge: BADGES.DA.DAC,
+    badge: BADGES.DA.CustomDA,
   }
 }
 
@@ -116,7 +153,7 @@ interface OpStackConfigCommon {
   stateValidationImage?: string
   archivedAt?: UnixTime
   addedAt: UnixTime
-  daProvider?: DAProvider
+  daProvider?: DAProvider | ((templateVars: OpStackConfigCommon) => DAProvider)
   customDa?: ProjectCustomDa
   discovery: ProjectDiscovery
   additionalDiscoveries?: { [chain: string]: ProjectDiscovery }
@@ -135,12 +172,15 @@ interface OpStackConfigCommon {
   stateDerivation?: ProjectScalingStateDerivation
   stateValidation?: ProjectScalingStateValidation
   milestones?: Milestone[]
+  ecosystemInfo?: ProjectEcosystemInfo
+  nonTemplateProofSystem?: ProjectScalingProofSystem
   nonTemplateEscrows?: ProjectEscrow[]
   nonTemplateExcludedTokens?: string[]
   nonTemplateOptimismPortalEscrowTokens?: string[]
   nonTemplateTrackedTxs?: Layer2TxConfig[]
   nonTemplateTechnology?: Partial<ProjectScalingTechnology>
   nonTemplateContractRisks?: ProjectRisk
+  nonTemplateZkProgramHashes?: ProjectScalingContractsZkProgramHash[]
   associatedTokens?: string[]
   isNodeAvailable?: boolean | 'UnderReview'
   nodeSourceLink?: string
@@ -155,9 +195,7 @@ interface OpStackConfigCommon {
   usingAltVm?: boolean
   reasonsForBeingOther?: ReasonForBeingInOther[]
   hasSuperchainScUpgrades?: boolean
-  display: Omit<ProjectScalingDisplay, 'provider' | 'category' | 'purposes'> & {
-    category?: ProjectScalingCategory
-  }
+  display: Omit<ProjectScalingDisplay, 'provider' | 'category' | 'purposes'>
   /** Set to true if projects posts blobs to Ethereum */
   usesEthereumBlobs?: boolean
   /** Configure to enable DA metrics tracking for chain using Celestia DA */
@@ -168,20 +206,24 @@ interface OpStackConfigCommon {
   }
   /** Configure to enable DA metrics tracking for chain using Avail DA */
   availDa?: {
-    appId: string
+    appIds: string[]
     /* IMPORTANT: Block number on Avail Network */
     sinceBlock: number
   }
   /** Configure to enable custom DA tracking e.g. project that switched DA */
   nonTemplateDaTracking?: ProjectDaTrackingConfig[]
   scopeOfAssessment?: ProjectScalingScopeOfAssessment
+  /**
+   * Overrides the onchain check for superchain ecosystem
+   * Its needed cuz some project are using custom superchain config
+   * but still are a part of superchain config due to offchain agreements
+   */
+  isPartOfSuperchain?: boolean
 }
 
 export interface OpStackConfigL2 extends OpStackConfigCommon {
   upgradesAndGovernance?: string
-  display: Omit<ProjectScalingDisplay, 'provider' | 'category' | 'purposes'> & {
-    category?: ProjectScalingDisplay['category']
-  }
+  display: Omit<ProjectScalingDisplay, 'provider' | 'category' | 'purposes'>
 }
 
 export interface OpStackConfigL3 extends OpStackConfigCommon {
@@ -201,7 +243,6 @@ function opStackCommon(
     | 'architectureImage'
     | 'purposes'
     | 'stacks'
-    | 'category'
     | 'warning'
   >
 } {
@@ -231,9 +272,13 @@ function opStackCommon(
     'opstack',
     postsToEthereum(templateVars) ? 'rollup' : 'optimium',
   ]
-  const partOfSuperchain = isPartOfSuperchain(templateVars)
-  if (partOfSuperchain) {
+  const partOfSuperchainOnchain = isPartOfSuperchainOnchain(templateVars)
+
+  if (hasSuperchainConfig(templateVars)) {
     architectureImage.push('superchain')
+  }
+
+  if (templateVars.isPartOfSuperchain || partOfSuperchainOnchain) {
     automaticBadges.push(BADGES.Infra.Superchain)
   }
   if (fraudProofType !== 'None') {
@@ -244,6 +289,9 @@ function opStackCommon(
   }
   if (fraudProofType === 'Kailua') {
     architectureImage.push('kailua')
+  }
+  if (fraudProofType === 'OpSuccinct') {
+    architectureImage.push('opsuccinct')
   }
 
   const nativeContractRisks: ProjectRisk[] = [
@@ -260,6 +308,11 @@ function opStackCommon(
     templateVars.discovery,
     ...Object.values(templateVars.additionalDiscoveries ?? {}),
   ]
+
+  const hasNoProofs = templateVars.reasonsForBeingOther?.some(
+    (e) => e.label === REASON_FOR_BEING_OTHER.NO_PROOFS.label,
+  )
+
   return {
     archivedAt: templateVars.archivedAt,
     id: ProjectId(templateVars.discovery.projectName),
@@ -279,15 +332,10 @@ function opStackCommon(
           ? 'opfp'
           : fraudProofType === 'Kailua'
             ? 'kailua'
-            : undefined,
+            : fraudProofType === 'OpSuccinct'
+              ? 'opsuccinct'
+              : undefined,
       stacks: ['OP Stack'],
-      category:
-        templateVars.display.category ??
-        (templateVars.reasonsForBeingOther
-          ? 'Other'
-          : postsToEthereum(templateVars)
-            ? 'Optimistic Rollup'
-            : 'Optimium'),
       warning:
         templateVars.display.warning === undefined
           ? 'Fraud proof system is currently under development. Users need to trust the block proposer to submit correct L1 state roots.'
@@ -297,6 +345,15 @@ function opStackCommon(
       ...templateVars.chainConfig,
       gasTokens: templateVars.chainConfig?.gasTokens ?? ['ETH'],
     },
+    proofSystem:
+      templateVars.nonTemplateProofSystem ??
+      (hasNoProofs
+        ? undefined
+        : {
+            type: 'Optimistic',
+            name: 'OPFP',
+            challengeProtocol: 'Interactive',
+          }),
     config: {
       associatedTokens: templateVars.associatedTokens,
       activityConfig: getActivityConfig(
@@ -344,14 +401,15 @@ function opStackCommon(
       ],
       daTracking: getDaTracking(templateVars),
     },
-    ecosystemInfo: {
-      id: ProjectId('superchain'),
-    },
+    ecosystemInfo: templateVars.ecosystemInfo,
     technology: getTechnology(templateVars, explorerUrl, daProvider),
     permissions: generateDiscoveryDrivenPermissions(allDiscoveries),
     contracts: {
       addresses: generateDiscoveryDrivenContracts(allDiscoveries),
       risks: nativeContractRisks,
+      zkProgramHashes:
+        templateVars.nonTemplateZkProgramHashes ??
+        getZkProgramHashes(templateVars),
     },
     milestones: templateVars.milestones ?? [],
     badges: mergeBadges(automaticBadges, templateVars.additionalBadges ?? []),
@@ -433,7 +491,7 @@ function getDaTracking(
         daLayer: ProjectId('avail'),
         // TODO: update to value from discovery
         sinceBlock: templateVars.availDa.sinceBlock,
-        appId: templateVars.availDa.appId,
+        appIds: templateVars.availDa.appIds,
       },
     ]
   }
@@ -509,6 +567,46 @@ export function opStackL3(templateVars: OpStackConfigL3): ScalingProject {
     hostChain: ProjectId(hostChain),
     display: { ...common.display, ...templateVars.display },
     stackedRiskView: templateVars.stackedRiskView ?? stackedRisk,
+  }
+}
+
+function getZkProgramHashes(
+  templateVars: OpStackConfigCommon,
+): ProjectScalingContractsZkProgramHash[] {
+  const fraudProofType = getFraudProofType(templateVars)
+
+  switch (fraudProofType) {
+    case 'None':
+    case 'Permissioned':
+    case 'Permissionless':
+      return []
+    case 'Kailua': {
+      const kailuaProgramHash = templateVars.discovery.getContractValue<string>(
+        'KailuaTreasury',
+        'FPVM_IMAGE_ID',
+      )
+      const setBuilderProgramHash = templateVars.discovery.getContractValue<
+        string[]
+      >('RiscZeroSetVerifier', 'imageInfo')[0]
+      return [
+        ZK_PROGRAM_HASHES(kailuaProgramHash),
+        ZK_PROGRAM_HASHES(setBuilderProgramHash),
+      ]
+    }
+    case 'OpSuccinct': {
+      const opSuccinctProgramHashes = [
+        templateVars.discovery.getContractValue<string>(
+          'OPSuccinctL2OutputOracle',
+          'aggregationVkey',
+        ),
+        templateVars.discovery.getContractValue<string>(
+          'OPSuccinctL2OutputOracle',
+          'rangeVkeyCommitment',
+        ),
+      ]
+
+      return opSuccinctProgramHashes.map((el) => ZK_PROGRAM_HASHES(el))
+    }
   }
 }
 
@@ -708,7 +806,7 @@ Proving any of the ${proposalOutputCount} intermediate state commitments in a pr
 A single remaining child in a tournament can be 'resolved' and will be finalized and usable for withdrawals after an execution delay of ${formatSeconds(disputeGameFinalityDelaySeconds)} (time for the Guardian to manually blacklist malicious state roots).`,
             references: [
               {
-                url: 'https://risc0.github.io/kailua/design.html#disputes',
+                url: 'https://docs.boundless.network/developers/kailua/how',
                 title: 'Disputes - Kailua Docs',
               },
             ],
@@ -720,7 +818,7 @@ A single remaining child in a tournament can be 'resolved' and will be finalized
 The Kailua state validation system is primarily optimistically resolved, so no validity proofs are required in the happy case. But two different zk proofs on unresolved state roots are possible and permissionless: The proveValidity() function proves a state root proposal's full validity, automatically invalidating all conflicting sibling proposals. proveOutputFault() allows any actor to eliminate a state root proposal for which they can prove that any of the ${proposalOutputCount} intermediate state transitions in the proposal are not correct. Both are zk proofs of validity, although one is used as an efficient fault proof to invalidate a single conflicting state transition.`,
             references: [
               {
-                url: 'https://risc0.github.io/kailua/introduction.html',
+                url: 'https://risczero.com/blog/kailua-how-it-works',
                 title: 'Risc0 Kailua Docs',
               },
               {
@@ -744,6 +842,45 @@ The Kailua state validation system is primarily optimistically resolved, so no v
               {
                 category: 'Funds can be frozen if',
                 text: 'a verifier needed for a given proof is paused by its permissioned owner.',
+              },
+            ],
+          },
+        ],
+      }
+    }
+    case 'OpSuccinct': {
+      return {
+        categories: [
+          {
+            title: 'Validity proofs',
+            description: `Each update to the system state must be accompanied by a ZK proof that ensures that the new state was derived by correctly applying a series of valid user transactions to the previous state. These proofs are then verified on Ethereum by a smart contract.
+        Through the SuccinctL2OutputOracle, the system also allows to switch to an optimistic mode, in which no proofs are required and a challenger can challenge the proposed output state root within the finalization period.`,
+            references: [
+              {
+                url: 'https://succinctlabs.github.io/op-succinct/architecture.html',
+                title: 'Op-Succinct architecture',
+              },
+            ],
+            risks: [
+              {
+                category: 'Funds can be stolen if',
+                text: 'in non-optimistic mode, the validity proof cryptography is broken or implemented incorrectly.',
+              },
+              {
+                category: 'Funds can be stolen if',
+                text: 'optimistic mode is enabled and no challenger checks the published state.',
+              },
+              {
+                category: 'Funds can be stolen if',
+                text: 'the proposer routes proof verification through a malicious or faulty verifier by specifying an unsafe route id.',
+              },
+              {
+                category: 'Funds can be frozen if',
+                text: 'the permissioned proposer fails to publish state roots to the L1.',
+              },
+              {
+                category: 'Funds can be frozen if',
+                text: 'in non-optimistic mode, the SuccinctGateway is unable to route proof verification to a valid verifier.',
               },
             ],
           },
@@ -863,36 +1000,64 @@ function getRiskView(
 
 function getRiskViewStateValidation(
   templateVars: OpStackConfigCommon,
-): TableReadyValue {
+): ProjectScalingRiskView['stateValidation'] {
   const fraudProofType = getFraudProofType(templateVars)
-
   switch (fraudProofType) {
     case 'None': {
       return {
         ...RISK_VIEW.STATE_NONE,
-        secondLine: formatChallengePeriod(getChallengePeriod(templateVars)),
+        challengeDelay: getChallengePeriod(templateVars),
       }
     }
     case 'Permissioned': {
       return {
-        ...RISK_VIEW.STATE_FP_INT,
+        ...RISK_VIEW.STATE_FP_INT(
+          getChallengePeriod(templateVars),
+          getExecutionDelay(templateVars),
+        ),
         description:
-          RISK_VIEW.STATE_FP_INT.description +
+          RISK_VIEW.STATE_FP_INT().description +
           ' Only one entity is currently allowed to propose and submit challenges, as only permissioned games are currently allowed.',
         sentiment: 'bad',
-        secondLine: formatChallengePeriod(getChallengePeriod(templateVars)),
+        initialBond: formatEther(
+          templateVars.discovery.getContractValue<number[]>(
+            'DisputeGameFactory',
+            'initBonds',
+          )[1], // 1 is for permissioned games!
+        ),
       }
     }
     case 'Permissionless': {
       return {
-        ...RISK_VIEW.STATE_FP_INT,
-        secondLine: formatChallengePeriod(getChallengePeriod(templateVars)),
+        ...RISK_VIEW.STATE_FP_INT(
+          getChallengePeriod(templateVars),
+          getExecutionDelay(templateVars),
+        ),
+        initialBond: formatEther(
+          templateVars.discovery.getContractValue<number[]>(
+            'DisputeGameFactory',
+            'initBonds',
+          )[0], // 0 is for permissionless games!
+        ),
       }
     }
     case 'Kailua': {
       return {
         ...RISK_VIEW.STATE_FP_HYBRID_ZK,
-        secondLine: formatChallengePeriod(getChallengePeriod(templateVars)),
+        executionDelay: getExecutionDelay(templateVars),
+        challengeDelay: getChallengePeriod(templateVars),
+        initialBond: formatEther(
+          templateVars.discovery.getContractValue<number>(
+            'KailuaTreasury',
+            'participationBond',
+          ),
+        ),
+      }
+    }
+    case 'OpSuccinct': {
+      return {
+        ...RISK_VIEW.STATE_ZKP_ST_SN_WRAP,
+        executionDelay: getFinalizationPeriod(templateVars),
       }
     }
   }
@@ -932,6 +1097,8 @@ function getRiskViewProposerFailure(
           'vanguardAdvantage',
         ),
       )
+    case 'OpSuccinct':
+      return RISK_VIEW.PROPOSER_CANNOT_WITHDRAW
   }
 }
 
@@ -949,6 +1116,7 @@ function computedStage(
     Permissioned: false,
     Permissionless: true,
     Kailua: true,
+    OpSuccinct: null,
   }
 
   return getStage(
@@ -1096,6 +1264,7 @@ function getTechnologyOperator(
     case 'Permissioned':
     case 'Permissionless':
     case 'Kailua':
+    case 'OpSuccinct':
       return OPERATOR.CENTRALIZED_OPERATOR
   }
 }
@@ -1286,9 +1455,15 @@ function getDAProvider(
     templateVars.discovery.getContractValue<{
       isUsingCelestia: boolean
     }>('SystemConfig', 'opStackDA').isUsingCelestia
-  const daProvider =
-    templateVars.daProvider ??
-    (postsToCelestia ? CELESTIA_DA_PROVIDER : undefined)
+
+  let daProvider: DAProvider | undefined
+  if (typeof templateVars.daProvider === 'function') {
+    daProvider = templateVars.daProvider(templateVars)
+  } else {
+    daProvider =
+      templateVars.daProvider ??
+      (postsToCelestia ? CELESTIA_DA_PROVIDER : undefined)
+  }
 
   if (daProvider === undefined) {
     assert(
@@ -1328,6 +1503,33 @@ function getLiveness(
   templateVars: OpStackConfigCommon,
 ): ProjectLivenessInfo | undefined {
   const finalizationPeriod = getFinalizationPeriod(templateVars)
+  const fraudProofType = getFraudProofType(templateVars)
+  const daProvider = getDAProvider(templateVars)
+
+  // For OpSuccinct chains, provide liveness info regardless of DA provider
+  if (fraudProofType === 'OpSuccinct') {
+    const daDescription =
+      daProvider.layer === DA_LAYERS.ETH_BLOBS_OR_CALLDATA ||
+      daProvider.layer === DA_LAYERS.ETH_CALLDATA
+        ? 'to the L1'
+        : daProvider.layer === DA_LAYERS.EIGEN_DA
+          ? 'to EigenDA'
+          : 'to an external DA layer'
+
+    return {
+      warnings: {
+        stateUpdates:
+          'Please note, the state is not finalized until the finalization period passes.',
+      },
+      explanation: `${
+        templateVars.display.name
+      } is a ZK rollup that posts transaction data ${daDescription}. For a transaction to be considered final, it has to be posted within a tx batch on L1 that links to a previous finalized batch. If the previous batch is missing, transaction finalization can be delayed up to ${formatSeconds(
+        HARDCODED.OPTIMISM.SEQUENCING_WINDOW_SECONDS,
+      )} or until it gets published. The state root gets confirmed ${formatSeconds(
+        finalizationPeriod,
+      )} after it has been posted.`,
+    }
+  }
 
   return ifPostsToEthereum(templateVars, {
     warnings: {
@@ -1435,6 +1637,83 @@ function getTrackedTxs(
         },
       ]
     }
+    case 'OpSuccinct': {
+      const l2OutputOracle = templateVars.discovery.getContract(
+        'OPSuccinctL2OutputOracle',
+      )
+
+      return [
+        {
+          uses: [
+            { type: 'liveness', subtype: 'batchSubmissions' },
+            { type: 'l2costs', subtype: 'batchSubmissions' },
+          ],
+          query: {
+            formula: 'transfer',
+            from: sequencerAddress,
+            to: sequencerInbox,
+            sinceTimestamp: templateVars.genesisTimestamp,
+          },
+        },
+        // Multiple OpSuccinct function signatures based on the mode and version
+        {
+          uses: [
+            { type: 'liveness', subtype: 'stateUpdates' },
+            { type: 'l2costs', subtype: 'stateUpdates' },
+          ],
+          query: {
+            formula: 'functionCall',
+            address: ChainSpecificAddress.address(l2OutputOracle.address),
+            selector: '0x9ad84880',
+            functionSignature:
+              'function proposeL2Output(bytes32 _outputRoot, uint256 _l2BlockNumber, uint256 _l1BlockNumber, bytes _proof)',
+            sinceTimestamp: templateVars.genesisTimestamp,
+          },
+        },
+        {
+          uses: [
+            { type: 'liveness', subtype: 'stateUpdates' },
+            { type: 'l2costs', subtype: 'stateUpdates' },
+          ],
+          query: {
+            formula: 'functionCall',
+            address: ChainSpecificAddress.address(l2OutputOracle.address),
+            selector: '0x59c3e00a', // non-optimistic mode
+            functionSignature:
+              'function proposeL2Output(bytes32 _outputRoot, uint256 _l2BlockNumber, uint256 _l1BlockNumber, bytes _proof, address _proverAddress)',
+            sinceTimestamp: templateVars.genesisTimestamp,
+          },
+        },
+        {
+          uses: [
+            { type: 'liveness', subtype: 'stateUpdates' },
+            { type: 'l2costs', subtype: 'stateUpdates' },
+          ],
+          query: {
+            formula: 'functionCall',
+            address: ChainSpecificAddress.address(l2OutputOracle.address),
+            selector: '0x9aaab648', // optimistic mode
+            functionSignature:
+              'function proposeL2Output(bytes32 _outputRoot, uint256 _l2BlockNumber, bytes32 _l1BlockHash, uint256 _l1BlockNumber)',
+            sinceTimestamp: templateVars.genesisTimestamp,
+          },
+        },
+        {
+          uses: [
+            { type: 'liveness', subtype: 'stateUpdates' },
+            { type: 'l2costs', subtype: 'stateUpdates' },
+          ],
+          query: {
+            formula: 'functionCall',
+            address: ChainSpecificAddress.address(l2OutputOracle.address),
+            selector: '0xa4ee9d7b', // non-optimistic mode
+            functionSignature:
+              'function proposeL2Output(bytes32 _configName, bytes32 _outputRoot, uint256 _l2BlockNumber, uint256 _l1BlockNumber, bytes _proof, address _proverAddress)',
+            sinceTimestamp: templateVars.genesisTimestamp,
+          },
+        },
+      ]
+    }
   }
 }
 
@@ -1495,6 +1774,12 @@ function getFinalizationPeriod(templateVars: OpStackConfigCommon): number {
         'proofMaturityDelaySeconds',
       )
     }
+    case 'OpSuccinct': {
+      return templateVars.discovery.getContractValue<number>(
+        'OPSuccinctL2OutputOracle',
+        'finalizationPeriodSeconds',
+      )
+    }
   }
 }
 
@@ -1530,12 +1815,47 @@ function getChallengePeriod(templateVars: OpStackConfigCommon): number {
         'MAX_CLOCK_DURATION',
       )
     }
+    case 'OpSuccinct': {
+      return templateVars.discovery.getContractValue<number>(
+        'OPSuccinctL2OutputOracle',
+        'finalizationPeriodSeconds',
+      )
+    }
   }
 }
 
-type FraudProofType = 'None' | 'Permissioned' | 'Permissionless' | 'Kailua'
+function getExecutionDelay(
+  templateVars: OpStackConfigCommon,
+): number | undefined {
+  const fraudProofType = getFraudProofType(templateVars)
+  const portal = getOptimismPortal(templateVars)
+  switch (fraudProofType) {
+    case 'Permissioned':
+    case 'Permissionless':
+    case 'Kailua': {
+      return templateVars.discovery.getContractValue<number>(
+        portal.name ?? portal.address,
+        'disputeGameFinalityDelaySeconds',
+      )
+    }
+    default:
+      return undefined
+  }
+}
+
+type FraudProofType =
+  | 'None'
+  | 'Permissioned'
+  | 'Permissionless'
+  | 'Kailua'
+  | 'OpSuccinct'
 
 function getFraudProofType(templateVars: OpStackConfigCommon): FraudProofType {
+  // Check if it's OpSuccinct by looking for OPSuccinctL2OutputOracle contract
+  if (templateVars.discovery.hasContract('OPSuccinctL2OutputOracle')) {
+    return 'OpSuccinct'
+  }
+
   const portal = getOptimismPortal(templateVars)
   if (portal.name === 'OptimismPortal') {
     return 'None'
@@ -1558,7 +1878,20 @@ function getFraudProofType(templateVars: OpStackConfigCommon): FraudProofType {
   throw new Error(`Unexpected respectedGameType = ${respectedGameType}`)
 }
 
-function isPartOfSuperchain(templateVars: OpStackConfigCommon): boolean {
+function isPartOfSuperchainOnchain(templateVars: OpStackConfigCommon): boolean {
+  if (!templateVars.discovery.hasContract('SuperchainConfig')) {
+    return false
+  }
+
+  // Some chains are not part of superchain, but they deploy their own version of the superchain config
+  // We need to check if the chain is part of superchain by checking the address of the superchain config
+  return (
+    templateVars.discovery.getContract('SuperchainConfig').address ===
+    'eth:0x95703e0982140D16f8ebA6d158FccEde42f04a4C'
+  )
+}
+
+function hasSuperchainConfig(templateVars: OpStackConfigCommon): boolean {
   return templateVars.discovery.hasContract('SuperchainConfig')
 }
 
@@ -1573,16 +1906,26 @@ function hostChainDAProvider(hostChain: ScalingProject): DAProvider {
     hostChain.technology?.dataAvailability !== undefined,
     'Host chain must have technology data availability',
   )
+
+  const hostChainDAs = asArray(hostChain.dataAvailability)
+  const hostChainDaTechs = asArray(hostChain.technology.dataAvailability)
   assert(
-    hostChain.dataAvailability !== undefined,
-    'Host chain must have data availability',
+    hostChainDAs.length === 1 && hostChainDaTechs.length === 1,
+    'Only exactly one DA on the host chain is currently supported',
+  )
+  const hostDA = hostChainDAs[0]
+  assert(hostDA !== undefined, 'Host chain must have data availability')
+  const hostDaTech = hostChainDaTechs[0]
+  assert(
+    hostDaTech !== undefined,
+    'Host chain must have data availability technology assigned',
   )
 
   return {
-    layer: hostChain.dataAvailability.layer,
-    bridge: hostChain.dataAvailability.bridge,
+    layer: hostDA.layer,
+    bridge: hostDA.bridge,
     riskView: hostChain.riskView.dataAvailability,
-    technology: hostChain.technology.dataAvailability,
+    technology: hostDaTech,
     badge: DABadge,
   }
 }

@@ -14,13 +14,13 @@ export const openzk: ScalingProject = underReviewL2({
     BADGES.VM.EVM,
     BADGES.RaaS.Caldera,
   ],
+  dataAvailability: undefined,
   display: {
     name: 'OpenZK',
     slug: 'openzk',
     description:
       'OpenZK is a ZK rollup that unites native ETH staking, liquid restaking, and stablecoin staking in one seamless platform.',
     purposes: ['Universal'],
-    category: 'ZK Rollup',
     stacks: ['ZK Stack'],
     links: {
       websites: ['https://openzk.net/'],
@@ -38,6 +38,9 @@ export const openzk: ScalingProject = underReviewL2({
       ],
     },
   },
+  proofSystem: {
+    type: 'Validity',
+  },
   ecosystemInfo: {
     id: ProjectId('the-elastic-network'),
   },
@@ -48,7 +51,7 @@ export const openzk: ScalingProject = underReviewL2({
       {
         type: 'rpc',
         url: 'https://openzk.calderachain.xyz/http',
-        callsPerMinute: 1500,
+        callsPerMinute: 300,
       },
     ],
   },

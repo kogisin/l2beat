@@ -18,8 +18,9 @@ import type { ActivityLatestUopsData } from '../scaling/activity/getActivityLate
 import type { SevenDayTvsBreakdown } from '../scaling/tvs/get7dTvsBreakdown'
 
 export interface DaMonthlyUpdateEntry
-  extends Omit<DataAvailabilityUpdate, 'daLayerId'> {
+  extends Omit<DataAvailabilityUpdate, 'daLayerId' | 'newProjectsIds'> {
   id: string
+  daLayerId: string
   name: string
   colors: ProjectCustomColors
   daProjects: ProjectId[]
@@ -34,7 +35,7 @@ export interface DaMonthlyUpdateEntry
     stage: ProjectScalingStage
     slug: string
     description: string
-    category: ProjectScalingCategory
+    category: ProjectScalingCategory | undefined
     tvs?: number
     uops?: number
     isAppchain: boolean
@@ -110,8 +111,11 @@ function getDaMonthlyUpdateEntry(
   )?.src
 
   return {
-    ...daUpdateEntry,
-    ...daLayer,
+    id: daUpdateEntry.id,
+    daLayerId: daLayer.id,
+    name: daUpdateEntry.name ?? daLayer.name,
+    news: daUpdateEntry.news,
+    type: daUpdateEntry.type,
     bannerImg,
     colors: daLayer.colors,
     daProjects: allUsedIn.map((x) => x.id),

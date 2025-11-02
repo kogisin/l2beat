@@ -10,6 +10,7 @@ const discovery = new ProjectDiscovery('hychain')
 
 export const hychain: ScalingProject = orbitStackL2({
   addedAt: UnixTime(1709942400), // 2024-03-09T00:00:00Z
+  archivedAt: UnixTime(1761826453), // 2025-10-30T12:14:13Z
   additionalBadges: [BADGES.RaaS.Caldera],
   additionalPurposes: ['Gaming'],
   reasonsForBeingOther: [
@@ -46,7 +47,7 @@ export const hychain: ScalingProject = orbitStackL2({
       {
         type: 'rpc',
         url: 'https://rpc.hychain.com/http',
-        callsPerMinute: 1500,
+        callsPerMinute: 300,
       },
     ],
     gasTokens: ['TOPIA'],

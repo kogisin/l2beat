@@ -55,7 +55,6 @@ export const polygonpos: ScalingProject = {
     name: 'Polygon PoS',
     slug: 'polygon-pos',
     purposes: ['Universal'],
-    category: 'Other',
     links: {
       websites: ['https://polygon.technology'],
       explorers: ['https://polygonscan.com'],
@@ -75,6 +74,7 @@ export const polygonpos: ScalingProject = {
     description:
       'Polygon PoS is an EVM-compatible, proof of stake sidechain for Ethereum, planning to become a Validium with a state validating bridge. The bridge is currently validated by Polygon validators and allows for asset as well as data movement between Polygon and Ethereum.',
   },
+  proofSystem: undefined,
   stage: {
     stage: 'NotApplicable',
   },
@@ -160,6 +160,7 @@ export const polygonpos: ScalingProject = {
     name: 'polygonpos',
     chainId,
     explorerUrl: 'https://polygonscan.com',
+    sinceTimestamp: UnixTime(1590856200),
     multicallContracts: [
       {
         address: EthereumAddress('0xcA11bde05977b3631167028862bE2a173976CA11'),
@@ -172,7 +173,7 @@ export const polygonpos: ScalingProject = {
       {
         type: 'rpc',
         url: 'https://polygon.llamarpc.com',
-        callsPerMinute: 1500,
+        callsPerMinute: 300,
       },
       { type: 'etherscan', chainId },
       { type: 'blockscoutV2', url: 'https://polygon.blockscout.com/api/v2' },
@@ -320,7 +321,7 @@ export const polygonpos: ScalingProject = {
       actors: [
         discovery.getMultisigPermission(
           'PolygonMultisig',
-          'Can propose and execute code upgrades.',
+          'Can propose and execute code upgrades. Can arbitrarily moves tokens out of the ERC20 escrow without a contract upgrade.',
         ),
       ],
     },

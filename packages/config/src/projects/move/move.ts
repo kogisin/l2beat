@@ -12,16 +12,19 @@ export const move: ScalingProject = upcomingL2({
     description:
       'M2 is an upcoming L2 featuring a VM compatible with Move and the EVM (MEVM), using Celestia for data availability.',
     purposes: ['Universal'],
-    category: 'Validium',
     links: {
       websites: ['https://movementlabs.xyz'],
       documentation: ['https://docs.movementlabs.xyz/'],
       explorers: ['https://explorer.movementlabs.xyz/#/?network=local'],
+      repositories: ['https://github.com/movementlabsxyz'],
       socialMedia: [
         'https://x.com/movementlabsxyz',
         'https://t.me/movementlabsxyz',
         'https://discord.com/invite/movementlabsxyz',
       ],
     },
+  },
+  proofSystem: {
+    type: 'Validity',
   },
 })

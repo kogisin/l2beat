@@ -1,4 +1,4 @@
-import { assert } from '@l2beat/shared-pure'
+import { assert, UnixTime } from '@l2beat/shared-pure'
 import { Indexer } from '@l2beat/uif'
 import { ManagedChildIndexer } from '../../../tools/uif/ManagedChildIndexer'
 import type { DayActivityIndexerDeps } from './types'
@@ -21,23 +21,28 @@ export class DayActivityIndexer extends ManagedChildIndexer {
     )
   }
 
+  // FROM and TO are actually days passed since unix epoch, not timestamps cause its using DayTargetIndexer as parent
   override async update(from: number, to: number): Promise<number> {
     // starkex APIs are not stable and can change from the past. With this we make sure to scrape them again
-    const fromWithUncertainty = from - this.$.uncertaintyBuffer
-    const adjustedFrom =
-      fromWithUncertainty < this.$.minHeight
-        ? this.$.minHeight
-        : fromWithUncertainty
+    const fromWithUncertainty = from - this.$.uncertaintyBuffer - 1
+    const adjustedFrom = Math.max(this.$.minHeight, fromWithUncertainty)
 
     const fromWithBatchSize = adjustedFrom + this.$.batchSize
-    const adjustedTo = fromWithBatchSize < to ? fromWithBatchSize : to
+    const adjustedTo = Math.min(fromWithBatchSize, to)
 
-    const counts = await this.$.txsCountService.getTxsCount(
+    const { records } = await this.$.txsCountService.getTxsCount(
       adjustedFrom,
       adjustedTo,
     )
 
-    await this.$.db.activity.upsertMany(counts)
+    await this.$.db.transaction(async () => {
+      await this.$.db.activity.upsertMany(records)
+      await this.$.db.syncMetadata.updateSyncedUntil(
+        'activity',
+        [this.$.projectId],
+        adjustedTo * UnixTime.DAY,
+      )
+    })
 
     return adjustedTo
   }

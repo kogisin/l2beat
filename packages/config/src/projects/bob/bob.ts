@@ -1,4 +1,4 @@
-import { ChainSpecificAddress, UnixTime } from '@l2beat/shared-pure'
+import { ChainSpecificAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
 import { ESCROW } from '../../common'
 import { BADGES } from '../../common/badges'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
@@ -8,10 +8,15 @@ import { opStackL2 } from '../../templates/opStack'
 const discovery = new ProjectDiscovery('bob')
 
 export const bob: ScalingProject = opStackL2({
+  ecosystemInfo: {
+    id: ProjectId('superchain'),
+    isPartOfSuperchain: true,
+  },
   addedAt: UnixTime(1714521600), // 2024-05-01T00:00:00Z
   discovery,
   additionalBadges: [BADGES.RaaS.Conduit, BADGES.Stack.OPKailua],
   additionalPurposes: ['Bitcoin DApps'],
+  isPartOfSuperchain: true,
   display: {
     name: 'BOB',
     slug: 'bob',
@@ -42,7 +47,7 @@ export const bob: ScalingProject = opStackL2({
     {
       title: 'Proof System Intervention',
       url: 'https://app.blocksec.com/explorer/tx/eth/0xa065f636adfc7cdf08007ee81303028fa4daf291279a75a5ae1d3a975acce806?line=7',
-      date: '2025-07-17T00:00:00Z',
+      date: '2025-07-24T00:00:00Z',
       description:
         'A state root proposal is manually resolved after changing the finalization config.',
       type: 'incident',
@@ -57,12 +62,18 @@ export const bob: ScalingProject = opStackL2({
     },
     {
       title: 'Phase 1: Optimistic BOB',
-      url: 'https://docs.gobob.xyz/docs/bob-chain/roadmap/#-phase-1-bootstrapping-as-an-ethereum-l2',
+      url: 'https://x.com/build_on_bob/status/1763642185101004914',
       date: '2024-05-01T00:00:00Z',
       description: 'BOB bootstrapping as an Optimistic Rollup on Ethereum.',
       type: 'general',
     },
   ],
+  nonTemplateProofSystem: {
+    type: 'Optimistic',
+    name: 'OP Kailua',
+    zkCatalogId: ProjectId('risc0'),
+    challengeProtocol: 'Single-step',
+  },
   chainConfig: {
     name: 'bob',
     chainId: 60808,
@@ -70,7 +81,7 @@ export const bob: ScalingProject = opStackL2({
     explorerUrl: 'https://explorer.gobob.xyz',
     sinceTimestamp: UnixTime(1712861989),
     apis: [
-      { type: 'rpc', url: 'https://rpc.gobob.xyz/', callsPerMinute: 1500 },
+      { type: 'rpc', url: 'https://rpc.gobob.xyz/', callsPerMinute: 300 },
       { type: 'blockscout', url: 'https://explorer.gobob.xyz/api' },
     ],
   },

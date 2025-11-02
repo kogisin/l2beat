@@ -1,9 +1,9 @@
 import type { Milestone } from '@l2beat/config'
-import type { ProjectId, UnixTime } from '@l2beat/shared-pure'
+import { type ProjectId, UnixTime } from '@l2beat/shared-pure'
 import { useMemo } from 'react'
 import type { TooltipProps } from 'recharts'
 import { Area, AreaChart } from 'recharts'
-import type { ChartMeta } from '~/components/core/chart/Chart'
+import type { ChartMeta, ChartProject } from '~/components/core/chart/Chart'
 import {
   ChartContainer,
   ChartLegend,
@@ -17,9 +17,11 @@ import { EthereumFillGradientDef } from '~/components/core/chart/defs/EthereumGr
 import { FuchsiaFillGradientDef } from '~/components/core/chart/defs/FuchsiaGradientDef'
 import { LimeFillGradientDef } from '~/components/core/chart/defs/LimeGradientDef'
 import { SkyFillGradientDef } from '~/components/core/chart/defs/SkyGradientDef'
+import { useChartDataKeys } from '~/components/core/chart/hooks/useChartDataKeys'
 import { getCommonChartComponents } from '~/components/core/chart/utils/getCommonChartComponents'
 import { HorizontalSeparator } from '~/components/core/HorizontalSeparator'
-import { formatTimestamp } from '~/utils/dates'
+import type { DaThroughputResolution } from '~/server/features/data-availability/throughput/utils/range'
+import { formatRange } from '~/utils/dates'
 import { getDaDataParams } from './getDaDataParams'
 
 export type ProjectChartDataWithConfiguredThroughput = [
@@ -32,23 +34,32 @@ interface Props {
   dataWithConfiguredThroughputs:
     | ProjectChartDataWithConfiguredThroughput[]
     | undefined
-  projectId: ProjectId
+  project: ChartProject
   isLoading: boolean
-  showMax: boolean
-  showTarget: boolean
   milestones: Milestone[]
   syncedUntil: UnixTime | undefined
+  resolution: DaThroughputResolution
 }
+
+const hiddenDataKeys = ['projectMax'] as const
 
 export function ProjectDaAbsoluteThroughputChart({
   dataWithConfiguredThroughputs,
+  project,
   isLoading,
-  projectId,
-  showMax,
-  showTarget,
   milestones,
   syncedUntil,
+  resolution,
 }: Props) {
+  const projectChartMeta = useMemo(
+    () => getProjectChartMeta(project.id),
+    [project.id],
+  )
+
+  const { dataKeys, toggleDataKey } = useChartDataKeys(
+    projectChartMeta,
+    hiddenDataKeys,
+  )
   const max = useMemo(() => {
     return dataWithConfiguredThroughputs
       ? Math.max(
@@ -73,68 +84,77 @@ export function ProjectDaAbsoluteThroughputChart({
     )
   }, [dataWithConfiguredThroughputs, denominator])
 
-  const projectChartMeta = getProjectChartMeta(projectId)
-
   return (
     <ChartContainer
       meta={projectChartMeta}
       data={chartData}
+      project={project}
       className="mb-2"
       isLoading={isLoading}
+      interactiveLegend={{
+        dataKeys,
+        onItemClick: toggleDataKey,
+      }}
       milestones={milestones}
     >
       <AreaChart accessibilityLayer data={chartData} margin={{ top: 20 }}>
         <defs>
-          {projectId === 'ethereum' && (
+          {project.id === 'ethereum' && (
             <EthereumFillGradientDef id="ethereum-fill" />
           )}
-          {projectId === 'celestia' && (
+          {project.id === 'celestia' && (
             <FuchsiaFillGradientDef id="celestia-fill" />
           )}
-          {projectId === 'avail' && <SkyFillGradientDef id="avail-fill" />}
-          {projectId === 'eigenda' && <LimeFillGradientDef id="eigenda-fill" />}
+          {project.id === 'avail' && <SkyFillGradientDef id="avail-fill" />}
+          {project.id === 'eigenda' && (
+            <LimeFillGradientDef id="eigenda-fill" />
+          )}
         </defs>
         <ChartLegend content={<ChartLegendContent />} />
         <Area
           dataKey="project"
-          fill={`url(#${projectId}-fill)`}
+          fill={`url(#${project.id}-fill)`}
           fillOpacity={1}
           stroke={projectChartMeta.project?.color}
           strokeWidth={2}
           isAnimationActive={false}
           dot={false}
+          hide={!dataKeys.includes('project')}
         />
-        {showTarget && (
-          <Area
-            dataKey="projectTarget"
-            isAnimationActive={false}
-            fillOpacity={0}
-            stroke={projectChartMeta.projectTarget?.color}
-            strokeWidth={2}
-            strokeDasharray={
-              projectChartMeta.projectTarget?.indicatorType.strokeDasharray
-            }
-            type="stepAfter"
-            dot={false}
-          />
-        )}
-        {showMax && (
-          <Area
-            dataKey="projectMax"
-            isAnimationActive={false}
-            fillOpacity={0}
-            stroke={projectChartMeta.projectMax?.color}
-            strokeWidth={2}
-            strokeDasharray={
-              projectChartMeta.projectMax?.indicatorType.strokeDasharray
-            }
-            type="stepAfter"
-            dot={false}
-          />
-        )}
+        <Area
+          dataKey="projectTarget"
+          isAnimationActive={false}
+          fillOpacity={0}
+          stroke={projectChartMeta.projectTarget?.color}
+          strokeWidth={2}
+          strokeDasharray={
+            projectChartMeta.projectTarget?.indicatorType.strokeDasharray
+          }
+          type="stepAfter"
+          dot={false}
+          hide={!dataKeys.includes('projectTarget')}
+        />
+        <Area
+          dataKey="projectMax"
+          isAnimationActive={false}
+          fillOpacity={0}
+          stroke={projectChartMeta.projectMax?.color}
+          strokeWidth={2}
+          strokeDasharray={
+            projectChartMeta.projectMax?.indicatorType.strokeDasharray
+          }
+          type="stepAfter"
+          dot={false}
+          hide={!dataKeys.includes('projectMax')}
+        />
         <ChartTooltip
           filterNull={false}
-          content={<ProjectDaThroughputCustomTooltip unit={unit} />}
+          content={
+            <ProjectDaThroughputCustomTooltip
+              unit={unit}
+              resolution={resolution}
+            />
+          }
         />
         {getCommonChartComponents({
           data: chartData,
@@ -155,20 +175,32 @@ export function ProjectDaThroughputCustomTooltip({
   payload,
   label,
   unit,
-}: TooltipProps<number, string> & { unit: string }) {
+  resolution,
+}: TooltipProps<number, string> & {
+  unit: string
+  resolution: DaThroughputResolution
+}) {
   const { meta: config } = useChart()
   if (!active || !payload || typeof label !== 'number') return null
 
   return (
     <ChartTooltipWrapper>
       <div className="font-medium text-label-value-14 text-secondary">
-        {formatTimestamp(label, { longMonthName: true, mode: 'datetime' })}
+        {formatRange(
+          label,
+          label +
+            (resolution === 'daily'
+              ? UnixTime.DAY
+              : resolution === 'sixHourly'
+                ? UnixTime.HOUR * 6
+                : UnixTime.HOUR),
+        )}
       </div>
       <HorizontalSeparator className="my-2" />
       <div className="flex flex-col gap-2">
         {payload.map((entry, index) => {
           const configEntry = entry.name ? config[entry.name] : undefined
-          if (!configEntry) return null
+          if (!configEntry || entry.hide) return null
 
           return (
             <div
@@ -188,6 +220,11 @@ export function ProjectDaThroughputCustomTooltip({
               configEntry.label === 'Actual data size' ? (
                 <span className="font-medium text-label-value-15 text-primary tabular-nums">
                   No data
+                </span>
+              ) : entry.value === null &&
+                configEntry.label === 'Max capacity' ? (
+                <span className="font-medium text-label-value-15 text-primary tabular-nums">
+                  No cap
                 </span>
               ) : (
                 <span className="font-medium text-label-value-15 text-primary tabular-nums">

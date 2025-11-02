@@ -110,6 +110,9 @@ export const apex: ScalingProject = {
     BADGES.Stack.StarkEx,
     BADGES.Infra.SHARP,
   ],
+  proofSystem: {
+    type: 'Optimistic',
+  },
   reasonsForBeingOther: [REASON_FOR_BEING_OTHER.LOW_DAC_THRESHOLD],
   display: {
     redWarning:
@@ -126,7 +129,6 @@ export const apex: ScalingProject = {
       technical distinction is not visible to the user.`,
     purposes: ['Exchange'],
     stacks: ['StarkEx'],
-    category: 'Other',
     links: {
       websites: ['https://apex.exchange/'],
       bridges: ['https://pro.apex.exchange/'],
@@ -170,6 +172,8 @@ export const apex: ScalingProject = {
       type: 'day',
       sinceTimestamp: UnixTime(1660252039),
       resyncLastDays: 7,
+      batchSize: 10,
+      dataSource: 'StarkEx Aggregations API',
     },
   },
   dataAvailability: {

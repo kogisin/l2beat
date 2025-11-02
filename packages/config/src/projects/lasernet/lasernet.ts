@@ -20,7 +20,6 @@ export const lasernet: ScalingProject = orbitStackL2({
     slug: 'lasernet',
     description:
       'Lasernet is a new oracle architecture with an ETH layer-2 at its core. Lasernet brings fully on-chain, verifiable, and trustless data through its permissionless and modular design.',
-    category: 'Other',
     stacks: ['Arbitrum'],
     links: {
       websites: ['https://diadata.org/'],
@@ -46,7 +45,7 @@ export const lasernet: ScalingProject = orbitStackL2({
       {
         type: 'rpc',
         url: 'https://rpc.diadata.org/',
-        callsPerMinute: 1500,
+        callsPerMinute: 300,
       },
     ],
   },

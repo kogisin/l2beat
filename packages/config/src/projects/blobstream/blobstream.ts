@@ -1,10 +1,11 @@
-import { ProjectId, UnixTime } from '@l2beat/shared-pure'
+import { EthereumAddress, ProjectId, UnixTime } from '@l2beat/shared-pure'
 import {
   DaCommitteeSecurityRisk,
   DaRelayerFailureRisk,
   DaUpgradeabilityRisk,
 } from '../../common'
 import { linkByDA } from '../../common/linkByDA'
+import { ZK_PROGRAM_HASHES } from '../../common/zkProgramHashes'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import {
   generateDiscoveryDrivenContracts,
@@ -34,7 +35,7 @@ export const blobstream: BaseProject = {
       'The Blobstream bridge serves as a ZK light client, enabling the bridging of data availability commitments between Celestia and destination chains.',
     links: {
       documentation: [
-        'https://docs.celestia.org/developers/blobstream',
+        'https://docs.celestia.org/how-to-guides/blobstream',
         'https://hackmd.io/@succinctlabs/HJE7XRrup',
       ],
       repositories: [
@@ -44,9 +45,49 @@ export const blobstream: BaseProject = {
     },
     badges: [],
   },
+  trackedTxsConfig: [
+    {
+      projectId: ProjectId('blobstream'),
+      sinceTimestamp: 1724648927,
+      type: 'liveness',
+      subtype: 'proofSubmissions',
+      params: {
+        formula: 'functionCall',
+        address: EthereumAddress('0x7Cf3876F681Dbb6EdA8f6FfC45D66B996Df08fAe'),
+        selector: '0x8455a3cf',
+        signature:
+          'function commitHeaderRange(bytes proof, bytes publicValues)',
+      },
+    },
+    {
+      projectId: ProjectId('blobstream'),
+      sinceTimestamp: 1724648927,
+      type: 'l2costs',
+      subtype: 'proofSubmissions',
+      params: {
+        formula: 'functionCall',
+        address: EthereumAddress('0x7Cf3876F681Dbb6EdA8f6FfC45D66B996Df08fAe'),
+        selector: '0x8455a3cf',
+        signature:
+          'function commitHeaderRange(bytes proof, bytes publicValues)',
+      },
+    },
+  ],
   daBridge: {
     name: 'Blobstream',
     daLayer: ProjectId('celestia'),
+    relayerType: {
+      value: 'Permissioned',
+      sentiment: 'warning',
+      description:
+        'Only whitelisted relayers can post attestations to this bridge.',
+    },
+    validationType: {
+      value: 'Validity Proof',
+      description:
+        'The DA attestation requires onchain SNARK proof verification to be accepted by the bridge. Operators signatures and their corresponding stake are verified as part of the proof.',
+      zkCatalogId: ProjectId('sp1'),
+    },
     usedIn: linkByDA({
       layer: ProjectId('celestia'),
       bridge: ProjectId('blobstream'),
@@ -106,6 +147,7 @@ export const blobstream: BaseProject = {
         text: 'the bridge contract is frozen by the Guardian (BlobstreamMultisig).',
       },
     ],
+    zkProgramHashes: getBlobstreamVKeys().map((el) => ZK_PROGRAM_HASHES(el)),
   },
   milestones: [
     {
@@ -119,4 +161,30 @@ export const blobstream: BaseProject = {
   ],
   permissions: generateDiscoveryDrivenPermissions([discovery]),
   discoveryInfo: getDiscoveryInfo([discovery]),
+}
+
+function getBlobstreamVKeys(): string[] {
+  const blobstreamProgramHashes = new Set<string>()
+
+  blobstreamProgramHashes.add(
+    discovery.getContractValue<string>(
+      'ArbitrumBlobstream',
+      'blobstreamProgramVkey',
+    ),
+  )
+
+  blobstreamProgramHashes.add(
+    discovery.getContractValue<string>(
+      'EthereumBlobstream',
+      'blobstreamProgramVkey',
+    ),
+  )
+
+  blobstreamProgramHashes.add(
+    discovery.getContractValue<string>(
+      'BaseBlobstream',
+      'blobstreamProgramVkey',
+    ),
+  )
+  return Array.from(blobstreamProgramHashes)
 }

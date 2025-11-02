@@ -19,6 +19,8 @@ const discovery = new ProjectDiscovery('sophon')
 const chainId = 50104
 const trackedTxsSince = UnixTime(1742940287)
 const v26UpgradeTS = UnixTime(1743095267)
+const v29UpgradeTS = UnixTime(1761612755)
+const diamond = discovery.getContract('SophonZkEvm')
 const bridge = discovery.getContract('L1NativeTokenVault')
 const isL2AssetRouterWhitelisted =
   discovery.getContractValue<ChainSpecificAddress[]>(
@@ -44,13 +46,14 @@ export const sophon: ScalingProject = zkStackL2({
       websites: ['https://sophon.xyz/'],
       bridges: ['https://portal.sophon.xyz/', 'https://farm.sophon.xyz/'],
       documentation: ['https://docs.sophon.xyz/sophon'],
-      explorers: ['https://explorer.sophon.xyz/'],
+      explorers: ['https://explorer.sophon.xyz/', 'https://sophscan.xyz/'],
       repositories: ['https://github.com/sophon-org'],
       socialMedia: [
         'https://x.com/sophon',
         'https://blog.sophon.xyz/',
         'https://t.me/SophonHub',
-        'https://discord.gg/sophonhub',
+        'https://t.me/SophonAnnouncements',
+        'https://discord.com/invite/sophon',
       ],
     },
   },
@@ -69,11 +72,11 @@ export const sophon: ScalingProject = zkStackL2({
       {
         type: 'rpc',
         url: 'https://rpc.sophon.xyz/',
-        callsPerMinute: 1500,
+        callsPerMinute: 300,
       },
     ],
   },
-  diamondContract: discovery.getContract('SophonZkEvm'),
+  diamondContract: diamond,
   daProvider: {
     layer: DA_LAYERS.AVAIL,
     riskView: RISK_VIEW.DATA_AVAIL(true),
@@ -124,7 +127,7 @@ export const sophon: ScalingProject = zkStackL2({
   ],
   availDa: {
     sinceBlock: 0, // Edge Case: config added @ DA Module start
-    appId: '17',
+    appIds: ['17', '36', '37', '38'],
   },
   nonTemplateRiskView: {
     sequencerFailure: {
@@ -158,7 +161,7 @@ export const sophon: ScalingProject = zkStackL2({
         },
         {
           title: 'Mailbox facet',
-          url: 'https://etherscan.io/address/0x365D0ae3ECA13004daf2A4ba1501c01AaEbb4fec#code#F1#L472',
+          url: 'https://etherscan.io/address/0x1e34aB39a9682149165ddeCc0583d238A5448B45#code#F1#L405',
         },
         {
           title: 'TransactionFilterer',
@@ -172,7 +175,19 @@ export const sophon: ScalingProject = zkStackL2({
       uses: [{ type: 'l2costs', subtype: 'batchSubmissions' }],
       query: {
         formula: 'sharedBridge',
-        chainId,
+        firstParameter: ChainSpecificAddress.address(diamond.address),
+        address: EthereumAddress('0x2e5110cF18678Ec99818bFAa849B8C881744b776'),
+        selector: '0x0b6db820',
+        functionSignature:
+          'function precommitSharedBridge(address _chainAddress, uint256, bytes)',
+        sinceTimestamp: v29UpgradeTS,
+      },
+    },
+    {
+      uses: [{ type: 'l2costs', subtype: 'batchSubmissions' }],
+      query: {
+        formula: 'sharedBridge',
+        firstParameter: chainId,
         address: EthereumAddress('0x5D8ba173Dc6C3c90C8f7C04C9288BeF5FDbAd06E'),
         selector: '0x6edd4f12',
         functionSignature:
@@ -188,7 +203,7 @@ export const sophon: ScalingProject = zkStackL2({
       ],
       query: {
         formula: 'sharedBridge',
-        chainId,
+        firstParameter: chainId,
         address: EthereumAddress('0x5D8ba173Dc6C3c90C8f7C04C9288BeF5FDbAd06E'),
         selector: '0xc37533bb',
         functionSignature:
@@ -204,7 +219,7 @@ export const sophon: ScalingProject = zkStackL2({
       ],
       query: {
         formula: 'sharedBridge',
-        chainId,
+        firstParameter: chainId,
         address: EthereumAddress('0x5D8ba173Dc6C3c90C8f7C04C9288BeF5FDbAd06E'),
         selector: '0x6f497ac6',
         functionSignature:
@@ -217,12 +232,25 @@ export const sophon: ScalingProject = zkStackL2({
       uses: [{ type: 'l2costs', subtype: 'batchSubmissions' }],
       query: {
         formula: 'sharedBridge',
-        chainId,
+        firstParameter: chainId,
         address: EthereumAddress('0x8c0bfc04ada21fd496c55b8c50331f904306f564'),
         selector: '0x98f81962',
         functionSignature:
           'function commitBatchesSharedBridge(uint256 _chainId, uint256 _processBatchFrom, uint256 _processBatchTo, bytes)',
         sinceTimestamp: v26UpgradeTS,
+        untilTimestamp: v29UpgradeTS,
+      },
+    },
+    {
+      uses: [{ type: 'l2costs', subtype: 'batchSubmissions' }],
+      query: {
+        formula: 'sharedBridge',
+        firstParameter: ChainSpecificAddress.address(diamond.address),
+        address: EthereumAddress('0x2e5110cF18678Ec99818bFAa849B8C881744b776'),
+        selector: '0x0db9eb87',
+        functionSignature:
+          'function commitBatchesSharedBridge(address _chainAddress, uint256 _processBatchFrom, uint256 _processBatchTo, bytes)',
+        sinceTimestamp: v29UpgradeTS,
       },
     },
     {
@@ -232,12 +260,28 @@ export const sophon: ScalingProject = zkStackL2({
       ],
       query: {
         formula: 'sharedBridge',
-        chainId,
+        firstParameter: chainId,
         address: EthereumAddress('0x8c0bfc04ada21fd496c55b8c50331f904306f564'),
         selector: '0xe12a6137',
         functionSignature:
           'function proveBatchesSharedBridge(uint256 _chainId, uint256, uint256, bytes)',
         sinceTimestamp: v26UpgradeTS,
+        untilTimestamp: v29UpgradeTS,
+      },
+    },
+    {
+      uses: [
+        { type: 'liveness', subtype: 'proofSubmissions' },
+        { type: 'l2costs', subtype: 'proofSubmissions' },
+      ],
+      query: {
+        formula: 'sharedBridge',
+        firstParameter: ChainSpecificAddress.address(diamond.address),
+        address: EthereumAddress('0x2e5110cF18678Ec99818bFAa849B8C881744b776'),
+        selector: '0x9271e450',
+        functionSignature:
+          'function proveBatchesSharedBridge(address _chainAddress, uint256, uint256, bytes)',
+        sinceTimestamp: v29UpgradeTS,
       },
     },
     {
@@ -247,12 +291,28 @@ export const sophon: ScalingProject = zkStackL2({
       ],
       query: {
         formula: 'sharedBridge',
-        chainId,
+        firstParameter: chainId,
         address: EthereumAddress('0x8c0bfc04ada21fd496c55b8c50331f904306f564'),
         selector: '0xcf02827d',
         functionSignature:
           'function executeBatchesSharedBridge(uint256 _chainId, uint256 _processBatchFrom, uint256 _processBatchTo, bytes)',
         sinceTimestamp: v26UpgradeTS,
+        untilTimestamp: v29UpgradeTS,
+      },
+    },
+    {
+      uses: [
+        { type: 'liveness', subtype: 'stateUpdates' },
+        { type: 'l2costs', subtype: 'stateUpdates' },
+      ],
+      query: {
+        formula: 'sharedBridge',
+        firstParameter: ChainSpecificAddress.address(diamond.address),
+        address: EthereumAddress('0x2e5110cF18678Ec99818bFAa849B8C881744b776'),
+        selector: '0xa085344d',
+        functionSignature:
+          'function executeBatchesSharedBridge(address _chainAddress, uint256 _processBatchFrom, uint256 _processBatchTo, bytes)',
+        sinceTimestamp: v29UpgradeTS,
       },
     },
   ],

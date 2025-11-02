@@ -3,25 +3,51 @@ import type { Database, UpdateMonitorRecord } from '@l2beat/database'
 import {
   type ConfigReader,
   ConfigRegistry,
-  type DiscoveryDiff,
   type DiscoveryOutput,
   type EntryParameters,
   hashJsonStable,
 } from '@l2beat/discovery'
 import {
-  ChainConverter,
-  ChainId,
   ChainSpecificAddress,
   EthereumAddress,
   Hash256,
 } from '@l2beat/shared-pure'
 import { expect, mockFn, mockObject } from 'earl'
 import type { Clock } from '../../tools/Clock'
+import type { WorkerPool } from './createWorkers'
 import { DiscoveryOutputCache } from './DiscoveryOutputCache'
 import type { DiscoveryRunner } from './DiscoveryRunner'
 import type { UpdateDiffer } from './UpdateDiffer'
 import { UpdateMonitor } from './UpdateMonitor'
 import type { UpdateNotifier } from './UpdateNotifier'
+
+const instantWorkerPool = mockObject<WorkerPool>({
+  runInPool: mockFn(async (tasks) => {
+    const results = []
+    const errors = []
+
+    for (const task of tasks) {
+      try {
+        const result = await task.job()
+        results.push({
+          identity: task.identity,
+          result,
+        })
+      } catch (error) {
+        errors.push({
+          identity: task.identity,
+          error: error instanceof Error ? error : new Error(String(error)),
+        })
+      }
+    }
+
+    return {
+      results,
+      errors,
+      timedOut: false,
+    }
+  }),
+})
 
 const PROJECT_A = 'project-a'
 const PROJECT_B = 'project-b'
@@ -47,7 +73,6 @@ const COMMITTED: EntryParameters[] = [
 
 const DISCOVERY_RESULT: DiscoveryOutput = {
   name: PROJECT_A,
-  chain: 'ethereum',
   timestamp: TIMESTAMP,
   configHash: Hash256.random(),
   entries: [
@@ -64,7 +89,6 @@ const DISCOVERY_RESULT: DiscoveryOutput = {
 
 const DISCOVERY_RESULT_ETH_2: DiscoveryOutput = {
   name: PROJECT_B,
-  chain: 'ethereum',
   timestamp: TIMESTAMP,
   configHash: Hash256.random(),
   entries: [
@@ -82,7 +106,6 @@ const DISCOVERY_RESULT_ETH_2: DiscoveryOutput = {
 
 const DISCOVERY_RESULT_ARB_2: DiscoveryOutput = {
   name: PROJECT_B,
-  chain: 'arbitrum',
   timestamp: TIMESTAMP,
   configHash: Hash256.random(),
   entries: [
@@ -105,53 +128,34 @@ const flatSourcesRepository = mockObject<Database['flatSources']>({
 describe(UpdateMonitor.name, () => {
   let updateNotifier = mockObject<UpdateNotifier>({})
   let updateDiffer = mockObject<UpdateDiffer>({})
-  let discoveryRunner = mockObject<DiscoveryRunner>({})
-  let discoveryOutputCache = new DiscoveryOutputCache()
-  const chainConverter = new ChainConverter([
-    { name: 'ethereum', chainId: ChainId.ETHEREUM },
-    { name: 'arbitrum', chainId: ChainId.ARBITRUM },
-  ])
+  const discoveryOutputCache = new DiscoveryOutputCache()
 
   beforeEach(() => {
     updateNotifier = mockObject<UpdateNotifier>({
-      handleUpdate: async () => {},
-      sendDailyReminder: async () => {},
+      handleUpdate: mockFn().resolvesTo(undefined),
+      sendDailyReminder: mockFn().resolvesTo(undefined),
     })
     updateDiffer = mockObject<UpdateDiffer>({
-      runForChain: async () => undefined,
+      runForProject: mockFn().resolvesTo(undefined),
     })
-    discoveryRunner = mockObject<DiscoveryRunner>({
-      discoverWithRetry: async () => ({
-        discovery: DISCOVERY_RESULT,
-        flatSources: {},
-      }),
-      chain: 'ethereum',
-    })
-    discoveryOutputCache = new DiscoveryOutputCache()
   })
 
   describe(UpdateMonitor.prototype.update.name, () => {
     it('iterates over runners and dispatches updates', async () => {
-      const discoveryRunnerEth = discoveryRunner
-      const discoveryRunnerArb = mockObject<DiscoveryRunner>({
-        discoverWithRetry: async () => ({
+      const discoveryRunner = mockObject<DiscoveryRunner>({
+        run: mockFn().resolvesTo({
           discovery: DISCOVERY_RESULT,
           flatSources: {},
         }),
-        chain: 'arbitrum',
       })
-
-      const runners = [discoveryRunnerEth, discoveryRunnerArb]
-
       const configReader = mockObject<ConfigReader>({
         readDiscovery: () => ({
           ...mockProject,
           entries: COMMITTED,
         }),
 
-        readAllDiscoveredConfigsForChain: (chain: string) => {
-          return [mockConfig(PROJECT_A, chain)]
-        },
+        readAllDiscoveredProjects: () => [PROJECT_A],
+        readConfig: mockFn().returns(mockConfig(PROJECT_A)),
       })
 
       const updateMonitorRepository = mockObject<Database['updateMonitor']>({
@@ -164,7 +168,7 @@ describe(UpdateMonitor.name, () => {
       const timestamp = 0
 
       const updateMonitor = new UpdateMonitor(
-        runners,
+        discoveryRunner,
         updateNotifier,
         updateDiffer,
         configReader,
@@ -174,402 +178,26 @@ describe(UpdateMonitor.name, () => {
           updateDiff: updateDiffRepository,
         }),
         mockObject<Clock>(),
-        chainConverter,
         discoveryOutputCache,
         Logger.SILENT,
         false,
+        instantWorkerPool,
       )
 
       await updateMonitor.update(timestamp)
 
-      // reads all the configs
-      expect(
-        configReader.readAllDiscoveredConfigsForChain,
-      ).toHaveBeenCalledTimes(4)
-      expect(
-        configReader.readAllDiscoveredConfigsForChain,
-      ).toHaveBeenNthCalledWith(1, 'ethereum')
-
-      expect(
-        configReader.readAllDiscoveredConfigsForChain,
-      ).toHaveBeenNthCalledWith(2, 'arbitrum')
-
       // runs discovery for every project
-      expect(discoveryRunnerEth.discoverWithRetry).toHaveBeenCalledTimes(2)
+      expect(discoveryRunner.run).toHaveBeenCalledTimes(2)
 
-      expect(updateDiffer.runForChain).toHaveBeenCalledTimes(2)
+      expect(updateDiffer.runForProject).toHaveBeenCalledTimes(1)
 
       expect(updateNotifier.sendDailyReminder).toHaveBeenCalledTimes(1)
       expect(updateNotifier.sendDailyReminder).toHaveBeenCalledWith(
         {
-          ['project-a']: [
-            {
-              chainName: 'ethereum',
-              severityCounts: { low: 0, high: 0, unknown: 2 },
-            },
-            {
-              chainName: 'arbitrum',
-              severityCounts: { low: 0, high: 0, unknown: 2 },
-            },
-          ],
+          ['project-a']: { severityCounts: { low: 0, high: 0, unknown: 2 } },
         },
         timestamp,
       )
-    })
-  })
-
-  describe(UpdateMonitor.prototype.updateChain.name, () => {
-    it('iterates over projects and finds diff', async () => {
-      const config = mockConfig(PROJECT_A)
-      const configReader = mockObject<ConfigReader>({
-        readDiscovery: () => ({
-          ...mockProject,
-          entries: COMMITTED,
-        }),
-        readConfig: () => config,
-
-        readAllDiscoveredConfigsForChain: () => [
-          mockConfig(PROJECT_A),
-          mockConfig(PROJECT_B),
-        ],
-      })
-
-      const updateMonitorRepository = mockObject<Database['updateMonitor']>({
-        findLatest: async () => undefined,
-        upsert: async () => undefined,
-      })
-
-      const discoveryA = { ...mockProject, entries: COMMITTED }
-      const discoveryB = DISCOVERY_RESULT
-
-      const discoveryRunner = mockObject<DiscoveryRunner>({
-        discoverWithRetry: mockFn()
-          .resolvesToOnce({ discovery: discoveryA, flatSources: {} })
-          .resolvesToOnce({ discovery: discoveryB, flatSources: {} })
-          .resolvesToOnce({ discovery: discoveryA, flatSources: {} })
-          .resolvesToOnce({ discovery: discoveryB, flatSources: {} }),
-        chain: 'ethereum',
-      })
-
-      const updateMonitor = new UpdateMonitor(
-        [discoveryRunner],
-        updateNotifier,
-        updateDiffer,
-        configReader,
-        mockObject<Database>({
-          updateMonitor: updateMonitorRepository,
-          flatSources: flatSourcesRepository,
-        }),
-        mockObject<Clock>(),
-        chainConverter,
-        discoveryOutputCache,
-
-        Logger.SILENT,
-        false,
-      )
-      await updateMonitor.updateChain(discoveryRunner, TIMESTAMP)
-
-      // reads all the configs
-      expect(
-        configReader.readAllDiscoveredConfigsForChain,
-      ).toHaveBeenCalledTimes(1)
-      // runs discovery for every project
-      expect(discoveryRunner.discoverWithRetry).toHaveBeenCalledTimes(4)
-      expect(discoveryRunner.discoverWithRetry).toHaveBeenNthCalledWith(
-        1,
-        mockConfig(PROJECT_A),
-        TIMESTAMP,
-        LOGGER,
-        undefined,
-        undefined,
-        undefined,
-      )
-      expect(discoveryRunner.discoverWithRetry).toHaveBeenNthCalledWith(
-        2,
-        mockConfig(PROJECT_A),
-        TIMESTAMP,
-        LOGGER,
-        undefined,
-        undefined,
-        'useCurrentTimestamp',
-      )
-      expect(discoveryRunner.discoverWithRetry).toHaveBeenNthCalledWith(
-        3,
-        mockConfig(PROJECT_B),
-        TIMESTAMP,
-        LOGGER,
-        undefined,
-        undefined,
-        undefined,
-      )
-      expect(discoveryRunner.discoverWithRetry).toHaveBeenNthCalledWith(
-        4,
-        mockConfig(PROJECT_B),
-        TIMESTAMP,
-        LOGGER,
-        undefined,
-        undefined,
-        'useCurrentTimestamp',
-      )
-      // calls repository (and gets undefined)
-      expect(updateMonitorRepository.findLatest).toHaveBeenCalledTimes(2)
-      // reads committed discovery.json, 2 + 2 for findUnresolvedProjects() + 2 for findUnknown entries()
-      // and + 2 for finding unverifiedContracts
-      expect(configReader.readDiscovery).toHaveBeenCalledTimes(3 * 2)
-      // saves discovery result
-      expect(updateMonitorRepository.upsert).toHaveBeenCalledTimes(2)
-      //sends notification
-      expect(updateNotifier.handleUpdate).toHaveBeenCalledTimes(2)
-      expect(updateNotifier.handleUpdate).toHaveBeenNthCalledWith(
-        1,
-        PROJECT_A,
-        mockDiff,
-        ChainId.ETHEREUM,
-        [],
-        [],
-        TIMESTAMP,
-      )
-      expect(updateNotifier.handleUpdate).toHaveBeenNthCalledWith(
-        2,
-        PROJECT_B,
-        mockDiff,
-        ChainId.ETHEREUM,
-        [],
-        [],
-        TIMESTAMP,
-      )
-    })
-
-    it('does not send notification about the same change', async () => {
-      const configReader = mockObject<ConfigReader>({
-        readAllDiscoveredConfigsForChain: () => [mockConfig(PROJECT_A)],
-        readDiscovery: () => ({ ...mockProject, entries: [] }),
-      })
-
-      const updateMonitorRepository = mockObject<Database['updateMonitor']>({
-        findLatest: async () => ({
-          ...mockRecord,
-          discovery: DISCOVERY_RESULT,
-          configHash: hashJsonStable(mockConfig(PROJECT_A).structure),
-        }),
-        upsert: async () => undefined,
-      })
-
-      const updateMonitor = new UpdateMonitor(
-        [discoveryRunner],
-        updateNotifier,
-        updateDiffer,
-        configReader,
-        mockObject<Database>({
-          updateMonitor: updateMonitorRepository,
-          flatSources: flatSourcesRepository,
-        }),
-        mockObject<Clock>(),
-        chainConverter,
-        discoveryOutputCache,
-
-        Logger.SILENT,
-        false,
-      )
-
-      await updateMonitor.updateChain(discoveryRunner, 0)
-
-      // reads all the configs
-      expect(
-        configReader.readAllDiscoveredConfigsForChain,
-      ).toHaveBeenCalledTimes(1)
-      // gets latest from database (with the same config hash)
-      expect(updateMonitorRepository.findLatest).toHaveBeenOnlyCalledWith(
-        PROJECT_A,
-        ChainId.ETHEREUM,
-      )
-      // runs discovery
-      expect(discoveryRunner.discoverWithRetry).toHaveBeenCalledTimes(2)
-      // does not send a notification
-      expect(updateNotifier.handleUpdate).toHaveBeenCalledTimes(0)
-    })
-
-    it('does not send notification if discovery throws', async () => {
-      const configReader = mockObject<ConfigReader>({
-        readAllDiscoveredConfigsForChain: () => [mockConfig(PROJECT_A)],
-        readDiscovery: () => ({ ...mockProject, entries: [] }),
-      })
-
-      const updateMonitorRepository = mockObject<Database['updateMonitor']>({
-        findLatest: async () => ({
-          ...mockRecord,
-          discovery: DISCOVERY_RESULT,
-          configHash: hashJsonStable(mockConfig(PROJECT_A).structure),
-        }),
-        upsert: async () => undefined,
-      })
-
-      const discoveryRunner = mockObject<DiscoveryRunner>({
-        discoverWithRetry: mockFn().throws('Error'),
-        chain: 'ethereum',
-      })
-
-      const updateMonitor = new UpdateMonitor(
-        [discoveryRunner],
-        updateNotifier,
-        updateDiffer,
-        configReader,
-        mockObject<Database>({
-          updateMonitor: updateMonitorRepository,
-          flatSources: flatSourcesRepository,
-        }),
-        mockObject<Clock>(),
-        chainConverter,
-        discoveryOutputCache,
-
-        Logger.SILENT,
-        false,
-      )
-
-      await updateMonitor.updateChain(discoveryRunner, 0)
-
-      // send notification about the error of discovery
-      expect(updateNotifier.handleUpdate).toHaveBeenCalledTimes(0)
-    })
-
-    it('uses discovery on previous block number if version changes', async () => {
-      const config = mockConfig(PROJECT_A)
-
-      const configReader = mockObject<ConfigReader>({
-        readAllDiscoveredConfigsForChain: () => [config],
-        readConfig: () => config,
-        readDiscovery: () => ({
-          ...mockProject,
-          timestamp: TIMESTAMP - 1,
-          entries: [],
-        }),
-      })
-
-      const updateMonitorRepository = mockObject<Database['updateMonitor']>({
-        findLatest: async () => ({
-          ...mockRecord,
-          discovery: { ...DISCOVERY_RESULT, timestamp: TIMESTAMP - 1 },
-          configHash: hashJsonStable(config.structure),
-          timestamp: TIMESTAMP - 1,
-        }),
-        upsert: async () => undefined,
-      })
-
-      const discoveryRunner = mockObject<DiscoveryRunner>({
-        discoverWithRetry: mockFn(),
-        chain: 'ethereum',
-      })
-
-      discoveryRunner.discoverWithRetry.resolvesToOnce({
-        discovery: { ...DISCOVERY_RESULT },
-        flatSources: {},
-      })
-      discoveryRunner.discoverWithRetry.resolvesToOnce({
-        discovery: {
-          ...DISCOVERY_RESULT,
-          entries: [],
-        },
-        flatSources: {},
-      })
-      discoveryRunner.discoverWithRetry.resolvesToOnce({
-        discovery: {
-          ...DISCOVERY_RESULT,
-          entries: [],
-        },
-        flatSources: {},
-      })
-
-      const updateMonitor = new UpdateMonitor(
-        [discoveryRunner],
-        updateNotifier,
-        updateDiffer,
-        configReader,
-        mockObject<Database>({
-          updateMonitor: updateMonitorRepository,
-          flatSources: flatSourcesRepository,
-        }),
-        mockObject<Clock>(),
-        chainConverter,
-        discoveryOutputCache,
-
-        Logger.SILENT,
-        false,
-      )
-
-      await updateMonitor.updateChain(discoveryRunner, TIMESTAMP)
-
-      expect(discoveryRunner.discoverWithRetry).toHaveBeenCalledTimes(2)
-      expect(discoveryRunner.discoverWithRetry).toHaveBeenNthCalledWith(
-        1,
-        config,
-        TIMESTAMP - 1,
-        LOGGER,
-        undefined,
-        undefined,
-        undefined,
-      )
-      expect(discoveryRunner.discoverWithRetry).toHaveBeenNthCalledWith(
-        2,
-        config,
-        TIMESTAMP,
-        LOGGER,
-        undefined,
-        undefined,
-        'useCurrentTimestamp',
-      )
-      expect(updateNotifier.handleUpdate).toHaveBeenCalledTimes(1)
-      expect(updateMonitorRepository.upsert).toHaveBeenCalledTimes(1)
-    })
-
-    it('handles error', async () => {
-      const configReader = mockObject<ConfigReader>({
-        readAllDiscoveredConfigsForChain: () => [mockConfig(PROJECT_A)],
-        readDiscovery: () => ({ ...mockProject, entries: [] }),
-      })
-
-      const discoveryRunner = mockObject<DiscoveryRunner>({
-        discoverWithRetry: async () => {
-          throw new Error('error')
-        },
-        chain: 'ethereum',
-      })
-
-      const updateMonitorRepository = mockObject<Database['updateMonitor']>({
-        findLatest: async () => undefined,
-        upsert: async () => undefined,
-      })
-
-      const updateMonitor = new UpdateMonitor(
-        [discoveryRunner],
-        updateNotifier,
-        updateDiffer,
-        configReader,
-        mockObject<Database>({
-          updateMonitor: updateMonitorRepository,
-          flatSources: flatSourcesRepository,
-        }),
-        mockObject<Clock>(),
-        chainConverter,
-        discoveryOutputCache,
-
-        Logger.SILENT,
-        false,
-      )
-
-      await updateMonitor.updateChain(discoveryRunner, 0)
-
-      // reads all the configs
-      expect(
-        configReader.readAllDiscoveredConfigsForChain,
-      ).toHaveBeenCalledTimes(1)
-      // gets latest from database (with the same config hash)
-      expect(updateMonitorRepository.findLatest).toHaveBeenCalledTimes(1)
-      // does not run update differ
-      expect(updateDiffer.runForChain).toHaveBeenCalledTimes(0)
-      // does not save changes to database
-      expect(updateMonitorRepository.upsert).toHaveBeenCalledTimes(0)
-      // does not send a notification
-      expect(updateNotifier.handleUpdate).toHaveBeenCalledTimes(0)
     })
   })
 
@@ -585,10 +213,9 @@ describe(UpdateMonitor.name, () => {
       })
 
       const discoveryRunner = mockObject<DiscoveryRunner>({
-        discoverWithRetry: mockFn()
+        run: mockFn()
           .resolvesToOnce({ discovery: discoveryA, flatSources: {} })
           .resolvesToOnce({ discovery: discoveryB, flatSources: {} }),
-        chain: 'ethereum',
       })
 
       const updateMonitorRepository = mockObject<Database['updateMonitor']>({
@@ -596,7 +223,7 @@ describe(UpdateMonitor.name, () => {
       })
 
       const updateMonitor = new UpdateMonitor(
-        [discoveryRunner],
+        discoveryRunner,
         mockObject<UpdateNotifier>(),
         mockObject<UpdateDiffer>(),
         configReader,
@@ -605,11 +232,10 @@ describe(UpdateMonitor.name, () => {
           flatSources: flatSourcesRepository,
         }),
         mockObject<Clock>(),
-        chainConverter,
         discoveryOutputCache,
-
         Logger.SILENT,
         false,
+        instantWorkerPool,
       )
 
       const result = await updateMonitor.getPreviousDiscovery(
@@ -620,10 +246,7 @@ describe(UpdateMonitor.name, () => {
       // calls repository (and gets undefined)
       expect(updateMonitorRepository.findLatest).toHaveBeenCalledTimes(1)
       // reads committed file
-      expect(configReader.readDiscovery).toHaveBeenOnlyCalledWith(
-        PROJECT_A,
-        'ethereum',
-      )
+      expect(configReader.readDiscovery).toHaveBeenOnlyCalledWith(PROJECT_A)
       expect(result).toEqual(discoveryB)
     })
 
@@ -639,11 +262,10 @@ describe(UpdateMonitor.name, () => {
       }
 
       const discoveryRunner = mockObject<DiscoveryRunner>({
-        discoverWithRetry: mockFn().resolvesToOnce({
+        run: mockFn().resolvesToOnce({
           discovery: dbEntry.discovery,
           flatSources: {},
         }),
-        chain: 'ethereum',
       })
 
       const updateMonitorRepository = mockObject<Database['updateMonitor']>({
@@ -651,7 +273,7 @@ describe(UpdateMonitor.name, () => {
       })
 
       const updateMonitor = new UpdateMonitor(
-        [discoveryRunner],
+        discoveryRunner,
         mockObject<UpdateNotifier>(),
         mockObject<UpdateDiffer>(),
         mockObject<ConfigReader>({ readDiscovery: () => committed }),
@@ -660,11 +282,10 @@ describe(UpdateMonitor.name, () => {
           flatSources: flatSourcesRepository,
         }),
         mockObject<Clock>(),
-        chainConverter,
         discoveryOutputCache,
-
         Logger.SILENT,
         false,
+        instantWorkerPool,
       )
 
       const result = await updateMonitor.getPreviousDiscovery(
@@ -685,11 +306,10 @@ describe(UpdateMonitor.name, () => {
       }
 
       const discoveryRunner = mockObject<DiscoveryRunner>({
-        discoverWithRetry: mockFn().resolvesToOnce({
+        run: mockFn().resolvesToOnce({
           discovery: committed,
           flatSources: {},
         }),
-        chain: 'ethereum',
       })
 
       const configReader = mockObject<ConfigReader>({
@@ -708,7 +328,7 @@ describe(UpdateMonitor.name, () => {
       })
 
       const updateMonitor = new UpdateMonitor(
-        [discoveryRunner],
+        discoveryRunner,
         mockObject<UpdateNotifier>(),
         mockObject<UpdateDiffer>(),
         configReader,
@@ -717,11 +337,10 @@ describe(UpdateMonitor.name, () => {
           flatSources: flatSourcesRepository,
         }),
         mockObject<Clock>(),
-        chainConverter,
         discoveryOutputCache,
-
         Logger.SILENT,
         false,
+        instantWorkerPool,
       )
 
       const chain = 'ethereum'
@@ -730,7 +349,6 @@ describe(UpdateMonitor.name, () => {
         // different config hash
         new ConfigRegistry({
           name: PROJECT_A,
-          chain,
           initialAddresses: [ChainSpecificAddress.ZERO(chain)],
         }),
       )
@@ -758,15 +376,14 @@ describe(UpdateMonitor.name, () => {
       })
 
       const discoveryRunner = mockObject<DiscoveryRunner>({
-        discoverWithRetry: async () => ({
+        run: async () => ({
           discovery: mockProject,
           flatSources: {},
         }),
-        chain: 'ethereum',
       })
 
       const updateMonitor = new UpdateMonitor(
-        [discoveryRunner],
+        discoveryRunner,
         mockObject<UpdateNotifier>(),
         mockObject<UpdateDiffer>(),
         mockObject<ConfigReader>({ readDiscovery: () => committed }),
@@ -775,11 +392,10 @@ describe(UpdateMonitor.name, () => {
           flatSources: flatSourcesRepository,
         }),
         mockObject<Clock>(),
-        chainConverter,
         discoveryOutputCache,
-
-        Logger.SILENT,
+        Logger.INFO,
         false,
+        instantWorkerPool,
       )
 
       await updateMonitor.getPreviousDiscovery(
@@ -787,13 +403,12 @@ describe(UpdateMonitor.name, () => {
         mockConfig(PROJECT_A),
       )
 
-      expect(discoveryRunner.discoverWithRetry).toHaveBeenCalledTimes(1)
-      expect(discoveryRunner.discoverWithRetry).toHaveBeenCalledWith(
+      expect(discoveryRunner.run).toHaveBeenCalledTimes(1)
+      expect(discoveryRunner.run).toHaveBeenNthCalledWith(
+        1,
         mockConfig(PROJECT_A),
         committed.timestamp,
-        LOGGER,
-        undefined,
-        undefined,
+        expect.anything(),
         undefined,
       )
     })
@@ -801,31 +416,11 @@ describe(UpdateMonitor.name, () => {
 
   describe(UpdateMonitor.prototype.generateDailyReminder.name, () => {
     it('does not cross-contaminate between chains', async () => {
-      const discoveryRunnerEth = mockObject<DiscoveryRunner>({
-        discoverWithRetry: async () => ({
-          discovery: {
-            ...DISCOVERY_RESULT,
-            entries: [
-              {
-                ...DISCOVERY_RESULT.entries[0],
-                fieldMeta: { a: { severity: 'LOW' } },
-              },
-              ...DISCOVERY_RESULT.entries.slice(1),
-            ],
-          },
-          flatSources: {},
-        }),
-        chain: 'ethereum',
+      const runner = mockObject<DiscoveryRunner>({
+        run: async () => {
+          return { discovery: DISCOVERY_RESULT_ARB_2, flatSources: {} }
+        },
       })
-      const discoveryRunnerArb = mockObject<DiscoveryRunner>({
-        discoverWithRetry: async () => ({
-          discovery: DISCOVERY_RESULT_ARB_2,
-          flatSources: {},
-        }),
-        chain: 'arbitrum',
-      })
-
-      const runners = [discoveryRunnerEth, discoveryRunnerArb]
 
       const timestamp = 0
       const updateMonitorRepository = mockObject<Database['updateMonitor']>({
@@ -833,47 +428,22 @@ describe(UpdateMonitor.name, () => {
         upsert: async () => undefined,
       })
       const configReader = mockObject<ConfigReader>({
-        readDiscovery: (name: string, chain: string) => {
-          if (name === PROJECT_B && chain === 'ethereum') {
+        readDiscovery: (name: string) => {
+          if (name === PROJECT_B) {
             return DISCOVERY_RESULT_ETH_2
           }
-          if (name === PROJECT_A && chain === 'arbitrum') {
-            return DISCOVERY_RESULT
-          }
-          if (name === PROJECT_B && chain === 'arbitrum') {
-            return {
-              ...mockProject,
-              entries: COMMITTED,
-            }
-          }
-
-          return {
-            ...mockProject,
-            entries: [
-              ...COMMITTED.slice(1),
-              {
-                ...mockContract(NAME_A, ADDRESS_A),
-                values: { a: true },
-                fieldMeta: { a: { severity: 'LOW' } },
-              },
-            ],
-          }
+          return DISCOVERY_RESULT
         },
 
-        readAllDiscoveredConfigsForChain: (chain: string) => {
-          if (chain === 'arbitrum') {
-            return [mockConfig(PROJECT_B, chain)]
-          }
-
-          return [mockConfig(PROJECT_A, chain), mockConfig(PROJECT_B, chain)]
-        },
+        readConfig: (name: string) => mockConfig(name),
+        readAllDiscoveredProjects: () => [PROJECT_A, PROJECT_B],
       })
       const updateDiffRepository = mockObject<Database['updateDiff']>({
         deleteAll: async () => 0,
       })
 
       const updateMonitor = new UpdateMonitor(
-        runners,
+        runner,
         updateNotifier,
         updateDiffer,
         configReader,
@@ -883,44 +453,30 @@ describe(UpdateMonitor.name, () => {
           updateDiff: updateDiffRepository,
         }),
         mockObject<Clock>(),
-        chainConverter,
         discoveryOutputCache,
-
         Logger.SILENT,
         false,
+        instantWorkerPool,
       )
 
       await updateMonitor.update(timestamp)
       const result = updateMonitor.generateDailyReminder()
 
-      expect(Object.entries(result).length).toEqual(runners.length)
       expect(result).toEqual({
-        [PROJECT_A]: [
-          {
-            chainName: 'ethereum',
-            severityCounts: { low: 1, high: 0, unknown: 1 },
-          },
-        ],
-        [PROJECT_B]: [
-          {
-            chainName: 'arbitrum',
-            severityCounts: { low: 0, high: 0, unknown: 3 },
-          },
-        ],
+        [PROJECT_A]: { severityCounts: { low: 0, high: 0, unknown: 1 } },
+        [PROJECT_B]: { severityCounts: { low: 0, high: 0, unknown: 2 } },
       })
     })
 
     it('generates the daily reminder for two different chains', async () => {
-      const discoveryRunnerEth = discoveryRunner
-      const discoveryRunnerArb = mockObject<DiscoveryRunner>({
-        discoverWithRetry: async () => ({
-          discovery: DISCOVERY_RESULT,
-          flatSources: {},
+      const discoveryRunner = mockObject<DiscoveryRunner>({
+        run: mockFn().resolvesTo({
+          ethereum: {
+            discovery: DISCOVERY_RESULT,
+            flatSources: {},
+          },
         }),
-        chain: 'arbitrum',
       })
-
-      const runners = [discoveryRunnerEth, discoveryRunnerArb]
 
       const timestamp = 0
       const updateMonitorRepository = mockObject<Database['updateMonitor']>({
@@ -933,16 +489,15 @@ describe(UpdateMonitor.name, () => {
           entries: COMMITTED,
         }),
 
-        readAllDiscoveredConfigsForChain: (chain: string) => {
-          return [mockConfig(PROJECT_A, chain)]
-        },
+        readConfig: (name: string) => mockConfig(name),
+        readAllDiscoveredProjects: () => [PROJECT_A],
       })
       const updateDiffRepository = mockObject<Database['updateDiff']>({
         deleteAll: async () => 0,
       })
 
       const updateMonitor = new UpdateMonitor(
-        runners,
+        discoveryRunner,
         updateNotifier,
         updateDiffer,
         configReader,
@@ -952,33 +507,31 @@ describe(UpdateMonitor.name, () => {
           updateDiff: updateDiffRepository,
         }),
         mockObject<Clock>(),
-        chainConverter,
         discoveryOutputCache,
-
         Logger.SILENT,
         false,
+        instantWorkerPool,
       )
 
       await updateMonitor.update(timestamp)
       const result = updateMonitor.generateDailyReminder()
 
       expect(Object.entries(result).length).toEqual(1)
-      expect(result[PROJECT_A].length).toEqual(2)
       expect(result).toEqual({
-        [PROJECT_A]: [
-          {
-            chainName: 'ethereum',
-            severityCounts: { low: 0, high: 0, unknown: 2 },
-          },
-          {
-            chainName: 'arbitrum',
-            severityCounts: { low: 0, high: 0, unknown: 2 },
-          },
-        ],
+        [PROJECT_A]: { severityCounts: { low: 0, high: 0, unknown: 3 } },
       })
     })
 
     it('does nothing for an empty cache', async () => {
+      const discoveryRunner = mockObject<DiscoveryRunner>({
+        run: mockFn().resolvesTo({
+          ethereum: {
+            discovery: DISCOVERY_RESULT,
+            flatSources: {},
+          },
+        }),
+      })
+
       const timestamp = 0
       const updateMonitorRepository = mockObject<Database['updateMonitor']>({
         findLatest: async () => undefined,
@@ -990,16 +543,15 @@ describe(UpdateMonitor.name, () => {
           entries: COMMITTED,
         }),
 
-        readAllDiscoveredConfigsForChain: (chain: string) => {
-          return [mockConfig(PROJECT_A, chain)]
-        },
+        readConfig: (name: string) => mockConfig(name),
+        readAllDiscoveredProjects: () => [PROJECT_A],
       })
       const updateDiffRepository = mockObject<Database['updateDiff']>({
         deleteAll: async () => 0,
       })
 
       const updateMonitor = new UpdateMonitor(
-        [],
+        discoveryRunner,
         updateNotifier,
         updateDiffer,
         configReader,
@@ -1009,24 +561,22 @@ describe(UpdateMonitor.name, () => {
           updateDiff: updateDiffRepository,
         }),
         mockObject<Clock>(),
-        chainConverter,
         discoveryOutputCache,
-
         Logger.SILENT,
         false,
+        instantWorkerPool,
       )
 
       await updateMonitor.update(timestamp)
       const result = updateMonitor.generateDailyReminder()
 
-      expect(Object.entries(result).length).toEqual(0)
+      expect(Object.entries(result).length).toEqual(1)
     })
   })
 })
 
 const mockRecord: UpdateMonitorRecord = {
   projectId: 'name',
-  chainId: ChainId.ETHEREUM,
   timestamp: 1,
   blockNumber: 0,
   configHash: Hash256.random(),
@@ -1035,7 +585,6 @@ const mockRecord: UpdateMonitorRecord = {
 
 const mockProject: DiscoveryOutput = {
   name: PROJECT_A,
-  chain: 'ethereum',
   timestamp: 1,
   configHash: Hash256.random(),
   entries: COMMITTED,
@@ -1055,47 +604,6 @@ function mockContract(name: string, address: EthereumAddress): EntryParameters {
   }
 }
 
-function mockConfig(name: string, chain = 'ethereum'): ConfigRegistry {
-  return new ConfigRegistry({
-    name,
-    chain,
-    initialAddresses: [],
-  })
+function mockConfig(name: string): ConfigRegistry {
+  return new ConfigRegistry({ name, initialAddresses: [] })
 }
-
-const mockDiff: DiscoveryDiff[] = [
-  {
-    address: ADDRESS_A,
-    addressType: 'Contract',
-    name: NAME_A,
-    description: undefined,
-    diff: [
-      {
-        key: 'values.a',
-        before: 'true',
-        after: 'false',
-        description: undefined,
-        severity: undefined,
-        type: undefined,
-      },
-    ],
-  },
-  {
-    address: ADDRESS_B,
-    addressType: 'Contract',
-    name: NAME_B,
-    description: undefined,
-    diff: [
-      {
-        before:
-          '{"nonce":"Processing error occurred.","totalLiquidity":"Processing error occurred."}',
-        key: 'errors',
-        description: undefined,
-        severity: undefined,
-        type: undefined,
-      },
-    ],
-  },
-]
-
-const LOGGER = Logger.SILENT.for('UpdateMonitor')

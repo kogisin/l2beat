@@ -1,10 +1,4 @@
-import {
-  type Env,
-  getEnv,
-  LogFormatterPretty,
-  Logger,
-  type LogLevel,
-} from '@l2beat/backend-tools'
+import { type Env, getEnv, Logger, type LogLevel } from '@l2beat/backend-tools'
 import {
   type ChainConfig,
   type Project,
@@ -40,6 +34,10 @@ import { getLegacyConfig } from '../../src/modules/tvs/tools/legacyConfig/getLeg
 import { mapLegacyConfig } from '../../src/modules/tvs/tools/legacyConfig/mapLegacyConfig'
 import { setTokenSyncRange } from '../../src/modules/tvs/tools/setTokenSyncRange'
 import type { TokenValue } from '../../src/modules/tvs/types'
+
+// we have disabled TVS for some projects using feature flags on HEROKU
+// as this script will be phased out soon we decided to hardcode it here
+const DISABLED_PROJECTS = ['kroma', 'treasure', 'real']
 
 const args = {
   project: positional({
@@ -95,13 +93,22 @@ const cmd = command({
           select: ['escrows', 'tvsInfo'],
           optional: ['chainConfig', 'isBridge'],
         })
-      ).filter((project) => !excludedProjects.includes(project.id))
+      ).filter(
+        (project) =>
+          !excludedProjects.includes(project.id) &&
+          !DISABLED_PROJECTS.includes(project.id),
+      )
 
       if (!projects) {
         logger.error('No TVS projects found')
         process.exit(1)
       }
     } else {
+      if (DISABLED_PROJECTS.includes(args.project)) {
+        logger.error(`TVS for project '${args.project}' is disabled`)
+        process.exit(1)
+      }
+
       const project = await ps.getProject({
         id: ProjectId(args.project),
         select: ['escrows', 'tvsInfo'],
@@ -209,7 +216,7 @@ function generateConfigForProject(
         retryStrategy: 'RELIABLE',
         logger,
         url: env.string(`${project.id.toUpperCase()}_RPC_URL`, rpcApi.url),
-        sourceName: project.id,
+        chain: project.id,
       })
     : undefined
 
@@ -259,7 +266,7 @@ function updateConfigWithTvs(
       continue
     }
 
-    // if the token was tracked before, but has zero value, set the untilTimestamp to the last non-zero value
+    // if the token was tracked before, but has zero value, suggest setting the untilTimestamp to the last non-zero value
     const currentUntilTimestamp = getTokenSyncRange(currentToken).untilTimestamp
 
     if (
@@ -267,13 +274,16 @@ function updateConfigWithTvs(
       currentUntilTimestamp > lastNonZeroValue.timestamp
     ) {
       logger.warn(
-        `Token ${token.tokenId} has zero value, setting untilTimestamp to: ${lastNonZeroValue.timestamp}`,
+        `Token ${token.tokenId} has zero value, consider setting untilTimestamp to: ${lastNonZeroValue.timestamp}`,
       )
     }
 
-    setTokenSyncRange(tokenConfig, {
-      untilTimestamp: lastNonZeroValue.timestamp,
-    })
+    //if untilTimestamp is already set propagate it to new config
+    if (currentUntilTimestamp) {
+      setTokenSyncRange(tokenConfig, {
+        untilTimestamp: currentUntilTimestamp,
+      })
+    }
 
     updatedTokens.push(tokenConfig)
   }
@@ -282,17 +292,9 @@ function updateConfigWithTvs(
 }
 
 function initLogger(env: Env) {
-  const logLevel = env.string('LOG_LEVEL', 'INFO') as LogLevel
-  const logger = new Logger({
-    logLevel: logLevel,
-    transports: [
-      {
-        transport: console,
-        formatter: new LogFormatterPretty(),
-      },
-    ],
+  return new Logger({
+    level: env.string('LOG_LEVEL', 'INFO') as LogLevel,
   })
-  return logger
 }
 
 function writeToFile(

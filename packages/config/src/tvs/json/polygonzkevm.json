@@ -316,7 +316,7 @@
       "symbol": "DOLA",
       "name": "Dola USD Stablecoin",
       "iconUrl": "https://assets.coingecko.com/coins/images/14287/large/dola.png?1696513984",
-      "category": "other",
+      "category": "stablecoin",
       "source": "canonical",
       "isAssociated": false,
       "amount": {
@@ -499,7 +499,7 @@
         "sinceTimestamp": 1680642322
       },
       "category": "other",
-      "source": "native",
+      "source": "external",
       "isAssociated": false,
       "bridgedUsing": {
         "bridges": [
@@ -525,7 +525,7 @@
         "sinceTimestamp": 1680642322
       },
       "category": "other",
-      "source": "native",
+      "source": "external",
       "isAssociated": false,
       "bridgedUsing": {
         "bridges": [
@@ -551,7 +551,7 @@
         "sinceTimestamp": 1680642322
       },
       "category": "stablecoin",
-      "source": "native",
+      "source": "external",
       "isAssociated": false,
       "bridgedUsing": {
         "bridges": [
@@ -614,7 +614,7 @@
         "sinceTimestamp": 1680642322
       },
       "category": "ether",
-      "source": "native",
+      "source": "external",
       "isAssociated": false,
       "bridgedUsing": {
         "bridges": [
@@ -658,7 +658,7 @@
         "sinceTimestamp": 1680642322
       },
       "category": "other",
-      "source": "native",
+      "source": "external",
       "isAssociated": false,
       "bridgedUsing": {
         "bridges": [
@@ -1049,6 +1049,24 @@
     },
     {
       "mode": "auto",
+      "id": "polygonzkevm-PAXG",
+      "priceId": "pax-gold",
+      "symbol": "PAXG",
+      "name": "Paxos Gold",
+      "iconUrl": "https://assets.coingecko.com/coins/images/9519/large/paxgold.png?1696509604",
+      "category": "rwaPublic",
+      "source": "canonical",
+      "isAssociated": false,
+      "amount": {
+        "type": "totalSupply",
+        "address": "0x591C7115555D76D2790aa679673217Df33683780",
+        "chain": "polygonzkevm",
+        "decimals": 18,
+        "sinceTimestamp": 1679679015
+      }
+    },
+    {
+      "mode": "auto",
       "id": "polygonzkevm-PC",
       "priceId": "pentagon-chain",
       "symbol": "PC",
@@ -1089,7 +1107,7 @@
       "priceId": "polygon-ecosystem-token",
       "symbol": "POL",
       "name": "Polygon Ecosystem Token",
-      "iconUrl": "https://assets.coingecko.com/coins/images/32440/large/polygon.png?1698233684",
+      "iconUrl": "/images/custom-tokens/polygon-ecosystem-token.png",
       "category": "other",
       "source": "canonical",
       "isAssociated": true,
@@ -1278,8 +1296,8 @@
         "decimals": 18,
         "sinceTimestamp": 1708387200
       },
-      "category": "other",
-      "source": "native",
+      "category": "stablecoin",
+      "source": "external",
       "isAssociated": false,
       "bridgedUsing": {
         "bridges": [
@@ -1305,7 +1323,7 @@
         "sinceTimestamp": 1680642322
       },
       "category": "ether",
-      "source": "native",
+      "source": "external",
       "isAssociated": false,
       "bridgedUsing": {
         "bridges": [
@@ -1576,7 +1594,7 @@
       "symbol": "WBTC",
       "name": "Wrapped BTC",
       "iconUrl": "https://assets.coingecko.com/coins/images/7598/large/wrapped_bitcoin_wbtc.png?1696507857",
-      "category": "other",
+      "category": "btc",
       "source": "canonical",
       "isAssociated": false,
       "amount": {
@@ -1667,7 +1685,7 @@
       "symbol": "XAUt",
       "name": "Tether Gold",
       "iconUrl": "https://assets.coingecko.com/coins/images/10481/large/Tether_Gold.png?1696510471",
-      "category": "other",
+      "category": "rwaPublic",
       "source": "canonical",
       "isAssociated": false,
       "amount": {

@@ -7,6 +7,7 @@ import { FeatureFlags } from './FeatureFlags'
 import { getActivityConfig } from './features/activity'
 import { getDaTrackingConfig } from './features/da'
 import { getDaBeatConfig } from './features/dabeat'
+import { getEcosystemsConfig } from './features/ecosystemToken'
 import { getTrackedTxsConfig } from './features/trackedTxs'
 import { getTvsConfig } from './features/tvs'
 import { getUpdateMonitorConfig } from './features/updateMonitor'
@@ -32,6 +33,9 @@ export async function makeConfig(
   const chains = (await ps.getProjects({ select: ['chainConfig'] })).map(
     (p) => p.chainConfig,
   )
+  const activeChains = (
+    await ps.getProjects({ select: ['chainConfig'], whereNot: ['archivedAt'] })
+  ).map((p) => p.chainConfig)
   const isReadonly = env.boolean(
     'READONLY',
     // if we connect locally to production db, we want to be readonly!
@@ -57,7 +61,6 @@ export async function makeConfig(
               ? { rejectUnauthorized: false }
               : undefined,
           },
-          freshStart: env.boolean('FRESH_START', false),
           enableQueryLogging: env.boolean('ENABLE_QUERY_LOGGING', false),
           connectionPoolSize: {
             // defaults used by knex
@@ -67,7 +70,6 @@ export async function makeConfig(
           isReadonly,
         }
       : {
-          freshStart: false,
           enableQueryLogging: env.boolean('ENABLE_QUERY_LOGGING', false),
           connection: {
             connectionString: env.string('DATABASE_URL'),
@@ -111,6 +113,7 @@ export async function makeConfig(
     trackedTxsConfig:
       flags.isEnabled('tracked-txs') &&
       (await getTrackedTxsConfig(ps, env, flags)),
+
     activity:
       flags.isEnabled('activity') && (await getActivityConfig(ps, env, flags)),
     verifiers: flags.isEnabled('verifiers') && (await getVerifiersConfig(ps)),
@@ -125,6 +128,8 @@ export async function makeConfig(
     flatSourceModuleEnabled: flags.isEnabled('flatSourcesModule'),
     chains: chains.map((x) => ({ name: x.name, chainId: x.chainId })),
     daBeat: flags.isEnabled('da-beat') && (await getDaBeatConfig(ps, env)),
+    ecosystems:
+      flags.isEnabled('ecosystems') && (await getEcosystemsConfig(ps)),
     chainConfig: await getChainConfig(ps, env),
     beaconApi: {
       url: env.optionalString(['ETHEREUM_BEACON_API_URL']),
@@ -135,15 +140,52 @@ export async function makeConfig(
       timeout: env.integer(['ETHEREUM_BEACON_API_TIMEOUT'], 10000),
     },
     da: flags.isEnabled('da') && (await getDaTrackingConfig(ps, env)),
-    shared: flags.isEnabled('shared') && {
-      ethereumWsUrl: env.string(['ETHEREUM_WS_URL']),
+    blockSync: {
+      delayFromTipInSeconds: env.integer(
+        ['BLOCK_SYNC_DELAY_FROM_TIP_IN_SECONDS'],
+        5 * 60,
+      ),
+      ethereumWsUrl: env.optionalString(['ETHEREUM_WS_URL']),
     },
-    discord: {
+    anomalies: flags.isEnabled('anomalies') && {
       anomaliesWebhookUrl: env.optionalString('ANOMALIES_DISCORD_WEBHOOK_URL'),
       anomaliesMinDuration: env.integer(
         'ANOMALIES_MIN_DURATION',
         60 * 60, // 1 hour
       ),
+    },
+    interop: flags.isEnabled('interop') && {
+      capture: {
+        enabled: flags.isEnabled('interop', 'capture'),
+        chains: [
+          { name: 'ethereum', type: 'evm' as const },
+          { name: 'arbitrum', type: 'evm' as const },
+          { name: 'base', type: 'evm' as const },
+          { name: 'optimism', type: 'evm' as const },
+        ].filter((c) => flags.isEnabled('interop', 'capture', c.name)),
+      },
+      matching: flags.isEnabled('interop', 'matching'),
+      cleaner: flags.isEnabled('interop', 'cleaner'),
+      dashboard: {
+        enabled: flags.isEnabled('interop', 'dashboard'),
+        getExplorerUrl: (chain: string) => {
+          const c = chains.find((cc) => cc.name === chain)
+
+          return c?.explorerUrl
+        },
+      },
+      compare: {
+        enabled: flags.isEnabled('interop', 'compare'),
+      },
+      financials: {
+        enabled: flags.isEnabled('interop', 'financials'),
+      },
+      config: {
+        enabled: flags.isEnabled('interop', 'config'),
+        chains: activeChains
+          .filter((c) => c.chainId !== undefined)
+          .map((c) => ({ id: c.chainId as number, name: c.name })),
+      },
     },
     // Must be last
     flags: flags.getResolved(),

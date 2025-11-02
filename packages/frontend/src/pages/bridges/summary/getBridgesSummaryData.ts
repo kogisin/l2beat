@@ -18,6 +18,7 @@ export async function getBridgesSummaryData(
       range: { type: '1y' },
       filter: { type: 'bridge' },
       excludeAssociatedTokens: false,
+      includeRwaRestrictedTokens: false,
     }),
   ])
 
@@ -25,6 +26,9 @@ export async function getBridgesSummaryData(
     head: {
       manifest,
       metadata: getMetadata(manifest, {
+        title: 'Bridges Summary - L2BEAT',
+        description:
+          "Get an overview of the most popular bridge projects' metrics and risks.",
         openGraph: {
           url,
           image: '/meta-images/bridges/summary/opengraph-image.png',

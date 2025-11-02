@@ -45,18 +45,21 @@ describe(EigenDaLayerIndexer.name, () => {
   })
 
   describe(EigenDaLayerIndexer.prototype.multiUpdate.name, () => {
-    it('should fetch data and save to database', async () => {
+    it('should fetch data, save to database and update sync metadata', async () => {
       const configurations = [createConfiguration(DA_LAYER, DA_LAYER)]
-      const throughput = 12345678
+      const throughputV1 = 12345678
+      const throughputV2 = 123456789
       const expectedTotalSize = BigInt(
-        Math.round(throughput * (UnixTime.HOUR - 1)),
+        Math.round(throughputV1 * (UnixTime.HOUR - 1)) + throughputV2,
       )
 
-      const { indexer, repository, eigenClient } = mockIndexer({
-        configurations,
-        daLayer: DA_LAYER,
-        throughput,
-      })
+      const { indexer, repository, eigenClient, syncMetadataRepository } =
+        mockIndexer({
+          configurations,
+          daLayer: DA_LAYER,
+          throughputV1,
+          throughputV2,
+        })
 
       const from = UnixTime.fromDate(new Date('2022-01-01T12:30:00Z')) // 1641038200
       const expectedAdjustedFrom = UnixTime.toStartOf(from, 'hour') // 1641038400 (1:00 PM)
@@ -69,7 +72,11 @@ describe(EigenDaLayerIndexer.name, () => {
       )
       const safeHeight = await updateCallback()
 
-      expect(eigenClient.getMetrics).toHaveBeenOnlyCalledWith(
+      expect(eigenClient.getMetricsV1).toHaveBeenOnlyCalledWith(
+        expectedAdjustedFrom,
+        expectedAdjustedTo - 1,
+      )
+      expect(eigenClient.getMetricsV2).toHaveBeenOnlyCalledWith(
         expectedAdjustedFrom,
         expectedAdjustedTo - 1,
       )
@@ -84,17 +91,23 @@ describe(EigenDaLayerIndexer.name, () => {
         },
       ])
 
+      expect(syncMetadataRepository.updateSyncedUntil).toHaveBeenOnlyCalledWith(
+        'dataAvailability',
+        configurations.map((c) => c.properties.projectId),
+        expectedAdjustedTo,
+      )
+
       expect(safeHeight).toEqual(expectedAdjustedTo)
     })
 
     it('should handle hour boundaries correctly', async () => {
       const configurations = [createConfiguration(DA_LAYER, DA_LAYER)]
-      const throughput = 1000000
+      const throughputV1 = 1000000
 
       const { indexer, eigenClient } = mockIndexer({
         configurations,
         daLayer: DA_LAYER,
-        throughput,
+        throughputV1,
       })
 
       // Start at exact hour boundary
@@ -104,7 +117,11 @@ describe(EigenDaLayerIndexer.name, () => {
       const updateCallback = await indexer.multiUpdate(from, to, configurations)
       await updateCallback()
 
-      expect(eigenClient.getMetrics).toHaveBeenOnlyCalledWith(
+      expect(eigenClient.getMetricsV1).toHaveBeenOnlyCalledWith(
+        from, // Should remain the same since it's already at hour start
+        from + UnixTime.HOUR - 1,
+      )
+      expect(eigenClient.getMetricsV2).toHaveBeenOnlyCalledWith(
         from, // Should remain the same since it's already at hour start
         from + UnixTime.HOUR - 1,
       )
@@ -112,25 +129,30 @@ describe(EigenDaLayerIndexer.name, () => {
   })
 
   describe(EigenDaLayerIndexer.prototype.getDaLayerData.name, () => {
-    it('should call eigenClient and format response correctly', async () => {
+    it('should call eigenClient, sum V1 and V2 data and format response correctly', async () => {
       const configurations = [createConfiguration(DA_LAYER, DA_LAYER)]
-      const throughput = 5000000
+      const throughputV1 = 5000000
+      const throughputV2 = 10000000
       const from = 1641038400 // 2022-01-01T13:00:00Z
       const to = from + UnixTime.HOUR
 
       const { indexer, eigenClient } = mockIndexer({
         configurations,
         daLayer: DA_LAYER,
-        throughput,
+        throughputV1,
+        throughputV2,
       })
 
       const result = await indexer.getDaLayerData(from, to)
 
-      expect(eigenClient.getMetrics).toHaveBeenOnlyCalledWith(from, to - 1)
+      expect(eigenClient.getMetricsV1).toHaveBeenOnlyCalledWith(from, to - 1)
+      expect(eigenClient.getMetricsV2).toHaveBeenOnlyCalledWith(from, to - 1)
 
       expect(result).toEqual({
         timestamp: UnixTime.toStartOf(from, 'hour'),
-        totalSize: BigInt(Math.round(throughput * (to - 1 - from))),
+        totalSize: BigInt(
+          Math.round(throughputV1 * (to - 1 - from)) + throughputV2,
+        ),
         projectId: 'eigenda',
         daLayer: DA_LAYER,
         configurationId: configurations[0].id,
@@ -139,20 +161,24 @@ describe(EigenDaLayerIndexer.name, () => {
 
     it('should calculate totalSize correctly', async () => {
       const configurations = [createConfiguration(DA_LAYER, DA_LAYER)]
-      const throughput = 1000000
+      const throughputV1 = 1000000
+      const throughputV2 = 2000000
       const from = 1641038400
       const to = from + UnixTime.HOUR
 
       const { indexer } = mockIndexer({
         configurations,
         daLayer: DA_LAYER,
-        throughput,
+        throughputV1,
+        throughputV2,
       })
 
       const result = await indexer.getDaLayerData(from, to)
 
       // totalSize should be throughput * (to - 1 - from) = 1000000 * 3599
-      const expectedTotalSize = BigInt(Math.round(throughput * (to - 1 - from)))
+      const expectedTotalSize = BigInt(
+        Math.round(throughputV1 * (to - 1 - from)) + throughputV2,
+      )
       expect(result.totalSize).toEqual(expectedTotalSize)
     })
   })
@@ -188,7 +214,8 @@ describe(EigenDaLayerIndexer.name, () => {
 function mockIndexer($: {
   configurations: Configuration<TimestampDaIndexedConfig>[]
   daLayer: string
-  throughput?: number
+  throughputV1?: number
+  throughputV2?: number
   configurationsTrimmingDisabled?: boolean
 }) {
   const repository = mockObject<Database['dataAvailability']>({
@@ -196,8 +223,13 @@ function mockIndexer($: {
     upsertMany: mockFn().resolvesTo(undefined),
   })
 
+  const syncMetadataRepository = mockObject<Database['syncMetadata']>({
+    updateSyncedUntil: mockFn().resolvesTo(undefined),
+  })
+
   const eigenClient = mockObject<EigenApiClient>({
-    getMetrics: mockFn().resolvesTo($.throughput ?? 1000000),
+    getMetricsV1: mockFn().resolvesTo($.throughputV1 ?? 1000000),
+    getMetricsV2: mockFn().resolvesTo($.throughputV2 ?? 2000000),
   })
 
   const indexerService = mockObject<IndexerService>({
@@ -212,7 +244,9 @@ function mockIndexer($: {
   })
 
   const db = mockDatabase({
+    transaction: mockFn(async (fun) => await fun()),
     dataAvailability: repository,
+    syncMetadata: syncMetadataRepository,
   })
 
   const indexer = new EigenDaLayerIndexer({
@@ -230,6 +264,7 @@ function mockIndexer($: {
   return {
     indexer,
     repository,
+    syncMetadataRepository,
     eigenClient,
     indexerService,
     db,

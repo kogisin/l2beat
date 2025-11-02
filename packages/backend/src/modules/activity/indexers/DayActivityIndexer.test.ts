@@ -45,28 +45,37 @@ describe(DayActivityIndexer.name, () => {
 
       const newSafeHeight = await indexer.update(50, 100)
 
-      expect(txsCountService.getTxsCount).toHaveBeenCalledWith(40, 90)
-      expect(newSafeHeight).toEqual(90)
+      expect(txsCountService.getTxsCount).toHaveBeenCalledWith(39, 89)
+      expect(newSafeHeight).toEqual(89)
     })
 
-    it('gets blocks counts and saves to db', async () => {
+    it('gets blocks counts, saves to db and updates sync metadata', async () => {
       const activityRepository = mockObject<Database['activity']>({
         upsertMany: mockFn().resolvesTo(undefined),
       })
-
-      const mockActvityRecords = [
+      const syncMetadataRepository = mockObject<Database['syncMetadata']>({
+        updateSyncedUntil: mockFn().resolvesTo(undefined),
+      })
+      const mockActivityRecords = [
         activityRecord('a', START, 5),
         activityRecord('a', START + 1 * UnixTime.DAY, 4),
         activityRecord('a', START + 2 * UnixTime.DAY, 2),
       ]
 
       const txsCountService = mockObject<TxsCountService>({
-        getTxsCount: mockFn().resolvesTo(mockActvityRecords),
+        getTxsCount: mockFn().resolvesTo({
+          records: mockActivityRecords,
+          latestTimestamp:
+            mockActivityRecords[mockActivityRecords.length - 1].timestamp,
+        }),
       })
 
       const indexer = createIndexer({
         txsCountService,
-        db: mockDatabase({ activity: activityRepository }),
+        db: mockDatabase({
+          activity: activityRepository,
+          syncMetadata: syncMetadataRepository,
+        }),
         batchSize: 100,
       })
 
@@ -74,7 +83,12 @@ describe(DayActivityIndexer.name, () => {
 
       expect(txsCountService.getTxsCount).toHaveBeenCalledWith(0, 10)
       expect(activityRepository.upsertMany).toHaveBeenCalledWith(
-        mockActvityRecords,
+        mockActivityRecords,
+      )
+      expect(syncMetadataRepository.updateSyncedUntil).toHaveBeenCalledWith(
+        'activity',
+        ['a'],
+        10 * UnixTime.DAY,
       )
       expect(newSafeHeight).toEqual(10)
     })
@@ -121,6 +135,9 @@ function createIndexer(
       activity: mockObject<Database['activity']>({
         getByProjectAndTimeRange: mockFn().resolvesTo([]),
         upsertMany: mockFn().resolvesTo(undefined),
+      }),
+      syncMetadata: mockObject<Database['syncMetadata']>({
+        updateSyncedUntil: mockFn().resolvesTo(undefined),
       }),
     }),
     projectId: ProjectId('a'),

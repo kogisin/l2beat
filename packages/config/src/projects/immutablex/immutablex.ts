@@ -16,6 +16,7 @@ import {
 } from '../../common'
 import { BADGES } from '../../common/badges'
 import { formatDelay } from '../../common/formatDelays'
+import { ZK_PROGRAM_HASHES } from '../../common/zkProgramHashes'
 import { ProjectDiscovery } from '../../discovery/ProjectDiscovery'
 import {
   getCommittee,
@@ -52,6 +53,11 @@ const requiredHonestMembersPercentage = (
   100
 ).toFixed(0)
 
+const immutablexProgramHash = discovery.getContractValue<string>(
+  'GpsFactRegistryAdapter',
+  'programHash',
+)
+
 export const immutablex: ScalingProject = {
   type: 'layer2',
   id: ProjectId('immutablex'),
@@ -72,7 +78,6 @@ export const immutablex: ScalingProject = {
       'Immutable X is a NFT-focused Validium providing zero gas fees, instant trades and scalability for applications.',
     purposes: ['NFT', 'Exchange'],
     stacks: ['StarkEx'],
-    category: 'Other',
     links: {
       websites: ['https://immutable.com/'],
       bridges: ['https://market.immutable.com/'],
@@ -86,6 +91,10 @@ export const immutablex: ScalingProject = {
         'https://twitter.com/Immutable',
       ],
     },
+  },
+  proofSystem: {
+    type: 'Validity',
+    zkCatalogId: ProjectId('stone'),
   },
   stage: {
     stage: 'NotApplicable',
@@ -111,6 +120,8 @@ export const immutablex: ScalingProject = {
       type: 'day',
       sinceTimestamp: UnixTime(1615389188),
       resyncLastDays: 7,
+      batchSize: 10,
+      dataSource: 'StarkEx Aggregations API',
     },
   },
   dataAvailability: {
@@ -153,6 +164,7 @@ export const immutablex: ScalingProject = {
         includingSHARPUpgradeDelaySeconds,
       ),
     ],
+    zkProgramHashes: [ZK_PROGRAM_HASHES(immutablexProgramHash)],
   },
   permissions: generateDiscoveryDrivenPermissions([discovery]),
   milestones: [

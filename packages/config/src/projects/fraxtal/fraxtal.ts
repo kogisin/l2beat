@@ -1,4 +1,4 @@
-import { UnixTime } from '@l2beat/shared-pure'
+import { ProjectId, UnixTime } from '@l2beat/shared-pure'
 import {
   DA_BRIDGES,
   DA_LAYERS,
@@ -14,6 +14,10 @@ import { opStackL2 } from '../../templates/opStack'
 const discovery = new ProjectDiscovery('fraxtal')
 
 export const fraxtal: ScalingProject = opStackL2({
+  ecosystemInfo: {
+    id: ProjectId('superchain'),
+    isPartOfSuperchain: false,
+  },
   addedAt: UnixTime(1708511622), // 2024-02-21T10:33:42Z
   daProvider: {
     layer: DA_LAYERS.FRAXTAL_DA,
@@ -71,7 +75,7 @@ export const fraxtal: ScalingProject = opStackL2({
       explorers: ['https://fraxscan.com/'],
       repositories: ['https://github.com/FraxFinance'],
       socialMedia: [
-        'https://discord.com/invite/UJVtDTFRaA',
+        'https://discord.com/invite/fraxfinance',
         'https://twitter.com/fraxfinance',
         'https://t.me/fraxfinance',
       ],
@@ -91,7 +95,7 @@ export const fraxtal: ScalingProject = opStackL2({
       {
         type: 'rpc',
         url: 'https://rpc.frax.com',
-        callsPerMinute: 1500,
+        callsPerMinute: 300,
       },
       {
         type: 'etherscan',
@@ -110,7 +114,7 @@ export const fraxtal: ScalingProject = opStackL2({
       description: `
 ## Architecture
 FraxtalDA is a custom data availability solution built by the Fraxtal team. 
-The data is posted by the OP batcher to three separate locations: AWS, IPFS, and Cloudfare R2. 
+The data is posted by the OP batcher to three separate locations: AWS, IPFS, and Cloudflare R2. 
 The IPFS hash is then submitted to the onchain inbox contract on Ethereum.
 FraxtalDA relies on a single DA endpoint to manage data posting between the three different locations. 
 

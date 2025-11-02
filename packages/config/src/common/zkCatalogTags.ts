@@ -19,9 +19,16 @@ export const ZkCatalogTagType = {
 export const zkCatalogTags = [
   // STARK
   {
+    id: 'Airbender',
+    type: ZkCatalogTagType.STARK,
+    name: 'Airbender',
+    description:
+      'zkVM STARK proving system operating on RISC-V ISA, developed by Matter Labs.',
+  },
+  {
     id: 'Boojum',
     type: ZkCatalogTagType.STARK,
-    name: 'boojum',
+    name: 'Boojum',
     description:
       'zkVM STARK proving system developed by Matter Labs for proving state transition of ZKsync Era.',
   },
@@ -83,8 +90,8 @@ export const zkCatalogTags = [
   {
     id: 'CASM',
     type: ZkCatalogTagType.ISA,
-    name: 'cASM',
-    description: 'Instruction language for CairoVM developed by Starkware.',
+    name: 'Cairo ASM',
+    description: 'Instruction language for Cairo VM developed by Starkware.',
   },
   {
     id: 'EVM',
@@ -96,56 +103,78 @@ export const zkCatalogTags = [
     id: 'OpenVM',
     type: ZkCatalogTagType.ISA,
     name: 'OpenVM',
-    description: 'Instruction language for zkVM developed by Scroll.',
+    description:
+      'Extensible instruction set for OpenVM zkVM developed by Axiom.',
   },
   // Plonk
   {
     id: 'Bellman',
     type: ZkCatalogTagType.Plonk,
-    name: 'bellman',
+    name: 'Bellman',
     description:
       'Bellman Rust library for Plonk proving system, originally developed for ZCash.',
   },
   {
     id: 'Gnark',
     type: ZkCatalogTagType.Plonk,
-    name: 'gnark',
+    name: 'Gnark',
     description:
       'Consensys implementation of Plonk proving system written in Go.',
   },
   {
     id: 'Halo2',
     type: ZkCatalogTagType.Plonk,
-    name: 'halo2',
+    name: 'Halo2',
     description:
       'Rust implementation of Halo2 SNARK proving system, originally developed for ZCash.',
   },
   {
     id: 'Zksync',
     type: ZkCatalogTagType.Plonk,
-    name: 'zksync',
+    name: 'Zksync',
     description:
       'Matter Labs Rust implementation of Plonk proving system, originally developed for ZKsync Lite (old ZKsync).',
   },
   {
     id: 'linea',
     type: ZkCatalogTagType.Plonk,
-    name: 'linea',
+    name: 'Linea',
     description:
       'Prover system of Linea written in Go, includes Vortex polynomial commitment and Arcane compiler.',
+  },
+  {
+    id: 'Plonky2',
+    type: ZkCatalogTagType.Plonk,
+    name: 'Plonky2',
+    description:
+      'Toolkit for developing transparent SNARKs based on PLONK and FRI developed by Polygon Zero team.',
+  },
+  {
+    id: 'AztecV1',
+    type: ZkCatalogTagType.Plonk,
+    name: 'AztecV1',
+    description:
+      'First version of Aztec implementation of Plonk proving system, originally developed for zk.money (AZTEC v1).',
+  },
+  {
+    id: 'Jellyfish',
+    type: ZkCatalogTagType.Plonk,
+    name: 'Jellyfish',
+    description:
+      'Open-source toolkit of various cryptographic primitives, including an implementation of Plonk SNARK, developed in Rust by Espresso Systems.',
   },
   // Fflonk
   {
     id: 'Zksync',
     type: ZkCatalogTagType.Fflonk,
-    name: 'zksync',
+    name: 'Zksync',
     description:
       'Matter Labs Rust implementation of Fflonk improvement over standard Plonk proving system.',
   },
   {
     id: 'Snarkjs',
     type: ZkCatalogTagType.Fflonk,
-    name: 'snarkjs',
+    name: 'Snarkjs',
     description:
       'Circom / iden3 implementation of Fflonk improvement over standard Plonk proving system written in JS.',
   },
@@ -153,14 +182,14 @@ export const zkCatalogTags = [
   {
     id: 'Gnark',
     type: ZkCatalogTagType.Groth16,
-    name: 'gnark',
+    name: 'Gnark',
     description:
       'Consensys implementation of Groth16 proving system written in Go.',
   },
   {
     id: 'Snarkjs',
     type: ZkCatalogTagType.Groth16,
-    name: 'snarkjs',
+    name: 'Snarkjs',
     description:
       'Circom / iden3 implementation of Groth16 proving system written in JS.',
   },
@@ -194,6 +223,12 @@ export const zkCatalogTags = [
       'Pairing-friendly 377-bit prime field Weierstrass elliptic curve.',
   },
   // Field
+  {
+    id: 'Mersenne31',
+    type: ZkCatalogTagType.Field,
+    name: 'Mersenne31',
+    description: 'Prime field of order p = 2**31 - 1.',
+  },
   {
     id: 'Goldilocks',
     type: ZkCatalogTagType.Field,
@@ -248,6 +283,13 @@ export const zkCatalogTags = [
     name: 'eAIR',
     description:
       'Extended algebraic intermediate representation introduced by Polygon Zero for eSTARK.',
+  },
+  // Other
+  {
+    id: 'CustomCircuits',
+    type: ZkCatalogTagType.Other,
+    name: 'App-specific circuits',
+    description: 'This project uses custom app-specific ZK circuits.',
   },
 ] as const satisfies ZkCatalogTag[]
 

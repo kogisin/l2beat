@@ -4,6 +4,7 @@ import {
   ChainSpecificAddress,
   EthereumAddress,
   notUndefined,
+  ProjectId,
   UnixTime,
 } from '@l2beat/shared-pure'
 import { expect } from 'earl'
@@ -29,31 +30,23 @@ describe('layer2s', () => {
     }
   })
 
-  describe('others', () => {
-    for (const layer2 of layer2s) {
-      it(`every project with reasonsForBeingOther has Other category: ${layer2.display.name}`, () => {
-        if (layer2.reasonsForBeingOther) {
-          expect(layer2.display.category === 'Other').toEqual(true)
-        }
-      })
-
-      it(`every Other project has reasonsForBeingOther configured: ${layer2.display.name}`, () => {
-        if (layer2.display.category === 'Other') {
-          expect(!!layer2.reasonsForBeingOther).toEqual(true)
-        }
-      })
-    }
-  })
-
   describe('ecosystems', () => {
     const ecosystemIds = ecosystems.map((e) => e.id)
-    for (const layer2 of layer2s) {
-      it(`every project with ecosystemInfo has valid ecosystem configured: ${layer2.display.name}`, () => {
+    it('every project with ecosystemInfo has valid ecosystem configured', () => {
+      for (const layer2 of layer2s) {
         if (layer2.ecosystemInfo) {
           expect(ecosystemIds).toInclude(layer2.ecosystemInfo.id)
         }
-      })
-    }
+      }
+    })
+
+    it('uses isPartOfSuperchain only for superchain', () => {
+      for (const layer2 of layer2s) {
+        if (layer2.ecosystemInfo?.isPartOfSuperchain) {
+          expect(layer2.ecosystemInfo?.id).toEqual(ProjectId('superchain'))
+        }
+      }
+    })
   })
 
   describe('links', () => {
@@ -375,6 +368,24 @@ describe('layer2s', () => {
     })
   })
 
+  describe('others', () => {
+    describe('live projects without proof system have reasons for being other', () => {
+      const liveProjectsWithoutProofSystem = layer2s.filter(
+        (layer2) =>
+          !layer2.isUpcoming &&
+          !layer2.archivedAt &&
+          !layer2.proofSystem &&
+          layer2.reviewStatus !== 'initialReview',
+      )
+
+      for (const layer2 of liveProjectsWithoutProofSystem) {
+        it(`${layer2.id} should have reasons for being other`, () => {
+          expect(layer2.reasonsForBeingOther?.length ?? 0).toBeGreaterThan(0)
+        })
+      }
+    })
+  })
+
   describe('milestones', () => {
     describe('name', () => {
       describe('no longer than 50 characters', () => {
@@ -420,7 +431,7 @@ describe('layer2s', () => {
           })
         }
       })
-      describe('no longer that 100 characters', () => {
+      describe('no longer than 100 characters', () => {
         for (const project of layer2s) {
           if (project.milestones === undefined) {
             continue

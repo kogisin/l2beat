@@ -11,11 +11,11 @@ import { getCommonScalingEntry } from '../getCommonScalingEntry'
 import type { ActivityProjectTableData } from './getActivityTableData'
 import { getActivityTable } from './getActivityTableData'
 import { compareActivityEntry } from './utils/compareActivityEntry'
-import { getActivitySyncWarning } from './utils/isActivitySynced'
+import { getActivitySyncWarning } from './utils/syncStatus'
 
 export async function getScalingActivityEntries() {
   const unfilteredProjects = await ps.getProjects({
-    select: ['statuses', 'scalingInfo', 'hasActivity', 'display'],
+    select: ['statuses', 'scalingInfo', 'activityConfig', 'display'],
     where: ['isScaling'],
     whereNot: ['isUpcoming', 'archivedAt'],
   })
@@ -44,6 +44,7 @@ export async function getScalingActivityEntries() {
       getEthereumEntry(ethereumData, 'others'),
       getEthereumEntry(ethereumData, 'notReviewed'),
     ])
+    .filter((p) => p !== undefined)
     .sort(compareActivityEntry)
 
   return groupByScalingTabs(entries)
@@ -61,9 +62,14 @@ export interface ScalingActivityEntry extends CommonScalingEntry {
 }
 
 interface ActivityData {
-  change: number
-  pastDayCount: number
-  summedCount: number
+  pastDayCount: {
+    value: number
+    change: number
+  }
+  summedCount: {
+    value: number
+    change: number
+  }
   maxCount: {
     value: number
     timestamp: number
@@ -74,20 +80,19 @@ function getScalingProjectActivityEntry(
   project: Project<'statuses' | 'scalingInfo' | 'display'>,
   changes: ProjectChanges,
   data: ActivityProjectTableData | undefined,
-): ScalingActivityEntry {
-  const syncWarning = data
-    ? getActivitySyncWarning(data.syncedUntil)
-    : undefined
+): ScalingActivityEntry | undefined {
+  const syncWarning = getActivitySyncWarning(data?.syncState)
+
+  if (!data) return undefined
+
   return {
     ...getCommonScalingEntry({ project, changes, syncWarning }),
-    data: data
-      ? {
-          tps: data.tps,
-          uops: data.uops,
-          ratio: data.ratio,
-          isSynced: !syncWarning,
-        }
-      : undefined,
+    data: {
+      tps: data.tps,
+      uops: data.uops,
+      ratio: data.ratio,
+      isSynced: !syncWarning,
+    },
   }
 }
 
@@ -95,19 +100,17 @@ function getEthereumEntry(
   data: ActivityProjectTableData,
   tab: CommonScalingEntry['tab'],
 ): ScalingActivityEntry {
-  const syncWarning = data
-    ? getActivitySyncWarning(data.syncedUntil)
-    : undefined
+  const syncWarning = getActivitySyncWarning(data.syncState)
   return {
     id: ProjectId.ETHEREUM,
     name: 'Ethereum',
     shortName: undefined,
     icon: getProjectIcon('ethereum'),
+    isLayer3: false,
     slug: 'ethereum',
     tab,
-    // Ethereum is always at the top so it is always stageOrder 3
-    stageOrder: 3,
     filterable: undefined,
+    backgroundColor: 'blue',
     data: {
       tps: data.tps,
       uops: data.uops,

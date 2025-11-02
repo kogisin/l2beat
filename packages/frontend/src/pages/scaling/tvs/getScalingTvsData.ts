@@ -34,6 +34,9 @@ export async function getScalingTvsData(
     head: {
       manifest,
       metadata: getMetadata(manifest, {
+        title: 'Total Value Secured - L2BEAT',
+        description:
+          'Track total value secured across Ethereum scaling solutions.',
         openGraph: {
           url: req.originalUrl,
           image: '/meta-images/scaling/value-secured/opengraph-image.png',
@@ -83,12 +86,20 @@ async function getQueryState(
     return helpers.dehydrate()
   }
 
-  await helpers.tvs.chart.prefetch({
-    filter: {
+  await Promise.all([
+    helpers.tvs.detailedChart.prefetch({
+      filter: {
+        type: tab,
+      },
+      range: '1y',
+      excludeAssociatedTokens: false,
+      includeRwaRestrictedTokens: false,
+    }),
+    helpers.tvs.table.prefetch({
       type: tab,
-    },
-    range: { type: '1y' },
-    excludeAssociatedTokens: false,
-  })
+      excludeAssociatedTokens: false,
+      includeRwaRestrictedTokens: false,
+    }),
+  ])
   return helpers.dehydrate()
 }

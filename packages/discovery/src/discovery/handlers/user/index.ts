@@ -28,6 +28,10 @@ import {
   ConstructorArgsHandler,
 } from './ConstructorArgsHandler'
 import {
+  CrossChainAccessControlHandler,
+  CrossChainAccessControlHandlerDefinition,
+} from './CrossChainAccessControlHandler'
+import {
   DynamicArrayHandler,
   DynamicArrayHandlerDefinition,
 } from './DynamicArrayHandler'
@@ -44,6 +48,10 @@ import {
   EventCountHandlerDefinition,
 } from './EventCountHandler'
 import { EventHandler, EventHandlerDefinition } from './EventHandler'
+import {
+  EventTraceHandler,
+  EventTraceHandlerDefinition,
+} from './EventTraceHandler'
 import { HardCodedDefinition, HardCodedHandler } from './HardcodedHandler'
 import {
   KintoAccessControlHandler,
@@ -91,6 +99,10 @@ import {
   TradableHandler,
 } from './TradableHandler/TradableHandler'
 import {
+  YieldFiMintersDefinition,
+  YieldFiMintersHandler,
+} from './YieldFiMintersHandler'
+import {
   ZKsyncEraScheduledTransactionHandler,
   ZKsyncEraScheduledTransactionsHandlerDefinition,
 } from './ZKsyncEraScheduledTransactionHandler'
@@ -129,6 +141,9 @@ export const UserHandlerDefinition = v.union([
   PolygonCDKScheduledTransactionsHandlerDefinition,
   ERC20DataDefinition,
   TradableDefinition,
+  YieldFiMintersDefinition,
+  EventTraceHandlerDefinition,
+  CrossChainAccessControlHandlerDefinition,
 ])
 
 export function getUserHandler(
@@ -193,5 +208,11 @@ export function getUserHandler(
       return new ERC20DataHandler(field, definition)
     case 'tradable':
       return new TradableHandler(field)
+    case 'YieldFiMinters':
+      return new YieldFiMintersHandler(field, definition, abi)
+    case 'eventTrace':
+      return new EventTraceHandler(field, definition, abi)
+    case 'crossChainAccessControl':
+      return new CrossChainAccessControlHandler(field, definition, abi)
   }
 }

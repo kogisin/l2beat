@@ -17,7 +17,7 @@ import {
   type UpcomingProjectUpdateEntry,
 } from './getUpcomingEntries'
 
-export interface MonthlyUpdateEntry {
+interface MonthlyUpdateEntry {
   id: string
   title: string
   publishedOn: string
@@ -39,7 +39,7 @@ export async function getMonthlyUpdateEntry(
   })
 
   const [tvs, activity] = await Promise.all([
-    get7dTvsBreakdown({ type: 'layer2' }, to),
+    get7dTvsBreakdown({ type: 'layer2', customTarget: to }),
     getActivityLatestUops(allScalingProjects, { type: 'custom', from, to }),
   ])
 

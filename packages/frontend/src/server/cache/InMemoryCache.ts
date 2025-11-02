@@ -26,7 +26,11 @@ export class InMemoryCache implements ICache {
   }
 
   async get<T>(options: Options, fallback: () => Promise<T>): Promise<T> {
-    if (env.DEPLOYMENT_ENV !== 'production' || env.DISABLE_CACHE) {
+    if (
+      (env.DEPLOYMENT_ENV !== 'production' &&
+        env.DEPLOYMENT_ENV !== 'staging') ||
+      env.DISABLE_CACHE
+    ) {
       return fallback()
     }
 
@@ -75,7 +79,6 @@ export class InMemoryCache implements ICache {
     key: string,
     fallback: () => Promise<T>,
   ): Promise<void> {
-    console.log('inside revalidateInBackground', key)
     const existingPromise = this.inFlight.get(key)
     if (
       existingPromise &&
@@ -88,7 +91,6 @@ export class InMemoryCache implements ICache {
       this.inFlight.delete(key)
     })
     this.inFlight.set(key, { promise, timestamp: UnixTime.now() })
-    console.log('inside revalidateInBackground', key)
 
     try {
       const result = await promise
@@ -96,11 +98,9 @@ export class InMemoryCache implements ICache {
         result,
         timestamp: UnixTime.now(),
       })
-    } catch (error) {
+    } catch {
       // If revalidation fails, we keep the stale data
-      console.error('Background revalidation failed:', error)
     }
-    console.log('inside revalidateInBackground', key)
   }
 
   _get(key: string) {

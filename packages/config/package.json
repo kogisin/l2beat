@@ -6,7 +6,8 @@
   "types": "build/index.d.ts",
   "scripts": {
     "build": "tsc -p tsconfig.build.json && rm -f build/db.sqlite && node build/build.js",
-    "build:dependencies": "cd ../.. && pnpm build:dependencies",
+    "build:dependencies": "cd ../.. && pnpm build:dependencies:config",
+    "watch:dependencies": "cd ../.. && pnpm watch:dependencies:config",
     "clean": "rm -rf build",
     "format:fix": "biome format --write .",
     "format": "biome format .",
@@ -21,6 +22,7 @@
     "fill-ts": "node -r esbuild-register scripts/fillts",
     "tokens": "node -r esbuild-register scripts/tokens/tokens.ts",
     "tokens:verify": "sh scripts/tokens/verify.sh",
+    "tokens:generate-names": "node -r esbuild-register scripts/tokens/generateTokenNames.ts",
     "coingecko:platforms": "node -r esbuild-register scripts/getCoingeckoPlatforms.ts",
     "stargatev2-pools": "node -r esbuild-register scripts/stargatev2-pools",
     "diff": "./scripts/diff/diff.sh",

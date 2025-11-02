@@ -1,5 +1,9 @@
+import type { Milestone } from '@l2beat/config'
 import { useMemo, useState } from 'react'
+import type { ChartProject } from '~/components/core/chart/Chart'
+import { HorizontalSeparator } from '~/components/core/HorizontalSeparator'
 import { DataPostedTimeRangeControls } from '~/pages/scaling/data-posted/DataPostedTimeRangeControls'
+import { rangeToResolution } from '~/server/features/scaling/costs/utils/range'
 import type { DataPostedTimeRange } from '~/server/features/scaling/data-posted/range'
 import { api } from '~/trpc/React'
 import { ChartControlsWrapper } from '../../core/chart/ChartControlsWrapper'
@@ -9,24 +13,32 @@ import { DataPostedChart } from './DataPostedChart'
 import { ProjectDataPostedChartStats } from './ProjectDataPostedChartStats'
 
 interface Props {
-  projectId: string
+  project: ChartProject
   defaultRange: DataPostedTimeRange
+  milestones: Milestone[]
 }
 
-export function ProjectDataPostedChart({ projectId, defaultRange }: Props) {
+export function ProjectDataPostedChart({
+  project,
+  defaultRange,
+  milestones,
+}: Props) {
   const [timeRange, setTimeRange] = useState<DataPostedTimeRange>(defaultRange)
 
   const { data, isLoading } = api.da.scalingProjectChart.useQuery({
     range: timeRange,
-    projectId,
+    projectId: project.id,
   })
 
   const chartData = useMemo(
     () =>
-      data?.chart.map(([timestamp, posted]) => {
+      data?.chart.map(([timestamp, ethereum, celestia, avail, eigenda]) => {
         return {
           timestamp,
-          posted,
+          ethereum,
+          celestia,
+          avail,
+          eigenda,
         }
       }),
     [data],
@@ -45,12 +57,16 @@ export function ProjectDataPostedChart({ projectId, defaultRange }: Props) {
         />
       </ChartControlsWrapper>
       <DataPostedChart
+        milestones={milestones}
+        resolution={rangeToResolution({ type: timeRange })}
         data={chartData}
         syncedUntil={data?.syncedUntil}
         isLoading={isLoading}
-        className="mt-4 mb-2"
+        className="mt-4"
         tickCount={4}
+        project={project}
       />
+      <HorizontalSeparator className="my-4" />
       <ProjectDataPostedChartStats
         data={data?.stats}
         isLoading={isLoading}

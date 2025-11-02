@@ -56,6 +56,7 @@ export class StarknetClient extends ClientCore implements BlockClient {
         type: t.type,
         data: t.calldata,
       })),
+      logsBloom: 'UNSUPPORTED',
     }
   }
 
@@ -69,13 +70,13 @@ export class StarknetClient extends ClientCore implements BlockClient {
     ]
 
     const response = await this.query('starknet_call', params)
-    const calllResponse = StarknetCallResponse.safeParse(response)
+    const callResponse = StarknetCallResponse.safeParse(response)
 
-    if (!calllResponse.success) {
+    if (!callResponse.success) {
       throw new Error('Call: Error during parsing')
     }
 
-    return calllResponse.data.result
+    return callResponse.data.result
   }
 
   async query(method: string, params: unknown) {

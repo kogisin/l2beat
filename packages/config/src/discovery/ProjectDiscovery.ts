@@ -35,6 +35,7 @@ import type {
 } from '../types'
 import { RoleDescriptions } from './descriptions'
 import { get$Admins, get$Implementations, toAddressArray } from './extractors'
+import { pastUpgradesSchema } from './models'
 import type { PermissionRegistry } from './PermissionRegistry'
 import { PermissionsFromDiscovery } from './PermissionsFromDiscovery'
 import {
@@ -48,7 +49,7 @@ const paths = getDiscoveryPaths()
 
 export class ProjectDiscovery {
   private readonly discoveries: DiscoveryOutput[]
-  private readonly projectAndDependentDiscoveries: DiscoveryOutput[]
+  private readonly reachableEntries: EntryParameters[]
   private eoaIDMap: Record<string, string> = {}
   private permissionRegistry: PermissionRegistry
 
@@ -56,53 +57,39 @@ export class ProjectDiscovery {
     public readonly projectName: string,
     public readonly configReader = new ConfigReader(paths.discovery),
   ) {
-    const chains = configReader.readAllDiscoveredChainsForProject(projectName)
-    const projectDiscoveries = chains.map((chain) =>
-      configReader.readDiscovery(projectName, chain),
-    )
-
-    this.discoveries = [...projectDiscoveries]
-    const alreadyAdded = new Set<string>(
-      projectDiscoveries.map((d) => `${d.chain}:${d.name}`),
-    )
-    for (const discovery of this.discoveries) {
-      for (const sharedModule of discovery.sharedModules ?? []) {
-        const key = `${discovery.chain}:${sharedModule}`
-        if (alreadyAdded.has(key)) continue
-
-        try {
-          this.discoveries.push(
-            configReader.readDiscovery(sharedModule, discovery.chain),
-          )
-        } catch {}
-        alreadyAdded.add(key)
-      }
+    // TODO: Legacy behavior - we blindly create new ProjectDiscovery instances in tests
+    try {
+      this.discoveries = configReader.readDiscoveryWithReferences(projectName)
+    } catch {
+      this.discoveries = []
     }
 
-    this.projectAndDependentDiscoveries = [...this.discoveries]
-    for (const discovery of projectDiscoveries) {
-      this.projectAndDependentDiscoveries.push(
-        ...Object.entries(discovery.dependentDiscoveries ?? {}).flatMap(
-          ([dependentProjectName, chains]) => {
-            if (dependentProjectName === projectName) return []
-            return Object.keys(chains).map((chain) =>
-              configReader.readDiscovery(dependentProjectName, chain),
-            )
-          },
-        ),
-      )
-    }
+    // always the base discovery
+    // TODO: Uncomment me once cross-chain permissions are implemented
+    // const entrypoints = [...(this.discoveries.at(0)?.entries ?? [])].map(
+    //   (e) => e.address,
+    // )
+
+    // Removing Reference entries because otherwise we get duplicates
+    // and incomplete data.
+    // TODO: refactor this whole logic around depenent projects and
+    // references to entrypoints to make it cleaner
+    this.discoveries.forEach((d) => removeReferences(d))
+
+    // TODO: Uncomment me once cross-chain permissions are implemented
+    // this.reachableEntries = getReachableEntries(
+    //   this.discoveries.flatMap((discovery) => discovery.entries),
+    //   entrypoints,
+    // )
+    this.reachableEntries = this.discoveries.flatMap(
+      (discovery) => discovery.entries,
+    )
+
     this.permissionRegistry = new PermissionsFromDiscovery(this)
   }
 
-  get timestampPerChain(): Record<string, number> {
-    const grouped = groupBy(this.discoveries, (d) => d.chain)
-    return Object.fromEntries(
-      Object.entries(grouped).map(([chain, discovery]) => [
-        chain,
-        Math.max(...discovery.map((d) => d.timestamp)),
-      ]),
-    )
+  get maxTimestamp(): number {
+    return Math.max(...this.discoveries.map((d) => d.timestamp))
   }
 
   getName(address: ChainSpecificAddress): string {
@@ -150,6 +137,7 @@ export class ProjectDiscovery {
         title: x.text,
         url: x.href,
       })),
+      pastUpgrades: getPastUpgrades(contract),
       ...descriptionOrOptions,
     }
   }
@@ -288,6 +276,7 @@ export class ProjectDiscovery {
     ]
 
     return {
+      id: contract.name ?? contract.address,
       name: contract.name ?? contract.address,
       description: combinedDescriptions.join('\n'),
       accounts: this.formatPermissionedAccounts([contract.address]),
@@ -332,6 +321,10 @@ export class ProjectDiscovery {
     )
 
     return contract
+  }
+
+  isReachable(address: ChainSpecificAddress): boolean {
+    return this.reachableEntries.some((e) => e.address === address)
   }
 
   hasContract(identifier: string): boolean {
@@ -428,10 +421,9 @@ export class ProjectDiscovery {
         'Values must be Ethereum addresses',
       )
       const address = ChainSpecificAddress(account)
-      const isEOA = this.isEOA(address)
-      const type = isEOA ? 'EOA' : 'Contract'
       const entry = this.getEntryByAddress(address)
       assert(isNonNullable(entry), `Could not find ${address} in discovery`)
+      const type = entry.type
       const isVerified = isEntryVerified(entry)
 
       const raw = ChainSpecificAddress.address(address)
@@ -489,6 +481,7 @@ export class ProjectDiscovery {
     }
 
     return {
+      id: name,
       name,
       accounts,
       description,
@@ -526,6 +519,7 @@ export class ProjectDiscovery {
     description: string,
   ): ProjectPermission {
     return {
+      id: contract.name ?? contract.address,
       name: contract.name ?? contract.address,
       accounts: this.formatPermissionedAccounts([contract.address]),
       chain: ChainSpecificAddress.longChain(contract.address),
@@ -542,6 +536,7 @@ export class ProjectDiscovery {
     description: string,
   ): ProjectPermission {
     return {
+      id: eoa.name ?? eoa.address,
       name: eoa.name ?? eoa.address,
       accounts: this.formatPermissionedAccounts([eoa.address]),
       chain: ChainSpecificAddress.longChain(eoa.address),
@@ -621,14 +616,14 @@ export class ProjectDiscovery {
   getContractByAddress(
     address: ChainSpecificAddress,
   ): EntryParameters | undefined {
-    const contracts = this.getContracts({ includeDependentDiscoveries: true })
+    const contracts = this.getContracts()
     return contracts.find((contract) => contract.address === address)
   }
 
   getEOAByAddress(
     address: string | ChainSpecificAddress,
   ): EntryParameters | undefined {
-    const eoas = this.projectAndDependentDiscoveries
+    const eoas = this.discoveries
       .flatMap((discovery) => discovery.entries)
       .filter((e) => e.type === 'EOA')
     return eoas.find(
@@ -640,20 +635,20 @@ export class ProjectDiscovery {
   getEntryByAddress(
     address: ChainSpecificAddress,
   ): EntryParameters | undefined {
-    return this.projectAndDependentDiscoveries
+    return this.discoveries
       .flatMap((discovery) => discovery.entries)
       .find((entry) => entry.address === address)
   }
 
   private getContractByName(name: string): EntryParameters[] {
-    const contracts = this.projectAndDependentDiscoveries.flatMap((discovery) =>
+    const contracts = this.discoveries.flatMap((discovery) =>
       discovery.entries.filter((e) => e.type === 'Contract'),
     )
     return contracts.filter((contract) => contract.name === name)
   }
 
   private getEOAByName(name: string): EntryParameters[] {
-    const eoas = this.projectAndDependentDiscoveries
+    const eoas = this.discoveries
       .flatMap((discovery) => discovery.entries)
       .filter((e) => e.type === 'EOA')
 
@@ -664,14 +659,16 @@ export class ProjectDiscovery {
     return this.discoveries.flatMap((discovery) => discovery.entries)
   }
 
-  getPrefixedContracts(options?: { includeDependentDiscoveries?: boolean }): {
+  getReachableEntries(): EntryParameters[] {
+    return this.reachableEntries
+  }
+
+  getPrefixedContracts(): {
     [chainSpecificAddress: string]: EntryParameters
   } {
     const result: { [chainSpecificAddress: string]: EntryParameters } = {}
-    const discoveries = options?.includeDependentDiscoveries
-      ? this.projectAndDependentDiscoveries
-      : this.discoveries
-    discoveries.forEach((discovery) => {
+
+    this.discoveries.forEach((discovery) => {
       discovery.entries.forEach((e) => {
         if (e.type === 'Contract') {
           const chainSpecificAddress = e.address
@@ -687,26 +684,24 @@ export class ProjectDiscovery {
     return result
   }
 
-  getContracts(options?: {
-    includeDependentDiscoveries?: boolean
-  }): EntryParameters[] {
-    const discoveries = options?.includeDependentDiscoveries
-      ? this.projectAndDependentDiscoveries
-      : this.discoveries
-    return discoveries
+  getContracts(): EntryParameters[] {
+    return this.discoveries
       .flatMap((discovery) => discovery.entries)
       .filter((e) => e.type === 'Contract')
   }
 
-  getEoas(options?: {
-    includeDependentDiscoveries?: boolean
-  }): EntryParameters[] {
-    const discoveries = options?.includeDependentDiscoveries
-      ? this.projectAndDependentDiscoveries
-      : this.discoveries
-    return discoveries
+  getReachableContracts(): EntryParameters[] {
+    return this.reachableEntries.filter((e) => e.type === 'Contract')
+  }
+
+  getEoas(): EntryParameters[] {
+    return this.discoveries
       .flatMap((discovery) => discovery.entries)
       .filter((e) => e.type === 'EOA')
+  }
+
+  getReachableEoas(): EntryParameters[] {
+    return this.reachableEntries.filter((e) => e.type === 'EOA')
   }
 
   getContractsAndEoas(): EntryParameters[] {
@@ -824,8 +819,10 @@ export class ProjectDiscovery {
         const accounts = allAccounts.filter(
           (a) => ChainSpecificAddress.longChain(a.address) === uniqueChain,
         )
+        const r = RoleDescriptions[role]
         result.push({
-          ...RoleDescriptions[role],
+          id: r.name,
+          ...r,
           description: finalDescription.join('\n'),
           accounts,
           chain: uniqueChain,
@@ -892,6 +889,80 @@ export class ProjectDiscovery {
     return priority
   }
 
+  getEoaActors() {
+    const permissionedEoas = this.permissionRegistry
+      .getPermissionedEoas()
+      .map((address) => this.getEOAByAddress(address))
+      .filter(notUndefined)
+      .filter((e) => (e.category?.priority ?? 0) >= 0)
+      .sort((a, b) => {
+        return this.getPermissionPriority(b) - this.getPermissionPriority(a)
+      })
+
+    if (permissionedEoas.length === 0) {
+      return {
+        raw: [],
+        linkable: [],
+        grouped: [],
+      }
+    }
+
+    const eoaPermissions = permissionedEoas.map((eoa) => {
+      const description = this.describeContractOrEoa(eoa, false)
+      const name = eoa.name ?? this.getEOAName(eoa.address)
+      return {
+        id: name,
+        name: name,
+        accounts: this.formatPermissionedAccounts([eoa.address]),
+        chain: ChainSpecificAddress.longChain(eoa.address),
+        description,
+      }
+    })
+
+    const groupedByDescription = groupBy(
+      eoaPermissions,
+      (eoa) => eoa.description,
+    )
+
+    const createGroupId = (eoas: ProjectPermission[]) =>
+      concatName(eoas.map((eoa) => eoa.name)).replaceAll(' ', '-')
+
+    const linkableEoas: ProjectPermission[] = eoaPermissions.map((eoa) => {
+      const group = groupedByDescription[eoa.description]
+
+      if (!group) {
+        return eoa
+      }
+
+      return {
+        ...eoa,
+        id: createGroupId(group),
+      }
+    })
+
+    const groupedActors: ProjectPermission[] = []
+
+    for (const [description, eoas] of Object.entries(groupedByDescription)) {
+      const byChain = groupBy(eoas, (eoa) => eoa.chain)
+
+      for (const [chain, chainEoas] of Object.entries(byChain)) {
+        groupedActors.push({
+          id: createGroupId(chainEoas),
+          name: concatName(chainEoas.map((eoa) => eoa.name)),
+          accounts: chainEoas.flatMap((eoa) => eoa.accounts),
+          chain: chain,
+          description: description,
+        })
+      }
+    }
+
+    return {
+      raw: permissionedEoas,
+      linkable: linkableEoas,
+      grouped: groupedActors,
+    }
+  }
+
   getDiscoveredPermissions(
     chainsToIgnore: string[] = [],
   ): Record<string, ProjectPermissions> {
@@ -903,20 +974,13 @@ export class ProjectDiscovery {
       .sort((a, b) => {
         return this.getPermissionPriority(b) - this.getPermissionPriority(a)
       })
-    const permissionedEoas = this.permissionRegistry
-      .getPermissionedEoas()
-      .map((address) => this.getEOAByAddress(address))
-      .filter(notUndefined)
-      .filter((e) => (e.category?.priority ?? 0) >= 0)
-      .sort((a, b) => {
-        return this.getPermissionPriority(b) - this.getPermissionPriority(a)
-      })
+    const permissionedEoas = this.getEoaActors()
 
-    const allActors: ProjectPermission[] = []
+    const contractActors: ProjectPermission[] = []
     for (const contract of permissionedContracts) {
       const descriptions = this.describeContractOrEoa(contract, false)
       if (isMultisigLike(contract)) {
-        allActors.push(
+        contractActors.push(
           this.getMultisigPermission(
             contract.address.toString(),
             descriptions,
@@ -924,78 +988,34 @@ export class ProjectDiscovery {
           ),
         )
       } else {
-        allActors.push(this.contractAsPermissioned(contract, descriptions))
+        contractActors.push(this.contractAsPermissioned(contract, descriptions))
       }
     }
 
-    for (const eoa of permissionedEoas) {
-      const description = this.describeContractOrEoa(eoa, false)
-      allActors.push({
-        name: eoa.name ?? this.getEOAName(eoa.address),
-        accounts: this.formatPermissionedAccounts([eoa.address]),
-        chain: ChainSpecificAddress.longChain(eoa.address),
-        description,
-      })
-    }
+    const allActors = [...contractActors, ...permissionedEoas.grouped]
 
     // NOTE(radomski): Checking for assumptions made about discovery driven actors
-    assert(allActors.every((actor) => actor.accounts.length === 1))
     assert(allUnique(allActors.map((actor) => actor.accounts[0].address)))
+    assert(
+      [...contractActors, ...permissionedEoas.linkable].every(
+        (actor) => actor.accounts.length === 1,
+      ),
+    )
     // assert(allUnique(allActors.map((actor) => actor.accounts[0].name))) // TODO(radomski): Between chains
 
     const roles = this.describeRolePermissions([
       ...permissionedContracts,
-      ...permissionedEoas,
+      ...permissionedEoas.raw,
     ])
 
-    // NOTE(radomski): There are two groups of "permissions" we show. Roles and
-    // actors.
-    //
-    // Roles are grouping of actors that have the ability to do _something_.
-    // Actors are entities which have some power in the system.
-    //
-    // To minimize the amount of redundant information we choose to show an
-    // actor only if:
-    //
-    // - it's a contract
-    // - it's an EOA with permissions to interact with parts of the system
-    // - it's an EOA that's shared between projects[1]
-    //
-    // We can remove EOAs that have only role permissions since their
-    // involvement in the system has already been taken into account when
-    // listing accounts with a given role.
-    //
-    // [1] that's currently not possible to achieve. With the config refactor
-    // moving forward when we reach a point where the config will be able to
-    // introspect itself (reach into the configs of other projects) this point
-    // will be true. As for now we don't know if such a occurrence has taken
-    // place.
-    const actors = allActors.filter((actor) => {
-      const account = actor.accounts[0]
-      const isEOA = account.type === 'EOA'
-      if (!isEOA) {
-        return true
-      }
-
-      const eoa = permissionedEoas.find(
-        (eoa) => eoa.address === account.address,
-      )
-      assert(eoa?.receivedPermissions !== undefined)
-      const hasOnlyRole = eoa.receivedPermissions.every((p) =>
-        RolePermissionEntries.map((x) => x.toString()).includes(p.permission),
-      )
-
-      return !hasOnlyRole
-    })
-
-    actors.forEach((permission) => {
+    allActors.forEach((permission) => {
       permission.description = this.replaceAddressesWithNames(
         permission.description,
       )
       if (permission.participants !== undefined) {
         permission.participants = this.linkupActorsIntoAccounts(
           permission.participants,
-          actors,
+          [...contractActors, ...permissionedEoas.linkable],
         )
       }
     })
@@ -1004,10 +1024,10 @@ export class ProjectDiscovery {
       permission.description = this.replaceAddressesWithNames(
         permission.description,
       )
-      permission.accounts = this.linkupActorsIntoAccounts(
-        permission.accounts,
-        actors,
-      )
+      permission.accounts = this.linkupActorsIntoAccounts(permission.accounts, [
+        ...contractActors,
+        ...permissionedEoas.linkable,
+      ])
     })
 
     const rolesGrouped = groupBy(
@@ -1015,7 +1035,10 @@ export class ProjectDiscovery {
       (p) => p.chain,
     )
     const actorsGrouped = groupBy(
-      actors.map((p) => ({ ...p, discoveryDrivenData: true })),
+      allActors.map((p) => ({
+        ...p,
+        discoveryDrivenData: true,
+      })),
       (p) => p.chain,
     )
 
@@ -1044,10 +1067,10 @@ export class ProjectDiscovery {
     actors: ProjectPermission[],
   ): ProjectPermissionedAccount[] {
     const result: ProjectPermissionedAccount[] = []
-    const actorNameLUT: Record<string, string> = {}
+    const actorLUT: Record<string, ProjectPermission> = {}
     for (const actor of actors) {
-      assert(actor.accounts.length === 1)
-      actorNameLUT[actor.accounts[0].address] = actor.name
+      assert(actor.accounts.length === 1, 'Actor must have exactly one account')
+      actorLUT[actor.accounts[0].address] = actor
     }
 
     for (const account of accountsToLink) {
@@ -1058,10 +1081,11 @@ export class ProjectDiscovery {
         entry.name = discoveryName
       }
 
-      const actorName = actorNameLUT[account.address]
-      if (actorName !== undefined) {
-        entry.name = actorName
-        entry.url = `#${actorName}`
+      const actor = actorLUT[account.address]
+
+      if (actor !== undefined) {
+        entry.name = actor.name
+        entry.url = `#${actor.id}`
       }
 
       result.push(entry)
@@ -1069,13 +1093,29 @@ export class ProjectDiscovery {
     return result
   }
 
+  linkupUpgradableBy(
+    upgradableBy: ProjectUpgradeableActor[],
+    eoaActors: ProjectPermission[],
+  ): ProjectUpgradeableActor[] {
+    return upgradableBy.map((upgradableBy) => {
+      const eoaActor = eoaActors.find((e) => e.name === upgradableBy.name)
+      if (eoaActor) {
+        return {
+          id: eoaActor.id,
+          ...upgradableBy,
+        }
+      }
+      return upgradableBy
+    })
+  }
+
   getDiscoveredContracts(
     chainsToIgnore: string[] = [],
   ): Record<string, ProjectContract[]> {
-    const contracts = this.discoveries
-      .flatMap((discovery) =>
-        discovery.entries.filter((e) => e.type === 'Contract'),
-      )
+    const eoaActors = this.getEoaActors()
+
+    const contracts = this.reachableEntries
+      .filter((entry) => entry.type === 'Contract')
       .filter((contract) => contract.category?.priority !== -1)
       .sort((a, b) => {
         return (b.category?.priority ?? 0) - (a.category?.priority ?? 0)
@@ -1086,10 +1126,16 @@ export class ProjectDiscovery {
       .filter((contract) => !isMultisigLike(contract))
       .map((contract) => {
         const upgradableBy = this.permissionRegistry.getUpgradableBy(contract)
+        const linkedUpgradableBy = this.linkupUpgradableBy(
+          upgradableBy,
+          eoaActors.linkable,
+        )
 
         return this.getContractDetails(contract.address.toString(), {
           description: this.describeContractOrEoa(contract, true),
-          ...(upgradableBy.length > 0 ? { upgradableBy } : {}),
+          ...(linkedUpgradableBy.length > 0
+            ? { upgradableBy: linkedUpgradableBy }
+            : {}),
           discoveryDrivenData: true,
         })
       })
@@ -1127,6 +1173,23 @@ function getUpgradeability(
   return upgradeability
 }
 
+function getPastUpgrades(
+  contract: EntryParameters,
+): ProjectContract['pastUpgrades'] | undefined {
+  const pastUpgrades = pastUpgradesSchema.safeValidate(
+    contract.values?.$pastUpgrades,
+  )
+  if (!pastUpgrades.success) return
+
+  return pastUpgrades.data.map(([date, txHash, implementations]) => {
+    return {
+      timestamp: UnixTime.fromDate(new Date(date)),
+      transactionHash: txHash,
+      implementations: implementations.map((y) => ChainSpecificAddress(y)),
+    }
+  })
+}
+
 function isNonNullable<T>(
   value: T | undefined | null,
 ): value is NonNullable<T> {
@@ -1141,6 +1204,22 @@ function isEntryVerified(entry: EntryParameters): boolean {
   return true
 }
 
+function removeReferences(discovery: DiscoveryOutput) {
+  discovery.entries = discovery.entries.filter((e) => e.type !== 'Reference')
+}
+
 function allUnique(arr: string[]): boolean {
   return new Set(arr).size === arr.length
+}
+
+function concatName(names: string[]): string {
+  if (names.length === 1) {
+    return names[0]
+  }
+
+  if (names.length === 2) {
+    return names.join(' and ')
+  }
+
+  return names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1]
 }

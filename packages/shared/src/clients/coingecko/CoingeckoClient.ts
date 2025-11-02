@@ -1,10 +1,12 @@
-import type { CoingeckoId, json, UnixTime } from '@l2beat/shared-pure'
+import { type CoingeckoId, type json, UnixTime } from '@l2beat/shared-pure'
 import {
   ClientCore,
   type ClientCoreDependencies,
 } from '../../clients/ClientCore'
 import {
+  CoinData,
   CoingeckoError,
+  CoinHistoricalData,
   type CoinListEntry,
   type CoinListPlatformEntry,
   CoinListPlatformResult,
@@ -36,12 +38,14 @@ export class CoingeckoClient extends ClientCore {
     from: UnixTime,
     to: UnixTime,
   ): Promise<CoinMarketChartRangeData> {
+    const adjustedTo = to > UnixTime.now() ? UnixTime.now() : to
+
     const data = await this.query(
       `/coins/${coinId.toString()}/market_chart/range`,
       {
         vs_currency: vs_currency.toLowerCase(),
         from: from.toString(),
-        to: to.toString(),
+        to: adjustedTo.toString(),
       },
     )
 
@@ -74,6 +78,28 @@ export class CoingeckoClient extends ClientCore {
     return CoinListPlatformResult.parse(data)
   }
 
+  async getCoinDataById(id: CoingeckoId): Promise<CoinData> {
+    const data = await this.query(`/coins/${id.toString()}`, {
+      localization: 'false',
+      tickers: 'false',
+      community_data: 'false',
+      developer_data: 'false',
+      sparkline: 'false',
+    })
+    return CoinData.parse(data)
+  }
+
+  async getCoinHistoricalDataById(
+    id: CoingeckoId,
+    timestamp: UnixTime,
+  ): Promise<CoinHistoricalData> {
+    const data = await this.query(`/coins/${id.toString()}/history`, {
+      date: UnixTime.toYYYYMMDD(timestamp),
+      localization: 'false',
+    })
+    return CoinHistoricalData.parse(data)
+  }
+
   async getImageUrl(id: CoingeckoId): Promise<string> {
     const data = await this.query(`/coins/${id.toString()}`, {
       localization: 'false',
@@ -88,7 +114,7 @@ export class CoingeckoClient extends ClientCore {
     return parsed.image.large
   }
 
-  /** Fetches latest prices, uses */
+  /** Fetches market data for specified coins using CoinGecko /coins/markets endpoint */
   async getCoinsMarket(
     coinIds: CoingeckoId[],
     vs_currency: string,

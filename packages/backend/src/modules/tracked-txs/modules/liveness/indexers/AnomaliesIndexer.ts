@@ -105,16 +105,29 @@ export class AnomaliesIndexer extends ManagedChildIndexer {
         continue
       }
 
+      // NOTE(maciekzygmunt): we need to take record for range and latest before for each configuration
+      // to calculate interval for first record in time range
       const records =
-        await this.$.db.liveness.getByConfigurationIdWithinTimeRange(
+        await this.$.db.liveness.getRecordsInRangeWithLatestBefore(
           activeConfigs.map((c) => c.id),
           deviationRange,
           to,
         )
 
-      const livenessRecords = records.map((r) =>
-        mapToRecordWithConfig(r, activeConfigs),
-      )
+      // NOTE(maciekzygmunt): normally this steps should be done in the database, but because liveness table is huge, sorting and distinction
+      // takes a lot of memory, so for this case it is better to do it here
+      records.sort((a, b) => b.timestamp - a.timestamp)
+      const livenessRecords: LivenessRecordWithConfig[] = []
+      const present = new Set<string>()
+
+      for (const r of records) {
+        const key = r.timestamp + '-' + r.configurationId
+
+        if (!present.has(key)) {
+          present.add(key)
+          livenessRecords.push(mapToRecordWithConfig(r, activeConfigs))
+        }
+      }
 
       if (livenessRecords.length === 0) {
         this.logger.debug('No records found for project', {
@@ -178,11 +191,11 @@ export class AnomaliesIndexer extends ManagedChildIndexer {
       return { anomalies: [], stats: undefined }
     }
 
-    // if the oldest record is newer than 2 * SYNC_RANGE -1 we can't calculate anomalies
+    // if the oldest record is newer than 2 * SYNC_RANGE we can't calculate anomalies
     const lastRecord = livenessRecords.at(-1)
     if (
       lastRecord?.timestamp &&
-      lastRecord.timestamp > to - 1 * (2 * this.SYNC_RANGE - 1) * UnixTime.DAY
+      lastRecord.timestamp > to - 2 * this.SYNC_RANGE * UnixTime.DAY
     )
       return { anomalies: [], stats: undefined }
 

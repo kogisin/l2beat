@@ -32,7 +32,6 @@ export const shibarium: ScalingProject = {
   display: {
     name: 'Shibarium',
     slug: 'shibarium',
-    category: 'Other',
     redWarning:
       'Critical contracts can be upgraded by an EOA which could result in the loss of all funds.',
     description:
@@ -55,6 +54,7 @@ export const shibarium: ScalingProject = {
       ],
     },
   },
+  proofSystem: undefined,
   stage: {
     stage: 'NotApplicable',
   },
@@ -88,7 +88,7 @@ export const shibarium: ScalingProject = {
       {
         type: 'rpc',
         url: 'https://www.shibrpc.com',
-        callsPerMinute: 1500,
+        callsPerMinute: 300,
       },
     ],
   },
@@ -145,4 +145,14 @@ export const shibarium: ScalingProject = {
   },
   permissions: discovery.getDiscoveredPermissions(),
   discoveryInfo: getDiscoveryInfo([discovery]),
+  milestones: [
+    {
+      title: 'Shibarium bridge exploited',
+      description:
+        'Keys of 10/12 Shibarium validators compromised - malicious chain root state used to steal funds.',
+      date: '2025-09-12T00:00:00.00Z',
+      url: 'https://x.com/Shibtoken/status/1966845298774278444',
+      type: 'incident',
+    },
+  ],
 }

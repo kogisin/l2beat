@@ -26,10 +26,11 @@ export const wonder: ScalingProject = zkStackL2({
       "Wonder provides access to DeFi through ZKsync's Ethereum-level security, with scalability and cost-efficiency.",
     links: {
       websites: ['https://wonderchain.org'],
-      bridges: ['https://wonderchain.org/bridge/'],
+      bridges: ['https://portal.wonderchain.org/bridge'],
       documentation: ['https://docs.wonderchain.org'],
       explorers: ['https://explorer.mainnet.wonderchain.org'],
       socialMedia: ['https://x.com/WonderFiLabs'],
+      repositories: ['https://github.com/wonderfi-labs'],
     },
   },
   ecosystemInfo: {
@@ -44,7 +45,7 @@ export const wonder: ScalingProject = zkStackL2({
       {
         type: 'rpc',
         url: 'https://rpc.mainnet.wonderchain.org',
-        callsPerMinute: 1500,
+        callsPerMinute: 300,
       },
     ],
   },
@@ -95,7 +96,7 @@ export const wonder: ScalingProject = zkStackL2({
       uses: [{ type: 'l2costs', subtype: 'batchSubmissions' }],
       query: {
         formula: 'sharedBridge',
-        chainId,
+        firstParameter: chainId,
         address: EthereumAddress('0x8c0bfc04ada21fd496c55b8c50331f904306f564'),
         selector: '0x98f81962',
         functionSignature:
@@ -110,7 +111,7 @@ export const wonder: ScalingProject = zkStackL2({
       ],
       query: {
         formula: 'sharedBridge',
-        chainId,
+        firstParameter: chainId,
         address: EthereumAddress('0x8c0bfc04ada21fd496c55b8c50331f904306f564'),
         selector: '0xe12a6137',
         functionSignature:
@@ -125,7 +126,7 @@ export const wonder: ScalingProject = zkStackL2({
       ],
       query: {
         formula: 'sharedBridge',
-        chainId,
+        firstParameter: chainId,
         address: EthereumAddress('0x8c0bfc04ada21fd496c55b8c50331f904306f564'),
         selector: '0xcf02827d',
         functionSignature:

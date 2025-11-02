@@ -1,6 +1,9 @@
 import { Logger } from '@l2beat/backend-tools'
-import type { Database, LivenessRecord } from '@l2beat/database'
-import type { AggregatedLivenessRecord } from '@l2beat/database/dist/other/aggregated-liveness/entity'
+import type {
+  AggregatedLivenessRecord,
+  Database,
+  LivenessRecord,
+} from '@l2beat/database'
 import { createTrackedTxId, type TrackedTxConfigEntry } from '@l2beat/shared'
 import {
   ProjectId,
@@ -246,7 +249,7 @@ describe(LivenessAggregatingIndexer.name, () => {
   })
 
   describe(LivenessAggregatingIndexer.prototype.invalidate.name, () => {
-    it('should return new safeHeigh and not delete data', async () => {
+    it('should return new safeHeight and not delete data', async () => {
       const livenessRepositoryMock = mockObject<Database['liveness']>({
         deleteAll: mockFn().resolvesTo(1),
       })
@@ -317,7 +320,7 @@ describe(LivenessAggregatingIndexer.name, () => {
       ])
     })
 
-    it('split time range to hours and get liveness data for each our', async () => {
+    it('split time range to hours and get liveness data for each hour', async () => {
       const mockLivenessRepository = mockObject<Database['liveness']>({
         getRecordsInRangeWithLatestBefore: mockFn().resolvesTo(MOCK_LIVENESS),
       })

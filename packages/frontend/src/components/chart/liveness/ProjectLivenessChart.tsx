@@ -1,36 +1,43 @@
 import type { Milestone } from '@l2beat/config'
 import type { TrackedTxsConfigSubtype } from '@l2beat/shared-pure'
 import { useMemo, useState } from 'react'
+import type { ChartProject } from '~/components/core/chart/Chart'
 import { ProjectChartTimeRange } from '~/components/core/chart/ChartTimeRange'
 import { getChartRange } from '~/components/core/chart/utils/getChartRangeFromColumns'
 import { LivenessChartSubtypeControls } from '~/pages/scaling/liveness/components/LivenessChartSubtypeControls'
 import { LivenessChartTimeRangeControls } from '~/pages/scaling/liveness/components/LivenessChartTimeRangeControls'
 import type { LivenessAnomaly } from '~/server/features/scaling/liveness/types'
-import type { LivenessChartTimeRange } from '~/server/features/scaling/liveness/utils/chartRange'
+import {
+  type LivenessChartTimeRange,
+  rangeToResolution,
+} from '~/server/features/scaling/liveness/utils/chartRange'
 import { api } from '~/trpc/React'
+import { cn } from '~/utils/cn'
 import { ChartControlsWrapper } from '../../core/chart/ChartControlsWrapper'
 import { getDefaultSubtype } from './getDefaultSubtype'
 import { LivenessChart } from './LivenessChart'
 import { LivenessChartStats } from './LivenessChartStats'
 
 interface Props {
-  projectId: string
+  project: ChartProject
   configuredSubtypes: TrackedTxsConfigSubtype[]
   anomalies: LivenessAnomaly[]
   hasTrackedContractsChanged: boolean
   milestones: Milestone[]
   defaultRange: LivenessChartTimeRange
   isArchived: boolean
+  hideSubtypeSwitch?: boolean
 }
 
 export function ProjectLivenessChart({
-  projectId,
+  project,
   configuredSubtypes,
   anomalies,
   hasTrackedContractsChanged,
   milestones,
   isArchived,
   defaultRange,
+  hideSubtypeSwitch,
 }: Props) {
   const [timeRange, setTimeRange] =
     useState<LivenessChartTimeRange>(defaultRange)
@@ -40,7 +47,7 @@ export function ProjectLivenessChart({
 
   const { data: chart, isLoading } = api.liveness.projectChart.useQuery({
     range: timeRange,
-    projectId,
+    projectId: project.id,
     subtype,
   })
 
@@ -51,7 +58,7 @@ export function ProjectLivenessChart({
     return chart?.data?.map(([timestamp, min, avg, max]) => {
       return {
         timestamp,
-        range: min === null && max === null ? null : ([min, max] as const),
+        range: min === null || max === null ? null : ([min, max] as const),
         avg,
       }
     })
@@ -72,14 +79,21 @@ export function ProjectLivenessChart({
 
   return (
     <div className="flex flex-col">
-      <div className="flex flex-col gap-1">
+      <div
+        className={cn(
+          'flex flex-col gap-1',
+          hideSubtypeSwitch && 'flex-row justify-between',
+        )}
+      >
         <ProjectChartTimeRange range={chartRange} />
         <ChartControlsWrapper className="flex-wrap-reverse">
-          <LivenessChartSubtypeControls
-            subtype={subtype}
-            setSubtype={setSubtype}
-            configuredSubtypes={configuredSubtypes}
-          />
+          {!hideSubtypeSwitch && (
+            <LivenessChartSubtypeControls
+              subtype={subtype}
+              setSubtype={setSubtype}
+              configuredSubtypes={configuredSubtypes}
+            />
+          )}
           <LivenessChartTimeRangeControls
             timeRange={timeRange}
             setTimeRange={setTimeRange}
@@ -89,12 +103,14 @@ export function ProjectLivenessChart({
       <LivenessChart
         data={chartData}
         isLoading={isLoading}
+        project={project}
         subtype={subtype}
         milestones={milestones}
         lastValidTimestamp={lastValidTimestamp}
         anyAnomalyLive={anyAnomalyLive}
+        resolution={rangeToResolution(timeRange)}
         tickCount={4}
-        className="mt-4 mb-2"
+        className="mt-4 mb-3"
       />
       <LivenessChartStats
         timeRange={timeRange}

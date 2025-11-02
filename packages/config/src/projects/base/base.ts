@@ -22,26 +22,24 @@ export const base: ScalingProject = opStackL2({
     name: 'Base Chain',
     slug: 'base',
     stateValidationImage: 'opfp',
-    category: 'Optimistic Rollup',
     stacks: ['OP Stack'],
     description:
       'Base is an Optimistic Rollup built with the OP Stack. It offers a low-cost and builder-friendly way for anyone, anywhere, to build onchain.',
     links: {
       websites: ['https://base.org/'],
-      bridges: ['https://bridge.base.org/'],
-      documentation: ['https://docs.base.org/', 'https://stack.optimism.io/'],
+      bridges: ['https://superbridge.app/base'],
+      documentation: ['https://docs.base.org/', 'https://docs.optimism.io/'],
       explorers: [
         'https://basescan.org/',
-        'https://base.superscan.network',
+        'https://basedscan.io/',
         'https://base.blockscout.com/',
-        'https://base.l2scan.co/',
       ],
       repositories: ['https://github.com/base-org'],
       socialMedia: [
         'https://twitter.com/BuildOnBase',
-        'https://discord.gg/buildonbase',
+        'https://discord.com/invite/buildonbase',
         'https://base.mirror.xyz/',
-        'https://warpcast.com/base',
+        'https://farcaster.xyz/base',
       ],
       rollupCodes: 'https://rollup.codes/base',
     },
@@ -142,6 +140,7 @@ export const base: ScalingProject = opStackL2({
       },
     },
   ],
+
   isNodeAvailable: true,
   chainConfig: {
     name: 'base',
@@ -164,7 +163,7 @@ export const base: ScalingProject = opStackL2({
       {
         type: 'rpc',
         url: 'https://developer-access-mainnet.base.org',
-        callsPerMinute: 1500,
+        callsPerMinute: 300,
       },
       { type: 'etherscan', chainId },
       { type: 'blockscoutV2', url: 'https://base.blockscout.com/api/v2' },
@@ -197,7 +196,17 @@ export const base: ScalingProject = opStackL2({
       rollupNodeLink: 'https://github.com/base-org/node',
     },
   ),
+  ecosystemInfo: {
+    id: ProjectId('superchain'),
+    isPartOfSuperchain: true,
+  },
   milestones: [
+    {
+      title: 'Base halts block production for 33mins',
+      url: 'https://status.base.org/incidents/kdq3t8s13gfs',
+      date: '2025-08-05T00:00:00Z',
+      type: 'incident',
+    },
     {
       title: 'Base achieves Stage 1',
       url: 'https://base.mirror.xyz/tWDMlGp48fF0MeADcLQruUBq1Qxkou4O5x3ax8Rm3jA',

@@ -1,5 +1,5 @@
 import type { Project } from '@l2beat/config'
-import { env } from '~/env'
+import { getChartProject } from '~/components/core/chart/utils/getChartProject'
 import { getThroughputSyncWarning } from '~/server/features/data-availability/throughput/isThroughputSynced'
 import { THROUGHPUT_ENABLED_DA_LAYERS } from '~/server/features/data-availability/throughput/utils/consts'
 import { ps } from '~/server/projects'
@@ -17,8 +17,8 @@ export async function getDaThroughputSection(
   )
     return undefined
 
-  const [throughputChart, projectsWithColors] = await Promise.all([
-    helpers.da.projectChart.fetch({
+  const [charts, projectsWithColors] = await Promise.all([
+    helpers.da.projectCharts.fetch({
       range: { type: '1y' },
       projectId: project.id,
       includeScalingOnly: true,
@@ -26,24 +26,22 @@ export async function getDaThroughputSection(
     ps.getProjects({ select: ['colors'] }),
   ])
 
-  if (!throughputChart || throughputChart.chart.length === 0) return undefined
+  if (!charts || charts.totalChart.data.length === 0) return undefined
 
-  const syncWarning = getThroughputSyncWarning(throughputChart.syncedUntil, {
+  const syncWarning = getThroughputSyncWarning(charts.syncedUntil, {
     shorter: true,
   })
 
   return {
-    projectId: project.id,
+    project: getChartProject(project),
     throughput: project.daLayer.throughput ?? [],
     syncStatus: {
       warning: syncWarning,
       isSynced: !syncWarning,
     },
-    customColors: env.CLIENT_SIDE_PARTNERS
-      ? Object.fromEntries(
-          projectsWithColors.map((p) => [p.name, p.colors.primary]),
-        )
-      : undefined,
+    customColors: Object.fromEntries(
+      projectsWithColors.map((p) => [p.name, p.colors.primary.light]),
+    ),
     milestones: project.milestones ?? [],
   }
 }
